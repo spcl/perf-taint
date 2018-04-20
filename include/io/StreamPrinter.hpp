@@ -27,7 +27,9 @@ struct StreamPrinter
     static void print(StreamType && stream, const results::LoopInformation & loop)
     {
         stream << "Loop: " << loop.name << '\n';
-        stream << "Counter variable: " << loop.counterVariable->getName() << "\n";
+        stream << "Counter variable: " << loop.counterVariable->getName() << " = ";
+        printValue(stream, loop.counterInit);
+        stream << '\n';
         stream << "Counter update: \n";
         int i = 0;
         for(Instruction * instr : loop.counterUpdate)

@@ -24,6 +24,8 @@ class LoopAnalyzer
     Loop & loop;
     Value * findLoadedValue(Value *) const;
     bool compareValues(Value * first, Value * second) const;
+
+    Value * inspectValue(Value * val, Value * loopVar) const;
 public:
     LoopAnalyzer(Loop & _loop):
         loop(_loop)

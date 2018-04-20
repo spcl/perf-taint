@@ -28,6 +28,7 @@ namespace results {
 
         // Counter
         Value * counterVariable;
+        Value * counterInit;
     };
 
 }

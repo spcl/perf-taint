@@ -19,15 +19,15 @@ results::LoopInformation LoopAnalyzer::analyze()
     loopInfo.name = loop.getName();
     //errs() << loop.getInductionVariable();
     //find initial value
-    loop.getLoopPreheader()->print(dbgs(), false);
-    loop.getHeader()->print(dbgs(), false);
-    loop.getLoopLatch()->print(dbgs(), false);
+    //loop.getLoopPreheader()->print(dbgs(), false);
+    //loop.getHeader()->print(dbgs(), false);
+    //loop.getLoopLatch()->print(dbgs(), false);
     //Find the iteration variable for our loop.
     auto counter_var = findInductionVariable(loop.getHeader());
     loopInfo.counterVariable = counter_var;
     //FIXME: what if there is not single preheader?
     //Look at uses of counter var
-    findInductionInitValue(loop.getLoopPreheader(), counter_var);
+    loopInfo.counterInit = findInductionInitValue(loop.getLoopPreheader(), counter_var);
     //Find the iteration variable for our loop.
     loopInfo.counterGuard = findCondition(loop.getHeader(), counter_var);
     //Find the initial value for our iteration variable.
@@ -82,29 +82,34 @@ std::pair<CmpInst::Predicate, Value *> LoopAnalyzer::findCondition(BasicBlock * 
             // compare against. We need to identify whether the compared value
             // is a constant, a global variable, a parameter or undefined.
             for(int i = 0; i < instr.getNumOperands(); ++i) {
-
-                // If it's a constant it must be the other side of inequality
-                if(Constant * cons = dyn_cast<Constant>(instr.getOperand(i))) {
-                    if(ConstantInt * cons_int = dyn_cast<ConstantInt>(cons)) {
-                        comparison_value = cons_int;
-                    } else {
-                        assert(false && "Non-integer constants not supported!");
-                    }
-                }
-                // If it's a load operation, the source might be the value
-                // used in comparison or our counter.
-                else if(Value * val = findLoadedValue(instr.getOperand(i))) {
-                    DEBUG(dbgs() << "Loaded value: " << compareValues(val, loopVar) << '\n');
-                    if(compareValues(val, loopVar)) {
-                        comparison_value = val;
-                    }
-                }
+                comparison_value = inspectValue(instr.getOperand(i), loopVar);
             }
         }
     }
     assert(compare_instr && "Condition not found!");
-    assert(compare_instr && "Condition variable not found!");
+    assert(comparison_value && "Condition variable not found!");
     return std::make_pair(compare_instr->getPredicate(), comparison_value);
+}
+
+Value * LoopAnalyzer::inspectValue(Value * val, Value * loopVar) const
+{
+    // If it's a constant it must be the other side of inequality
+    if(Constant * cons = dyn_cast<Constant>(val)) {
+        if(ConstantInt * cons_int = dyn_cast<ConstantInt>(cons)) {
+            return cons_int;
+        } else {
+            assert(false && "Non-integer constants not supported!");
+        }
+    }
+    // If it's a load operation, the source might be the value
+    // used in comparison or our counter.
+    else if(Value * loadedVal = findLoadedValue(val)) {
+        //DEBUG(dbgs() << "Loaded value: " << compareValues(loadedVal, loopVar) << '\n');
+        if(!loopVar || !compareValues(loadedVal, loopVar)) {
+            return val;
+        }
+    }
+    return nullptr;
 }
 
 // Find a source of used operand. It might be a constant, it might undefined.
@@ -157,7 +162,6 @@ std::vector<Instruction*> LoopAnalyzer::findUpdate(BasicBlock * latch, Value * l
 
 bool LoopAnalyzer::compareValues(Value * first, Value * second) const
 {
-    DEBUG(dbgs() << first << " " << second << '\n');
     if(AllocaInst * first_inst = dyn_cast<AllocaInst>(first)) {
         if(AllocaInst * second_inst = dyn_cast<AllocaInst>(second)) {
             return first_inst->getName() == second_inst->getName();
@@ -172,11 +176,11 @@ Value * LoopAnalyzer::findInductionInitValue(BasicBlock * block, Value * loopVar
     for(Instruction & instr : *block)
     {
         if(StoreInst * store = dyn_cast<StoreInst>(&instr)) {
-
-            DEBUG(dbgs() << *store->getOperand(0) << '\n');
-            /*if(compareValues(val, loopVar)) {
-                comparison_value = val;
-            }*/
+            // Is it a store to loop counter?
+            if(compareValues(store->getOperand(1), loopVar)) {
+                return inspectValue(store->getOperand(0), nullptr);
+            }
         }
     }
+    assert(false && "Initial value for");
 }
