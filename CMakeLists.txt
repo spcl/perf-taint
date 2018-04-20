@@ -6,7 +6,7 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 include_directories(include)
 
-add_library(LLVMLoopExtractor MODULE lib/LoopExtractor.cpp tests/0_simple_loop.cpp)
+add_library(LLVMLoopExtractor MODULE lib/LoopExtractor.cpp lib/LoopAnalyzer.cpp)
 
 set_property(TARGET LLVMLoopExtractor PROPERTY CXX_STANDARD 14)
 set_target_properties(LLVMLoopExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti"

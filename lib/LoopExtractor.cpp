@@ -2,10 +2,13 @@
 
 #include "LoopExtractor.hpp"
 
+#include "LoopAnalyzer.hpp"
+
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include "llvm/Transforms/Scalar/IndVarSimplify.h"
 #include "llvm/Support/Debug.h"
 
 using namespace llvm;
@@ -15,6 +18,7 @@ namespace {
     void LoopExtractor::getAnalysisUsage(AnalysisUsage & AU) const {
         // Pass does not modify the input information
         AU.setPreservesAll();
+        //FIXME: do we need to call LoopSimplify or IndVarSimplify?
         // We require loop information
         AU.addRequired<LoopInfoWrapperPass>();
     }
@@ -22,9 +26,12 @@ namespace {
     bool LoopExtractor::runOnFunction(Function & f) {
         DEBUG(dbgs() << "Analyze function: " << f.getName() << '\n');
         if (!f.isDeclaration()) {
-            LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-            for (Loop *l : LI) {
-                DEBUG(dbgs() << "Analyze loop " << l->getName() << '\n');
+            LoopInfo & LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+            for (Loop * l : LI) {
+                DEBUG(dbgs() << "Analyze loop " << l->getName() << ' ' << l->isLoopSimplifyForm() << '\n');
+                LoopAnalyzer analyzer(*l);
+                analyzer.analyze();
+                break;
             }
         }
         return false;
