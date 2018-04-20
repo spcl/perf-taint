@@ -9,6 +9,8 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/Instructions.h"
 
+#include <memory>
+
 #define DEBUG_TYPE "LoopExtractor"
 
 results::LoopInformation LoopAnalyzer::analyze()
@@ -16,7 +18,6 @@ results::LoopInformation LoopAnalyzer::analyze()
     results::LoopInformation loopInfo;
     loopInfo.name = loop.getName();
     //errs() << loop.getInductionVariable();
-    //FIXME: what if there is not single preheader?
     //find initial value
     loop.getLoopPreheader()->print(dbgs(), false);
     loop.getHeader()->print(dbgs(), false);
@@ -24,8 +25,11 @@ results::LoopInformation LoopAnalyzer::analyze()
     //Find the iteration variable for our loop.
     auto counter_var = findInductionVariable(loop.getHeader());
     loopInfo.counterVariable = counter_var;
+    //FIXME: what if there is not single preheader?
+    //Look at uses of counter var
+    findInductionInitValue(loop.getLoopPreheader(), counter_var);
     //Find the iteration variable for our loop.
-    findCondition(loop.getHeader(), counter_var);
+    loopInfo.counterGuard = findCondition(loop.getHeader(), counter_var);
     //Find the initial value for our iteration variable.
     //FIXME: what if there is not single preheader?
     //assert(loop.getLoopPreheader() && "Preheader does not exist!");
@@ -44,7 +48,7 @@ results::LoopInformation LoopAnalyzer::analyze()
 // If there's one, it should load our iteration variable.
 // Works now only with a single condition
 // TODO: what about multiple conditions?
-Value* LoopAnalyzer::findInductionVariable(BasicBlock * header) const
+Value * LoopAnalyzer::findInductionVariable(BasicBlock * header) const
 {
     Value * iter_variable = nullptr;
     for(Instruction & instr : *header)
@@ -60,11 +64,13 @@ Value* LoopAnalyzer::findInductionVariable(BasicBlock * header) const
 }
 
 // Decompose condition
-CmpInst* LoopAnalyzer:: findCondition(BasicBlock * header, Value * loopVar) const
+std::pair<CmpInst::Predicate, Value *> LoopAnalyzer::findCondition(BasicBlock * header, Value * loopVar) const
 {
     CmpInst * compare_instr = nullptr;
+    Value * comparison_value = nullptr;
     for(Instruction & instr : *header)
     {
+        //FIXME: can it be non-integer compare?
         if (instr.getOpcode() == Instruction::ICmp) {
             assert(!compare_instr &&
                    "Multiple compare instructions, not supported!");
@@ -73,26 +79,32 @@ CmpInst* LoopAnalyzer:: findCondition(BasicBlock * header, Value * loopVar) cons
             //DEBUG(dbgs() << CmpInst::getPredicateName(CI->getPredicate()) << '\n');
 
             // Operands should include: loaded counter and the value to
-            // compare against
+            // compare against. We need to identify whether the compared value
+            // is a constant, a global variable, a parameter or undefined.
             for(int i = 0; i < instr.getNumOperands(); ++i) {
 
                 // If it's a constant it must be the other side of inequality
                 if(Constant * cons = dyn_cast<Constant>(instr.getOperand(i))) {
                     if(ConstantInt * cons_int = dyn_cast<ConstantInt>(cons)) {
-                        DEBUG(dbgs() << "Constant: " << cons_int->getValue() << '\n');
+                        comparison_value = cons_int;
                     } else {
                         assert(false && "Non-integer constants not supported!");
                     }
                 }
-                    // If it's a load operation, the source might be the value
-                    // used in comparison or our counter.
+                // If it's a load operation, the source might be the value
+                // used in comparison or our counter.
                 else if(Value * val = findLoadedValue(instr.getOperand(i))) {
                     DEBUG(dbgs() << "Loaded value: " << compareValues(val, loopVar) << '\n');
+                    if(compareValues(val, loopVar)) {
+                        comparison_value = val;
+                    }
                 }
             }
         }
     }
     assert(compare_instr && "Condition not found!");
+    assert(compare_instr && "Condition variable not found!");
+    return std::make_pair(compare_instr->getPredicate(), comparison_value);
 }
 
 // Find a source of used operand. It might be a constant, it might undefined.
@@ -152,4 +164,19 @@ bool LoopAnalyzer::compareValues(Value * first, Value * second) const
         }
     }
     assert(false);
+}
+
+Value * LoopAnalyzer::findInductionInitValue(BasicBlock * block, Value * loopVar) const
+{
+    assert(block);
+    for(Instruction & instr : *block)
+    {
+        if(StoreInst * store = dyn_cast<StoreInst>(&instr)) {
+
+            DEBUG(dbgs() << *store->getOperand(0) << '\n');
+            /*if(compareValues(val, loopVar)) {
+                comparison_value = val;
+            }*/
+        }
+    }
 }

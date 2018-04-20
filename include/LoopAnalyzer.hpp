@@ -7,14 +7,14 @@
 
 #include "results/LoopInformation.hpp"
 
+#include "llvm/IR/Instructions.h"
+
 #include <vector>
 
 namespace llvm {
     class Loop;
     class BasicBlock;
     class Value;
-    class CmpInst;
-    class Instruction;
 }
 
 using namespace llvm;
@@ -31,7 +31,8 @@ public:
 
     results::LoopInformation analyze();
     Value * findInductionVariable(BasicBlock * block) const;
-    CmpInst * findCondition(BasicBlock * block, Value*) const;
+    Value * findInductionInitValue(BasicBlock * block, Value*) const;
+    std::pair<CmpInst::Predicate, Value *> findCondition(BasicBlock * block, Value*) const;
     std::vector<Instruction*> findUpdate(BasicBlock * latch,
                                          Value * loopCounter) const;
 };

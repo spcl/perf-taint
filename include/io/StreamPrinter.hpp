@@ -8,9 +8,21 @@
 #include "results/LoopInformation.hpp"
 
 #include "llvm/IR/Value.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Instructions.h"
 
 struct StreamPrinter
 {
+    template<typename StreamType>
+    static void printValue(StreamType && stream, Value * val)
+    {
+        if(ConstantInt * cons_int = dyn_cast<ConstantInt>(val)) {
+            stream << cons_int->getValue();
+        } else if(AllocaInst * allocInst = dyn_cast<AllocaInst>(val)) {
+            stream << allocInst->getName();
+        }
+    }
+
     template<typename StreamType>
     static void print(StreamType && stream, const results::LoopInformation & loop)
     {
@@ -22,6 +34,9 @@ struct StreamPrinter
         {
             stream << i++ << ' ' << *instr << '\n';
         }
+        stream << "Counter guard: " << CmpInst::getPredicateName(loop.counterGuard.first) << ' ';
+        printValue(stream, loop.counterGuard.second);
+        stream << '\n';
     }
 };
 
