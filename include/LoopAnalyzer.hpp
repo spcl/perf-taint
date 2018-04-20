@@ -7,7 +7,7 @@
 
 #include "results/LoopInformation.hpp"
 
-#include <tuple>
+#include <vector>
 
 namespace llvm {
     class Loop;
@@ -22,6 +22,7 @@ using namespace llvm;
 class LoopAnalyzer
 {
     Loop & loop;
+    Value * findLoadedValue(Value *) const;
     bool compareValues(Value * first, Value * second) const;
 public:
     LoopAnalyzer(Loop & _loop):
@@ -30,8 +31,9 @@ public:
 
     results::LoopInformation analyze();
     Value * findInductionVariable(BasicBlock * block) const;
-    Value * findLoadedValue(Value *) const;
     CmpInst * findCondition(BasicBlock * block, Value*) const;
+    std::vector<Instruction*> findUpdate(BasicBlock * latch,
+                                         Value * loopCounter) const;
 };
 
 #endif //LOOP_EXTRACTOR_CPP_LOOPANALYZER_HPP

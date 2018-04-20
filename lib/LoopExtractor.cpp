@@ -3,6 +3,7 @@
 #include "LoopExtractor.hpp"
 
 #include "LoopAnalyzer.hpp"
+#include "io/StreamPrinter.hpp"
 
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/IR/Function.h"
@@ -30,7 +31,7 @@ namespace {
             for (Loop * l : LI) {
                 DEBUG(dbgs() << "Analyze loop " << l->getName() << ' ' << l->isLoopSimplifyForm() << '\n');
                 LoopAnalyzer analyzer(*l);
-                analyzer.analyze();
+                StreamPrinter::print(dbgs(), analyzer.analyze());
                 break;
             }
         }
