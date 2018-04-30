@@ -24,21 +24,30 @@ struct StreamPrinter
     }
 
     template<typename StreamType>
-    static void print(StreamType && stream, const results::LoopInformation & loop)
+    static void print(StreamType && stream,
+                      const results::LoopInformation & loop, int indentLen = 0)
     {
-        stream << "Loop: " << loop.name << '\n';
-        stream << "Counter variable: " << loop.counterVariable->getName() << " = ";
+        std::string indent(indentLen, ' ');
+        stream << indent << "--------------------\n";
+        stream << indent << "Loop: " << loop.name << '\n';
+        stream << indent << "Counter variable: " << loop.counterVariable->getName() << " = ";
         printValue(stream, loop.counterInit);
         stream << '\n';
-        stream << "Counter update: \n";
+        stream << indent << "Counter update: \n";
         int i = 0;
         for(Instruction * instr : loop.counterUpdate)
         {
-            stream << i++ << ' ' << *instr << '\n';
+            stream << indent << i++ << ' ' << *instr << '\n';
         }
-        stream << "Counter guard: " << CmpInst::getPredicateName(loop.counterGuard.first) << ' ';
+        stream << indent << "Counter guard: " << CmpInst::getPredicateName(loop.counterGuard.first) << ' ';
         printValue(stream, loop.counterGuard.second);
         stream << '\n';
+        stream << indent << "Nested loops: " << loop.nestedLoops.size() << '\n';
+        for(results::LoopInformation nested : loop.nestedLoops)
+        {
+            print(stream, nested, 4 + indentLen);
+        }
+        stream << "--------------------\n";
     }
 };
 

@@ -19,9 +19,9 @@ results::LoopInformation LoopAnalyzer::analyze()
     loopInfo.name = loop.getName();
     //errs() << loop.getInductionVariable();
     //find initial value
-    //loop.getLoopPreheader()->print(dbgs(), false);
-    //loop.getHeader()->print(dbgs(), false);
-    //loop.getLoopLatch()->print(dbgs(), false);
+    loop.getLoopPreheader()->print(dbgs(), false);
+    loop.getHeader()->print(dbgs(), false);
+    loop.getLoopLatch()->print(dbgs(), false);
     //Find the iteration variable for our loop.
     auto counter_var = findInductionVariable(loop.getHeader());
     loopInfo.counterVariable = counter_var;
@@ -40,6 +40,12 @@ results::LoopInformation LoopAnalyzer::analyze()
     {
         //DEBUG(dbgs() << "basicb name: "<< BB->getName() <<"\n");
         //BB->print(dbgs(), false);
+    }
+
+    for(auto * nested_loop : loop.getSubLoops())
+    {
+        LoopAnalyzer analyzer(*nested_loop);
+        loopInfo.nestedLoops.push_back( analyzer.analyze() );
     }
     return loopInfo;
 }

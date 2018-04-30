@@ -6,6 +6,12 @@
 
 using namespace llvm;
 
+
+namespace llvm {
+    class Loop;
+    class ScalarEvolution;
+}
+
 namespace {
 
     struct LoopExtractor : public FunctionPass {
@@ -15,6 +21,8 @@ namespace {
         virtual void getAnalysisUsage(AnalysisUsage & AU) const;
 
         bool runOnFunction(Function & f) override;
+
+        bool analyzeNestedLoop(Loop * l, ScalarEvolution & SE, int offset = 0);
     };
 
 }
