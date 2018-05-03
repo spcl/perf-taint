@@ -75,7 +75,8 @@ std::string SCEVToString::toString(const SCEVAddRecExpr * expr)
     for(int i = 1; i < expr->getNumOperands(); ++i) {
         str += " + ";
         str += toString(expr->getOperand(i));
-        str += " * x0" + (i > 1 ? "^" + std::to_string(i) : "");
+        std::string variable = counters.getCounterName(expr->getLoop());
+        str += " *" + variable + (i > 1 ? "^" + std::to_string(i) : "");
     }
     return str;
 }
@@ -86,6 +87,7 @@ std::string SCEVToString::toString(const SCEVAddMulExpr * expr)
     // here select var name
     //expr->getLoop();
     str = toString(expr->getOperand(0)) + " + ";
-    str += toString(expr->getOperand(2)) + "*x0";
+    std::string variable = counters.getCounterName(expr->getLoop());
+    str += toString(expr->getOperand(2)) + "*" + variable;
     return str;
 }

@@ -5,6 +5,7 @@
 #include "LoopAnalyzer.hpp"
 #include "io/StreamPrinter.hpp"
 #include "io/SCEVToString.hpp"
+#include "LoopCounters.hpp"
 
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/IR/Function.h"
@@ -77,7 +78,6 @@ namespace {
         const ICmpInst * integer_comparison = dyn_cast<ICmpInst>(condition);
         assert(condition && "Unknown comparison type!");
 
-        dbgs() << *condition << " " << *condition->getOperand(0) << " " << Value::ArgumentVal << '\n';
         std::string val = toString(condition->getOperand(0), SE, stringFormatter);
         switch(integer_comparison->getPredicate())
         {
@@ -174,7 +174,8 @@ namespace {
             dbgs() << "Unknown type of SCEV! " << *induction_variable << "\n";
             return false;
         }
-        SCEVToString stringFormatter(SE);
+        counters.addLoop(l, induction_variable);
+        SCEVToString stringFormatter(SE, counters);
         auto range = l->getLocRange();
         dbgs().indent(offset);
         dbgs() << "Loop: " << l->getName();
@@ -211,6 +212,7 @@ namespace {
             ScalarEvolution & SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
             SE.print(dbgs());
             for (Loop * l : LI) {
+                counters.clear();
                 analyzeNestedLoop(l, SE);
                 //l = l->getSubLoops()[0];
                 //DEBUG(dbgs() << *l->getLoopPreheader() << '\n');

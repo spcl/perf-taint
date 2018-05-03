@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include "LoopCounters.hpp"
+
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
@@ -15,6 +17,7 @@ using namespace llvm;
 class SCEVToString
 {
     ScalarEvolution & SE;
+    LoopCounters & counters;
 
     std::string toString(const SCEVConstant * val);
     std::string toString(const SCEVTruncateExpr * val);
@@ -24,8 +27,9 @@ class SCEVToString
     std::string toString(const SCEVAddMulExpr * expr);
 
 public:
-    SCEVToString(ScalarEvolution & _SE):
-        SE(_SE)
+    SCEVToString(ScalarEvolution & _SE, LoopCounters & _counters):
+        SE(_SE),
+        counters(_counters)
     {}
 
     std::string toString(const SCEV * val);
