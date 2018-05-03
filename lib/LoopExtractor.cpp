@@ -4,6 +4,7 @@
 
 #include "LoopAnalyzer.hpp"
 #include "io/StreamPrinter.hpp"
+#include "io/SCEVToString.hpp"
 
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/IR/Function.h"
@@ -13,8 +14,6 @@
 #include "llvm/Transforms/Utils/LoopSimplify.h"
 #include "llvm/Support/Debug.h"
 
-#include <string>
-#include <sstream>
 
 using namespace llvm;
 
@@ -33,63 +32,6 @@ namespace {
         std::string s;
     };
 
-    std::string SCEVtoStringImpl(const SCEVConstant * val);
-    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr);
-    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr);
-
-    std::string SCEVtoStringImpl(const SCEV * val)
-    {
-        switch(val->getSCEVType())
-        {
-            case scAddRecExpr:
-                return SCEVtoStringImpl(dyn_cast<SCEVAddRecExpr>(val));
-            case scAddMulExpr:
-                return SCEVtoStringImpl(dyn_cast<SCEVAddMulExpr>(val));
-            case scConstant:
-                return SCEVtoStringImpl(dyn_cast<SCEVConstant>(val));
-            default:
-                assert(!"Unknown SCEV type!");
-        }
-    }
-
-    std::string SCEVtoStringImpl(const SCEVConstant * val)
-    {
-        uint64_t x = *dyn_cast<SCEVConstant>(val)->getAPInt().getRawData();
-        return std::to_string(x);
-    }
-
-    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr)
-    {
-        std::string str;
-        // here select var name
-        //expr->getLoop();
-        str = SCEVtoStringImpl(expr->getOperand(0));
-        for(int i = 1; i < expr->getNumOperands(); ++i) {
-            str += " + ";
-            str += SCEVtoStringImpl(expr->getOperand(i));
-            str += " * x0" + (i > 1 ? "^" + std::to_string(i) : "");
-        }
-        return str;
-    }
-
-    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr)
-    {
-        std::string str;
-        // here select var name
-        //expr->getLoop();
-        str = SCEVtoStringImpl(expr->getOperand(0)) + " + ";
-        str += SCEVtoStringImpl(expr->getOperand(2)) + "*x0";
-        return str;
-    }
-
-    std::string SCEVtoString(const SCEV * val)
-    {
-        std::string str = SCEVtoStringImpl(val);
-        std::string power = "x0";
-
-        return str;
-    }
-
     const SCEV * getInitialValue(const SCEV * val, ScalarEvolution & SE)
     {
         switch(val->getSCEVType())
@@ -104,7 +46,7 @@ namespace {
         }
     }
 
-    std::string toString(Value * value, ScalarEvolution & SE)
+    std::string toString(Value * value, ScalarEvolution & SE, SCEVToString & stringFormatter)
     {
         assert(value);
         if(const Constant * val = dyn_cast<Constant>(value)) {
@@ -117,7 +59,7 @@ namespace {
                 return "unknown_function(" + std::to_string(arg->getArgNo()) + ")";
             }
         } else if(const SCEV * scev = SE.getSCEV(value)) {
-            return SCEVtoString(scev);
+            return stringFormatter.toString(scev);
         }
         else {
             if(value->hasName()) {
@@ -130,13 +72,13 @@ namespace {
         }
     }
 
-    std::string conditionToStr(const Instruction * condition, const SCEV * IV, ScalarEvolution & SE)
+    std::string conditionToStr(const Instruction * condition, const SCEV * IV, ScalarEvolution & SE, SCEVToString & stringFormatter)
     {
         const ICmpInst * integer_comparison = dyn_cast<ICmpInst>(condition);
         assert(condition && "Unknown comparison type!");
 
         dbgs() << *condition << " " << *condition->getOperand(0) << " " << Value::ArgumentVal << '\n';
-        std::string val = toString(condition->getOperand(0), SE);
+        std::string val = toString(condition->getOperand(0), SE, stringFormatter);
         switch(integer_comparison->getPredicate())
         {
             case CmpInst::ICMP_EQ:
@@ -162,7 +104,7 @@ namespace {
                 val += " <= ";
                 break;
         }
-        val += toString(condition->getOperand(1), SE);
+        val += toString(condition->getOperand(1), SE, stringFormatter);
         return val;
     }
 
@@ -232,27 +174,28 @@ namespace {
             dbgs() << "Unknown type of SCEV! " << *induction_variable << "\n";
             return false;
         }
+        SCEVToString stringFormatter(SE);
         auto range = l->getLocRange();
-            dbgs().indent(offset);
-            dbgs() << "Loop: " << l->getName();
-            if(range.getStart() && range.getEnd()) {
-                dbgs() << " Loop location: from ";
-                range.getStart().print(dbgs());
-                dbgs() << " to: ";
-                range.getEnd().print(dbgs());
-                dbgs() << '\n';
-            } else {
-                dbgs() << " Loop location unknown" << '\n';
-            }
-            dbgs().indent(offset);
-            dbgs() << "Variable: " << *induction_variable << "\n";
+        dbgs().indent(offset);
+        dbgs() << "Loop: " << l->getName();
+        if(range.getStart() && range.getEnd()) {
+            dbgs() << " Loop location: from ";
+            range.getStart().print(dbgs());
+            dbgs() << " to: ";
+            range.getEnd().print(dbgs());
+            dbgs() << '\n';
+        } else {
+            dbgs() << " Loop location unknown" << '\n';
+        }
+        dbgs().indent(offset);
+        dbgs() << "Variable: " << *induction_variable << "\n";
 //                        dbgs() << "Initial value: " << induction_variable->getStart() << "\n";
-            dbgs().indent(offset);
-            dbgs() << "Initial value: " << *getInitialValue(induction_variable, SE) << '\n';
-            dbgs().indent(offset);
-            dbgs() << "Update: " << SCEVtoString(induction_variable) << '\n';
-            dbgs().indent(offset);
-            dbgs() << "Condition: " << conditionToStr(condition, induction_variable, SE) << '\n';
+        dbgs().indent(offset);
+        dbgs() << "Initial value: " << *getInitialValue(induction_variable, SE) << '\n';
+        dbgs().indent(offset);
+        dbgs() << "Update: " << stringFormatter.toString(induction_variable) << '\n';
+        dbgs().indent(offset);
+        dbgs() << "Condition: " << conditionToStr(condition, induction_variable, SE, stringFormatter) << '\n';
 
         for(Loop * nested : l->getSubLoops()) {
             dbgs() << '\n';
