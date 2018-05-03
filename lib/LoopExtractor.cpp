@@ -33,58 +33,58 @@ namespace {
         std::string s;
     };
 
-    std::string SCEVtoStringImpl(const SCEVConstant * val, ScalarEvolution & SE);
-    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr, ScalarEvolution & SE);
-    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr, ScalarEvolution & SE);
+    std::string SCEVtoStringImpl(const SCEVConstant * val);
+    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr);
+    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr);
 
-    std::string SCEVtoStringImpl(const SCEV * val, ScalarEvolution & SE)
+    std::string SCEVtoStringImpl(const SCEV * val)
     {
         switch(val->getSCEVType())
         {
             case scAddRecExpr:
-                return SCEVtoStringImpl(dyn_cast<SCEVAddRecExpr>(val), SE);
+                return SCEVtoStringImpl(dyn_cast<SCEVAddRecExpr>(val));
             case scAddMulExpr:
-                return SCEVtoStringImpl(dyn_cast<SCEVAddMulExpr>(val), SE);
+                return SCEVtoStringImpl(dyn_cast<SCEVAddMulExpr>(val));
             case scConstant:
-                return SCEVtoStringImpl(dyn_cast<SCEVConstant>(val), SE);
+                return SCEVtoStringImpl(dyn_cast<SCEVConstant>(val));
             default:
                 assert(!"Unknown SCEV type!");
         }
     }
 
-    std::string SCEVtoStringImpl(const SCEVConstant * val, ScalarEvolution & SE)
+    std::string SCEVtoStringImpl(const SCEVConstant * val)
     {
         uint64_t x = *dyn_cast<SCEVConstant>(val)->getAPInt().getRawData();
         return std::to_string(x);
     }
 
-    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr, ScalarEvolution & SE)
+    std::string SCEVtoStringImpl(const SCEVAddRecExpr * expr)
     {
         std::string str;
         // here select var name
         //expr->getLoop();
-        str = SCEVtoStringImpl(expr->getOperand(0), SE);
+        str = SCEVtoStringImpl(expr->getOperand(0));
         for(int i = 1; i < expr->getNumOperands(); ++i) {
             str += " + ";
-            str += SCEVtoStringImpl(expr->getOperand(i), SE);
+            str += SCEVtoStringImpl(expr->getOperand(i));
             str += " * x0" + (i > 1 ? "^" + std::to_string(i) : "");
         }
         return str;
     }
 
-    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr, ScalarEvolution & SE)
+    std::string SCEVtoStringImpl(const SCEVAddMulExpr * expr)
     {
         std::string str;
         // here select var name
         //expr->getLoop();
-        str = SCEVtoStringImpl(expr->getOperand(0), SE) + " + ";
-        str += SCEVtoStringImpl(expr->getOperand(2), SE) + "*x0";
+        str = SCEVtoStringImpl(expr->getOperand(0)) + " + ";
+        str += SCEVtoStringImpl(expr->getOperand(2)) + "*x0";
         return str;
     }
 
-    std::string SCEVtoString(const SCEV * val, ScalarEvolution & SE)
+    std::string SCEVtoString(const SCEV * val)
     {
-        std::string str = SCEVtoStringImpl(val, SE);
+        std::string str = SCEVtoStringImpl(val);
         std::string power = "x0";
 
         return str;
@@ -104,7 +104,7 @@ namespace {
         }
     }
 
-    std::string toString(const Value * value)
+    std::string toString(Value * value, ScalarEvolution & SE)
     {
         assert(value);
         if(const Constant * val = dyn_cast<Constant>(value)) {
@@ -116,7 +116,10 @@ namespace {
             } else {
                 return "unknown_function(" + std::to_string(arg->getArgNo()) + ")";
             }
-        } else {
+        } else if(const SCEV * scev = SE.getSCEV(value)) {
+            return SCEVtoString(scev);
+        }
+        else {
             if(value->hasName()) {
                 return value->getName();
             } else {
@@ -127,13 +130,13 @@ namespace {
         }
     }
 
-    std::string conditionToStr(const Instruction * condition, const SCEV * IV)
+    std::string conditionToStr(const Instruction * condition, const SCEV * IV, ScalarEvolution & SE)
     {
         const ICmpInst * integer_comparison = dyn_cast<ICmpInst>(condition);
         assert(condition && "Unknown comparison type!");
 
         dbgs() << *condition << " " << *condition->getOperand(0) << " " << Value::ArgumentVal << '\n';
-        std::string val = toString(condition->getOperand(0));
+        std::string val = toString(condition->getOperand(0), SE);
         switch(integer_comparison->getPredicate())
         {
             case CmpInst::ICMP_EQ:
@@ -159,7 +162,7 @@ namespace {
                 val += " <= ";
                 break;
         }
-        val += toString(condition->getOperand(1));
+        val += toString(condition->getOperand(1), SE);
         return val;
     }
 
@@ -247,9 +250,9 @@ namespace {
             dbgs().indent(offset);
             dbgs() << "Initial value: " << *getInitialValue(induction_variable, SE) << '\n';
             dbgs().indent(offset);
-            dbgs() << "Update: " << SCEVtoString(induction_variable, SE) << '\n';
+            dbgs() << "Update: " << SCEVtoString(induction_variable) << '\n';
             dbgs().indent(offset);
-            dbgs() << "Condition: " << conditionToStr(condition, induction_variable) << '\n';
+            dbgs() << "Condition: " << conditionToStr(condition, induction_variable, SE) << '\n';
 
         for(Loop * nested : l->getSubLoops()) {
             dbgs() << '\n';
