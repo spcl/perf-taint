@@ -119,7 +119,7 @@ namespace {
         AU.addRequiredTransitive<ScalarEvolutionWrapperPass>();
     }
 
-    bool LoopExtractor::analyzeNestedLoop(Loop * l, ScalarEvolution & SE, int offset)
+    bool LoopExtractor::analyzeNestedLoop(Loop * l, ScalarEvolution & SE, int depth, int multipath_id, int offset)
     {
         SmallVector<BasicBlock *, 8> ExitingBlocks;
         l->getExitingBlocks(ExitingBlocks);
@@ -174,7 +174,7 @@ namespace {
             dbgs() << "Unknown type of SCEV! " << *induction_variable << "\n";
             return false;
         }
-        counters.addLoop(l, induction_variable);
+        counters.addLoop(l, induction_variable, depth, multipath_id);
         SCEVToString stringFormatter(SE, counters);
         auto range = l->getLocRange();
         dbgs().indent(offset);
@@ -198,22 +198,26 @@ namespace {
         dbgs().indent(offset);
         dbgs() << "Condition: " << conditionToStr(condition, induction_variable, SE, stringFormatter) << '\n';
 
+        int counter = 0;
         for(Loop * nested : l->getSubLoops()) {
-            dbgs() << '\n';
-            analyzeNestedLoop(nested, SE, offset + 4);
+            counters.enterNested(counter);
+            analyzeNestedLoop(nested, SE, depth + 1, counter++, offset + 4);
+            counters.leaveNested();
         }
         dbgs() << '\n';
     }
 
     bool LoopExtractor::runOnFunction(Function & f) {
-        DEBUG(dbgs() << "Analyzbge function: " << f.getName() << '\n');
+        DEBUG(dbgs() << "Analyze function: " << f.getName() << '\n');
         if (!f.isDeclaration()) {
             LoopInfo & LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
             ScalarEvolution & SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
             SE.print(dbgs());
+            int counter = 0;
             for (Loop * l : LI) {
-                counters.clear();
-                analyzeNestedLoop(l, SE);
+                counters.enterNested(counter);
+                analyzeNestedLoop(l, SE, 0, counter++);
+                counters.leaveNested();
                 //l = l->getSubLoops()[0];
                 //DEBUG(dbgs() << *l->getLoopPreheader() << '\n');
 //                DEBUG(dbgs() << *l->getHeader() << '\n');

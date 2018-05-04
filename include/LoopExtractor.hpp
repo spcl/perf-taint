@@ -27,7 +27,8 @@ namespace {
 
         bool runOnFunction(Function & f) override;
 
-        bool analyzeNestedLoop(Loop * l, ScalarEvolution & SE, int offset = 0);
+        bool analyzeNestedLoop(Loop * l, ScalarEvolution & SE,
+                               int depth, int multipath, int offset = 0);
     };
 
 }

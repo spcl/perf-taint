@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 namespace llvm {
     class Loop;
@@ -17,9 +18,12 @@ using namespace llvm;
 
 struct LoopCounters
 {
-    std::vector< std::pair<Loop*, const SCEV *> > loops;
+    std::vector<std::string> nestedLevels;
+    std::vector< std::tuple<Loop*, std::string, const SCEV *> > loops;
 
-    void addLoop(Loop *, const SCEV *);
+    void enterNested(int multipathID);
+    void leaveNested();
+    void addLoop(Loop *, const SCEV *, int, int);
     std::string getCounterName(const Loop *);
     void clear();
 };
