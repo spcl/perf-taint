@@ -5,6 +5,7 @@
 #include "LoopAnalyzer.hpp"
 #include "io/StreamPrinter.hpp"
 #include "io/SCEVToString.hpp"
+#include "io/ValueToString.hpp"
 #include "LoopCounters.hpp"
 
 #include "llvm/Analysis/LoopInfo.h"
@@ -45,67 +46,6 @@ namespace {
                 assert(!"Unknown SCEV type!");
                 return nullptr;
         }
-    }
-
-    std::string toString(Value * value, ScalarEvolution & SE, SCEVToString & stringFormatter)
-    {
-        assert(value);
-        if(const Constant * val = dyn_cast<Constant>(value)) {
-            return std::to_string(*val->getUniqueInteger().getRawData());
-        } else if(const Argument * arg = dyn_cast<Argument>(value)) {
-            const Function * f = arg->getParent();
-            if(f->hasName()) {
-                return f->getName().str() + "(" + std::to_string(arg->getArgNo()) + ")";
-            } else {
-                return "unknown_function(" + std::to_string(arg->getArgNo()) + ")";
-            }
-        } else if(const SCEV * scev = SE.getSCEV(value)) {
-            return stringFormatter.toString(scev);
-        }
-        else {
-            if(value->hasName()) {
-                return value->getName();
-            } else {
-                dbgs() << *value << " " << value->getValueID() << "\n";
-                // report lack of name
-                assert(!"Name unknown!");
-            }
-        }
-    }
-
-    std::string conditionToStr(const Instruction * condition, const SCEV * IV, ScalarEvolution & SE, SCEVToString & stringFormatter)
-    {
-        const ICmpInst * integer_comparison = dyn_cast<ICmpInst>(condition);
-        assert(condition && "Unknown comparison type!");
-
-        std::string val = toString(condition->getOperand(0), SE, stringFormatter);
-        switch(integer_comparison->getPredicate())
-        {
-            case CmpInst::ICMP_EQ:
-                val += " == ";
-                break;
-            case CmpInst::ICMP_NE:
-                val += " != ";
-                break;
-            case CmpInst::ICMP_UGT:
-            case CmpInst::ICMP_SGT:
-                val += " > ";
-                break;
-            case CmpInst::ICMP_UGE:
-            case CmpInst::ICMP_SGE:
-                val += " >= ";
-                break;
-            case CmpInst::ICMP_ULT:
-            case CmpInst::ICMP_SLT:
-                val += " < ";
-                break;
-            case CmpInst::ICMP_ULE:
-            case CmpInst::ICMP_SLE:
-                val += " <= ";
-                break;
-        }
-        val += toString(condition->getOperand(1), SE, stringFormatter);
-        return val;
     }
 
     void LoopExtractor::getAnalysisUsage(AnalysisUsage & AU) const {
@@ -176,6 +116,7 @@ namespace {
         }
         counters.addLoop(l, induction_variable, depth, multipath_id);
         SCEVToString stringFormatter(SE, counters);
+        ValueToString valueFormatter(SE, stringFormatter);
         auto range = l->getLocRange();
         dbgs().indent(offset);
         dbgs() << "Loop: " << l->getName();
@@ -196,7 +137,7 @@ namespace {
         dbgs().indent(offset);
         dbgs() << "Update: " << stringFormatter.toString(induction_variable) << '\n';
         dbgs().indent(offset);
-        dbgs() << "Condition: " << conditionToStr(condition, induction_variable, SE, stringFormatter) << '\n';
+        dbgs() << "Condition: " << valueFormatter.toString(condition) << '\n';
 
         int counter = 0;
         for(Loop * nested : l->getSubLoops()) {
