@@ -7,7 +7,12 @@
 
 std::string ValueToString::toString(const Constant * val)
 {
-    return std::to_string(*val->getUniqueInteger().getRawData());
+    if(const ConstantInt * integer = dyn_cast<ConstantInt>(val)) {
+        dbgs() << integer->getSExtValue() << "\n";
+        return std::to_string(integer->getSExtValue());
+    } else {
+        assert(!"Unknown type!");
+    }
 }
 
 std::string ValueToString::toString(const Argument * arg)

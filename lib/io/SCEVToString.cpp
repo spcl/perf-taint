@@ -31,8 +31,7 @@ std::string SCEVToString::toString(const SCEV * val)
 
 std::string SCEVToString::toString(const SCEVConstant * val)
 {
-    uint64_t x = *dyn_cast<SCEVConstant>(val)->getAPInt().getRawData();
-    return std::to_string(x);
+    return std::to_string(dyn_cast<SCEVConstant>(val)->getAPInt().getSExtValue());
 }
 
 std::string SCEVToString::toString(const SCEVTruncateExpr * expr)
