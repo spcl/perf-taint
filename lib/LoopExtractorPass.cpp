@@ -1,6 +1,6 @@
 #define DEBUG_TYPE "LoopExtractor"
 
-#include "LoopExtractor.hpp"
+#include "LoopExtractorPass.hpp"
 
 #include "LoopAnalyzer.hpp"
 #include "io/StreamPrinter.hpp"

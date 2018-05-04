@@ -30,17 +30,17 @@ struct StreamPrinter
         std::string indent(indentLen, ' ');
         stream << indent << "--------------------\n";
         stream << indent << "Loop: " << loop.name << '\n';
-        stream << indent << "Counter variable: " << loop.counterVariable->getName() << " = ";
+        //stream << indent << "Counter variable: " << loop.counterVariable->getName() << " = ";
         printValue(stream, loop.counterInit);
         stream << '\n';
         stream << indent << "Counter update: \n";
         int i = 0;
-        for(Instruction * instr : loop.counterUpdate)
-        {
-            stream << indent << i++ << ' ' << *instr << '\n';
-        }
-        stream << indent << "Counter guard: " << CmpInst::getPredicateName(loop.counterGuard.first) << ' ';
-        printValue(stream, loop.counterGuard.second);
+//        for(Instruction * instr : loop.counterUpdate)
+//        {
+//            stream << indent << i++ << ' ' << *instr << '\n';
+//        }
+        //stream << indent << "Counter guard: " << CmpInst::getPredicateName(loop.counterGuard.first) << ' ';
+        //printValue(stream, loop.counterGuard.second);
         stream << '\n';
         stream << indent << "Nested loops: " << loop.nestedLoops.size() << '\n';
         for(results::LoopInformation nested : loop.nestedLoops)

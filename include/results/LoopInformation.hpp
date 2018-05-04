@@ -19,11 +19,18 @@ using namespace llvm;
 
 namespace results {
 
+    enum class UpdateType {
+        NOT_FOUND,
+        INCREMENT,
+        ADD,
+        MULTIPLY,
+        AFFINE
+    };
+
     struct LoopInformation
     {
         std::vector<LoopInformation> nestedLoops;
-        std::vector<Instruction*> counterUpdate;
-        std::pair<CmpInst::Predicate, Value *> counterGuard;
+        UpdateType type;
         std::string name;
 
         // Counter
