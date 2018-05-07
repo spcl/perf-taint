@@ -36,8 +36,16 @@ namespace results {
         std::string name;
 
         bool computableBySE;
+        bool countableBySE;
         bool computableByPolyhedra;
         bool isNested;
+        int nestedDepth;
+        int maxMultipath;
+
+        // Number of nested and multipath loops.
+        int countLoops;
+        int countLoopsNotNested;
+        int countLoopsMultipath;
     };
 
 }

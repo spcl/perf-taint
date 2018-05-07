@@ -3,7 +3,8 @@
 //
 
 #include "io/SCEVAnalyzer.hpp"
-
+#include "LoopCounters.hpp"
+#include "results/LoopInformation.hpp"
 
 results::UpdateType SCEVAnalyzer::classify(const SCEV * val)
 {
@@ -133,4 +134,9 @@ std::string SCEVAnalyzer::toString(const SCEVAddMulExpr * expr)
 const SCEV * SCEVAnalyzer::get(Value * val)
 {
     return SE.getSCEV(val);
+}
+
+ScalarEvolution & SCEVAnalyzer::getSE()
+{
+    return SE;
 }

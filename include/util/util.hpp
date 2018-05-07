@@ -10,7 +10,7 @@
 #include <memory>
 
 template<typename ... Args>
-std::string sprintf(const std::string& format, Args ... args)
+std::string cppsprintf(const std::string& format, Args ... args)
 {
     size_t size = snprintf( nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
     std::unique_ptr<char[]> buf( new char[ size ] );

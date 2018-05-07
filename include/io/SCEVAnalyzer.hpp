@@ -7,13 +7,17 @@
 
 #include <string>
 
-#include "LoopCounters.hpp"
 #include "results/LoopInformation.hpp"
 
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
 using namespace llvm;
+
+class LoopCounters;
+namespace results {
+    enum class UpdateType;
+}
 
 class SCEVAnalyzer
 {
@@ -38,6 +42,7 @@ public:
     std::string toString(const SCEV * val);
     results::UpdateType classify(const SCEV *val);
     const SCEV * get(Value * val);
+    ScalarEvolution & getSE();
 };
 
 #endif //LOOP_EXTRACTOR_CPP_SCEVTOSTRING_HPP

@@ -4,6 +4,7 @@
 
 #include "LoopStatisticsPass.hpp"
 #include "LoopClassification.hpp"
+#include "LoopCounters.hpp"
 #include "io/SCEVAnalyzer.hpp"
 #include "util/util.hpp"
 
@@ -52,7 +53,7 @@ bool LoopStatistics::runOnModule(Module & m)
     // Since neither m.getName() or m.getSourceFileName provides a meaningful name
     // We rely on the user to supply an additional log name.
     unrecognized_log.open(
-        sprintf("unrecognized_%s_%i_%i_%i_%i_%i",
+        cppsprintf("unrecognized_%s_%d_%d_%d_%d_%d",
                 LogFileName.getValue().c_str(), parts->tm_mon + 1, parts->tm_mday,
                 parts->tm_hour, parts->tm_min, parts->tm_sec),
         std::ios::out);
@@ -78,6 +79,7 @@ void LoopStatistics::runOnFunction(Function & f)
             LoopClassification classifier(analyzer, counters, unrecognized_log);
             auto info = classifier.classify(l);
             counters.leaveNested();
+            dbgs() << info.countLoops << " " << info.nestedDepth << "\n";
         }
     }
 }

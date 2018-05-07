@@ -19,20 +19,31 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         for(BasicBlock * bb : ExitingBlocks) {
             result.loopExits.push_back( analyzeExit(l, bb) );
         }
+        result.computableBySE = false;
     } else {
         auto exit = analyzeExit( l, ExitingBlocks[0] );
         const SCEV * induction_variable = std::get<0>(exit);
-        //if(isa<SCEVUnknown>(induction_variable)) {
-        //
-        //}
+        if(!induction_variable || isa<SCEVUnknown>(induction_variable)) {
+
+        }
+        const SCEV * backedge_count = scev.getSE().getBackedgeTakenCount(l);
+        result.computableBySE = backedge_count->getSCEVType() != scCouldNotCompute;
     }
     int counter = 0;
+    //result.maxMultipath = l->getSubLoops().size();
+    result.nestedDepth = 0;
+    // count yourself and children, they will count their children.
+    result.countLoops = 1;
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(counter++);
         auto res = classify(nested);
         // TODO: merge
         counters.leaveNested();
+        //result.maxMultipath = std::max(result.maxMultipath, res.maxMultipath);
+        result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
+        result.countLoops += res.countLoops;
     }
+    ++result.nestedDepth;
 
     return result;
 }
