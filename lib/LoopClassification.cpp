@@ -17,9 +17,11 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     l->getExitingBlocks(ExitingBlocks);
     if(ExitingBlocks.size() > 1) {
         for(BasicBlock * bb : ExitingBlocks) {
-            result.loopExits.push_back( analyzeExit(l, bb) );
+            auto exit = analyzeExit( l, bb );
+            result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
+            result.loopExits.push_back( std::move(exit) );
         }
-        result.computableBySE = false;
+        result.isComputableBySE = false;
     } else {
         auto exit = analyzeExit( l, ExitingBlocks[0] );
         const SCEV * induction_variable = std::get<0>(exit);
@@ -27,7 +29,8 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 
         }
         const SCEV * backedge_count = scev.getSE().getBackedgeTakenCount(l);
-        result.computableBySE = backedge_count->getSCEVType() != scCouldNotCompute;
+        result.isComputableBySE = backedge_count->getSCEVType() != scCouldNotCompute;
+        result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
     }
     int counter = 0;
     //result.maxMultipath = l->getSubLoops().size();
@@ -40,6 +43,13 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     result.countNested =  result.isNested;
     result.includesMultipleExits = ExitingBlocks.size() > 1;
     result.countMultipleExits = result.includesMultipleExits;
+
+    // is countable: is computable AND has no children
+    result.isCountableBySE = result.isComputableBySE && !result.isNested;
+    result.countCountableBySE = result.isCountableBySE;
+    result.countComputableBySE = 0;
+
+    dbgs() << "Loop before children: " << result.isCountableBySE << " " << result.countCountableBySE << " " << result.isComputableBySE << " "  << result.countComputableBySE << "\n";
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(counter++);
         auto res = classify(nested);
@@ -59,7 +69,19 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         // if any child has multiple exits - parent has multiple exits
         result.includesMultipleExits |= res.includesMultipleExits;
         result.countMultipleExits += res.countMultipleExits;
+
+        int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
+        for(int i = 0; i < iter_bound; ++i) {
+            result.countUpdates[i] += res.countUpdates[i];
+        }
+
+        result.countComputableBySE += res.countComputableBySE;
+        result.countCountableBySE += res.countCountableBySE;
+        result.isComputableBySE &= res.isComputableBySE;
     }
+    // Add this loop only if we found it to be computable after inspecting all children
+    if(result.isComputableBySE)
+        result.countComputableBySE++;
     ++result.nestedDepth;
 
     return result;

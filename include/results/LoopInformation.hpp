@@ -20,24 +20,42 @@ using namespace llvm;
 
 namespace results {
 
-    enum class UpdateType {
+    enum class UpdateType : int
+    {
         NOT_FOUND,
         UNKNOWN,
         INCREMENT,
         ADD,
         MULTIPLY,
-        AFFINE
+        AFFINE,
+        END_ENUM
     };
+
+    inline int operator*(UpdateType val)
+    {
+        return static_cast<int>(val);
+    }
 
     struct LoopInformation
     {
+
+        LoopInformation()
+        {
+            std::memset(countUpdates, 0, sizeof(int)* *UpdateType::END_ENUM);
+        }
+
         std::vector<LoopInformation> nestedLoops;
         std::vector< std::tuple<const SCEV *, UpdateType, const Instruction *> > loopExits;
         std::string name;
 
-        bool computableBySE;
-        bool countableBySE;
-        bool computableByPolyhedra;
+        // count how many nested loops can be computed with SE
+        int countComputableBySE;
+        // Each nested loop is computableBySE, requires counting
+        bool isComputableBySE;
+        // How many lops are: no nested loops and computable.
+        int countCountableBySE;
+        // Is this loop countable?
+        bool isCountableBySE;
 
         // Number of nested and multipath loops.
         int countLoops;
@@ -56,6 +74,9 @@ namespace results {
         bool includesMultipleExits;
         // how many loops are there with multiple exits?
         int countMultipleExits;
+
+        // Number of IV update types in each nested loop, including all loop exits.
+        int countUpdates[ static_cast<int>(UpdateType::END_ENUM) ];
     };
 
 }

@@ -79,9 +79,12 @@ void LoopStatistics::runOnFunction(Function & f)
             LoopClassification classifier(analyzer, counters, unrecognized_log);
             auto info = classifier.classify(l);
             counters.leaveNested();
-            dbgs() << info.countLoops << " " << info.countMultipath << " " <<
-                   info.includesMultipath << " " << info.countNested << " " << info.isNested <<
-                   " " << info.includesMultipleExits << " " << info.countMultipleExits << "\n";
+//            dbgs() << info.countLoops << " " << info.countMultipath << " " <<
+//                   info.includesMultipath << " " << info.countNested << " " << info.isNested <<
+//                   " " << info.includesMultipleExits << " " << info.countMultipleExits;
+//            dbgs() << " Updates: " << info.countUpdates[*results::UpdateType::INCREMENT] << "\n";
+            dbgs() << info.isCountableBySE << " " << info.countCountableBySE << " " <<
+                        info.isComputableBySE << " " << info.countComputableBySE << "\n";
         }
     }
 }
