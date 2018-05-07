@@ -15,6 +15,8 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     results::LoopInformation result;
     SmallVector<BasicBlock *, 8> ExitingBlocks;
     l->getExitingBlocks(ExitingBlocks);
+    bool hasSimpleIncrement = false;
+
     if(ExitingBlocks.size() > 1) {
         for(BasicBlock * bb : ExitingBlocks) {
             auto exit = analyzeExit( l, bb );
@@ -31,6 +33,7 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         const SCEV * backedge_count = scev.getSE().getBackedgeTakenCount(l);
         result.isComputableBySE = backedge_count->getSCEVType() != scCouldNotCompute;
         result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
+        hasSimpleIncrement = std::get<1>(exit) == results::UpdateType::INCREMENT;
     }
     int counter = 0;
     //result.maxMultipath = l->getSubLoops().size();
@@ -49,11 +52,13 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     result.countCountableBySE = result.isCountableBySE;
     result.countComputableBySE = 0;
 
-    dbgs() << "Loop before children: " << result.isCountableBySE << " " << result.countCountableBySE << " " << result.isComputableBySE << " "  << result.countComputableBySE << "\n";
+    // is countable by polyhedra - only increments, no multipath
+    result.countCountableByPolyhedra = 0;
+    // only one child AND increment as update AND child is countable as well (later)
+    result.isCountableByPolyhedra = !result.countMultipath && hasSimpleIncrement;
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(counter++);
         auto res = classify(nested);
-        // TODO: merge
         counters.leaveNested();
         //result.maxMultipath = std::max(result.maxMultipath, res.maxMultipath);
         result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
@@ -78,10 +83,15 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         result.countComputableBySE += res.countComputableBySE;
         result.countCountableBySE += res.countCountableBySE;
         result.isComputableBySE &= res.isComputableBySE;
+
+        result.countCountableByPolyhedra += res.countCountableByPolyhedra;
+        result.isCountableByPolyhedra &= res.isCountableByPolyhedra;
     }
     // Add this loop only if we found it to be computable after inspecting all children
     if(result.isComputableBySE)
         result.countComputableBySE++;
+    if(result.isCountableByPolyhedra)
+        result.countCountableByPolyhedra++;
     ++result.nestedDepth;
 
     return result;

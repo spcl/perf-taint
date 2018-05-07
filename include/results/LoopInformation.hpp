@@ -52,10 +52,14 @@ namespace results {
         int countComputableBySE;
         // Each nested loop is computableBySE, requires counting
         bool isComputableBySE;
-        // How many lops are: no nested loops and computable.
+        // How many loops are: no nested loops and computable.
         int countCountableBySE;
         // Is this loop countable?
         bool isCountableBySE;
+        // Is this loop countable by polyhedra? Only increments and
+        bool isCountableByPolyhedra;
+        // How many loops can be count with polyhedra.
+        int countCountableByPolyhedra;
 
         // Number of nested and multipath loops.
         int countLoops;
