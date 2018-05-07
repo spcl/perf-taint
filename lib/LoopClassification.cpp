@@ -34,6 +34,12 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     result.nestedDepth = 0;
     // count yourself and children, they will count their children.
     result.countLoops = 1;
+    result.countMultipath = l->getSubLoops().size() > 1;
+    result.includesMultipath = result.countMultipath;
+    result.isNested = l->getSubLoops().size() > 0;
+    result.countNested =  result.isNested;
+    result.includesMultipleExits = ExitingBlocks.size() > 1;
+    result.countMultipleExits = result.includesMultipleExits;
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(counter++);
         auto res = classify(nested);
@@ -42,6 +48,17 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         //result.maxMultipath = std::max(result.maxMultipath, res.maxMultipath);
         result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
         result.countLoops += res.countLoops;
+
+        result.countMultipath += res.countMultipath;
+        // `isMultipath` true when at least one children has multipath property
+        result.includesMultipath |= res.includesMultipath;
+
+        // don't update isNested since it's obvious
+        result.countNested += res.countNested;
+
+        // if any child has multiple exits - parent has multiple exits
+        result.includesMultipleExits |= res.includesMultipleExits;
+        result.countMultipleExits += res.countMultipleExits;
     }
     ++result.nestedDepth;
 

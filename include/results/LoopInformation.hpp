@@ -38,14 +38,24 @@ namespace results {
         bool computableBySE;
         bool countableBySE;
         bool computableByPolyhedra;
-        bool isNested;
-        int nestedDepth;
-        int maxMultipath;
 
         // Number of nested and multipath loops.
         int countLoops;
-        int countLoopsNotNested;
-        int countLoopsMultipath;
+        int nestedDepth;
+
+        // multipath count - # of loops inside which have multiple children
+        int countMultipath;
+        // only for the main loop - does it have more than one children at *ANY* level?
+        bool includesMultipath;
+        // # of loops inside which are nested
+        int countNested;
+        // only for the main loop - does it have any children?
+        bool isNested;
+
+        // only for the main loop - does it have any children with multiple exits?
+        bool includesMultipleExits;
+        // how many loops are there with multiple exits?
+        int countMultipleExits;
     };
 
 }
