@@ -2,10 +2,49 @@
 // Created by mcopik on 5/3/18.
 //
 
-#include "io/SCEVToString.hpp"
+#include "io/SCEVAnalyzer.hpp"
 
 
-std::string SCEVToString::toString(const SCEV * val)
+results::UpdateType SCEVAnalyzer::classify(const SCEV * val)
+{
+    switch(val->getSCEVType())
+    {
+        case scAddRecExpr:
+            return classify(dyn_cast<SCEVAddRecExpr>(val));
+        case scAddMulExpr:
+            return classify(dyn_cast<SCEVAddMulExpr>(val));
+        case scUnknown:
+            return results::UpdateType::UNKNOWN;
+        default:
+            return results::UpdateType::UNKNOWN;
+    }
+}
+
+results::UpdateType SCEVAnalyzer::classify(const SCEVAddRecExpr *val)
+{
+    // represents a closed-form function of type A + B*x
+    // i.e. an update of type x = A; x += B;
+    if(val->isAffine()) {
+        if(val->getOperand(1)->isOne()) {
+            return results::UpdateType::INCREMENT;
+        } else {
+            return results::UpdateType::ADD;
+        }
+    } else {
+        return results::UpdateType::UNKNOWN;
+    }
+}
+
+
+results::UpdateType SCEVAnalyzer::classify(const SCEVAddMulExpr *val)
+{
+    if(val->representsAffineUpdate())
+        return results::UpdateType::AFFINE;
+    else
+        return results::UpdateType::MULTIPLY;
+}
+
+std::string SCEVAnalyzer::toString(const SCEV * val)
 {
     switch(val->getSCEVType())
     {
@@ -29,12 +68,12 @@ std::string SCEVToString::toString(const SCEV * val)
     }
 }
 
-std::string SCEVToString::toString(const SCEVConstant * val)
+std::string SCEVAnalyzer::toString(const SCEVConstant * val)
 {
     return std::to_string(dyn_cast<SCEVConstant>(val)->getAPInt().getSExtValue());
 }
 
-std::string SCEVToString::toString(const SCEVTruncateExpr * expr)
+std::string SCEVAnalyzer::toString(const SCEVTruncateExpr * expr)
 {
     //FIXME: do we need that information?
     std::string type;
@@ -43,7 +82,7 @@ std::string SCEVToString::toString(const SCEVTruncateExpr * expr)
     return "trunc(" + toString(expr->getOperand()) + ", " + os.str() + ")";
 }
 
-std::string SCEVToString::toString(const SCEVAddExpr * expr)
+std::string SCEVAnalyzer::toString(const SCEVAddExpr * expr)
 {
     std::string str;
     // here select var name
@@ -54,7 +93,7 @@ std::string SCEVToString::toString(const SCEVAddExpr * expr)
     return str;
 }
 
-std::string SCEVToString::toString(const SCEVMulExpr * expr)
+std::string SCEVAnalyzer::toString(const SCEVMulExpr * expr)
 {
     std::string str;
     // here select var name
@@ -65,7 +104,7 @@ std::string SCEVToString::toString(const SCEVMulExpr * expr)
     return str;
 }
 
-std::string SCEVToString::toString(const SCEVAddRecExpr * expr)
+std::string SCEVAnalyzer::toString(const SCEVAddRecExpr * expr)
 {
     std::string str;
     // here select var name
@@ -80,7 +119,7 @@ std::string SCEVToString::toString(const SCEVAddRecExpr * expr)
     return str;
 }
 
-std::string SCEVToString::toString(const SCEVAddMulExpr * expr)
+std::string SCEVAnalyzer::toString(const SCEVAddMulExpr * expr)
 {
     std::string str;
     // here select var name
@@ -89,4 +128,9 @@ std::string SCEVToString::toString(const SCEVAddMulExpr * expr)
     std::string variable = counters.getCounterName(expr->getLoop());
     str += toString(expr->getOperand(2)) + "*" + variable;
     return str;
+}
+
+const SCEV * SCEVAnalyzer::get(Value * val)
+{
+    return SE.getSCEV(val);
 }

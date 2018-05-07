@@ -4,7 +4,7 @@
 
 #include "LoopAnalyzer.hpp"
 #include "io/StreamPrinter.hpp"
-#include "io/SCEVToString.hpp"
+#include "io/SCEVAnalyzer.hpp"
 #include "io/ValueToString.hpp"
 #include "LoopCounters.hpp"
 
@@ -115,7 +115,7 @@ namespace {
             return false;
         }
         counters.addLoop(l, induction_variable, depth, multipath_id);
-        SCEVToString stringFormatter(SE, counters);
+        SCEVAnalyzer stringFormatter(SE, counters);
         ValueToString valueFormatter(SE, stringFormatter);
         auto range = l->getLocRange();
         dbgs().indent(offset);

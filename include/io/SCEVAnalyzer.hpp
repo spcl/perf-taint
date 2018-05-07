@@ -8,13 +8,14 @@
 #include <string>
 
 #include "LoopCounters.hpp"
+#include "results/LoopInformation.hpp"
 
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
 using namespace llvm;
 
-class SCEVToString
+class SCEVAnalyzer
 {
     ScalarEvolution & SE;
     LoopCounters & counters;
@@ -26,14 +27,17 @@ class SCEVToString
     std::string toString(const SCEVAddRecExpr * expr);
     std::string toString(const SCEVAddMulExpr * expr);
 
+    results::UpdateType classify(const SCEVAddRecExpr *val);
+    results::UpdateType classify(const SCEVAddMulExpr *val);
 public:
-    SCEVToString(ScalarEvolution & _SE, LoopCounters & _counters):
+    SCEVAnalyzer(ScalarEvolution & _SE, LoopCounters & _counters):
         SE(_SE),
         counters(_counters)
     {}
 
     std::string toString(const SCEV * val);
-
+    results::UpdateType classify(const SCEV *val);
+    const SCEV * get(Value * val);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_SCEVTOSTRING_HPP

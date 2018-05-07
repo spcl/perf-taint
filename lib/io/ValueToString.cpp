@@ -1,6 +1,6 @@
 
 #include "io/ValueToString.hpp"
-#include "io/SCEVToString.hpp"
+#include "io/SCEVAnalyzer.hpp"
 
 #include "llvm/IR/Value.h"
 #include "llvm/Analysis/ScalarEvolution.h"

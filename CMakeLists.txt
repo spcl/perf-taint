@@ -6,9 +6,10 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 include_directories(include)
 
-add_library(LLVMLoopTools STATIC lib/io/SCEVToString.cpp lib/LoopCounters.cpp lib/io/ValueToString.cpp)
+add_library(LLVMLoopTools STATIC lib/io/SCEVAnalyzer.cpp lib/LoopCounters.cpp lib/io/ValueToString.cpp lib/LoopClassification.cpp)
 set_property(TARGET LLVMLoopTools PROPERTY CXX_STANDARD 14)
 set_target_properties(LLVMLoopTools PROPERTIES COMPILE_FLAGS "-fno-rtti")
+set_target_properties(LLVMLoopTools PROPERTIES POSITION_INDEPENDENT_CODE On)
 
 add_library(LLVMLoopExtractor MODULE lib/LoopExtractorPass.cpp lib/LoopAnalyzer.cpp)
 add_library(LLVMLoopStatistics MODULE lib/LoopStatisticsPass.cpp)

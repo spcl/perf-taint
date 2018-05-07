@@ -7,7 +7,7 @@
 
 #include <string>
 
-class SCEVToString;
+class SCEVAnalyzer;
 
 namespace llvm {
     class Value;
@@ -22,13 +22,13 @@ using namespace llvm;
 class ValueToString
 {
     ScalarEvolution & SE;
-    SCEVToString & scevPrinter;
+    SCEVAnalyzer & scevPrinter;
 
     std::string toString(const Constant * arg);
     std::string toString(const Argument * arg);
 
 public:
-    ValueToString(ScalarEvolution & _SE, SCEVToString & _scevPrinter) :
+    ValueToString(ScalarEvolution & _SE, SCEVAnalyzer & _scevPrinter) :
         SE(_SE),
         scevPrinter(_scevPrinter)
     {}

@@ -12,7 +12,8 @@
 #include <string>
 
 namespace llvm {
-    class Value;
+    class SCEV;
+    class Instruction;
 };
 
 using namespace llvm;
@@ -21,6 +22,7 @@ namespace results {
 
     enum class UpdateType {
         NOT_FOUND,
+        UNKNOWN,
         INCREMENT,
         ADD,
         MULTIPLY,
@@ -30,12 +32,12 @@ namespace results {
     struct LoopInformation
     {
         std::vector<LoopInformation> nestedLoops;
-        UpdateType type;
+        std::vector< std::tuple<const SCEV *, UpdateType, const Instruction *> > loopExits;
         std::string name;
 
-        // Counter
-        Value * counterVariable;
-        Value * counterInit;
+        bool computableBySE;
+        bool computableByPolyhedra;
+        bool isNested;
     };
 
 }

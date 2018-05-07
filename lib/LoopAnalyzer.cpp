@@ -24,18 +24,18 @@ results::LoopInformation LoopAnalyzer::analyze()
     loop.getLoopLatch()->print(dbgs(), false);
     //Find the iteration variable for our loop.
     auto counter_var = findInductionVariable(loop.getHeader());
-    loopInfo.counterVariable = counter_var;
-    //FIXME: what if there is not single preheader?
-    //Look at uses of counter var
-    loopInfo.counterInit = findInductionInitValue(loop.getLoopPreheader(), counter_var);
-    //Find the iteration variable for our loop.
-    loopInfo.counterGuard = findCondition(loop.getHeader(), counter_var);
-    //Find the initial value for our iteration variable.
-    //FIXME: what if there is not single preheader?
-    //assert(loop.getLoopPreheader() && "Preheader does not exist!");
-    //findValue(std::get<)
-    //FIXME: what if there's no single latch?
-    loopInfo.counterUpdate = findUpdate(loop.getLoopLatch(), counter_var);
+//    loopInfo.counterVariable = counter_var;
+//    //FIXME: what if there is not single preheader?
+//    //Look at uses of counter var
+//    loopInfo.counterInit = findInductionInitValue(loop.getLoopPreheader(), counter_var);
+//    //Find the iteration variable for our loop.
+//    loopInfo.counterGuard = findCondition(loop.getHeader(), counter_var);
+//    //Find the initial value for our iteration variable.
+//    //FIXME: what if there is not single preheader?
+//    //assert(loop.getLoopPreheader() && "Preheader does not exist!");
+//    //findValue(std::get<)
+//    //FIXME: what if there's no single latch?
+//    loopInfo.counterUpdate = findUpdate(loop.getLoopLatch(), counter_var);
     for(BasicBlock * BB : loop.getBlocks())
     {
         //DEBUG(dbgs() << "basicb name: "<< BB->getName() <<"\n");

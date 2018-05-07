@@ -7,15 +7,33 @@
 
 #include "results/LoopInformation.hpp"
 
+#include <tuple>
+#include <ostream>
+
+class SCEVAnalyzer;
+class LoopCounters;
+
+namespace llvm {
+    class Loop;
+    class BasicBlock;
+}
+
+using namespace llvm;
+
 class LoopClassification
 {
-    Loop * loop;
+    SCEVAnalyzer & scev;
+    LoopCounters & counters;
+    std::ostream & os;
+    std::tuple<const SCEV *, results::UpdateType, const Instruction *> analyzeExit(Loop * l, BasicBlock * block);
 public:
-    LoopClassification(Loop * l):
-        loop(l)
+    LoopClassification(SCEVAnalyzer & _scev, LoopCounters & _counters, std::ostream & _os):
+        scev(_scev),
+        counters(_counters),
+        os(_os)
     {}
 
-    LoopInformation classify();
+    results::LoopInformation classify(Loop * l);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_LOOPCLASSIFICATION_HPP

@@ -31,7 +31,7 @@ struct StreamPrinter
         stream << indent << "--------------------\n";
         stream << indent << "Loop: " << loop.name << '\n';
         //stream << indent << "Counter variable: " << loop.counterVariable->getName() << " = ";
-        printValue(stream, loop.counterInit);
+        //printValue(stream, loop.counterInit);
         stream << '\n';
         stream << indent << "Counter update: \n";
         int i = 0;
