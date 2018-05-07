@@ -2,6 +2,8 @@
 #ifndef LOOP_EXTRACTOR_CPP_LOOPSTATISTICS_HPP
 #define LOOP_EXTRACTOR_CPP_LOOPSTATISTICS_HPP
 
+#include "results/LoopInformation.hpp"
+
 #include "llvm/Pass.h"
 #include "llvm/IR/PassManager.h"
 
@@ -20,14 +22,17 @@ namespace {
 
         static char ID;
         std::fstream unrecognized_log;
+        std::vector<results::LoopInformation> loops;
 
         LoopStatistics() : ModulePass(ID) {}
 
         virtual void getAnalysisUsage(AnalysisUsage & AU) const;
 
         bool runOnModule(Module & m) override;
+        void print(std::ostream & os, const results::LoopInformation & info) const;
     private:
         void runOnFunction(Function & f);
+        void printResults(const std::string & cur_date) const;
     };
 
 }

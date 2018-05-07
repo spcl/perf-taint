@@ -17,10 +17,17 @@
 #include "llvm/Transforms/Utils.h"
 
 #include <chrono>
+#include <iostream>
+#include <string>
 
 static cl::opt<std::string> LogFileName("loop-statistics-log-name",
                                         cl::desc("Specify filename for output log"),
                                         cl::init("unknown"),
+                                        cl::value_desc("filename"));
+
+static cl::opt<std::string> LogDirName("loop-statistics-out-dir",
+                                        cl::desc("Specify directory for output logs"),
+                                        cl::init(""),
                                         cl::value_desc("filename"));
 
 void LoopStatistics::getAnalysisUsage(AnalysisUsage & AU) const
@@ -29,6 +36,49 @@ void LoopStatistics::getAnalysisUsage(AnalysisUsage & AU) const
     AU.setPreservesAll();
     AU.addRequired<LoopInfoWrapperPass>();
     AU.addRequiredTransitive<ScalarEvolutionWrapperPass>();
+}
+
+static const char * LOG_HEADER[] = {
+    "type", "count_loops", "nested_depth", "count_computable_se",
+    "count_countable_se", "count_countable_polyhedra", "count_multipath",
+    "count_nested", "count_multiple_exits", "count_unknown", "count_incr",
+    "count_add", "count_mul", "count_affine"
+};
+
+void LoopStatistics::print(std::ostream & os, const results::LoopInformation & summary) const
+{
+    os << summary.countLoops << ",";
+    os << summary.nestedDepth << ",";
+    os << summary.countComputableBySE << ",";
+    os << summary.countCountableBySE << ",";
+    os << summary.countCountableByPolyhedra << ",";
+    os << summary.countMultipath << ",";
+    os << summary.countNested << ",";
+    os << summary.countMultipleExits << ",";
+    int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
+    for(int i = 0; i < iter_bound; ++i) {
+        os << summary.countUpdates[i] << ',';
+    }
+    os << '\n';
+}
+
+void LoopStatistics::printResults(const std::string & cur_date) const
+{
+    std::string name = LogDirName.getValue().empty() ?
+                       (LogFileName.getValue().empty() ? LogFileName.getValue().c_str() : "unknown") :
+                       cppsprintf("%s/%s", LogDirName.getValue().c_str(), LogFileName.getValue().c_str());
+    name = cppsprintf("%s_%s", name.c_str(), cur_date.c_str());
+    std::fstream results(name, std::ios::out);
+    for(const char * val : LOG_HEADER)
+        results << val << ',';
+    results << '\n';
+    auto summary = results::LoopInformation::summarize_nested(loops.begin(), loops.end());
+    results << "total,";
+    print(results, summary);
+    results << "main_loops,";
+    summary = results::LoopInformation::summarize(loops.begin(), loops.end());
+    print(results, summary);
+    results.close();
 }
 
 bool LoopStatistics::runOnModule(Module & m)
@@ -50,16 +100,19 @@ bool LoopStatistics::runOnModule(Module & m)
     auto time = std::chrono::system_clock::now();
     std::time_t time_now = std::chrono::system_clock::to_time_t(time);
     struct tm *parts = std::localtime(&time_now);
+    std::string cur_date = cppsprintf("%d_%d_%d_%d_%d", parts->tm_mon + 1, parts->tm_mday, parts->tm_hour, parts->tm_min, parts->tm_sec);
     // Since neither m.getName() or m.getSourceFileName provides a meaningful name
     // We rely on the user to supply an additional log name.
+    std::string name = LogDirName.getValue().empty() ?
+                      "unrecognized" :
+                      cppsprintf("%s/unrecognized", LogDirName.getValue().c_str());
     unrecognized_log.open(
-        cppsprintf("unrecognized_%s_%d_%d_%d_%d_%d",
-                LogFileName.getValue().c_str(), parts->tm_mon + 1, parts->tm_mday,
-                parts->tm_hour, parts->tm_min, parts->tm_sec),
+        cppsprintf("%s_%s_%s", name.c_str(), LogFileName.getValue().c_str(), cur_date.c_str()),
         std::ios::out);
     for(Function & f : m) {
         runOnFunction(f);
     }
+    printResults(cur_date);
     unrecognized_log.close();
 
     return false;
@@ -77,13 +130,13 @@ void LoopStatistics::runOnFunction(Function & f)
         for (Loop * l : LI) {
             counters.enterNested(counter++);
             LoopClassification classifier(analyzer, counters, unrecognized_log);
-            auto info = classifier.classify(l);
+            loops.push_back( std::move(classifier.classify(l)) );
             counters.leaveNested();
 //            dbgs() << info.countLoops << " " << info.countMultipath << " " <<
 //                   info.includesMultipath << " " << info.countNested << " " << info.isNested <<
 //                   " " << info.includesMultipleExits << " " << info.countMultipleExits;
 //            dbgs() << " Updates: " << info.countUpdates[*results::UpdateType::INCREMENT] << "\n";
-            dbgs() << info.isCountableByPolyhedra << " " << info.countCountableByPolyhedra << "\n";
+            //dbgs() << info.isCountableByPolyhedra << " " << info.countCountableByPolyhedra << "\n";
         }
     }
 }
@@ -102,5 +155,5 @@ void addLoopStatistics(const PassManagerBuilder &Builder,
     PM.add(new LoopStatistics());
 }
 // run before vectorizer
-RegisterStandardPasses SOpt(PassManagerBuilder::EP_VectorizerStart,
+RegisterStandardPasses SOpt(PassManagerBuilder::EP_EarlyAsPossible,
                             addLoopStatistics);
