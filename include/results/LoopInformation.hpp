@@ -60,6 +60,10 @@ namespace results {
         bool isCountableByPolyhedra;
         // How many loops can be count with polyhedra.
         int countCountableByPolyhedra;
+        bool isUncountableByPolyhedraMultipath;
+        int countUncountableByPolyhedraMultipath;
+        int isUncountableByPolyhedraUpdate;
+        int countUncountableByPolyhedraUpdate;
 
         // Number of nested and multipath loops.
         int countLoops;
@@ -104,6 +108,8 @@ namespace results {
             new_result.countComputableBySE += begin->countComputableBySE;
             new_result.countCountableBySE += begin->countCountableBySE;
             new_result.countCountableByPolyhedra += begin->countCountableByPolyhedra;
+            new_result.countUncountableByPolyhedraMultipath += begin->countUncountableByPolyhedraMultipath;
+            new_result.countUncountableByPolyhedraUpdate += begin->countUncountableByPolyhedraUpdate;
             new_result.countMultipath += begin->countMultipath;
             new_result.countNested += begin->countNested;
             new_result.countMultipleExits += begin->countMultipleExits;
@@ -126,11 +132,11 @@ namespace results {
             new_result.countComputableBySE += begin->isComputableBySE;
             new_result.countCountableBySE += begin->isCountableBySE;
             new_result.countCountableByPolyhedra += begin->isCountableByPolyhedra;
+            new_result.countUncountableByPolyhedraMultipath += begin->isUncountableByPolyhedraMultipath;
+            new_result.countUncountableByPolyhedraUpdate += begin->isUncountableByPolyhedraUpdate;
             new_result.countMultipath += begin->includesMultipath;
             new_result.countNested += begin->isNested;
             new_result.countMultipleExits += begin->includesMultipleExits;
-            for(auto & x : begin->loopExits)
-                new_result.countUpdates[ static_cast<int>( std::get<1>(x) ) ]++;
             for(int i = 0; i < iter_bound; ++i) {
                 new_result.countUpdates[i] += begin->countUpdates[i];
             }
@@ -146,6 +152,10 @@ namespace results {
         isCountableBySE = 0;
         countCountableByPolyhedra = 0;
         isCountableByPolyhedra = 0;
+        countUncountableByPolyhedraMultipath = 0;
+        countUncountableByPolyhedraUpdate = 0;
+        isUncountableByPolyhedraMultipath = 0;
+        isUncountableByPolyhedraUpdate = 0;
         countLoops = 0;
         nestedDepth = 0;
         countMultipath = 0;

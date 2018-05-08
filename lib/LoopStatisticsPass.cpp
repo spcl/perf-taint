@@ -39,9 +39,10 @@ void LoopStatistics::getAnalysisUsage(AnalysisUsage & AU) const
 }
 
 static const char * LOG_HEADER[] = {
-    "type", "count_loops", "nested_depth", "count_computable_se",
-    "count_countable_se", "count_countable_polyhedra", "count_multipath",
-    "count_nested", "count_multiple_exits", "count_unknown", "count_incr",
+    "count_loops", "nested_depth", "count_computable_se",
+    "count_countable_se", "count_countable_polyhedra", "count_uncountable_polyhedra_multipath",
+    "count_uncountable_polyhedra_update", "count_multipath", "count_nested",
+    "count_multiple_exits", "count_not_found", "count_unknown", "count_incr",
     "count_add", "count_mul", "count_affine"
 };
 
@@ -52,6 +53,8 @@ void LoopStatistics::print(std::ostream & os, const results::LoopInformation & s
     os << summary.countComputableBySE << ",";
     os << summary.countCountableBySE << ",";
     os << summary.countCountableByPolyhedra << ",";
+    os << summary.countUncountableByPolyhedraMultipath << ",";
+    os << summary.countUncountableByPolyhedraUpdate << ",";
     os << summary.countMultipath << ",";
     os << summary.countNested << ",";
     os << summary.countMultipleExits << ",";
@@ -124,7 +127,7 @@ void LoopStatistics::runOnFunction(Function & f)
         LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>(f).getLoopInfo();
         ScalarEvolution &SE = getAnalysis<ScalarEvolutionWrapperPass>(f).getSE();
         LoopCounters counters;
-        SCEVAnalyzer analyzer(SE, counters);
+        SCEVAnalyzer analyzer(SE, counters, unrecognized_log);
         //SE.print(dbgs());
         int counter = 0;
         for (Loop * l : LI) {
@@ -132,11 +135,6 @@ void LoopStatistics::runOnFunction(Function & f)
             LoopClassification classifier(analyzer, counters, unrecognized_log);
             loops.push_back( std::move(classifier.classify(l)) );
             counters.leaveNested();
-//            dbgs() << info.countLoops << " " << info.countMultipath << " " <<
-//                   info.includesMultipath << " " << info.countNested << " " << info.isNested <<
-//                   " " << info.includesMultipleExits << " " << info.countMultipleExits;
-//            dbgs() << " Updates: " << info.countUpdates[*results::UpdateType::INCREMENT] << "\n";
-            //dbgs() << info.isCountableByPolyhedra << " " << info.countCountableByPolyhedra << "\n";
         }
     }
 }

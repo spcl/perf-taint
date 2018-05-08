@@ -23,6 +23,7 @@ class SCEVAnalyzer
 {
     ScalarEvolution & SE;
     LoopCounters & counters;
+    std::ostream & log;
 
     std::string toString(const SCEVConstant * val);
     std::string toString(const SCEVTruncateExpr * val);
@@ -33,10 +34,12 @@ class SCEVAnalyzer
 
     results::UpdateType classify(const SCEVAddRecExpr *val);
     results::UpdateType classify(const SCEVAddMulExpr *val);
+    results::UpdateType classify(const SCEVMulExpr *val);
 public:
-    SCEVAnalyzer(ScalarEvolution & _SE, LoopCounters & _counters):
+    SCEVAnalyzer(ScalarEvolution & _SE, LoopCounters & _counters, std::ostream & os):
         SE(_SE),
-        counters(_counters)
+        counters(_counters),
+        log(os)
     {}
 
     std::string toString(const SCEV * val);

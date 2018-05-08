@@ -14,11 +14,17 @@ results::UpdateType SCEVAnalyzer::classify(const SCEV * val)
             return classify(dyn_cast<SCEVAddRecExpr>(val));
         case scAddMulExpr:
             return classify(dyn_cast<SCEVAddMulExpr>(val));
-        case scUnknown:
-            return results::UpdateType::UNKNOWN;
+        case scMulExpr:
+            return classify(dyn_cast<SCEVMulExpr>(val));
         default:
-            return results::UpdateType::UNKNOWN;
+            break;
     }
+
+    std::string output;
+    raw_string_ostream string_os(output);
+    string_os << *val;
+    log << "Unrecognized SCEV type: " << val->getSCEVType() << " " << string_os.str() << '\n';
+    return results::UpdateType::UNKNOWN;
 }
 
 results::UpdateType SCEVAnalyzer::classify(const SCEVAddRecExpr *val)
@@ -36,13 +42,31 @@ results::UpdateType SCEVAnalyzer::classify(const SCEVAddRecExpr *val)
     }
 }
 
-
 results::UpdateType SCEVAnalyzer::classify(const SCEVAddMulExpr *val)
 {
+    std::string output;
+    raw_string_ostream string_os(output);
+    string_os << *val;
+    log << "Recognized SCEV type: " << val->getSCEVType() << " " << string_os.str() << '\n';
     if(val->representsAffineUpdate())
         return results::UpdateType::AFFINE;
     else
         return results::UpdateType::MULTIPLY;
+}
+
+results::UpdateType SCEVAnalyzer::classify(const SCEVMulExpr *val)
+{
+    //look for a multiplication with a constant
+    if(val->getOperand(0)->getSCEVType() == scConstant)
+        return classify(val->getOperand(1));
+    else if(val->getOperand(1)->getSCEVType() == scConstant)
+        return classify(val->getOperand(0));
+    //FIXME: something smarter
+    std::string output;
+    raw_string_ostream string_os(output);
+    string_os << *val;
+    log << "Unrecognized multiplication SCEV: " << string_os.str() << '\n';
+    return results::UpdateType::UNKNOWN;
 }
 
 std::string SCEVAnalyzer::toString(const SCEV * val)

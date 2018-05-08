@@ -54,8 +54,17 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 
     // is countable by polyhedra - only increments, no multipath
     result.countCountableByPolyhedra = 0;
+    result.countUncountableByPolyhedraUpdate = 0;
+    result.countUncountableByPolyhedraMultipath = 0;
     // only one child AND increment as update AND child is countable as well (later)
-    result.isCountableByPolyhedra = !result.countMultipath && hasSimpleIncrement;
+    result.isCountableByPolyhedra = !result.includesMultipleExits && !result.countMultipath && hasSimpleIncrement;
+    // at least one child is uncountable because of that
+    result.isUncountableByPolyhedraUpdate = false;
+    result.isUncountableByPolyhedraMultipath = false;
+    bool childIsUncountableMultipath = false;
+
+    bool childIsUncountableUpdate = false;
+    bool childIsCompletelyUncountable = false;
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(counter++);
         auto res = classify(nested);
@@ -85,13 +94,27 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         result.isComputableBySE &= res.isComputableBySE;
 
         result.countCountableByPolyhedra += res.countCountableByPolyhedra;
+        result.countUncountableByPolyhedraMultipath += res.countUncountableByPolyhedraMultipath;
+        result.countUncountableByPolyhedraUpdate += res.countUncountableByPolyhedraUpdate;
         result.isCountableByPolyhedra &= res.isCountableByPolyhedra;
+        childIsUncountableMultipath |= res.isUncountableByPolyhedraMultipath;
+        childIsUncountableUpdate |= res.isUncountableByPolyhedraUpdate;
+        childIsCompletelyUncountable |= !res.isCountableByPolyhedra && !res.isUncountableByPolyhedraMultipath && !res.isUncountableByPolyhedraUpdate;
     }
     // Add this loop only if we found it to be computable after inspecting all children
     if(result.isComputableBySE)
         result.countComputableBySE++;
     if(result.isCountableByPolyhedra)
         result.countCountableByPolyhedra++;
+    // is not countable -> check if myself or one children is uncountable because of update
+    if(!result.isCountableByPolyhedra && !childIsCompletelyUncountable && (childIsUncountableUpdate || (!hasSimpleIncrement && !result.countMultipath))) {
+        result.countUncountableByPolyhedraUpdate++;
+        result.isUncountableByPolyhedraUpdate = true;
+    }
+    if(!result.isCountableByPolyhedra && !childIsCompletelyUncountable && (childIsUncountableMultipath || (hasSimpleIncrement && result.countMultipath))) {
+        result.countUncountableByPolyhedraMultipath++;
+        result.isUncountableByPolyhedraMultipath = true;
+    }
     ++result.nestedDepth;
 
     return result;
@@ -105,14 +128,29 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
     const Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
     if(condition) {
         const SCEV * induction_variable = nullptr;
-        if(loop->isLoopInvariant(condition->getOperand(0))) {
-            induction_variable = scev.get(condition->getOperand(1));
-        } else if(loop->isLoopInvariant(condition->getOperand(1))) {
-            induction_variable = scev.get(condition->getOperand(0));
+        const SCEV * first_op = scev.get(condition->getOperand(0)),
+                    * second_op = scev.get(condition->getOperand(1));
+        if(scev.getSE().isLoopInvariant(first_op, loop)) {
+            induction_variable = second_op;
+        } else if(scev.getSE().isLoopInvariant(second_op, loop)) {
+            induction_variable = first_op;
         }
+
+        // So, according to SE none of operands is loop invariant.
+        // One case might be a casting SCEV which does not involve
+        if(isa<SCEVCastExpr>(first_op)) {
+            induction_variable = second_op;
+        } else {
+            induction_variable = first_op;
+        }
+
         if(induction_variable) {
             return std::make_tuple(induction_variable, scev.classify(induction_variable), condition);
         } else {
+//            dbgs() << *loop->getHeader() << "\n";
+//            dbgs() << *condition << " " << loop->isLoopInvariant(condition->getOperand(0)) << " " << loop->isLoopInvariant(condition->getOperand(1)) << " " << *scev.getSE().getBackedgeTakenCount(loop);
+//            dbgs() << " " << *scev.get(condition->getOperand(0)) << " " << *scev.get(condition->getOperand(1)) << " " << (scev.getSE().getLoopDisposition(scev.get(condition->getOperand(1)), loop) == ScalarEvolution::LoopDisposition::LoopInvariant)
+//                   << " "  <<"\n";
             std::string output;
             raw_string_ostream string_os(output);
             string_os << *condition;
