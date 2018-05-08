@@ -4,6 +4,7 @@
 
 #include "LoopCounters.hpp"
 
+#include <numeric>
 #include <algorithm>
 #include <cassert>
 #include <iostream>

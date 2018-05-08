@@ -36,7 +36,6 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         hasSimpleIncrement = std::get<1>(exit) == results::UpdateType::INCREMENT;
     }
     int counter = 0;
-    //result.maxMultipath = l->getSubLoops().size();
     result.nestedDepth = 0;
     // count yourself and children, they will count their children.
     result.countLoops = 1;
@@ -69,7 +68,6 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         counters.enterNested(counter++);
         auto res = classify(nested);
         counters.leaveNested();
-        //result.maxMultipath = std::max(result.maxMultipath, res.maxMultipath);
         result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
         result.countLoops += res.countLoops;
 
@@ -124,7 +122,15 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 ///
 std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
 {
-    const BranchInst * branch = dyn_cast<BranchInst>(block->getTerminator());
+    Instruction * block_term = block->getTerminator();
+    BranchInst * branch = dyn_cast<BranchInst>(block_term);
+    if(!branch) {
+        std::string output;
+        raw_string_ostream string_os(output);
+        string_os << *block;
+        os << "Unrecognized exit block - not BranchInst: " << string_os.str() << '\n';
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
+    }
     const Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
     if(condition) {
         const SCEV * induction_variable = nullptr;
@@ -155,13 +161,13 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
             raw_string_ostream string_os(output);
             string_os << *condition;
             os << "Unrecognized induction variable in: " << string_os.str() << '\n';
-            return std::make_tuple(nullptr, results::UpdateType::UNKNOWN, condition);
+            return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, condition);
         }
     } else {
         std::string output;
         raw_string_ostream string_os(output);
         string_os << *branch->getCondition();
         os << "Unrecognized condition: " << string_os.str() << '\n';
-        return std::make_tuple(nullptr, results::UpdateType::UNKNOWN, nullptr);
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
     }
 }
