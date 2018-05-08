@@ -134,20 +134,24 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
     const Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
     if(condition) {
         const SCEV * induction_variable = nullptr;
-        const SCEV * first_op = scev.get(condition->getOperand(0)),
-                    * second_op = scev.get(condition->getOperand(1));
-        if(scev.getSE().isLoopInvariant(first_op, loop)) {
-            induction_variable = second_op;
-        } else if(scev.getSE().isLoopInvariant(second_op, loop)) {
-            induction_variable = first_op;
-        }
-
-        // So, according to SE none of operands is loop invariant.
-        // One case might be a casting SCEV which does not involve
-        if(isa<SCEVCastExpr>(first_op)) {
-            induction_variable = second_op;
+        if(condition->getNumOperands() == 1) {
+            induction_variable = scev.get(condition->getOperand(0));
         } else {
-            induction_variable = first_op;
+            const SCEV *first_op = scev.get(condition->getOperand(0)),
+                *second_op = scev.get(condition->getOperand(1));
+            if (scev.getSE().isLoopInvariant(first_op, loop)) {
+                induction_variable = second_op;
+            } else if (scev.getSE().isLoopInvariant(second_op, loop)) {
+                induction_variable = first_op;
+            }
+
+            // So, according to SE none of operands is loop invariant.
+            // One case might be a casting SCEV which does not involve
+            if (isa<SCEVCastExpr>(first_op)) {
+                induction_variable = second_op;
+            } else {
+                induction_variable = first_op;
+            }
         }
 
         if(induction_variable) {
