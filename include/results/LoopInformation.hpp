@@ -14,6 +14,7 @@
 namespace llvm {
     class SCEV;
     class Instruction;
+    class Loop;
 };
 
 using namespace llvm;
@@ -44,9 +45,14 @@ namespace results {
             std::memset(countUpdates, 0, sizeof(int)* *UpdateType::END_ENUM);
         }
 
+        Loop * loop;
         std::vector<LoopInformation> nestedLoops;
         std::vector< std::tuple<const SCEV *, UpdateType, const Instruction *> > loopExits;
         std::string name;
+
+        // IV not known, IV not found, blocks not recognized
+        bool unprocessed;
+        long scalarEvolutionComputeTime;
 
         // count how many nested loops can be computed with SE
         int countComputableBySE;
@@ -64,9 +70,12 @@ namespace results {
         int countUncountableByPolyhedraMultipath;
         int isUncountableByPolyhedraUpdate;
         int countUncountableByPolyhedraUpdate;
+        bool isCountableGreg;
+        int countCountableGreg;
 
         // Number of nested and multipath loops.
         int countLoops;
+        int countExitBlocks;
         int nestedDepth;
 
         // multipath count - # of loops inside which have multiple children
@@ -104,12 +113,14 @@ namespace results {
         int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
         for(; begin != end; ++begin) {
             new_result.countLoops += begin->countLoops;
+            new_result.countExitBlocks += begin->countExitBlocks;
             new_result.nestedDepth = std::max(new_result.nestedDepth, begin->nestedDepth);
             new_result.countComputableBySE += begin->countComputableBySE;
             new_result.countCountableBySE += begin->countCountableBySE;
             new_result.countCountableByPolyhedra += begin->countCountableByPolyhedra;
             new_result.countUncountableByPolyhedraMultipath += begin->countUncountableByPolyhedraMultipath;
             new_result.countUncountableByPolyhedraUpdate += begin->countUncountableByPolyhedraUpdate;
+            new_result.countCountableGreg += begin->countCountableGreg;
             new_result.countMultipath += begin->countMultipath;
             new_result.countNested += begin->countNested;
             new_result.countMultipleExits += begin->countMultipleExits;
@@ -128,17 +139,26 @@ namespace results {
         int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
         for(; begin != end; ++begin) {
             new_result.countLoops++;
+            new_result.countExitBlocks += begin->loopExits.size();
             new_result.nestedDepth = std::max(new_result.nestedDepth, begin->nestedDepth);
             new_result.countComputableBySE += begin->isComputableBySE;
             new_result.countCountableBySE += begin->isCountableBySE;
             new_result.countCountableByPolyhedra += begin->isCountableByPolyhedra;
             new_result.countUncountableByPolyhedraMultipath += begin->isUncountableByPolyhedraMultipath;
             new_result.countUncountableByPolyhedraUpdate += begin->isUncountableByPolyhedraUpdate;
+            new_result.countCountableGreg += begin->isCountableGreg;
             new_result.countMultipath += begin->includesMultipath;
             new_result.countNested += begin->isNested;
             new_result.countMultipleExits += begin->includesMultipleExits;
-            for(int i = 0; i < iter_bound; ++i) {
-                new_result.countUpdates[i] += begin->countUpdates[i];
+            //for(int i = 0; i < iter_bound; ++i) {
+            //    new_result.countUpdates[i] += begin->countUpdates[i];
+            //}
+            //if(begin->loopExits.size() > 1)
+            //    new_result.countUpdates[ static_cast<int>(results::UpdateType::UNKNOWN) ]++;
+            //else
+            //    new_result.countUpdates[ static_cast<int>( std::get<1>(begin->loopExits[0]) ) ]++;
+            for(const auto & exit : begin->loopExits) {
+                new_result.countUpdates[ static_cast<int>( std::get<1>(exit) ) ]++;
             }
         }
         return new_result;
@@ -146,6 +166,9 @@ namespace results {
 
     void LoopInformation::clear()
     {
+        unprocessed = false;
+        scalarEvolutionComputeTime = 0;
+        countExitBlocks = 0;
         countComputableBySE = 0;
         isComputableBySE = 0;
         countCountableBySE = 0;
@@ -156,6 +179,8 @@ namespace results {
         countUncountableByPolyhedraUpdate = 0;
         isUncountableByPolyhedraMultipath = 0;
         isUncountableByPolyhedraUpdate = 0;
+        isCountableGreg = 0;
+        countCountableGreg = 0;
         countLoops = 0;
         nestedDepth = 0;
         countMultipath = 0;

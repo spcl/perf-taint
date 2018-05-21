@@ -5,6 +5,8 @@
 #ifndef LOOP_EXTRACTOR_CPP_VALUETOSTRING_HPP
 #define LOOP_EXTRACTOR_CPP_VALUETOSTRING_HPP
 
+#include "SCEVAnalyzer.hpp"
+
 #include <string>
 
 class SCEVAnalyzer;
@@ -28,8 +30,8 @@ class ValueToString
     std::string toString(const Argument * arg);
 
 public:
-    ValueToString(ScalarEvolution & _SE, SCEVAnalyzer & _scevPrinter) :
-        SE(_SE),
+    ValueToString( SCEVAnalyzer & _scevPrinter) :
+        SE(_scevPrinter.getSE()),
         scevPrinter(_scevPrinter)
     {}
 

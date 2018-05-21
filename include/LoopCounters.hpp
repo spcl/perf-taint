@@ -21,10 +21,12 @@ struct LoopCounters
     std::vector<std::string> nestedLevels;
     std::vector< std::tuple<Loop*, std::string, const SCEV *> > loops;
 
-    void enterNested(int multipathID);
+    void enterNested(Loop * l, int multipathID);
     void leaveNested();
     void addLoop(Loop *, const SCEV *, int, int);
     std::string getCounterName(const Loop *);
+    void addIV(const Loop *, const SCEV *);
+    std::tuple<std::string, const SCEV *> getIV(const Loop * l);
     void clear();
 };
 

@@ -8,7 +8,6 @@
 std::string ValueToString::toString(const Constant * val)
 {
     if(const ConstantInt * integer = dyn_cast<ConstantInt>(val)) {
-        dbgs() << integer->getSExtValue() << "\n";
         return std::to_string(integer->getSExtValue());
     } else {
         assert(!"Unknown type!");
@@ -41,7 +40,7 @@ std::string ValueToString::toString(Value * value)
         if(value->hasName()) {
             return value->getName();
         } else {
-            dbgs() << *value << " " << value->getValueID() << "\n";
+            dbgs() << "Unknown name: " << *value << " " << value->getValueID() << "\n";
             // report lack of name
             assert(!"Name unknown!");
         }
@@ -64,19 +63,19 @@ std::string ValueToString::toString(const Instruction * instr)
             break;
         case CmpInst::ICMP_UGT:
         case CmpInst::ICMP_SGT:
-            val += " > ";
+            val += " < ";
             break;
         case CmpInst::ICMP_UGE:
         case CmpInst::ICMP_SGE:
-            val += " >= ";
+            val += " <= ";
             break;
         case CmpInst::ICMP_ULT:
         case CmpInst::ICMP_SLT:
-            val += " < ";
+            val += " > ";
             break;
         case CmpInst::ICMP_ULE:
         case CmpInst::ICMP_SLE:
-            val += " <= ";
+            val += " >= ";
             break;
     }
     val += toString(integer_comparison->getOperand(1));

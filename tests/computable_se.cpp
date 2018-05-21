@@ -49,7 +49,7 @@ double simple_loop(int len, int pam)
             for(int k = i; k < len; k++)
                 sum++;
         }
-        }
+    }
 
     // computable: 1
     // countable: 1

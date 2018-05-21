@@ -11,7 +11,7 @@ set_property(TARGET LLVMLoopTools PROPERTY CXX_STANDARD 14)
 set_target_properties(LLVMLoopTools PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(LLVMLoopTools PROPERTIES POSITION_INDEPENDENT_CODE On)
 
-add_library(LLVMLoopExtractor MODULE lib/LoopExtractorPass.cpp lib/LoopAnalyzer.cpp)
+add_library(LLVMLoopExtractor MODULE lib/LoopExtractorPass.cpp lib/LoopExtractor.cpp)
 add_library(LLVMLoopStatistics MODULE lib/LoopStatisticsPass.cpp)
 target_link_libraries(LLVMLoopExtractor PRIVATE LLVMLoopTools)
 target_link_libraries(LLVMLoopStatistics PRIVATE LLVMLoopTools)

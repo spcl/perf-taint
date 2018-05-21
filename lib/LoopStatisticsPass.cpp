@@ -41,7 +41,7 @@ void LoopStatistics::getAnalysisUsage(AnalysisUsage & AU) const
 static const char * LOG_HEADER[] = {
     "count_loops", "nested_depth", "count_computable_se",
     "count_countable_se", "count_countable_polyhedra", "count_uncountable_polyhedra_multipath",
-    "count_uncountable_polyhedra_update", "count_multipath", "count_nested",
+    "count_uncountable_polyhedra_update", "count_countable_greg", "count_multipath", "count_nested",
     "count_multiple_exits", "count_not_found", "count_unknown", "count_incr",
     "count_add", "count_mul", "count_affine"
 };
@@ -55,9 +55,11 @@ void LoopStatistics::print(std::ostream & os, const results::LoopInformation & s
     os << summary.countCountableByPolyhedra << ",";
     os << summary.countUncountableByPolyhedraMultipath << ",";
     os << summary.countUncountableByPolyhedraUpdate << ",";
+    os << summary.countCountableGreg << ",";
     os << summary.countMultipath << ",";
     os << summary.countNested << ",";
     os << summary.countMultipleExits << ",";
+    //os << summary.countExitBlocks << ",";
     int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
     for(int i = 0; i < iter_bound; ++i) {
         os << summary.countUpdates[i] << ',';
@@ -70,7 +72,7 @@ void LoopStatistics::printResults(const std::string & cur_date) const
     std::string name = LogDirName.getValue().empty() ?
                        (LogFileName.getValue().empty() ? LogFileName.getValue().c_str() : "unknown") :
                        cppsprintf("%s/%s", LogDirName.getValue().c_str(), LogFileName.getValue().c_str());
-    name = cppsprintf("%s_%s", name.c_str(), cur_date.c_str());
+    //name = cppsprintf("%s_%s", name.c_str(), cur_date.c_str());
     std::fstream results(name, std::ios::out);
     for(const char * val : LOG_HEADER)
         results << val << ',';
@@ -110,7 +112,7 @@ bool LoopStatistics::runOnModule(Module & m)
                       "unrecognized" :
                       cppsprintf("%s/unrecognized", LogDirName.getValue().c_str());
     unrecognized_log.open(
-        cppsprintf("%s_%s_%s", name.c_str(), LogFileName.getValue().c_str(), cur_date.c_str()),
+        cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()),
         std::ios::out);
     for(Function & f : m) {
         runOnFunction(f);
@@ -131,7 +133,7 @@ void LoopStatistics::runOnFunction(Function & f)
         //SE.print(dbgs());
         int counter = 0;
         for (Loop * l : LI) {
-            counters.enterNested(counter++);
+            counters.enterNested(l, counter++);
             LoopClassification classifier(analyzer, counters, unrecognized_log);
             loops.push_back( std::move(classifier.classify(l)) );
             counters.leaveNested();
@@ -153,5 +155,5 @@ void addLoopStatistics(const PassManagerBuilder &Builder,
     PM.add(new LoopStatistics());
 }
 // run before vectorizer
-RegisterStandardPasses SOpt(PassManagerBuilder::EP_EarlyAsPossible,
+RegisterStandardPasses SOpt(PassManagerBuilder::EP_OptimizerLast,
                             addLoopStatistics);

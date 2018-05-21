@@ -1,12 +1,13 @@
 
-#ifndef LOOP_EXTRACTOR_CPP_LOOPEXTRACTOR_HPP
-#define LOOP_EXTRACTOR_CPP_LOOPEXTRACTOR_HPP
+#ifndef LOOPEXTRACTORPASS_HPP
+#define LOOPEXTRACTORPASS_HPP
 
 
 #include "LoopCounters.hpp"
 
 #include "llvm/Pass.h"
 
+#include <fstream>
 
 using namespace llvm;
 
@@ -18,17 +19,18 @@ namespace llvm {
 
 namespace {
 
-    struct LoopExtractor : public FunctionPass {
+    struct LoopExtractorPass : public ModulePass
+    {
         static char ID;
+        std::fstream log;
+        std::fstream loops;
         LoopCounters counters;
-        LoopExtractor() : FunctionPass(ID) {}
+        LoopExtractorPass() : ModulePass(ID) {}
 
         virtual void getAnalysisUsage(AnalysisUsage & AU) const;
 
-        bool runOnFunction(Function & f) override;
-
-        bool analyzeNestedLoop(Loop * l, ScalarEvolution & SE,
-                               int depth, int multipath, int offset = 0);
+        bool runOnFunction(Function & f);
+        bool runOnModule(Module &) override;
     };
 
 }

@@ -9,6 +9,7 @@
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
+#include <chrono>
 
 results::LoopInformation LoopClassification::classify(Loop * l)
 {
@@ -16,29 +17,45 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     SmallVector<BasicBlock *, 8> ExitingBlocks;
     l->getExitingBlocks(ExitingBlocks);
     bool hasSimpleIncrement = false;
+    bool hasAffineUpdate = false;
+    result.loop = l;
 
     if(ExitingBlocks.size() > 1) {
         for(BasicBlock * bb : ExitingBlocks) {
             auto exit = analyzeExit( l, bb );
-            result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
+            //result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
+            if(!std::get<0>(exit) || std::get<1>(exit) == results::UpdateType::NOT_FOUND || std::get<1>(exit) == results::UpdateType::UNKNOWN) {
+                result.unprocessed = true;
+            }
             result.loopExits.push_back( std::move(exit) );
         }
         result.isComputableBySE = false;
     } else {
         auto exit = analyzeExit( l, ExitingBlocks[0] );
-        const SCEV * induction_variable = std::get<0>(exit);
-        if(!induction_variable || isa<SCEVUnknown>(induction_variable)) {
-
+        counters.addIV(l, std::get<0>(exit));
+        if(!std::get<0>(exit) || std::get<1>(exit) == results::UpdateType::NOT_FOUND || std::get<1>(exit) == results::UpdateType::UNKNOWN) {
+            result.unprocessed = true;
         }
-        const SCEV * backedge_count = scev.getSE().getBackedgeTakenCount(l);
-        result.isComputableBySE = backedge_count->getSCEVType() != scCouldNotCompute;
+        auto t1 = std::chrono::high_resolution_clock::now();
+        if(scev.getSE().hasLoopInvariantBackedgeTakenCount(l)) {
+            const SCEV *backedge_count = scev.getSE().getBackedgeTakenCount(l);
+            result.isComputableBySE =
+                backedge_count->getSCEVType() != scCouldNotCompute;
+        } else {
+            result.isComputableBySE = false;
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        result.scalarEvolutionComputeTime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
         result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
         hasSimpleIncrement = std::get<1>(exit) == results::UpdateType::INCREMENT;
+        hasAffineUpdate = std::get<1>(exit) != results::UpdateType::UNKNOWN && std::get<1>(exit) != results::UpdateType::NOT_FOUND;
+        result.loopExits.push_back( std::move(exit) );
     }
     int counter = 0;
     result.nestedDepth = 0;
     // count yourself and children, they will count their children.
     result.countLoops = 1;
+    result.countExitBlocks = ExitingBlocks.size();
     result.countMultipath = l->getSubLoops().size() > 1;
     result.includesMultipath = result.countMultipath;
     result.isNested = l->getSubLoops().size() > 0;
@@ -46,13 +63,16 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     result.includesMultipleExits = ExitingBlocks.size() > 1;
     result.countMultipleExits = result.includesMultipleExits;
 
+
     // is countable: is computable AND has no children
     result.isCountableBySE = result.isComputableBySE && !result.isNested;
     result.countCountableBySE = result.isCountableBySE;
     result.countComputableBySE = 0;
+    result.isCountableGreg = !result.includesMultipleExits && hasAffineUpdate;
 
     // is countable by polyhedra - only increments, no multipath
     result.countCountableByPolyhedra = 0;
+    result.countCountableGreg = 0;
     result.countUncountableByPolyhedraUpdate = 0;
     result.countUncountableByPolyhedraMultipath = 0;
     // only one child AND increment as update AND child is countable as well (later)
@@ -61,15 +81,16 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     result.isUncountableByPolyhedraUpdate = false;
     result.isUncountableByPolyhedraMultipath = false;
     bool childIsUncountableMultipath = false;
-
     bool childIsUncountableUpdate = false;
     bool childIsCompletelyUncountable = false;
     for(Loop * nested : l->getSubLoops()) {
-        counters.enterNested(counter++);
+        counters.enterNested(nested, counter++);
         auto res = classify(nested);
+        result.nestedLoops.push_back( std::move(res) );
         counters.leaveNested();
         result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
         result.countLoops += res.countLoops;
+        result.countExitBlocks += res.countExitBlocks;
 
         result.countMultipath += res.countMultipath;
         // `isMultipath` true when at least one children has multipath property
@@ -98,14 +119,19 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         childIsUncountableMultipath |= res.isUncountableByPolyhedraMultipath;
         childIsUncountableUpdate |= res.isUncountableByPolyhedraUpdate;
         childIsCompletelyUncountable |= !res.isCountableByPolyhedra && !res.isUncountableByPolyhedraMultipath && !res.isUncountableByPolyhedraUpdate;
+
+        result.isCountableGreg &= res.isCountableGreg;
+        result.countCountableGreg += res.countCountableGreg;
     }
     // Add this loop only if we found it to be computable after inspecting all children
     if(result.isComputableBySE)
         result.countComputableBySE++;
     if(result.isCountableByPolyhedra)
         result.countCountableByPolyhedra++;
+    if(result.isCountableGreg)
+        result.countCountableGreg++;
     // is not countable -> check if myself or one children is uncountable because of update
-    if(!result.isCountableByPolyhedra && !childIsCompletelyUncountable && (childIsUncountableUpdate || (!hasSimpleIncrement && !result.countMultipath))) {
+    if(!result.isCountableByPolyhedra && !childIsCompletelyUncountable && (childIsUncountableUpdate || (hasAffineUpdate && !result.countMultipath))) {
         result.countUncountableByPolyhedraUpdate++;
         result.isUncountableByPolyhedraUpdate = true;
     }
@@ -114,7 +140,8 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         result.isUncountableByPolyhedraMultipath = true;
     }
     ++result.nestedDepth;
-
+    auto it = result.nestedLoops.begin();
+    it = result.nestedLoops.end();
     return result;
 }
 
@@ -123,35 +150,73 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
 {
     Instruction * block_term = block->getTerminator();
-    BranchInst * branch = dyn_cast<BranchInst>(block_term);
-    if(!branch) {
-        std::string output;
-        raw_string_ostream string_os(output);
-        string_os << *block;
-        os << "Unrecognized exit block - not BranchInst: " << string_os.str() << '\n';
+    if(!block_term) {
+        if(verbose) {
+            std::string output;
+            raw_string_ostream string_os(output);
+            string_os << *block;
+            os << "Unrecognized exit block - no terminator expression: "
+               << string_os.str() << '\n';
+        }
         return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
     }
-    const Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
+    BranchInst * branch = dyn_cast<BranchInst>(block_term);
+    if(!branch) {
+        if(verbose) {
+            std::string output;
+            raw_string_ostream string_os(output);
+            string_os << *block;
+            os << "Unrecognized exit block - not BranchInst: "
+               << string_os.str() << '\n';
+        }
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
+    }
+    Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
     if(condition) {
         const SCEV * induction_variable = nullptr;
+        //dbgs() << "condition: " << condition->getNumOperands() << " " << *condition << "\n";
         if(condition->getNumOperands() == 1) {
-            induction_variable = scev.get(condition->getOperand(0));
+            auto x = scev.findSCEV(condition->getOperand(0), loop);
+            //induction_variable = scev.get(condition->getOperand(0));
+            induction_variable = x;
         } else {
-            const SCEV *first_op = scev.get(condition->getOperand(0)),
-                *second_op = scev.get(condition->getOperand(1));
-            if (scev.getSE().isLoopInvariant(first_op, loop)) {
-                induction_variable = second_op;
-            } else if (scev.getSE().isLoopInvariant(second_op, loop)) {
-                induction_variable = first_op;
-            }
+            auto x = scev.findSCEV(condition->getOperand(0), loop);
+            auto y = scev.findSCEV(condition->getOperand(1), loop);
+            induction_variable = x ? (!y ? x : nullptr) : y;
+//            if(x)
+//                dbgs() << "First: " << *x << "\n";
+//            else
+//                dbgs() << "First: " << 0 << "\n";
+//            if(y)
+//                dbgs() << "First2: " << *y << "\n";
+//            else
+//                dbgs() << "First2: " << 0 << "\n";
 
-            // So, according to SE none of operands is loop invariant.
-            // One case might be a casting SCEV which does not involve
-            if (isa<SCEVCastExpr>(first_op)) {
-                induction_variable = second_op;
-            } else {
-                induction_variable = first_op;
-            }
+//            if(Instruction * tmp = dyn_cast<Instruction>(condition->getOperand(0))) {
+//                dbgs() << "0 : " << *tmp << " " << tmp->isBinaryOp() <<'\n';
+//                if(tmp->isCast()) {
+//                    dbgs() << *tmp->getOperand(0) << *scev.get(dyn_cast<Instruction>(tmp->getOperand(0))->getOperand(0)) << "\n";
+//                }
+//            }
+//            if(Instruction * tmp = dyn_cast<Instruction>(condition->getOperand(1))) {
+//                dbgs() << "1 : " << *tmp << " " << tmp->isBinaryOp() <<'\n';
+//            }
+
+//            const SCEV *first_op = scev.get(condition->getOperand(0)),
+//                *second_op = scev.get(condition->getOperand(1));
+//            if (scev.getSE().isLoopInvariant(first_op, loop)) {
+//                induction_variable = second_op;
+//            } else if (scev.getSE().isLoopInvariant(second_op, loop)) {
+//                induction_variable = first_op;
+//            }
+//
+//            // So, according to SE none of operands is loop invariant.
+//            // One case might be a casting SCEV which does not involve
+//            if (isa<SCEVCastExpr>(first_op)) {
+//                induction_variable = second_op;
+//            } else {
+//                induction_variable = first_op;
+//            }
         }
 
         if(induction_variable) {
@@ -161,17 +226,27 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
 //            dbgs() << *condition << " " << loop->isLoopInvariant(condition->getOperand(0)) << " " << loop->isLoopInvariant(condition->getOperand(1)) << " " << *scev.getSE().getBackedgeTakenCount(loop);
 //            dbgs() << " " << *scev.get(condition->getOperand(0)) << " " << *scev.get(condition->getOperand(1)) << " " << (scev.getSE().getLoopDisposition(scev.get(condition->getOperand(1)), loop) == ScalarEvolution::LoopDisposition::LoopInvariant)
 //                   << " "  <<"\n";
-            std::string output;
-            raw_string_ostream string_os(output);
-            string_os << *condition;
-            os << "Unrecognized induction variable in: " << string_os.str() << '\n';
+            if(verbose) {
+                std::string output;
+                raw_string_ostream string_os(output);
+                string_os << *condition;
+                os << "Unrecognized induction variable in: " << string_os.str()
+                   << '\n';
+            }
             return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, condition);
         }
     } else {
-        std::string output;
-        raw_string_ostream string_os(output);
-        string_os << *branch->getCondition();
-        os << "Unrecognized condition: " << string_os.str() << '\n';
+        if(verbose) {
+            std::string output;
+            raw_string_ostream string_os(output);
+            string_os << *branch->getCondition();
+            os << "Unrecognized condition: " << string_os.str() << '\n';
+        }
         return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
     }
+}
+
+void LoopClassification::silence()
+{
+    verbose = false;
 }
