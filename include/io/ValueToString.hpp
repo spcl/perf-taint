@@ -28,15 +28,17 @@ class ValueToString
 
     std::string toString(const Constant * arg);
     std::string toString(const Argument * arg);
-
+    std::string toString(const BinaryOperator * op);
+    std::string toString(const GetElementPtrInst * get);
+    std::string toString(const ICmpInst * op, bool exitOnSuccess);
 public:
     ValueToString( SCEVAnalyzer & _scevPrinter) :
         SE(_scevPrinter.getSE()),
         scevPrinter(_scevPrinter)
     {}
 
+    std::string toString(const Instruction * instr, bool exitOnSuccess = false);
     std::string toString(Value * val);
-    std::string toString(const Instruction * instr);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_VALUETOSTRING_HPP

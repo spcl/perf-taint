@@ -34,7 +34,9 @@ public:
         valueFormatter(scev),
         results(_results),
         loop(_loop)
-    {}
+    {
+        scev.setValuePrinter(&valueFormatter);
+    }
 
     void extract(Loop * l);
     void printLoop(const results::LoopInformation & info, Loop *l, int depth = 1);

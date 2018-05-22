@@ -134,24 +134,31 @@ void LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, i
         id_end += '@';
     }
     loop << "!" << id_begin << "!" << '\n';
+    loop << "outerloop: " << 1 << "\n";
     std::string var_name = counters.getCounterName(l);
     loop << "var:" << var_name << " ; ";
     auto & exit = info.loopExits.front();
     const SCEV * induction_variable = std::get<0>(exit);
     //dbgs() << *std::get<2>(exit) << "\n";
+    auto * start_value = getInitialValue(induction_variable);
+    dbgs() << *start_value << " " << scev.isUnknown(start_value) << "\n";
     loop << "start: " << scev.toString(getInitialValue(induction_variable)) << " ; ";
     loop << "update: " << var_name << " = " << scev.toString(induction_variable, true) << " ; ";
-    loop << "guard: " << valueFormatter.toString( std::get<2>(exit) ) << " ;\n";
+    //dbgs() << *std::get<2>(exit) << "\n";
+    loop << "guard: " << valueFormatter.toString( std::get<2>(exit), std::get<3>(exit) ) << " ;\n";
 
     //dbgs() << *induction_variable << "\n";
-    ScalarEvolution & SE = scev.getSE();
-    auto tmp = (dyn_cast<SCEVAddRecExpr>(induction_variable))->evaluateAtIteration( dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 0))), SE );
-    if(isa<SCEVAddRecExpr>(tmp)) {
-        dbgs() << *(dyn_cast<SCEVAddRecExpr>(tmp))->evaluateAtIteration(dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 10))), SE ) << '\n';
-    }
+//    ScalarEvolution & SE = scev.getSE();
+//    auto tmp = (dyn_cast<SCEVAddRecExpr>(induction_variable))->evaluateAtIteration( dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 0))), SE );
+//    if(isa<SCEVAddRecExpr>(tmp)) {
+//        dbgs() << *(dyn_cast<SCEVAddRecExpr>(tmp))->evaluateAtIteration(dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 10))), SE ) << '\n';
+//    }
+    loop << "calls: {\n\n}\n";
 
+    loop << "nested:{\n";
     for (const results::LoopInformation & info_ : info.nestedLoops) {
         printLoop(info_, info_.loop, depth + 1);
     }
+    loop << "\n";
     loop << "!" << id_end << "!" << '\n';
 }

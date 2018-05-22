@@ -24,7 +24,7 @@ void simple_loop(int len, float * A)
     }
 
     // this might give a false update of 2*i
-    for (int i = 0; 2*i <= len; i++) {
+    for (int i = 0; 2*i < len; i++) {
         A[i] += 2.0;
     }
 

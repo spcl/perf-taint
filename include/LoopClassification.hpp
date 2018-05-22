@@ -26,7 +26,7 @@ class LoopClassification
     LoopCounters & counters;
     std::ostream & os;
     bool verbose;
-    std::tuple<const SCEV *, results::UpdateType, const Instruction *> analyzeExit(Loop * l, BasicBlock * block);
+    std::tuple<const SCEV *, results::UpdateType, Instruction *, bool> analyzeExit(Loop * l, BasicBlock * block);
 public:
     LoopClassification(SCEVAnalyzer & _scev, LoopCounters & _counters, std::ostream & _os):
         scev(_scev),

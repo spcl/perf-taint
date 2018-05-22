@@ -15,6 +15,7 @@
 using namespace llvm;
 
 class LoopCounters;
+class ValueToString;
 namespace results {
     enum class UpdateType;
 }
@@ -25,6 +26,7 @@ class SCEVAnalyzer
     LoopCounters & counters;
     std::ostream & log;
     bool verbose;
+    ValueToString * valuePrinter;
 
     std::string toString(const SCEVConstant * val, bool printAsUpdate);
     std::string toString(const SCEVTruncateExpr * val, bool printAsUpdate);
@@ -45,8 +47,14 @@ public:
         SE(_SE),
         counters(_counters),
         log(os),
-        verbose(true)
+        verbose(true),
+        valuePrinter(nullptr)
     {}
+
+    void setValuePrinter(ValueToString * printer)
+    {
+        valuePrinter = printer;
+    }
 
     void silence();
     std::string toString(const SCEV * val, bool printAsUpdate = false);
@@ -55,6 +63,8 @@ public:
     const SCEV * findSCEV(const SCEV * val, Loop * l);
     const SCEV * get(Value * val);
     ScalarEvolution & getSE();
+    bool isUnknown(const SCEV * scev);
+    bool couldBeIV(const SCEV * scev);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_SCEVTOSTRING_HPP

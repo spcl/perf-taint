@@ -147,7 +147,7 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 
 /// For the exit block, determine the terminator instruction and find the appropiate condition
 ///
-std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
+std::tuple<const SCEV *, results::UpdateType, Instruction *, bool> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
 {
     Instruction * block_term = block->getTerminator();
     if(!block_term) {
@@ -158,7 +158,7 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
             os << "Unrecognized exit block - no terminator expression: "
                << string_os.str() << '\n';
         }
-        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr, false);
     }
     BranchInst * branch = dyn_cast<BranchInst>(block_term);
     if(!branch) {
@@ -169,8 +169,9 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
             os << "Unrecognized exit block - not BranchInst: "
                << string_os.str() << '\n';
         }
-        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr ,false);
     }
+    //dbgs() << "Branch: " << *branch << " " << loop->isLoopExiting(branch->getSuccessor(0)) << " " << loop->isLoopExiting(branch->getSuccessor(1)) <<  "\n";
     Instruction * condition = dyn_cast<Instruction>(branch->getCondition());
     if(condition) {
         const SCEV * induction_variable = nullptr;
@@ -220,7 +221,7 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
         }
 
         if(induction_variable) {
-            return std::make_tuple(induction_variable, scev.classify(induction_variable), condition);
+            return std::make_tuple(induction_variable, scev.classify(induction_variable), condition, loop->isLoopExiting(branch->getSuccessor(0)));
         } else {
 //            dbgs() << *loop->getHeader() << "\n";
 //            dbgs() << *condition << " " << loop->isLoopInvariant(condition->getOperand(0)) << " " << loop->isLoopInvariant(condition->getOperand(1)) << " " << *scev.getSE().getBackedgeTakenCount(loop);
@@ -233,7 +234,7 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
                 os << "Unrecognized induction variable in: " << string_os.str()
                    << '\n';
             }
-            return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, condition);
+            return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, condition, loop->isLoopExiting(branch->getSuccessor(0)));
         }
     } else {
         if(verbose) {
@@ -242,7 +243,7 @@ std::tuple<const SCEV *, results::UpdateType, const Instruction *> LoopClassific
             string_os << *branch->getCondition();
             os << "Unrecognized condition: " << string_os.str() << '\n';
         }
-        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr);
+        return std::make_tuple(nullptr, results::UpdateType::NOT_FOUND, nullptr, false);
     }
 }
 

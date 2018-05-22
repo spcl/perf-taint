@@ -47,7 +47,7 @@ namespace results {
 
         Loop * loop;
         std::vector<LoopInformation> nestedLoops;
-        std::vector< std::tuple<const SCEV *, UpdateType, const Instruction *> > loopExits;
+        std::vector< std::tuple<const SCEV *, UpdateType, Instruction *, bool> > loopExits;
         std::string name;
 
         // IV not known, IV not found, blocks not recognized

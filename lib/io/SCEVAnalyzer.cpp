@@ -3,6 +3,7 @@
 //
 
 #include "io/SCEVAnalyzer.hpp"
+#include "io/ValueToString.hpp"
 #include "LoopCounters.hpp"
 #include "results/LoopInformation.hpp"
 
@@ -93,6 +94,8 @@ std::string SCEVAnalyzer::toString(const SCEV * val, bool printAsUpdate)
             return toString(dyn_cast<SCEVZeroExtendExpr>(val), printAsUpdate);
         case scUnknown:
             //SCEVUnknown * val = dyn_cast<SCEVUnknown>(val);
+            if(valuePrinter)
+                return valuePrinter->toString(dyn_cast<SCEVUnknown>(val)->getValue());
             return "unknown";//toString(val->getValue(), SE);
         default:
             errs() << "Unknown SCEV type: " << val->getSCEVType() << "\n";
@@ -129,14 +132,14 @@ std::string SCEVAnalyzer::toString(const SCEVSignExtendExpr * expr, bool)
     std::string type;
     raw_string_ostream os(type);
     expr->getType()->print(os);
-    return "signext(" + toString(expr->getOperand()) + ", " + os.str() + ")";
+    //return "signext(" + toString(expr->getOperand()) + ", " + os.str() + ")";
+    return toString(expr->getOperand());
 }
 
 std::string SCEVAnalyzer::toString(const SCEVAddExpr * expr, bool)
 {
     std::string str;
-    // here select var name
-    //expr->getLoop();
+    dbgs() << *expr->getOperand(0) << " " << *expr->getOperand(1) << "\n";
     str = toString(expr->getOperand(0));
     str += " + ";
     str = toString(expr->getOperand(1));
@@ -160,8 +163,8 @@ std::string SCEVAnalyzer::toString(const SCEVAddRecExpr * expr, bool printAsUpda
     // here select var name
     //expr->getLoop();
     //TODO: do we need more?
-    dbgs() << "Print: " << *expr << "\n";
-    dbgs() << "Print: " << expr << "\n";
+    //dbgs() << "Print: " << *expr << "\n";
+    //dbgs() << "Print: " << expr << "\n";
     if(printAsUpdate) {
         std::string variable = counters.getCounterName(expr->getLoop());
         str = variable + " + " + toString(expr->getOperand(1));
@@ -232,9 +235,20 @@ bool isAddition(BinaryOperator * op)
     return op->getOpcode() == Instruction::Add || op->getOpcode() == Instruction::FAdd || op->getOpcode() == Instruction::Or;
 }
 
-bool isUnknown(const SCEV * scev)
+bool SCEVAnalyzer::isUnknown(const SCEV * scev)
 {
-    return scev->getSCEVType() == scUnknown || scev->getSCEVType() == scCouldNotCompute;
+    //dbgs() << *scev << " " << isa<SCEVCastExpr>(scev) << "\n";
+    if(scev->getSCEVType() == scUnknown || scev->getSCEVType() == scCouldNotCompute) {
+        return true;
+    } else if(isa<SCEVCastExpr>(scev)) {
+        return isUnknown(dyn_cast<SCEVCastExpr>(scev)->getOperand());
+    }
+    return false;
+}
+
+bool SCEVAnalyzer::couldBeIV(const SCEV * scev)
+{
+    return scev->getSCEVType() == scAddRecExpr || scev->getSCEVType() == scAddMulExpr;
 }
 
 const SCEV * SCEVAnalyzer::findSCEV(Value * val, Loop * l)
