@@ -16,13 +16,17 @@ namespace llvm {
 
 using namespace llvm;
 
-struct LoopCounters
-{
+struct LoopCounters {
     std::vector<std::string> nestedLevels;
-    std::vector< std::tuple<Loop*, std::string, const SCEV *> > loops;
+    std::vector<std::tuple<Loop *, std::string, const SCEV *> > loops;
+    int counter;
+
+    LoopCounters() :
+        counter(1)
+    {}
 
     void enterNested(Loop * l, int multipathID);
-    void leaveNested();
+    void leaveNested(Loop * idx_to_remove);
     void addLoop(Loop *, const SCEV *, int, int);
     std::string getCounterName(const Loop *);
     void addIV(const Loop *, const SCEV *);

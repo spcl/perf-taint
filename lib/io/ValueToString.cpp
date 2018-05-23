@@ -21,7 +21,11 @@ std::string ValueToString::toString(const Argument * arg)
 {
     const Function * f = arg->getParent();
     if(f->hasName()) {
-        return f->getName().str() + "_" + std::to_string(arg->getArgNo()) + "";
+        // remove leading underscores - some symbolic solvers (e.g. Matlab's) go crazy because of that
+        std::string name = f->getName().str();
+        auto idx = name.find_first_not_of("_");
+        name = name.substr(idx, name.length() - idx + 1);
+        return name + "_" + std::to_string(arg->getArgNo()) + "";
     } else {
         return "unknown_function(" + std::to_string(arg->getArgNo()) + ")";
     }
@@ -92,10 +96,10 @@ std::string ValueToString::toString(const ICmpInst * integer_comparison, bool ex
     // Get negation!
     switch (integer_comparison->getPredicate()) {
         case CmpInst::ICMP_EQ:
-            val += exitOnSuccess ? " != " : " == ";
+            val += exitOnSuccess ? " ~= " : " == ";
             break;
         case CmpInst::ICMP_NE:
-            val += exitOnSuccess ? " == " : " != ";
+            val += exitOnSuccess ? " == " : " ~= ";
             break;
         case CmpInst::ICMP_UGT:
         case CmpInst::ICMP_SGT:

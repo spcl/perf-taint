@@ -25,6 +25,8 @@ class LoopExtractor
     std::ostream & results;
     std::ostream & loop;
 
+    int undef_counter;
+
     const SCEV * getInitialValue(const SCEV *val);
 public:
     LoopExtractor(SCEVAnalyzer & _scev, LoopCounters & _counters,
@@ -33,13 +35,15 @@ public:
         counters(_counters),
         valueFormatter(scev),
         results(_results),
-        loop(_loop)
+        loop(_loop),
+        undef_counter(0)
     {
         scev.setValuePrinter(&valueFormatter);
     }
 
-    void extract(Loop * l);
-    void printLoop(const results::LoopInformation & info, Loop *l, int depth = 1);
+    bool extract(Loop * l, int idx);
+    std::tuple<std::string, int, int> printLoop(const results::LoopInformation & info, Loop *l, int depth = 1, bool justHeader = false);
+    bool printOuterLoop(const results::LoopInformation & info, Loop *l, int idx);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_LOOPEXTRACTOR_HPP

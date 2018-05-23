@@ -11,6 +11,8 @@
 
 #include "llvm/IR/Function.h"
 
+#include <sstream>
+
 const SCEV * LoopExtractor::getInitialValue(const SCEV *val)
 {
     ScalarEvolution & SE = scev.getSE();
@@ -27,7 +29,7 @@ const SCEV * LoopExtractor::getInitialValue(const SCEV *val)
     }
 }
 
-void LoopExtractor::extract(Loop *l)
+bool LoopExtractor::extract(Loop *l, int idx)
 {
     LoopClassification classifier(scev, counters, results);
     classifier.silence();
@@ -36,10 +38,16 @@ void LoopExtractor::extract(Loop *l)
     if(info.includesMultipleExits)
         results << "multiple_exits\n";
     if(info.isCountableBySE)
-        results << "computable_se: " << info.scalarEvolutionComputeTime << " " << '\n';
+        results << "computable_se: YES" << " " << info.scalarEvolutionComputeTime << " " << '\n';
+    else
+        results << "computable_se: NO" << "\n";
     if(info.isCountableGreg)
-        printLoop(info, l);
+        results << "computable_greg: YES" << "\n";
+    else
+        results << "computable_greg: NO" << "\n";
+    bool is_def = printOuterLoop(info, l, idx);
     results << "---------\n";
+    return is_def;
 //    SmallVector<BasicBlock *, 8> ExitingBlocks;
 //    l->getExitingBlocks(ExitingBlocks);
 //    if(ExitingBlocks.size() > 1) {
@@ -126,39 +134,81 @@ void LoopExtractor::extract(Loop *l)
 //    dbgs() << '\n';
 }
 
-void LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth)
+bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop * l, int idx)
 {
+    loop << "!!!!!!\n";
+    loop << "outerloop: " << idx << ";" << "\n";
+    std::vector<std::string> loops;
+    int loop_count = 1, var_count = info.isCountableGreg;//info.loopExits.size() == 1;//
+    if(var_count) {
+        for (const results::LoopInformation &info_ : info.nestedLoops) {
+            auto x = printLoop(info_, info_.loop, 2);
+            //dbgs() << "Loops: " << loop_count << "\n";
+            loop_count += std::get<1>(x);
+            var_count += std::get<2>(x);
+            loops.push_back(std::move(std::get<0>(x)));
+        }
+    }
+    loop << "no_variables: " << var_count << "; no_loops: " << loop_count << "\n";
+    loop << std::get<0>(printLoop(info, l, 1, true)) << "\n";
+
+    loop << "calls: {\n\n}\n";
+
+    loop << "nested:{\n";
+    for(const std::string & nested_loop : loops) {
+        loop << nested_loop;
+    }
+    loop << "}\n";
+    loop << "!@!" << '\n';
+    //TODO: why is this necessary?
+    loop << "!@#parameters!@$\n";
+    loop << "######\n";
+    return info.loopExits.size() == 1;
+}
+
+// Loop representation, number of of loops, number of vars
+std::tuple<std::string, int, int> LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth, bool justHeader)
+{
+    std::stringstream loop;
     std::string id_begin = "", id_end;
     for(int i = 0; i < depth; ++i) {
         id_begin += '$';
         id_end += '@';
     }
     loop << "!" << id_begin << "!" << '\n';
-    loop << "outerloop: " << 1 << "\n";
-    std::string var_name = counters.getCounterName(l);
-    loop << "var:" << var_name << " ; ";
-    auto & exit = info.loopExits.front();
-    const SCEV * induction_variable = std::get<0>(exit);
-    //dbgs() << *std::get<2>(exit) << "\n";
-    auto * start_value = getInitialValue(induction_variable);
-    dbgs() << *start_value << " " << scev.isUnknown(start_value) << "\n";
-    loop << "start: " << scev.toString(getInitialValue(induction_variable)) << " ; ";
-    loop << "update: " << var_name << " = " << scev.toString(induction_variable, true) << " ; ";
-    //dbgs() << *std::get<2>(exit) << "\n";
-    loop << "guard: " << valueFormatter.toString( std::get<2>(exit), std::get<3>(exit) ) << " ;\n";
-
-    //dbgs() << *induction_variable << "\n";
-//    ScalarEvolution & SE = scev.getSE();
-//    auto tmp = (dyn_cast<SCEVAddRecExpr>(induction_variable))->evaluateAtIteration( dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 0))), SE );
-//    if(isa<SCEVAddRecExpr>(tmp)) {
-//        dbgs() << *(dyn_cast<SCEVAddRecExpr>(tmp))->evaluateAtIteration(dyn_cast<SCEVConstant>(SE.getConstant(APInt(32, 10))), SE ) << '\n';
-//    }
+    int loop_count = 1, var_count = 0;
+    if(info.isCountableGreg) { //loopExits.size() == 1) {
+        std::string var_name = counters.getCounterName(l);
+        loop << "var:" << var_name << " ; ";
+        auto &exit = info.loopExits.front();
+        const SCEV *induction_variable = std::get<0>(exit);
+        dbgs() << *std::get<2>(exit) << "\n";
+        loop << "start: " << scev.toString(getInitialValue(induction_variable))
+             << " ; ";
+        loop << "update: "
+             << scev.toString(induction_variable, true) << " ; ";
+        loop << "guard: "
+             << valueFormatter.toString(std::get<2>(exit), std::get<3>(exit))
+             << " ;";
+        loop << "header: " << l->getHeader()->getName().str() << "; cycles: 0;\n";
+        ++var_count;
+    } else {
+        loop << "UNDEF: undef" << undef_counter++ << "; header:; cycles: 0;\n";
+    }
+    if(justHeader)
+        return std::make_tuple(loop.str(), loop_count, var_count);
     loop << "calls: {\n\n}\n";
 
     loop << "nested:{\n";
-    for (const results::LoopInformation & info_ : info.nestedLoops) {
-        printLoop(info_, info_.loop, depth + 1);
+    if(info.isCountableGreg) { //loopExits.size() == 1) {
+        for (const results::LoopInformation &info_ : info.nestedLoops) {
+            auto res = printLoop(info_, info_.loop, depth + 1);
+            loop_count += std::get<1>(res);
+            var_count += std::get<2>(res);
+            loop << std::get<0>(res);
+        }
     }
-    loop << "\n";
+    loop << "}\n";
     loop << "!" << id_end << "!" << '\n';
+    return std::make_tuple(loop.str(), loop_count, var_count);
 }

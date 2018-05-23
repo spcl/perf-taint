@@ -86,8 +86,8 @@ results::LoopInformation LoopClassification::classify(Loop * l)
     for(Loop * nested : l->getSubLoops()) {
         counters.enterNested(nested, counter++);
         auto res = classify(nested);
+        counters.leaveNested(res.isCountableGreg ? nullptr : nested);
         result.nestedLoops.push_back( std::move(res) );
-        counters.leaveNested();
         result.nestedDepth = std::max(result.nestedDepth, res.nestedDepth);
         result.countLoops += res.countLoops;
         result.countExitBlocks += res.countExitBlocks;
@@ -120,7 +120,7 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         childIsUncountableUpdate |= res.isUncountableByPolyhedraUpdate;
         childIsCompletelyUncountable |= !res.isCountableByPolyhedra && !res.isUncountableByPolyhedraMultipath && !res.isUncountableByPolyhedraUpdate;
 
-        result.isCountableGreg &= res.isCountableGreg;
+        //result.isCountableGreg &= res.isCountableGreg;
         result.countCountableGreg += res.countCountableGreg;
     }
     // Add this loop only if we found it to be computable after inspecting all children

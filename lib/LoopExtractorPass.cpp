@@ -75,7 +75,8 @@ namespace {
         for (Function &f : m) {
             runOnFunction(f);
         }
-        loops << "^^^^^^\n";
+        // TODO: do we need this?
+        loops << "Undefs:{\n}\n";
         log.close();
         loops.close();
 
@@ -92,15 +93,16 @@ namespace {
             LoopExtractor extractor(analyzer, counters, log, loops);
 
             loops << cppsprintf("<<<Function:%s>>>", f.getName().str()) << '\n';
-            loops << "!!!!!!\n";
             int counter = 0;
             for (Loop * l : LI) {
                 counters.enterNested(l, counter++);
-                extractor.extract(l);
+                // Count loops from 1 to stay consistent with Greg's file format.
+                bool is_defined = extractor.extract(l, counter);
                 std::cout << "Extracted" << '\n';
-                counters.leaveNested();
+                counters.leaveNested(is_defined ? nullptr : l);
+                counters.clear();
             }
-            loops << "#####\n";
+            loops << "^^^^^^\n";
         }
         return false;
     }

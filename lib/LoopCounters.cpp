@@ -1,8 +1,9 @@
-//
+///
 // Created by mcopik on 5/3/18.
 //
 
 #include "LoopCounters.hpp"
+#include "util/util.hpp"
 
 #include "llvm/Analysis/LoopInfo.h"
 
@@ -33,17 +34,32 @@ void LoopCounters::enterNested(Loop * l, int multipathID)
                                                 [](const std::string & val1, const std::string & val2) -> std::string {
                                                     return val1 + val2;
                                                 });
-    loops.emplace_back(l, current_level, nullptr);
+    loops.emplace_back(l, /*current_level*/ cppsprintf("0%d", counter++), nullptr);
 }
 
-void LoopCounters::leaveNested()
+void LoopCounters::leaveNested(Loop * idx_to_remove)
 {
+    dbgs() << "Leave " << idx_to_remove << "\n";
+    if(idx_to_remove) {
+        auto it = std::find_if(loops.begin(), loops.end(),
+                               [idx_to_remove](const std::tuple<Loop *, std::string, const SCEV *> & obj) {
+                                   return idx_to_remove == std::get<0>(obj);
+                               }
+        );
+        counter = std::atoi(std::get<1>(*it).c_str());
+        std::for_each(it, loops.end(),
+            [](auto & obj) {
+                std::get<1>(obj) = "INVALID";
+            }
+        );
+    }
     nestedLevels.pop_back();
 }
 
 void LoopCounters::clear()
 {
     loops.clear();
+    counter = 1;
 }
 
 void LoopCounters::addIV(const Loop * l, const SCEV * scev)
@@ -53,7 +69,7 @@ void LoopCounters::addIV(const Loop * l, const SCEV * scev)
                            [l, scev](std::tuple<Loop *, std::string, const SCEV *> & obj) {
                                 if(l == std::get<0>(obj)) {
                                     std::get<2>(obj) = scev;
-                                    dbgs() << "Insert: " << scev << " " << std::get<1>(obj) << "\n";
+                                    //dbgs() << "Insert: " << scev << " " << std::get<1>(obj) << "\n";
                                     return true;
                                 }
                                 return false;
