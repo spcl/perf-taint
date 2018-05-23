@@ -32,6 +32,7 @@ struct LoopCounters {
     void addIV(const Loop *, const SCEV *);
     std::tuple<std::string, const SCEV *> getIV(const Loop * l);
     void clear();
+    void clearFromTo(Loop * cur, Loop * last);
 };
 
 #endif //LOOP_EXTRACTOR_CPP_LOOPCOUNTERS_HPP

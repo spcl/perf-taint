@@ -42,7 +42,7 @@ public:
     }
 
     bool extract(Loop * l, int idx);
-    std::tuple<std::string, int, int> printLoop(const results::LoopInformation & info, Loop *l, int depth = 1, bool justHeader = false);
+    std::tuple<std::string, int, int, bool> printLoop(const results::LoopInformation & info, Loop *l, int depth = 1, bool justHeader = false);
     bool printOuterLoop(const results::LoopInformation & info, Loop *l, int idx);
 };
 

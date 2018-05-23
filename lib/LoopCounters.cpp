@@ -46,7 +46,7 @@ void LoopCounters::leaveNested(Loop * idx_to_remove)
                                    return idx_to_remove == std::get<0>(obj);
                                }
         );
-        counter = std::atoi(std::get<1>(*it).c_str());
+        //counter = std::atoi(std::get<1>(*it).c_str());
         std::for_each(it, loops.end(),
             [](auto & obj) {
                 std::get<1>(obj) = "INVALID";
@@ -91,5 +91,28 @@ std::tuple<std::string, const SCEV *> LoopCounters::getIV(const Loop * l)
         return std::make_tuple("x" + std::get<1>(*it), std::get<2>(*it));
     } else {
         return std::make_tuple("", nullptr);
+    }
+}
+
+void LoopCounters::clearFromTo(Loop * cur, Loop * last)
+{
+    auto it = std::find_if(loops.begin(), loops.end(),
+                           [cur](const auto & obj) {
+                               return cur == std::get<0>(obj);
+                           }
+    );
+    std::string & str = std::get<1>(*it);
+    int counter = std::atoi( str.c_str() );
+    while(it != loops.end()) {
+        std::get<1>(*it) = "INVALID";
+        if(std::get<0>(*it) == last) {
+            ++it;
+            break;
+        }
+        ++it;
+    }
+    while(it != loops.end()) {
+        std::get<1>(*it) = cppsprintf("0%d", counter++);
+        ++it;
     }
 }

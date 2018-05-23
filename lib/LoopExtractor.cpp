@@ -150,13 +150,16 @@ bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop *
         }
     }
     loop << "no_variables: " << var_count << "; no_loops: " << loop_count << "\n";
-    loop << std::get<0>(printLoop(info, l, 1, true)) << "\n";
+    auto res = printLoop(info, l, 1, true);
+    loop << std::get<0>(res) << "\n";
 
     loop << "calls: {\n\n}\n";
 
     loop << "nested:{\n";
-    for(const std::string & nested_loop : loops) {
-        loop << nested_loop;
+    if(!std::get<3>(res)) {
+        for (const std::string &nested_loop : loops) {
+            loop << nested_loop;
+        }
     }
     loop << "}\n";
     loop << "!@!" << '\n';
@@ -167,9 +170,9 @@ bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop *
 }
 
 // Loop representation, number of of loops, number of vars
-std::tuple<std::string, int, int> LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth, bool justHeader)
+std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth, bool justHeader)
 {
-    std::stringstream loop;
+    std::stringstream loop, loop_description;
     std::string id_begin = "", id_end;
     for(int i = 0; i < depth; ++i) {
         id_begin += '$';
@@ -179,36 +182,49 @@ std::tuple<std::string, int, int> LoopExtractor::printLoop(const results::LoopIn
     int loop_count = 1, var_count = 0;
     if(info.isCountableGreg) { //loopExits.size() == 1) {
         std::string var_name = counters.getCounterName(l);
-        loop << "var:" << var_name << " ; ";
+        loop_description << "var:" << var_name << " ; ";
         auto &exit = info.loopExits.front();
         const SCEV *induction_variable = std::get<0>(exit);
-        dbgs() << *std::get<2>(exit) << "\n";
-        loop << "start: " << scev.toString(getInitialValue(induction_variable))
+        loop_description << "start: " << scev.toString(getInitialValue(induction_variable))
              << " ; ";
-        loop << "update: "
+        loop_description << "update: "
              << scev.toString(induction_variable, true) << " ; ";
-        loop << "guard: "
+        loop_description << "guard: "
              << valueFormatter.toString(std::get<2>(exit), std::get<3>(exit))
              << " ;";
-        loop << "header: " << l->getHeader()->getName().str() << "; cycles: 0;\n";
+        loop_description << "header: " << l->getHeader()->getName().str() << "; cycles: 0;\n";
         ++var_count;
-    } else {
+    }
+    bool is_undefined = !info.isCountableGreg || loop_description.str().find("undef") != std::string::npos;
+    if(is_undefined){
         loop << "UNDEF: undef" << undef_counter++ << "; header:; cycles: 0;\n";
+    } else {
+        loop << loop_description.str() << "\n";
     }
     if(justHeader)
-        return std::make_tuple(loop.str(), loop_count, var_count);
+        return std::make_tuple(loop.str(), loop_count, var_count, is_undefined);
     loop << "calls: {\n\n}\n";
 
     loop << "nested:{\n";
-    if(info.isCountableGreg) { //loopExits.size() == 1) {
+    if(!is_undefined) { //loopExits.size() == 1) {
         for (const results::LoopInformation &info_ : info.nestedLoops) {
             auto res = printLoop(info_, info_.loop, depth + 1);
             loop_count += std::get<1>(res);
             var_count += std::get<2>(res);
             loop << std::get<0>(res);
         }
+    } else {
+        // clear counters
+        // we rely here on visiting depth-first - clean until you meet
+        Loop * last_one = l;
+        const results::LoopInformation * current = &info;
+        while(!current->nestedLoops.empty()) {
+            last_one = info.nestedLoops.back().loop;
+            current = &info.nestedLoops.back();
+        }
+        counters.clearFromTo(l, last_one);
     }
     loop << "}\n";
     loop << "!" << id_end << "!" << '\n';
-    return std::make_tuple(loop.str(), loop_count, var_count);
+    return std::make_tuple(loop.str(), loop_count, var_count, is_undefined);
 }
