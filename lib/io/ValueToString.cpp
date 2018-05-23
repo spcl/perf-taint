@@ -1,10 +1,14 @@
 
 #include "io/ValueToString.hpp"
 #include "io/SCEVAnalyzer.hpp"
+#include "util/util.hpp"
 
+#include "llvm/IR/DebugInfoMetadata.h"
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Analysis/ScalarEvolution.h"
+
+#include <ostream>
 
 std::string ValueToString::toString(const Constant * val)
 {
@@ -12,9 +16,13 @@ std::string ValueToString::toString(const Constant * val)
         return std::to_string(integer->getSExtValue());
     } else if(const GlobalVariable * var = dyn_cast<GlobalVariable>(val)) {
         return var->getName();
-    } else {
+    } else if(const UndefValue * var = dyn_cast<UndefValue>(val)) {
+        return "undef";
+    }
+    else {
         assert(!"Unknown type!");
     }
+
 }
 
 std::string ValueToString::toString(const Argument * arg)
@@ -44,7 +52,7 @@ std::string ValueToString::toString(Value * value)
         return toString(arg);
     } else if(scev && scevPrinter.couldBeIV(scev)) {
         return scevPrinter.toString(scev, false);
-    } else if(const Instruction * instr = dyn_cast<Instruction>(value)) {
+    } else if(Instruction * instr = dyn_cast<Instruction>(value)) {
         return toString(instr);
     }
     else {
@@ -58,7 +66,7 @@ std::string ValueToString::toString(Value * value)
     }
 }
 
-std::string ValueToString::toString(const Instruction * instr, bool exitsOnSuccess)
+std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
 {
     if(instr->isCast()) {
         //TODO: implement casts - for the momement ignore
@@ -85,6 +93,24 @@ std::string ValueToString::toString(const Instruction * instr, bool exitsOnSucce
         }
         return load_instr->getOperand(0)->getName();//->print(os);
         //return os.str();
+    } else if(const PHINode * phi = dyn_cast<PHINode>(instr)) {
+        std::string str;
+        llvm::raw_string_ostream ss(str);
+        phi->print(ss);
+        log << "Detected unsolvable PHI: " << ss.str();
+        const DebugLoc & loc = phi->getDebugLoc();
+        auto * scope = phi->getFunction()->getSubprogram();
+        if(loc) {
+            log << "; file: " << loc.get()->getFilename().str() << " line: " << loc.getLine() << "\n";
+        } else if (scope) {
+            log << "; function: " << scope->getName().str() << " file: " << scope->getFilename().str() << " line: " << scope->getLine() << "\n";
+        } else {
+            log << ";\n";
+        }
+        return "undef";
+    } else if(const CallInst * invoke = dyn_cast<CallInst>(instr)) {
+        dbgs() << "Function: " << invoke->getOperand(0) << "\n";
+        return "Call";
     }
     assert(!"Unknown instr type!");
 }
@@ -124,29 +150,35 @@ std::string ValueToString::toString(const ICmpInst * integer_comparison, bool ex
 
 std::string ValueToString::toString(const BinaryOperator * op)
 {
-    std::string val = toString(op->getOperand(0));
+    std::string op1 = toString(op->getOperand(0));
+    std::string op2 = toString(op->getOperand(1));
+    std::string op_str;
     switch(op->getOpcode())
     {
         case BinaryOperator::FMul:
         case BinaryOperator::Mul:
-            val += " * ";
+            op_str = " * ";
             break;
         case BinaryOperator::FAdd:
         case BinaryOperator::Add:
-            val += " + ";
+            op_str = " + ";
             break;
         case BinaryOperator::FSub:
         case BinaryOperator::Sub:
-            val += " - ";
+            op_str = " - ";
             break;
         case BinaryOperator::FDiv:
-            val += " / ";
+            op_str = " / ";
+            break;
+        // TODO: verify it is indeed multiplication by two?
+        case BinaryOperator::Shl:
+            op_str = " * ";
+            op2 = cppsprintf("( 2^(%s) )", op2);
             break;
         default:
             assert(!"Unknown binary operator!");
     }
-    val += toString(op->getOperand(1));
-    return val;
+    return op1 + op_str + op2;
 }
 
 std::string ValueToString::toString(const GetElementPtrInst * get)

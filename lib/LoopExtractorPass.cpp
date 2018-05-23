@@ -7,6 +7,7 @@
 
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/IR/DebugInfoMetadata.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
@@ -93,8 +94,19 @@ namespace {
             LoopExtractor extractor(analyzer, counters, log, loops);
 
             loops << cppsprintf("<<<Function:%s>>>", f.getName().str()) << '\n';
+            DISubprogram * location = f.getSubprogram();
+            log << "Function: " << f.getName().str();
+            if(location) {
+                log << " file : " << location->getFilename().str() << " line: " << location->getLine() << "\n";
+            } else {
+                log << " file : unknown line: unknown\n";
+            }
             int counter = 0;
             for (Loop * l : LI) {
+                auto loc = l->getStartLoc();
+                if(loc) {
+                    log << "File: " << loc.get()->getFilename().str() << " line: " << loc.getLine() << "\n";
+                }
                 counters.enterNested(l, counter++);
                 // Count loops from 1 to stay consistent with Greg's file format.
                 bool is_defined = extractor.extract(l, counter);

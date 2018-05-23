@@ -25,6 +25,7 @@ class ValueToString
 {
     ScalarEvolution & SE;
     SCEVAnalyzer & scevPrinter;
+    std::ostream & log;
 
     std::string toString(const Constant * arg);
     std::string toString(const Argument * arg);
@@ -32,12 +33,13 @@ class ValueToString
     std::string toString(const GetElementPtrInst * get);
     std::string toString(const ICmpInst * op, bool exitOnSuccess);
 public:
-    ValueToString( SCEVAnalyzer & _scevPrinter) :
+    ValueToString( SCEVAnalyzer & _scevPrinter, std::ostream & os) :
         SE(_scevPrinter.getSE()),
-        scevPrinter(_scevPrinter)
+        scevPrinter(_scevPrinter),
+        log(os)
     {}
 
-    std::string toString(const Instruction * instr, bool exitOnSuccess = false);
+    std::string toString(Instruction * instr, bool exitOnSuccess = false);
     std::string toString(Value * val);
 };
 

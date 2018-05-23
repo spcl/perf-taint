@@ -33,7 +33,7 @@ public:
                   std::ostream & _results, std::ostream & _loop):
         scev(_scev),
         counters(_counters),
-        valueFormatter(scev),
+        valueFormatter(scev, _results),
         results(_results),
         loop(_loop),
         undef_counter(0)

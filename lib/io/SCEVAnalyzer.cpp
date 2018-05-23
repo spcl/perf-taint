@@ -94,8 +94,13 @@ std::string SCEVAnalyzer::toString(const SCEV * val, bool printAsUpdate)
             return toString(dyn_cast<SCEVZeroExtendExpr>(val), printAsUpdate);
         case scUnknown:
             //SCEVUnknown * val = dyn_cast<SCEVUnknown>(val);
-            if(valuePrinter)
-                return valuePrinter->toString(dyn_cast<SCEVUnknown>(val)->getValue());
+            if(valuePrinter) {
+                //dbgs() <<
+                //dbgs() << dyn_cast<SCEVUnknown>(val)->getValue()-><< " " << *val
+                //       << "\n";
+                return valuePrinter->toString(
+                    dyn_cast<SCEVUnknown>(val)->getValue());
+            }
             return "unknown";//toString(val->getValue(), SE);
         default:
             errs() << "Unknown SCEV type: " << val->getSCEVType() << "\n";
