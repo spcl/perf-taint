@@ -60,7 +60,7 @@ public:
     std::string toString(const SCEV * val, bool printAsUpdate = false);
     results::UpdateType classify(const SCEV *val);
     const SCEV * findSCEV(Value * val, Loop * l);
-    const SCEV * findSCEV(const SCEV * val, Loop * l);
+    //const SCEV * findSCEV(const SCEV * val, Loop * l);
     const SCEV * get(Value * val);
     ScalarEvolution & getSE();
     bool isUnknown(const SCEV * scev);

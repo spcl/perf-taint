@@ -109,8 +109,9 @@ std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
         }
         return "undef";
     } else if(const CallInst * invoke = dyn_cast<CallInst>(instr)) {
-        dbgs() << "Function: " << invoke->getOperand(0) << "\n";
-        return "Call";
+        //dbgs() << "Function: " << invoke->getOperand(0) << "\n";
+        // TODO: process simple function calls
+        return "undef";
     }
     assert(!"Unknown instr type!");
 }

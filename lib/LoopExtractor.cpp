@@ -213,7 +213,9 @@ std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::
             var_count += std::get<2>(res);
             loop << std::get<0>(res);
         }
-    } else {
+    }
+    // clean only if undefined has been introduced right now
+    else if (info.isCountableGreg){
         // clear counters
         // we rely here on visiting depth-first - clean until you meet
         Loop * last_one = l;

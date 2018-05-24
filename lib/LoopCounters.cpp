@@ -46,7 +46,7 @@ void LoopCounters::leaveNested(Loop * idx_to_remove)
                                    return idx_to_remove == std::get<0>(obj);
                                }
         );
-        //counter = std::atoi(std::get<1>(*it).c_str());
+        counter = std::atoi(std::get<1>(*it).c_str());
         std::for_each(it, loops.end(),
             [](auto & obj) {
                 std::get<1>(obj) = "INVALID";
@@ -101,8 +101,11 @@ void LoopCounters::clearFromTo(Loop * cur, Loop * last)
                                return cur == std::get<0>(obj);
                            }
     );
+    assert(it != loops.end());
     std::string & str = std::get<1>(*it);
-    int counter = std::atoi( str.c_str() );
+    counter = std::atoi(std::get<1>(*it).c_str());
+    dbgs() << "Replace: " << str << " with counter value: " << counter << "\n";
+    dbgs() << "Replace for: " << std::get<0>(*it) << " to: " << last << "\n";
     while(it != loops.end()) {
         std::get<1>(*it) = "INVALID";
         if(std::get<0>(*it) == last) {
@@ -111,8 +114,8 @@ void LoopCounters::clearFromTo(Loop * cur, Loop * last)
         }
         ++it;
     }
-    while(it != loops.end()) {
-        std::get<1>(*it) = cppsprintf("0%d", counter++);
-        ++it;
-    }
+    //while(it != loops.end()) {
+    //    std::get<1>(*it) = cppsprintf("0%d", counter++);
+    //    ++it;
+    //}
 }

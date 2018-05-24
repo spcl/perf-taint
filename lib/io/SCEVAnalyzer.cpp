@@ -201,7 +201,7 @@ std::string SCEVAnalyzer::toString(const SCEVAddMulExpr * expr, bool printAsUpda
 
 const SCEV * SCEVAnalyzer::get(Value * val)
 {
-    return SE.getSCEV(val);
+    return SE.isSCEVable(val->getType()) ? SE.getSCEV(val) : nullptr;
 }
 
 ScalarEvolution & SCEVAnalyzer::getSE()
@@ -212,11 +212,6 @@ ScalarEvolution & SCEVAnalyzer::getSE()
 void SCEVAnalyzer::silence()
 {
     verbose = false;
-}
-
-const SCEV * SCEVAnalyzer::findSCEV(const SCEV * val, Loop * l)
-{
-
 }
 
 bool SCEVAnalyzer::isLoopInvariant(const SCEV * scev, Loop * l)
