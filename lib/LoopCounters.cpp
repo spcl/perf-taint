@@ -114,8 +114,9 @@ void LoopCounters::clearFromTo(Loop * cur, Loop * last)
         }
         ++it;
     }
-    //while(it != loops.end()) {
-    //    std::get<1>(*it) = cppsprintf("0%d", counter++);
-    //    ++it;
-    //}
+    while(it != loops.end()) {
+        outs() << std::get<1>(*it) << " " << counter << "\n";
+        std::get<1>(*it) = cppsprintf("0%d", counter++);
+        ++it;
+    }
 }
