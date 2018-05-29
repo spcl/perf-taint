@@ -37,11 +37,13 @@ bool LoopExtractor::extract(Loop *l, int idx)
 
     if(info.includesMultipleExits)
         results << "multiple_exits\n";
-    if(info.isCountableBySE)
-        results << "computable_se: YES" << " " << info.scalarEvolutionComputeTime << " " << '\n';
-    else
+    if(info.isCountableBySE) {
+        results << "computable_se: YES" << "\n";
+        results << "se_time: " << info.scalarEvolutionComputeTime << " "
+                << '\n';
+    } else
         results << "computable_se: NO" << "\n";
-    if(info.isCountableGreg)
+    if(info.    isCountableGreg)
         results << "computable_greg: YES" << "\n";
     else
         results << "computable_greg: NO" << "\n";
@@ -224,7 +226,7 @@ std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::
             last_one = info.nestedLoops.back().loop;
             current = &info.nestedLoops.back();
         }
-        counters.clearFromTo(l, last_one);
+            counters.clearFromTo(l, last_one);
     }
     loop << "}\n";
     loop << "!" << id_end << "!" << '\n';
