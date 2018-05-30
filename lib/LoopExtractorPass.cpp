@@ -69,6 +69,7 @@ namespace {
                            "loops" :
                            cppsprintf("%s/loops",
                                       LogDirName.getValue().c_str());
+        dbgs() << "Write to: " << loops_name << "\n";
         loops.open(
             cppsprintf("%s_%s", loops_name.c_str(), LogFileName.getValue().c_str()),
             std::ios::out);
@@ -97,20 +98,21 @@ namespace {
             DISubprogram * location = f.getSubprogram();
             log << "Function: " << f.getName().str();
             if(location) {
-                log << " file : " << location->getFilename().str() << " line: " << location->getLine() << "\n";
+                log << " file: " << location->getFilename().str() << " line: " << location->getLine() << "\n";
             } else {
-                log << " file : unknown line: unknown\n";
+                log << " file: unknown line: unknown\n";
             }
             int counter = 0;
             for (Loop * l : LI) {
                 auto loc = l->getStartLoc();
                 if(loc) {
                     log << "File: " << loc.get()->getFilename().str() << " line: " << loc.getLine() << "\n";
+                } else {
+                    log << "File: unknown line: unknown\n";
                 }
                 counters.enterNested(l, counter++);
                 // Count loops from 1 to stay consistent with Greg's file format.
                 bool is_defined = extractor.extract(l, counter);
-                std::cout << "Extracted" << '\n';
                 counters.leaveNested(is_defined ? nullptr : l);
                 counters.clear();
             }
