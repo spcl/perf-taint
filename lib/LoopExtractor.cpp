@@ -138,37 +138,41 @@ bool LoopExtractor::extract(Loop *l, int idx)
 
 bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop * l, int idx)
 {
-    loop << "!!!!!!\n";
-    loop << "outerloop: " << idx << ";" << "\n";
     std::vector<std::string> loops;
-    int loop_count = 1, var_count = info.isCountableGreg;//info.loopExits.size() == 1;//
+    auto res = printLoop(info, l, 1, true);
+    int loop_count = 1, var_count = info.isCountableGreg && std::get<0>(res).find("undef") == std::string::npos;//info.loopExits.size() == 1;//
+    //dbgs() << std::get<0>(res) << " " << (std::get<0>(res).find("undef") != std::string::npos) << " " <<  var_count << "\n";
     if(var_count) {
         for (const results::LoopInformation &info_ : info.nestedLoops) {
             auto x = printLoop(info_, info_.loop, 2);
             //dbgs() << "Loops: " << loop_count << "\n";
             loop_count += std::get<1>(x);
+            // don't count undefined
             var_count += std::get<2>(x);
             loops.push_back(std::move(std::get<0>(x)));
         }
+    } else {
+        return false;
     }
+    loop << "!!!!!!\n";
+    loop << "outerloop: " << idx << ";" << "\n";
     loop << "no_variables: " << var_count << "; no_loops: " << loop_count << "\n";
-    auto res = printLoop(info, l, 1, true);
     loop << std::get<0>(res) << "\n";
 
     loop << "calls: {\n\n}\n";
 
     loop << "nested:{\n";
-    if(!std::get<3>(res)) {
-        for (const std::string &nested_loop : loops) {
-            loop << nested_loop;
-        }
+    //if(!std::get<3>(res)) {
+    for (const std::string &nested_loop : loops) {
+        loop << nested_loop;
     }
+    //}
     loop << "}\n";
     loop << "!@!" << '\n';
     //TODO: why is this necessary?
     loop << "!@#parameters!@$\n";
     loop << "######\n";
-    return info.loopExits.size() == 1;
+    return true;
 }
 
 // Loop representation, number of of loops, number of vars
@@ -223,10 +227,10 @@ std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::
         Loop * last_one = l;
         const results::LoopInformation * current = &info;
         while(!current->nestedLoops.empty()) {
-            last_one = info.nestedLoops.back().loop;
-            current = &info.nestedLoops.back();
+            last_one = current->nestedLoops.back().loop;
+            current = &current->nestedLoops.back();
         }
-            counters.clearFromTo(l, last_one);
+        counters.clearFromTo(l, last_one);
     }
     loop << "}\n";
     loop << "!" << id_end << "!" << '\n';
