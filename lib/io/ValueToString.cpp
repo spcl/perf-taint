@@ -20,7 +20,9 @@ std::string ValueToString::toString(const Constant * val)
         return "undef";
     }
     else {
-        assert(!"Unknown type!");
+        //FIXME:
+        return "undef";
+        //assert(!"Unknown type!");
     }
 
 }
@@ -42,10 +44,10 @@ std::string ValueToString::toString(const Argument * arg)
 std::string ValueToString::toString(Value * value)
 {
     assert(value);
-    dbgs() << "Print: " << *value << "\n";
-    const SCEV * scev = SE.getSCEV(value);
-    if(scev)
-        dbgs() << "Print SCEV: " << *scev << "\n";
+    //dbgs() << "Print: " << *value << "\n";
+    const SCEV * scev = SE.isSCEVable(value->getType()) ?  SE.getSCEV(value) : nullptr;
+    //if(scev)
+     //   dbgs() << "Print SCEV: " << *scev << "\n";
     if(const Constant * val = dyn_cast<Constant>(value)) {
         return toString(val);
     } else if(const Argument * arg = dyn_cast<Argument>(value)) {
@@ -84,7 +86,10 @@ std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
             return toString(get_inst);
         } else if(ConstantExpr * const_expr = dyn_cast<ConstantExpr>(load_instr->getOperand(0))) {
             //dbgs() << *const_expr << " " << const_expr->isGEPWithNoNotionalOverIndexing() << "\n";
-            assert(const_expr->isGEPWithNoNotionalOverIndexing());
+            //FIXME:
+            //assert(const_expr->isGEPWithNoNotionalOverIndexing());
+            if(!const_expr->isGEPWithNoNotionalOverIndexing())
+                return "undef";
             Value * x = const_expr->getOperand(0);
 
     //        dbgs() << dyn_cast<GlobalVariable>(x)->getName() << " " << isa<ConstantArray>(x) << " " << *const_expr->getOperand(1) << "\n";
@@ -113,7 +118,9 @@ std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
         // TODO: process simple function calls
         return "undef";
     }
-    assert(!"Unknown instr type!");
+    //FIXME:
+    return "undef";
+    //assert(!"Unknown instr type!");
 }
 
 std::string ValueToString::toString(const ICmpInst * integer_comparison, bool exitOnSuccess)
@@ -177,7 +184,9 @@ std::string ValueToString::toString(const BinaryOperator * op)
             op2 = cppsprintf("( 2^(%s) )", op2);
             break;
         default:
-            assert(!"Unknown binary operator!");
+            //FIXME:
+            //assert(!"Unknown binary operator!");
+            return "undef";
     }
     return op1 + op_str + op2;
 }
@@ -185,6 +194,7 @@ std::string ValueToString::toString(const BinaryOperator * op)
 std::string ValueToString::toString(const GetElementPtrInst * get)
 {
     //dbgs() << get->getNumOperands() << "\n";
-    assert(false);
-    return "";
+    //assert(false);
+    //FIXME:
+    return "undef";
 }

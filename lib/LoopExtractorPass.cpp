@@ -63,13 +63,13 @@ namespace {
         log.open(
             cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()),
             std::ios::out);
-        dbgs() << cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()) << '\n';
+        //dbgs() << cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()) << '\n';
 
         std::string loops_name = LogDirName.getValue().empty() ?
                            "loops" :
                            cppsprintf("%s/loops",
                                       LogDirName.getValue().c_str());
-        dbgs() << "Write to: " << loops_name << "\n";
+        //dbgs() << "Write to: " << loops_name << "\n";
         loops.open(
             cppsprintf("%s_%s", loops_name.c_str(), LogFileName.getValue().c_str()),
             std::ios::out);

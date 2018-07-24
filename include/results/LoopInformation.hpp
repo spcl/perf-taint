@@ -8,6 +8,8 @@
 
 #include "llvm/IR/Instructions.h"
 
+#include <results/LoopIV.hpp>
+
 #include <vector>
 #include <string>
 
@@ -21,33 +23,17 @@ using namespace llvm;
 
 namespace results {
 
-    enum class UpdateType : int
-    {
-        NOT_FOUND,
-        UNKNOWN,
-        INCREMENT,
-        ADD,
-        MULTIPLY,
-        AFFINE,
-        END_ENUM
-    };
-
-    inline int operator*(UpdateType val)
-    {
-        return static_cast<int>(val);
-    }
-
     struct LoopInformation
     {
 
         LoopInformation()
         {
-            std::memset(countUpdates, 0, sizeof(int)* *UpdateType::END_ENUM);
+            std::memset(countUpdates, 0, sizeof(int)* *loopprofiler::UpdateType::END_ENUM);
         }
 
         Loop * loop;
         std::vector<LoopInformation> nestedLoops;
-        std::vector< std::tuple<const SCEV *, UpdateType, Instruction *, bool> > loopExits;
+        std::vector< std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> > loopExits;
         std::string name;
 
         // IV not known, IV not found, blocks not recognized
@@ -93,7 +79,7 @@ namespace results {
         int countMultipleExits;
 
         // Number of IV update types in each nested loop, including all loop exits.
-        int countUpdates[ static_cast<int>(UpdateType::END_ENUM) ];
+        int countUpdates[ static_cast<int>(loopprofiler::UpdateType::END_ENUM) ];
 
         inline void clear();
 
@@ -110,7 +96,7 @@ namespace results {
     {
         LoopInformation new_result;
         new_result.clear();
-        int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
+        int iter_bound = static_cast<int>(loopprofiler::UpdateType::END_ENUM);
         for(; begin != end; ++begin) {
             new_result.countLoops += begin->countLoops;
             new_result.countExitBlocks += begin->countExitBlocks;
@@ -136,7 +122,7 @@ namespace results {
     {
         LoopInformation new_result;
         new_result.clear();
-        int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
+        int iter_bound = static_cast<int>(loopprofiler::UpdateType::END_ENUM);
         for(; begin != end; ++begin) {
             new_result.countLoops++;
             new_result.countExitBlocks += begin->loopExits.size();
@@ -189,7 +175,7 @@ namespace results {
         isNested = 0;
         includesMultipleExits = 0;
         countMultipleExits = 0;
-        int iter_bound = static_cast<int>(results::UpdateType::END_ENUM);
+        int iter_bound = static_cast<int>(loopprofiler::UpdateType::END_ENUM);
         for(int i = 0; i < iter_bound; ++i) {
             countUpdates[i] = 0;
         }

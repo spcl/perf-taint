@@ -39,7 +39,7 @@ void LoopCounters::enterNested(Loop * l, int multipathID)
 
 void LoopCounters::leaveNested(Loop * idx_to_remove)
 {
-    dbgs() << "Leave " << idx_to_remove << "\n";
+    //dbgs() << "Leave " << idx_to_remove << "\n";
     if(idx_to_remove) {
         auto it = std::find_if(loops.begin(), loops.end(),
                                [idx_to_remove](const std::tuple<Loop *, std::string, const SCEV *> & obj) {
@@ -47,11 +47,11 @@ void LoopCounters::leaveNested(Loop * idx_to_remove)
                                }
         );
         counter = std::atoi(std::get<1>(*it).c_str());
-        std::for_each(it, loops.end(),
-            [](auto & obj) {
-                std::get<1>(obj) = "INVALID";
-            }
-        );
+//        std::for_each(it, loops.end(),
+//            [](auto & obj) {
+//                std::get<1>(obj) = "INVALID";
+//            }
+//        );
     }
     nestedLevels.pop_back();
 }
@@ -104,8 +104,8 @@ void LoopCounters::clearFromTo(Loop * cur, Loop * last)
     assert(it != loops.end());
     std::string & str = std::get<1>(*it);
     counter = std::atoi(std::get<1>(*it).c_str());
-    dbgs() << "Replace: " << str << " with counter value: " << counter << "\n";
-    dbgs() << "Replace for: " << std::get<0>(*it) << " to: " << last << "\n";
+    //dbgs() << "Replace: " << str << " with counter value: " << counter << "\n";
+    //dbgs() << "Replace for: " << std::get<0>(*it) << " to: " << last << "\n";
     while(it != loops.end()) {
         std::get<1>(*it) = "INVALID";
         if(std::get<0>(*it) == last) {

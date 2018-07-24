@@ -9,6 +9,11 @@
 #include <cstring>
 #include <memory>
 
+#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/IR/DebugLoc.h>
+#include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/Support/raw_os_ostream.h>
+
 namespace {
 
     const char * to_str(std::string && t)
@@ -38,5 +43,16 @@ std::string cppsprintf(const std::string& format, Args ... args)
     snprintf( buf.get(), size, format.c_str(), to_str(args)...);
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
+
+template<typename T>
+std::string llvm_to_str(T * obj)
+{
+    std::string output;
+    llvm::raw_string_ostream string_os(output);
+    string_os << *obj;
+    return string_os.str();
+}
+
+std::string debug_info(llvm::Loop * l);
 
 #endif //LOOP_EXTRACTOR_CPP_UTIL_HPP
