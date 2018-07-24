@@ -32,13 +32,14 @@ namespace loopprofiler {
     UpdateType type;
     const llvm::SCEV * iv;
     uint32_t id;
+    llvm::Instruction * condition;
 
     LoopIV(UpdateType _type):
       type(_type), iv(nullptr), id(0)
     {}
 
-    LoopIV(UpdateType _type, const llvm::SCEV * _iv):
-      type(_type), iv(_iv), id(0)
+    LoopIV(UpdateType _type, const llvm::SCEV * _iv, llvm::Instruction * instr):
+      type(_type), iv(_iv), id(0), condition(instr)
     {}
   };
 
@@ -68,7 +69,6 @@ namespace loopprofiler {
       verbose = false;
     }
 
-    bool couldBeIV(const llvm::SCEV *scev);
     bool isMultiplication(llvm::BinaryOperator *op);
     bool isAddition(llvm::BinaryOperator *op);
     bool isUnknown(const llvm::SCEV *scev);

@@ -150,7 +150,7 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
 {
     loopprofiler::LoopIV iv = iv_finder.findIV(loop, block);
-    return std::make_tuple(iv.iv, iv.type, nullptr, iv.iv);
+    return std::make_tuple(iv.iv, iv.type, iv.condition, iv.iv);
 }
 
 void LoopClassification::silence()

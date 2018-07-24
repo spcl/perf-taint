@@ -70,7 +70,7 @@ namespace loopprofiler {
       }
 
       if (induction_variable) {
-        return LoopIV(classify(induction_variable), induction_variable);
+        return LoopIV(classify(induction_variable), induction_variable, condition);
       } else {
         if (verbose) {
           os << debug_info(l) << " unrecognized induction variable in: "
@@ -110,12 +110,6 @@ namespace loopprofiler {
       return isUnknown(llvm::dyn_cast<llvm::SCEVCastExpr>(scev)->getOperand());
     }
     return false;
-  }
-
-  bool LoopIVFinder::couldBeIV(const llvm::SCEV *scev)
-  {
-    return scev->getSCEVType() == llvm::scAddRecExpr ||
-           scev->getSCEVType() == llvm::scAddMulExpr;
   }
 
   bool LoopIVFinder::isMultiplication(llvm::BinaryOperator *op)

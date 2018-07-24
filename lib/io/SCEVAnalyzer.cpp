@@ -139,3 +139,19 @@ std::string SCEVAnalyzer::toString(const SCEVAddMulExpr * expr, bool printAsUpda
     str += toString(expr->getOperand(2)) + "*" + variable;
     return str;
 }
+
+void SCEVAnalyzer::silence()
+{
+  verbose = false;
+}
+
+ScalarEvolution & SCEVAnalyzer::getSE()
+{
+  return SE;
+}
+
+bool SCEVAnalyzer::couldBeIV(const llvm::SCEV *scev)
+{
+    return scev->getSCEVType() == llvm::scAddRecExpr ||
+           scev->getSCEVType() == llvm::scAddMulExpr;
+}

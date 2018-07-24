@@ -70,6 +70,7 @@ std::string ValueToString::toString(Value * value)
 
 std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
 {
+    dbgs() << instr << '\n';
     if(instr->isCast()) {
         //TODO: implement casts - for the momement ignore
         return toString(instr->getOperand(0));
