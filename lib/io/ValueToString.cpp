@@ -10,38 +10,39 @@
 
 #include <ostream>
 
-std::string ValueToString::toString(const Constant * val)
+llvm::Optional<std::string> ValueToString::toString(const Constant * val)
 {
-    if(const ConstantInt * integer = dyn_cast<ConstantInt>(val)) {
-        return std::to_string(integer->getSExtValue());
-    } else if(const GlobalVariable * var = dyn_cast<GlobalVariable>(val)) {
-        return var->getName();
-    } else if(const UndefValue * var = dyn_cast<UndefValue>(val)) {
-        return "undef";
-    }
-    else {
-        //FIXME:
-        return "undef";
-        //assert(!"Unknown type!");
-    }
-
+  assert(val);
+  if(const ConstantInt * integer = dyn_cast<ConstantInt>(val)) {
+    return std::to_string(integer->getSExtValue());
+  } else if(const GlobalVariable * var = dyn_cast<GlobalVariable>(val)) {
+    return var->getName().str();
+  } else if(const UndefValue * var = dyn_cast<UndefValue>(val)) {
+    return llvm::Optional<std::string>();
+  }
+  else {
+    //FIXME:
+    return llvm::Optional<std::string>();
+    //assert(!"Unknown type!");
+  }
 }
 
-std::string ValueToString::toString(const Argument * arg)
+llvm::Optional<std::string> ValueToString::toString(const Argument * arg)
 {
-    const Function * f = arg->getParent();
-    if(f->hasName()) {
-        // remove leading underscores - some symbolic solvers (e.g. Matlab's) go crazy because of that
-        std::string name = f->getName().str();
-        auto idx = name.find_first_not_of("_");
-        name = name.substr(idx, name.length() - idx + 1);
-        return name + "_" + std::to_string(arg->getArgNo()) + "";
-    } else {
-        return "unknown_function(" + std::to_string(arg->getArgNo()) + ")";
-    }
+  assert(arg);
+  const Function * f = arg->getParent();
+  if(f->hasName()) {
+    // remove leading underscores - some symbolic solvers (e.g. Matlab's) go crazy because of that
+    std::string name = f->getName().str();
+    auto idx = name.find_first_not_of("_");
+    name = name.substr(idx, name.length() - idx + 1);
+    return cppsprintf("%s_%d", name, arg->getArgNo());
+  } else {
+    return cppsprintf("unknown_function(%s)", arg->getArgNo());
+  }
 }
 
-std::string ValueToString::toString(Value * value)
+llvm::Optional<std::string> ValueToString::toString(Value * value)
 {
     assert(value);
     //dbgs() << "Print: " << *value << "\n";
@@ -59,7 +60,7 @@ std::string ValueToString::toString(Value * value)
     }
     else {
         if(value->hasName()) {
-            return value->getName();
+            return value->getName().str();
         } else {
             dbgs() << "Unknown name: " << *value << " " << value->getValueID() << "\n";
             // report lack of name
@@ -68,7 +69,7 @@ std::string ValueToString::toString(Value * value)
     }
 }
 
-std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
+llvm::Optional<std::string> ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
 {
     dbgs() << instr << '\n';
     if(instr->isCast()) {
@@ -90,14 +91,14 @@ std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
             //FIXME:
             //assert(const_expr->isGEPWithNoNotionalOverIndexing());
             if(!const_expr->isGEPWithNoNotionalOverIndexing())
-                return "undef";
+                return llvm::Optional<std::string>();
             Value * x = const_expr->getOperand(0);
 
     //        dbgs() << dyn_cast<GlobalVariable>(x)->getName() << " " << isa<ConstantArray>(x) << " " << *const_expr->getOperand(1) << "\n";
             //return toString(dyn_cast<GetElementPtrInst>(const_expr->getAsInstruction()));
-            return toString(x) + "_" + std::to_string(dyn_cast<ConstantInt>(const_expr->getOperand(2))->getUniqueInteger().getSExtValue());
+          return cppsprintf("%s_%d", toString(x), dyn_cast<ConstantInt>(const_expr->getOperand(2))->getUniqueInteger().getSExtValue());
         }
-        return load_instr->getOperand(0)->getName();//->print(os);
+        return load_instr->getOperand(0)->getName().str();//->print(os);
         //return os.str();
     } else if(const PHINode * phi = dyn_cast<PHINode>(instr)) {
         std::string str;
@@ -113,21 +114,21 @@ std::string ValueToString::toString(Instruction * instr, bool exitsOnSuccess)
         } else {
             log << ";\n";
         }
-        return "undef";
+        return llvm::Optional<std::string>();
     } else if(const CallInst * invoke = dyn_cast<CallInst>(instr)) {
         //dbgs() << "Function: " << invoke->getOperand(0) << "\n";
         // TODO: process simple function calls
-        return "undef";
+        return llvm::Optional<std::string>();
     }
     //FIXME:
-    return "undef";
+    return llvm::Optional<std::string>();
     //assert(!"Unknown instr type!");
 }
 
-std::string ValueToString::toString(const ICmpInst * integer_comparison, bool exitOnSuccess)
+llvm::Optional<std::string> ValueToString::toString(const ICmpInst * integer_comparison, bool exitOnSuccess)
 {
     //dbgs() << *integer_comparison << "\n";
-    std::string val = toString(integer_comparison->getOperand(0));
+    std::string val;
     // Get negation!
     switch (integer_comparison->getPredicate()) {
         case CmpInst::ICMP_EQ:
@@ -153,14 +154,13 @@ std::string ValueToString::toString(const ICmpInst * integer_comparison, bool ex
             val += exitOnSuccess ? " > " : " <= ";
             break;
     }
-    val += toString(integer_comparison->getOperand(1));
-    return val;
+    return cppsprintf("%s%s%s", toString(integer_comparison->getOperand(0)), val, toString(integer_comparison->getOperand(1)));
 }
 
-std::string ValueToString::toString(const BinaryOperator * op)
+llvm::Optional<std::string> ValueToString::toString(const BinaryOperator * op)
 {
-    std::string op1 = toString(op->getOperand(0));
-    std::string op2 = toString(op->getOperand(1));
+    llvm::Optional<std::string> op1 = toString(op->getOperand(0));
+    llvm::Optional<std::string> op2 = toString(op->getOperand(1));
     std::string op_str;
     switch(op->getOpcode())
     {
@@ -187,15 +187,15 @@ std::string ValueToString::toString(const BinaryOperator * op)
         default:
             //FIXME:
             //assert(!"Unknown binary operator!");
-            return "undef";
+            return llvm::Optional<std::string>();
     }
-    return op1 + op_str + op2;
+    return cppsprintf("%s%s%s", op1, op_str, op2);
 }
 
-std::string ValueToString::toString(const GetElementPtrInst * get)
+llvm::Optional<std::string> ValueToString::toString(const GetElementPtrInst * get)
 {
     //dbgs() << get->getNumOperands() << "\n";
     //assert(false);
     //FIXME:
-    return "undef";
+    return llvm::Optional<std::string>();
 }

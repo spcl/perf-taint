@@ -9,7 +9,7 @@
 #include "io/ValueToString.hpp"
 #include "util/util.hpp"
 
-#include "llvm/IR/Function.h"
+#include <llvm/IR/Function.h>
 
 #include <sstream>
 
@@ -138,6 +138,7 @@ bool LoopExtractor::extract(Loop *l, int idx)
 
 bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop * l, int idx)
 {
+    /*
     std::vector<std::string> loops;
     auto res = printLoop(info, l, 1, true);
     int loop_count = 1, var_count = info.isCountableGreg && std::get<0>(res).find("undef") == std::string::npos;//info.loopExits.size() == 1;//
@@ -172,12 +173,34 @@ bool LoopExtractor::printOuterLoop(const results::LoopInformation & info, Loop *
     //TODO: why is this necessary?
     loop << "!@#parameters!@$\n";
     loop << "######\n";
-    return true;
+    return true;*/
 }
 
 // Loop representation, number of of loops, number of vars
-std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth, bool justHeader)
+llvm::Optional<json> LoopExtractor::printLoop(const results::LoopInformation & info, Loop * l, int depth, bool justHeader)
 {
+  //FIXME: multiple exits
+  auto &exit = info.loopExits.front();
+  if(info.loopExits.size() > 1)
+    return llvm::Optional<json>();
+  const SCEV * induction_variable = exit.iv;
+  llvm::Optional<std::string> initial_value = scev.toString(getInitialValue(induction_variable));
+  llvm::Optional<std::string> iv_update = scev.toString(induction_variable, true);
+  llvm::Optional<std::string> iv_guard = valueFormatter.toString(exit.condition, true);
+
+  //FIXME: add processing for one undef
+  if (initial_value.hasValue() && iv_update.hasValue() && iv_guard.hasValue()) {
+    json loop;
+    loop["start"] = initial_value.getValue();
+    loop["update"] = iv_update.getValue();
+    loop["guard"] = iv_guard.getValue();
+    loop["loop_name"] = l->getHeader()->getName().str();
+    return llvm::Optional<json>(loop);
+  } else {
+    return llvm::Optional<json>();
+  }
+
+  /*
     std::stringstream loop, loop_description;
     std::string id_begin = "", id_end;
     for(int i = 0; i < depth; ++i) {
@@ -234,5 +257,5 @@ std::tuple<std::string, int, int, bool> LoopExtractor::printLoop(const results::
     }
     loop << "}\n";
     loop << "!" << id_end << "!" << '\n';
-    return std::make_tuple(loop.str(), loop_count, var_count, is_undefined);
+    return std::make_tuple(loop.str(), loop_count, var_count, is_undefined);*/
 }

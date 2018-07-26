@@ -24,7 +24,7 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         for(BasicBlock * bb : ExitingBlocks) {
             auto exit = analyzeExit( l, bb );
             //result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
-            if(!std::get<0>(exit) || std::get<1>(exit) == loopprofiler::UpdateType::NOT_FOUND || std::get<1>(exit) == loopprofiler::UpdateType::UNKNOWN) {
+            if(!exit.iv || exit.type == loopprofiler::UpdateType::UNKNOWN || exit.type == loopprofiler::UpdateType::NOT_FOUND) {
                 result.unprocessed = true;
             }
             result.loopExits.push_back( std::move(exit) );
@@ -32,8 +32,8 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         result.isComputableBySE = false;
     } else {
         auto exit = analyzeExit( l, ExitingBlocks[0] );
-        counters.addIV(l, std::get<0>(exit));
-        if(!std::get<0>(exit) || std::get<1>(exit) == loopprofiler::UpdateType::NOT_FOUND || std::get<1>(exit) == loopprofiler::UpdateType::UNKNOWN) {
+        counters.addIV(l, exit.iv);
+        if(!exit.iv || exit.type == loopprofiler::UpdateType::UNKNOWN || exit.type == loopprofiler::UpdateType::NOT_FOUND) {
             result.unprocessed = true;
         }
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -46,9 +46,9 @@ results::LoopInformation LoopClassification::classify(Loop * l)
         //}
         auto t2 = std::chrono::high_resolution_clock::now();
         result.scalarEvolutionComputeTime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-        result.countUpdates[ static_cast<int>(std::get<1>(exit)) ]++;
-        hasSimpleIncrement = std::get<1>(exit) == loopprofiler::UpdateType::INCREMENT;
-        hasAffineUpdate = std::get<1>(exit) != loopprofiler::UpdateType::UNKNOWN && std::get<1>(exit) != loopprofiler::UpdateType::NOT_FOUND;
+        result.countUpdates[ static_cast<int>(exit.type) ]++;
+        hasSimpleIncrement = exit.type == loopprofiler::UpdateType::INCREMENT;
+        hasAffineUpdate = exit.type != loopprofiler::UpdateType::UNKNOWN && exit.type != loopprofiler::UpdateType::NOT_FOUND;
         result.loopExits.push_back( std::move(exit) );
     }
     int counter = 0;
@@ -147,10 +147,9 @@ results::LoopInformation LoopClassification::classify(Loop * l)
 
 /// For the exit block, determine the terminator instruction and find the appropiate condition
 ///
-std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
+loopprofiler::LoopIV LoopClassification::analyzeExit(Loop * loop, BasicBlock * block)
 {
-    loopprofiler::LoopIV iv = iv_finder.findIV(loop, block);
-    return std::make_tuple(iv.iv, iv.type, iv.condition, iv.iv);
+    return iv_finder.findIV(loop, block);
 }
 
 void LoopClassification::silence()

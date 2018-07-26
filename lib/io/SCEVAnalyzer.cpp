@@ -8,7 +8,7 @@
 #include "results/LoopInformation.hpp"
 
 
-std::string SCEVAnalyzer::toString(const SCEV * val, bool printAsUpdate)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEV * val, bool printAsUpdate)
 {
     switch(val->getSCEVType())
     {
@@ -35,41 +35,41 @@ std::string SCEVAnalyzer::toString(const SCEV * val, bool printAsUpdate)
                 //dbgs() << dyn_cast<SCEVUnknown>(val)->getValue()-><< " " << *val
                 //       << "\n";
                 return valuePrinter->toString(
-                    dyn_cast<SCEVUnknown>(val)->getValue());
+                    dyn_cast<SCEVUnknown>(val)->getValue()).getValue();
             }
-            return "unknown";//toString(val->getValue(), SE);
+            return llvm::Optional<std::string>();//toString(val->getValue(), SE);
         default:
             errs() << "Unknown SCEV type: " << val->getSCEVType() << "\n";
-            //FIXME:
-            return "undef";
+            //FIXME: assert
+            return llvm::Optional<std::string>();
             //assert(!"Unknown SCEV type!");
     }
 }
 
-std::string SCEVAnalyzer::toString(const SCEVConstant * val, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVConstant * val, bool)
 {
     return std::to_string(dyn_cast<SCEVConstant>(val)->getAPInt().getSExtValue());
 }
 
-std::string SCEVAnalyzer::toString(const SCEVTruncateExpr * expr, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVTruncateExpr * expr, bool)
 {
     //FIXME: do we need that information?
     std::string type;
     raw_string_ostream os(type);
     expr->getType()->print(os);
-    return "trunc(" + toString(expr->getOperand()) + ", " + os.str() + ")";
+    return cppsprintf("trunc(%s,%s)", toString(expr->getOperand()), os.str());
 }
 
-std::string SCEVAnalyzer::toString(const SCEVZeroExtendExpr * expr, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVZeroExtendExpr * expr, bool)
 {
     //FIXME: do we need that information?
     std::string type;
     raw_string_ostream os(type);
     expr->getType()->print(os);
-    return "zeroExt(" + toString(expr->getOperand()) + ", " + os.str() + ")";
+    return cppsprintf("zeroExt(%s, %s)", expr->getOperand(), os.str());
 }
 
-std::string SCEVAnalyzer::toString(const SCEVSignExtendExpr * expr, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVSignExtendExpr * expr, bool)
 {
     //FIXME: do we need that information?
     std::string type;
@@ -80,28 +80,17 @@ std::string SCEVAnalyzer::toString(const SCEVSignExtendExpr * expr, bool)
     return toString(expr->getOperand());
 }
 
-std::string SCEVAnalyzer::toString(const SCEVAddExpr * expr, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVAddExpr * expr, bool)
 {
-    std::string str;
-    //dbgs() << *expr->getOperand(0) << " " << *expr->getOperand(1) << "\n";
-    str = toString(expr->getOperand(0));
-    str += " + ";
-    str = toString(expr->getOperand(1));
-    return str;
+    return cppsprintf("%s + %s", expr->getOperand(0), expr->getOperand(1));
 }
 
-std::string SCEVAnalyzer::toString(const SCEVMulExpr * expr, bool)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVMulExpr * expr, bool)
 {
-    std::string str;
-    // here select var name
-    //expr->getLoop();
-    str = toString(expr->getOperand(0));
-    str += " * ";
-    str = toString(expr->getOperand(1));
-    return str;
+  return cppsprintf("%s * %s", expr->getOperand(0), expr->getOperand(1));
 }
 
-std::string SCEVAnalyzer::toString(const SCEVAddRecExpr * expr, bool printAsUpdate)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVAddRecExpr * expr, bool printAsUpdate)
 {
     std::string str;
     // here select var name
@@ -111,12 +100,12 @@ std::string SCEVAnalyzer::toString(const SCEVAddRecExpr * expr, bool printAsUpda
     //dbgs() << "Print: " << expr << "\n";
     if(printAsUpdate) {
         std::string variable = counters.getCounterName(expr->getLoop());
-        str = variable + " + " + toString(expr->getOperand(1));
+        return cppsprintf("%s + %s", variable, toString(expr->getOperand(1)));
     } else {
         auto name = counters.getIV(expr->getLoop());
         //FIXME:
         if(!std::get<1>(name))
-            return "undef";
+            return llvm::Optional<std::string>();
         // TODO: compute difference, if necessary - our  expr might be a variation of original IV
         str = std::get<0>(name);
     }
@@ -129,15 +118,15 @@ std::string SCEVAnalyzer::toString(const SCEVAddRecExpr * expr, bool printAsUpda
     return str;
 }
 
-std::string SCEVAnalyzer::toString(const SCEVAddMulExpr * expr, bool printAsUpdate)
+llvm::Optional<std::string> SCEVAnalyzer::toString(const SCEVAddMulExpr * expr, bool printAsUpdate)
 {
     std::string str;
     // here select var name
     //expr->getLoop();
-    str = toString(expr->getOperand(0)) + " + ";
+//    str = toString(expr->getOperand(0)) + " + ";
     std::string variable = counters.getCounterName(expr->getLoop());
-    str += toString(expr->getOperand(2)) + "*" + variable;
-    return str;
+//    str += toString(expr->getOperand(2)) + "*" + variable;
+    return cppsprintf("%s + %s * %s", toString(expr->getOperand(0)), toString(expr->getOperand(2)), variable);
 }
 
 void SCEVAnalyzer::silence()

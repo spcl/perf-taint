@@ -8,6 +8,10 @@
 
 #include <fstream>
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 class SCEVAnalyzer;
 class LoopCounters;
 
@@ -16,8 +20,6 @@ namespace llvm {
     class BasicBlock;
 }
 
-using namespace llvm;
-
 class LoopExtractor
 {
     SCEVAnalyzer & scev;
@@ -25,10 +27,11 @@ class LoopExtractor
     ValueToString valueFormatter;
     std::ostream & results;
     std::ostream & loop;
+    json loops;
 
     int undef_counter;
 
-    const SCEV * getInitialValue(const SCEV *val);
+    const llvm::SCEV * getInitialValue(const llvm::SCEV *val);
 public:
     LoopExtractor(SCEVAnalyzer & _scev, LoopCounters & _counters,
                   std::ostream & _results, std::ostream & _loop):
@@ -43,7 +46,7 @@ public:
     }
 
     bool extract(Loop * l, int idx);
-    std::tuple<std::string, int, int, bool> printLoop(const results::LoopInformation & info, Loop *l, int depth = 1, bool justHeader = false);
+    llvm::Optional<json> printLoop(const results::LoopInformation & info, Loop *l, int depth = 1, bool justHeader = false);
     bool printOuterLoop(const results::LoopInformation & info, Loop *l, int idx);
 };
 

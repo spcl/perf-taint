@@ -28,7 +28,7 @@ class LoopClassification
     loopprofiler::LoopIVFinder iv_finder;
     std::ostream & os;
     bool verbose;
-    std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> analyzeExit(Loop * l, BasicBlock * block);
+  loopprofiler::LoopIV analyzeExit(Loop * l, BasicBlock * block);
 public:
     LoopClassification(SCEVAnalyzer & _scev, LoopCounters & _counters, std::ostream & _os):
         scev(_scev),

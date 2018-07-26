@@ -6,7 +6,7 @@
 #define LOOP_EXTRACTOR_CPP_LOOPINFO_HPP
 
 
-#include "llvm/IR/Instructions.h"
+#include <llvm/IR/Instructions.h>
 
 #include <results/LoopIV.hpp>
 
@@ -33,7 +33,8 @@ namespace results {
 
         Loop * loop;
         std::vector<LoopInformation> nestedLoops;
-        std::vector< std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> > loopExits;
+        //std::vector< std::tuple<const SCEV *, loopprofiler::UpdateType, Instruction *, bool> > loopExits;
+        std::vector<loopprofiler::LoopIV> loopExits;
         std::string name;
 
         // IV not known, IV not found, blocks not recognized
