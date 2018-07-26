@@ -27,6 +27,13 @@ namespace {
     return t.c_str();
   }
 
+  // result_of won't work since it requires function to be a type
+  template<typename T>
+  auto to_str(const llvm::Optional<T> & t) -> decltype( to_str(std::declval<T&>()) )
+  {
+    return to_str(t.getValue());
+  }
+
   // universal reference here would be always selected, including std::string
   template<typename T>
   T to_str(const T & t)
