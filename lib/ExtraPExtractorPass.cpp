@@ -9,6 +9,8 @@
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/InstIterator.h>
+#include <llvm/IR/IntrinsicInst.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils.h>
@@ -20,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <algorithm>
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -32,6 +35,127 @@ static llvm::cl::opt<std::string> LogDirName("extrap-extractor-out-dir",
                                        llvm::cl::value_desc("filename"));
 
 namespace {
+
+    struct Dependency
+    {
+        virtual ~Dependency() {}
+        virtual void json(nlohmann::json &) const = 0;
+    };
+
+    struct FunctionArg : Dependency
+    {
+        int pos;
+
+        FunctionArg(int _pos): pos(_pos) {}
+
+        void json(nlohmann::json & j) const override
+        {
+            j = nlohmann::json{{"type", "arg"}, {"pos", pos}};
+        }
+    };
+
+    void to_json(nlohmann::json& j, const Dependency * p)
+    {
+        p->json(j);
+    }
+    
+
+    struct DependencyFinder
+    {
+        std::unordered_map<std::string, Dependency*> dependencies;
+
+        ~DependencyFinder()
+        {
+            std::for_each(dependencies.begin(), dependencies.end(), [](auto & obj) { delete obj.second; });
+        }
+
+        void find(const llvm::Argument * arg)
+        {
+            llvm::DISubprogram * prog = arg->getParent()->getSubprogram();
+            bool found = false;
+            std::string name;
+            for(llvm::DINode * dbg_info : prog->getRetainedNodes()) {
+                if(llvm::DILocalVariable * var = llvm::dyn_cast<llvm::DILocalVariable>(dbg_info)) {
+                    // is arg?
+                    if(var->getArg() - 1 == arg->getArgNo()) {
+                        name = var->getName();
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            //TODO: error
+            if(!found)
+                name = arg->getName();
+            //for(auto it = llvm::inst_begin(arg->getParent()), end = llvm::inst_end(arg->getParent()); it != end; ++it) {
+            //    if(const llvm::DbgDeclareInst * inst = llvm::dyn_cast<llvm::DbgDeclareInst>(&(*it))) {
+            //        if(arg == inst->getAddress()) { 
+            //            name = inst->getVariable()->getName();
+            //        }
+            //    }
+            //    if(const llvm::DbgValueInst * inst = llvm::dyn_cast<llvm::DbgValueInst>(&(*it))) {
+            //        if(arg == inst->getValue()) {
+            //            name = inst->getVariable()->getName();
+            //        }
+            //    }
+            //}
+            name = cppsprintf("%s;arg;%u", name, arg->getArgNo());
+            if(dependencies.find(name) == dependencies.end())
+                dependencies[name] = new FunctionArg(arg->getArgNo());
+        }
+
+        void find(llvm::Value * v)
+        {
+            if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v))
+                find(a);
+        }
+    };
+
+    struct ScalarEvolutionVisitor
+    {
+        DependencyFinder dep;
+
+        void call(const llvm::SCEVNAryExpr * scev)
+        {
+            for(int i = 0; i < scev->getNumOperands(); ++i)
+               call( scev->getOperand(i) ); 
+        }
+        
+        void call(const llvm::SCEVUDivExpr * scev)
+        {
+            call(scev->getLHS());
+            call(scev->getRHS());
+        }
+   
+        void call(const llvm::SCEV * scev)
+        {
+            switch(scev->getSCEVType()) {
+                case llvm::scConstant:
+                    break;
+                case llvm::scTruncate:
+                case llvm::scZeroExtend:
+                case llvm::scSignExtend:
+                    call(llvm::cast<llvm::SCEVCastExpr>(scev)->getOperand());
+                    break;
+                case llvm::scAddRecExpr:
+                case llvm::scMulExpr:
+                case llvm::scAddExpr:
+                case llvm::scSMaxExpr:
+                case llvm::scUMaxExpr:
+                    call(llvm::cast<llvm::SCEVNAryExpr>(scev));
+                    break;
+                case llvm::scUDivExpr:
+                    call(llvm::cast<llvm::SCEVUDivExpr>(scev));
+                    break;
+                case llvm::scUnknown:
+                    dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
+                    break;
+                default:
+                    llvm_unreachable( cppsprintf("Unhandled case %d!\n", scev->getSCEVType()).c_str() );
+            }
+        }
+
+    };
 
     void ExtraPExtractorPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
@@ -116,20 +240,23 @@ namespace {
             isl_printer * printer = isl_printer_to_str( SCEV.getCtx().get() );
 
             std::vector< nlohmann::json > loops;
+            ScalarEvolutionVisitor vis;
             for(llvm::Loop * l : LI) {
              
                 nlohmann::json loop;
                 loop["line_number"] = l->getStartLoc().getLine();
                 bool computable = false; 
-                if( !SE.hasLoopInvariantBackedgeTakenCount(l)) {
+                if( SE.hasLoopInvariantBackedgeTakenCount(l)) {
                     const llvm::SCEV * count = SE.getBackedgeTakenCount(l);
-                    if(count->getSCEVType() != llvm::scCouldNotCompute) {
+                    if(count->getSCEVType() != llvm::scCouldNotCompute
+                            && count->getSCEVType() != llvm::scUnknown) {
                         computable = true;
                         std::string str; 
                         llvm::raw_string_ostream str_stream(str);
-                        // TODO: dependency info
                         str_stream << *count;
                         loop["iterations"] = str_stream.str();
+
+                        vis.call(count);
                     }
                 } else {
                     polly::BasicBlockInfo bbi = SCEV.getYamlBB(*l->getHeader(), l->getLoopDepth(), &f.getEntryBlock(), true, MST);
@@ -147,6 +274,7 @@ namespace {
                 loops.push_back(loop);
             }
             function["loops"] = loops;
+            function["dependencies"] = vis.dep.dependencies;
             isl_printer_free(printer);
             return function;
         }
