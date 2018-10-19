@@ -1,10 +1,11 @@
 
 #include "ExtraPExtractorPass.hpp"
+#include "ScalarEvolutionVisitor.hpp"
+#include "DependencyFinder.hpp"
 #include "util/util.hpp"
 
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/ScalarEvolution.h>
-#include <llvm/Analysis/ScalarEvolutionExpressions.h>
 #include <llvm/IR/ModuleSlotTracker.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/Function.h>
@@ -21,8 +22,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <tuple>
-#include <algorithm>
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -34,136 +33,39 @@ static llvm::cl::opt<std::string> LogDirName("extrap-extractor-out-dir",
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
+static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
+                                       llvm::cl::desc("Enable LLVM Scalar Evolution"),
+                                       llvm::cl::init(true),
+                                       llvm::cl::value_desc("boolean flag"));
+
+static llvm::cl::opt<bool> EnablePollySCEV("extrap-extractor-polly-scev",
+                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
+                                       llvm::cl::init(true),
+                                       llvm::cl::value_desc("boolean flag"));
+
 namespace {
 
-    struct Dependency
+    std::string to_string(const llvm::SCEV * scev)
     {
-        virtual ~Dependency() {}
-        virtual void json(nlohmann::json &) const = 0;
-    };
-
-    struct FunctionArg : Dependency
-    {
-        int pos;
-
-        FunctionArg(int _pos): pos(_pos) {}
-
-        void json(nlohmann::json & j) const override
-        {
-            j = nlohmann::json{{"type", "arg"}, {"pos", pos}};
-        }
-    };
-
-    void to_json(nlohmann::json& j, const Dependency * p)
-    {
-        p->json(j);
+        std::string str; 
+        llvm::raw_string_ostream str_stream(str);
+        str_stream << *scev;
+        str_stream.flush();
+        return str;
     }
-    
 
-    struct DependencyFinder
-    {
-        std::unordered_map<std::string, Dependency*> dependencies;
-
-        ~DependencyFinder()
-        {
-            std::for_each(dependencies.begin(), dependencies.end(), [](auto & obj) { delete obj.second; });
-        }
-
-        void find(const llvm::Argument * arg)
-        {
-            llvm::DISubprogram * prog = arg->getParent()->getSubprogram();
-            bool found = false;
-            std::string name;
-            for(llvm::DINode * dbg_info : prog->getRetainedNodes()) {
-                if(llvm::DILocalVariable * var = llvm::dyn_cast<llvm::DILocalVariable>(dbg_info)) {
-                    // is arg?
-                    if(var->getArg() - 1 == arg->getArgNo()) {
-                        name = var->getName();
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            //TODO: error
-            if(!found)
-                name = arg->getName();
-            //for(auto it = llvm::inst_begin(arg->getParent()), end = llvm::inst_end(arg->getParent()); it != end; ++it) {
-            //    if(const llvm::DbgDeclareInst * inst = llvm::dyn_cast<llvm::DbgDeclareInst>(&(*it))) {
-            //        if(arg == inst->getAddress()) { 
-            //            name = inst->getVariable()->getName();
-            //        }
-            //    }
-            //    if(const llvm::DbgValueInst * inst = llvm::dyn_cast<llvm::DbgValueInst>(&(*it))) {
-            //        if(arg == inst->getValue()) {
-            //            name = inst->getVariable()->getName();
-            //        }
-            //    }
-            //}
-            name = cppsprintf("%s;arg;%u", name, arg->getArgNo());
-            if(dependencies.find(name) == dependencies.end())
-                dependencies[name] = new FunctionArg(arg->getArgNo());
-        }
-
-        void find(llvm::Value * v)
-        {
-            if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v))
-                find(a);
-        }
-    };
-
-    struct ScalarEvolutionVisitor
-    {
-        DependencyFinder dep;
-
-        void call(const llvm::SCEVNAryExpr * scev)
-        {
-            for(int i = 0; i < scev->getNumOperands(); ++i)
-               call( scev->getOperand(i) ); 
-        }
-        
-        void call(const llvm::SCEVUDivExpr * scev)
-        {
-            call(scev->getLHS());
-            call(scev->getRHS());
-        }
-   
-        void call(const llvm::SCEV * scev)
-        {
-            switch(scev->getSCEVType()) {
-                case llvm::scConstant:
-                    break;
-                case llvm::scTruncate:
-                case llvm::scZeroExtend:
-                case llvm::scSignExtend:
-                    call(llvm::cast<llvm::SCEVCastExpr>(scev)->getOperand());
-                    break;
-                case llvm::scAddRecExpr:
-                case llvm::scMulExpr:
-                case llvm::scAddExpr:
-                case llvm::scSMaxExpr:
-                case llvm::scUMaxExpr:
-                    call(llvm::cast<llvm::SCEVNAryExpr>(scev));
-                    break;
-                case llvm::scUDivExpr:
-                    call(llvm::cast<llvm::SCEVUDivExpr>(scev));
-                    break;
-                case llvm::scUnknown:
-                    dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
-                    break;
-                default:
-                    llvm_unreachable( cppsprintf("Unhandled case %d!\n", scev->getSCEVType()).c_str() );
-            }
-        }
-
-    };
+    ExtraPExtractorPass::~ExtraPExtractorPass()
+    {}
 
     void ExtraPExtractorPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
         ModulePass::getAnalysisUsage(AU);
         // We require loop information
         AU.addRequiredTransitive<llvm::LoopInfoWrapperPass>();
-        AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
-        AU.addRequired<polly::PolySCEV>();
+        if(EnableSCEV)
+            AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
+        if(EnablePollySCEV)
+            AU.addRequired<polly::PolySCEV>();
         // Pass does not modify the input information
         AU.setPreservesAll();
     }
@@ -173,7 +75,7 @@ namespace {
         llvm::legacy::PassManager PM;
         // correlated-propagation
         PM.add(llvm::createInstructionNamerPass());
-        PM.add(llvm::createMetaRenamerPass());
+        //PM.add(llvm::createMetaRenamerPass());
         PM.add(llvm::createCorrelatedValuePropagationPass());
         // mem2reg pass
         PM.add(llvm::createPromoteMemoryToRegisterPass());
@@ -183,6 +85,7 @@ namespace {
 
         // Since neither m.getName() or m.getSourceFileName provides a meaningful name
         // We rely on the user to supply an additional log name.
+       
         std::string name = LogDirName.getValue().empty() ?
                            "results" :
                            cppsprintf("%s/results",
@@ -190,12 +93,6 @@ namespace {
         log.open(
             cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()),
             std::ios::out);
-
-        std::string loops_name = LogDirName.getValue().empty() ?
-                           "loops" :
-                           cppsprintf("%s/loops",
-                                      LogDirName.getValue().c_str());
-        result.open(loops_name.c_str(), std::ios::out);
         nlohmann::json loops;
 
         // extract file information
@@ -218,69 +115,99 @@ namespace {
                 functions.push_back(res.getValue());
         }
         loops["functions"] = functions;
-        result << loops.dump(2) << '\n';
+        llvm::outs() << loops.dump(2) << '\n';
         log.close();
-        result.close();
 
         return false;
     }
 
     llvm::Optional<nlohmann::json> ExtraPExtractorPass::runOnFunction(llvm::Function &f)
     {
-        if (!f.isDeclaration()) {
-            nlohmann::json function;
-            llvm::DISubprogram * debug = f.getSubprogram();
+        if (f.isDeclaration())
+            return llvm::Optional<nlohmann::json>();
+        nlohmann::json function;
+        assert(debug);
+        extrap::DependencyFinder dep;
+        if(llvm::DISubprogram * debug = f.getSubprogram()) {
             function["name"] = debug->getName();
             function["line"] = debug->getLine();
+        } else {
+            log << "Debug information not provided!\n";
+            function["name"] = f.getName();
+        }
 
-            llvm::LoopInfo &LI = getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
-            llvm::ScalarEvolution &SE = getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
-            polly::PolySCEV &SCEV = getAnalysis<polly::PolySCEV>(f);
-            llvm::ModuleSlotTracker MST(f.getParent());
-            isl_printer * printer = isl_printer_to_str( SCEV.getCtx().get() );
+        llvm::LoopInfo &LI = getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+        if(EnableSCEV)
+            SE = &getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
+        if(EnablePollySCEV) {
+            SCEV = &getAnalysis<polly::PolySCEV>(f);
+            isl_print = isl_printer_to_str( SCEV->getCtx().get() );
+        }
+        llvm::ModuleSlotTracker MST(f.getParent());
 
-            std::vector< nlohmann::json > loops;
-            ScalarEvolutionVisitor vis;
-            for(llvm::Loop * l : LI) {
-             
-                nlohmann::json loop;
-                loop["line_number"] = l->getStartLoc().getLine();
-                bool computable = false; 
-                if( SE.hasLoopInvariantBackedgeTakenCount(l)) {
-                    const llvm::SCEV * count = SE.getBackedgeTakenCount(l);
-                    if(count->getSCEVType() != llvm::scCouldNotCompute
-                            && count->getSCEVType() != llvm::scUnknown) {
-                        computable = true;
-                        std::string str; 
-                        llvm::raw_string_ostream str_stream(str);
-                        str_stream << *count;
-                        loop["iterations"] = str_stream.str();
-
-                        vis.call(count);
-                    }
-                } else {
-                    polly::BasicBlockInfo bbi = SCEV.getYamlBB(*l->getHeader(), l->getLoopDepth(), &f.getEntryBlock(), true, MST);
-                    if( isl_set_is_bounded(bbi.Domain.get()) && !isl_set_is_empty(bbi.Domain.get()) ) {
-                        isl_printer_print_set(printer, bbi.Domain.get());
-                        isl_printer_flush(printer);
-                        isl_pw_qpolynomial * poly = isl_set_card(bbi.Domain.copy());
-                        isl_printer_print_pw_qpolynomial(printer, poly);
-                        isl_pw_qpolynomial_free(poly);
-                        char *ptr = isl_printer_get_str(printer);
-                        loop["iterations"] = std::string(ptr);
-                        free(ptr);
+        std::vector< nlohmann::json > loops;
+        extrap::ScalarEvolutionVisitor vis{dep};
+        for(llvm::Loop * l : LI) {
+         
+            nlohmann::json loop;
+            llvm::DebugLoc start_loc = l->getStartLoc();
+            if(start_loc)
+                loop["line_number"] = start_loc.getLine();
+            if( !compute_scev(l, vis, loop) ) {
+                if( !compute_polly_scev(l, f, MST, loop) ) {
+                    
+                    // just process exit block?
+                    for(llvm::BasicBlock * bb : l->blocks()) {
+                        for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
+                            dep.find(&instr); 
+                        }
                     }
                 }
-                loops.push_back(loop);
             }
-            function["loops"] = loops;
-            function["dependencies"] = vis.dep.dependencies;
-            isl_printer_free(printer);
-            return function;
+            loops.push_back(loop);
         }
-        return llvm::Optional<nlohmann::json>();
+        function["loops"] = loops;
+        function["dependencies"] = dep.dependencies;
+        if(EnablePollySCEV) {
+            isl_printer_free(isl_print);
+        }
+        return function;
     }
 
+    bool ExtraPExtractorPass::compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis,
+            nlohmann::json & result)
+    {
+        if( SE && SE->hasLoopInvariantBackedgeTakenCount(l)) {
+            const llvm::SCEV * count = SE->getBackedgeTakenCount(l);
+            if( vis.is_computable(count) ) {
+                result["iterations"] = to_string(count);
+                vis.call(count);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+    
+    bool ExtraPExtractorPass::compute_polly_scev(llvm::Loop * l, llvm::Function & f,
+            llvm::ModuleSlotTracker & MST, nlohmann::json & result)
+    {
+        polly::BasicBlockInfo bbi = SCEV->getYamlBB(*l->getHeader(), l->getLoopDepth(),
+                &f.getEntryBlock(), true, MST);
+        if( isl_set_is_bounded(bbi.Domain.get()) && !isl_set_is_empty(bbi.Domain.get()) ) {
+
+            isl_printer_print_set(isl_print, bbi.Domain.get());
+            isl_printer_flush(isl_print);
+            isl_pw_qpolynomial * poly = isl_set_card(bbi.Domain.copy());
+            isl_printer_print_pw_qpolynomial(isl_print, poly);
+            isl_pw_qpolynomial_free(poly);
+            char *ptr = isl_printer_get_str(isl_print);
+            result["iterations"] = std::string(ptr);
+            free(ptr);
+            return true;
+        }
+        return false;
+    }
 }
 
 char ExtraPExtractorPass::ID = 0;

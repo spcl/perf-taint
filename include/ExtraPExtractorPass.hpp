@@ -10,10 +10,23 @@
 
 #include <nlohmann/json.hpp>
 
+class isl_printer;
+
 namespace llvm {
     class ScalarEvolution;
     class AnalysisUsage;
     class Function;
+    class ModuleSlotTracker;
+    class Loop;
+}
+
+namespace polly {
+    class PolySCEV;
+}
+
+namespace extrap {
+    class ScalarEvolutionVisitor;
+    class DependencyFinder;
 }
 
 namespace {
@@ -22,13 +35,27 @@ namespace {
     {
         static char ID;
         std::fstream log;
-        std::fstream result;
-        ExtraPExtractorPass() : ModulePass(ID) {}
+        ExtraPExtractorPass():
+            ModulePass(ID),
+            SE(nullptr),
+            SCEV(nullptr),
+            isl_print(nullptr)
+        {}
+
+        ~ExtraPExtractorPass();
 
         virtual void getAnalysisUsage(llvm::AnalysisUsage & AU) const;
 
         llvm::Optional<nlohmann::json> runOnFunction(llvm::Function & f);
         bool runOnModule(llvm::Module & f) override;
+    private:
+        llvm::ScalarEvolution * SE;
+        polly::PolySCEV * SCEV;
+        isl_printer * isl_print;
+
+        bool compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis, nlohmann::json & result);
+        bool compute_polly_scev(llvm::Loop * l, llvm::Function & f, llvm::ModuleSlotTracker & MST,
+                nlohmann::json & result);
     };
 
 }
