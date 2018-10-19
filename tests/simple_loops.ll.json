@@ -1,0 +1,67 @@
+{
+  "debug": [],
+  "functions": [
+    {
+      "dependencies": {
+        "arg;arg;0": {
+          "pos": 0,
+          "type": "arg"
+        }
+      },
+      "have_undefs": true,
+      "loops": [
+        "undef"
+      ],
+      "name": "_Z1fii"
+    },
+    {
+      "dependencies": {
+        "arg1;arg;1": {
+          "pos": 1,
+          "type": "arg"
+        }
+      },
+      "have_undefs": true,
+      "loops": [
+        "undef"
+      ],
+      "name": "_Z1gii"
+    },
+    {
+      "dependencies": {
+        "arg1;arg;1": {
+          "pos": 1,
+          "type": "arg"
+        }
+      },
+      "have_undefs": true,
+      "loops": [
+        "undef"
+      ],
+      "name": "_Z1hii"
+    },
+    {
+      "dependencies": {
+        "arg1;arg;1": {
+          "pos": 1,
+          "type": "arg"
+        },
+        "arg2;arg;2": {
+          "pos": 2,
+          "type": "arg"
+        },
+        "arg;arg;0": {
+          "pos": 0,
+          "type": "arg"
+        }
+      },
+      "have_undefs": true,
+      "loops": [
+        "undef",
+        "undef",
+        "undef"
+      ],
+      "name": "_Z1iiii"
+    }
+  ]
+}
