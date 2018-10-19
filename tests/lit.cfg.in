@@ -1,0 +1,16 @@
+import lit.util
+import lit.formats
+
+config.name = 'block-merger'
+config.test_source_root = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'tests')
+# Path to test suite in build directory where tests are executed
+config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
+# Help variable used to locate compiled library
+config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
+config.test_format = lit.formats.ShTest(True)
+config.suffixes = ['.ll']
+
+config.substitutions.append( ('%loadpass', '-load '
+    + config.lib_dir
+    + '/libExtraPExtractor.so')
+    )

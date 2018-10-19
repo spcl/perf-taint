@@ -22,7 +22,7 @@ find_package(Jsoncpp QUIET)
 if(NOT Jsoncpp_FOUND)
   ExternalProject_Add(jsoncpp
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    CMAKE_ARGS -DJSON_BuildTests=Off -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/jsoncpp/jsoncpp
+    CMAKE_ARGS -DJSON_BuildTests=Off -DJSON_MultipleHeaders=ON -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/jsoncpp/jsoncpp
     PREFIX ${EXTERNAL_INSTALL_LOCATION}/jsoncpp/build
     UPDATE_DISCONNECTED 1
     BUILD_ALWAYS 1
@@ -49,15 +49,14 @@ include_directories(${JSONCPP_INCLUDE_DIRS})
 #set_target_properties(LLVMLoopExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
 #set_target_properties(LLVMLoopStatistics PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
-add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp)
+add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp lib/DependencyFinder.cpp lib/ScalarEvolutionVisitor.cpp)
 set_property(TARGET ExtraPExtractor PROPERTY CXX_STANDARD 14)
 set_target_properties(ExtraPExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(ExtraPExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
 add_dependencies(ExtraPExtractor jsoncpp)
-foreach(target ${Polly_EXPORTED_TARGETS})
-    message(${target})
-    #target_link_libraries(ExtraPExtractor PUBLIC ${target})
-endforeach()
-target_link_libraries(ExtraPExtractor INTERFACE ${Polly_LIBRARIES})
+
+target_link_libraries(ExtraPExtractor LLVMPolly)
+
+configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
 
