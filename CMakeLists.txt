@@ -10,6 +10,7 @@ project(loop_extractor.cpp)
 
 find_package(Polly REQUIRED CONFIG)
 add_definitions(${Polly_DEFINITIONS})
+message(${Polly_DEFINITIONS})
 include_directories(${Polly_INCLUDE_DIRS})
 #link_directories(${Polly_LIBRARY_DIRS})
 
@@ -49,7 +50,7 @@ include_directories(${JSONCPP_INCLUDE_DIRS})
 #set_target_properties(LLVMLoopExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
 #set_target_properties(LLVMLoopStatistics PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
-add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp lib/DependencyFinder.cpp lib/ScalarEvolutionVisitor.cpp)
+add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp lib/DependencyFinder.cpp lib/ScalarEvolutionVisitor.cpp lib/PollyVisitor.cpp)
 set_property(TARGET ExtraPExtractor PROPERTY CXX_STANDARD 14)
 set_target_properties(ExtraPExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(ExtraPExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)

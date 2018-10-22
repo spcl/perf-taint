@@ -26,6 +26,7 @@ namespace polly {
 
 namespace extrap {
     class ScalarEvolutionVisitor;
+    class PollyVisitor;
     class DependencyFinder;
 }
 
@@ -55,7 +56,7 @@ namespace {
 
         bool compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis, nlohmann::json & result);
         bool compute_polly_scev(llvm::Loop * l, llvm::Function & f, llvm::ModuleSlotTracker & MST,
-                nlohmann::json & result);
+                extrap::PollyVisitor & vis, nlohmann::json & result);
     };
 
 }

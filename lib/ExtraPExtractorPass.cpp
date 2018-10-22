@@ -1,6 +1,7 @@
 
 #include "ExtraPExtractorPass.hpp"
 #include "ScalarEvolutionVisitor.hpp"
+#include "PollyVisitor.hpp"
 #include "DependencyFinder.hpp"
 #include "util/util.hpp"
 
@@ -147,6 +148,8 @@ namespace {
 
         std::vector< nlohmann::json > loops;
         extrap::ScalarEvolutionVisitor vis{dep};
+        extrap::PollyVisitor polly_vis{dep, *SCEV};
+        bool undefs = false;
         for(llvm::Loop * l : LI) {
          
             nlohmann::json loop;
@@ -154,8 +157,10 @@ namespace {
             if(start_loc)
                 loop["line_number"] = start_loc.getLine();
             if( !compute_scev(l, vis, loop) ) {
-                if( !compute_polly_scev(l, f, MST, loop) ) {
-                    
+                if( !compute_polly_scev(l, f, MST, polly_vis, loop) ) {
+                   
+                    undefs = true;
+                    loop = "undef";
                     // just process exit block?
                     for(llvm::BasicBlock * bb : l->blocks()) {
                         for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
@@ -168,6 +173,7 @@ namespace {
         }
         function["loops"] = loops;
         function["dependencies"] = dep.dependencies;
+        function["have_undefs"] = undefs;
         if(EnablePollySCEV) {
             isl_printer_free(isl_print);
         }
@@ -190,12 +196,14 @@ namespace {
     }
     
     bool ExtraPExtractorPass::compute_polly_scev(llvm::Loop * l, llvm::Function & f,
-            llvm::ModuleSlotTracker & MST, nlohmann::json & result)
+            llvm::ModuleSlotTracker & MST, extrap::PollyVisitor & vis, nlohmann::json & result)
     {
+        if(!SCEV)
+            return false;
         polly::BasicBlockInfo bbi = SCEV->getYamlBB(*l->getHeader(), l->getLoopDepth(),
                 &f.getEntryBlock(), true, MST);
-        if( isl_set_is_bounded(bbi.Domain.get()) && !isl_set_is_empty(bbi.Domain.get()) ) {
-
+        if( vis.is_computable(bbi.Domain) ) {
+            vis.call(bbi.Domain);
             isl_printer_print_set(isl_print, bbi.Domain.get());
             isl_printer_flush(isl_print);
             isl_pw_qpolynomial * poly = isl_set_card(bbi.Domain.copy());

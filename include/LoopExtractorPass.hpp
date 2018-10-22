@@ -17,6 +17,10 @@ namespace llvm {
     class ScalarEvolution;
 }
 
+namespace nlohmann {
+    class json;
+}
+
 namespace {
 
     struct LoopExtractorPass : public ModulePass
@@ -29,7 +33,7 @@ namespace {
 
         virtual void getAnalysisUsage(AnalysisUsage & AU) const;
 
-        bool runOnFunction(Function & f);
+        bool runOnFunction(Function & f, nlohmann::json &);
         bool runOnModule(Module &) override;
     };
 
