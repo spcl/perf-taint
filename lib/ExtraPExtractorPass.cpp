@@ -44,6 +44,16 @@ static llvm::cl::opt<bool> EnablePollySCEV("extrap-extractor-polly-scev",
                                        llvm::cl::init(true),
                                        llvm::cl::value_desc("boolean flag"));
 
+static llvm::cl::opt<bool> EnableJSONOutput("extrap-extractor-json-output",
+                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
+                                       llvm::cl::init(true),
+                                       llvm::cl::value_desc("boolean flag"));
+
+static llvm::cl::opt<std::string> JSONOutputToFile("extrap-extractor-json-output-file",
+                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
+                                       llvm::cl::init(""),
+                                       llvm::cl::value_desc("boolean flag"));
+
 namespace {
 
     void Statistics::processed_function(bool undef)
@@ -124,7 +134,15 @@ namespace {
                 functions.push_back(res.getValue());
         }
         loops["functions"] = functions;
-        llvm::outs() << loops.dump(2) << '\n';
+        if(EnableJSONOutput) {
+            if(JSONOutputToFile != "") {
+                std::ofstream json(JSONOutputToFile.getValue().c_str(),
+                        std::ios::out);
+                json << loops.dump(2) << '\n';
+                json.close();
+            } else
+                llvm::outs() << loops.dump(2) << '\n';
+        }
         log.close();
 
         return false;

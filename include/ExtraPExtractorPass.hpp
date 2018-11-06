@@ -32,10 +32,26 @@ namespace extrap {
 
 namespace {
 
+    struct Statistics
+    {
+        uint32_t functions_count;
+        uint32_t understood_functions;
+
+        Statistics() : functions_count(0), understood_functions(0) {}
+        void processed_function(bool undef);
+
+        template<typename OS>
+        void dump(OS & os) const
+        {
+            os << functions_count << ' ' << understood_functions << '\n';
+        }
+    };
+
     struct ExtraPExtractorPass : public llvm::ModulePass
     {
         static char ID;
         std::fstream log;
+        Statistics stats;
         ExtraPExtractorPass():
             ModulePass(ID),
             SE(nullptr),
