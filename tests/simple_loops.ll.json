@@ -28,12 +28,7 @@
       "name": "_Z1gii"
     },
     {
-      "dependencies": {
-        "arg1;arg;1": {
-          "pos": 1,
-          "type": "arg"
-        }
-      },
+      "dependencies": {},
       "have_undefs": true,
       "loops": [
         "undef"
@@ -44,10 +39,6 @@
       "dependencies": {
         "arg1;arg;1": {
           "pos": 1,
-          "type": "arg"
-        },
-        "arg2;arg;2": {
-          "pos": 2,
           "type": "arg"
         },
         "arg;arg;0": {

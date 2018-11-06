@@ -180,7 +180,7 @@ namespace {
         std::vector< nlohmann::json > loops;
         extrap::ScalarEvolutionVisitor vis{dep};
         extrap::PollyVisitor polly_vis{dep, *SCEV};
-        bool undefs = false;
+        bool everything_defined = true;
         for(llvm::Loop * l : LI) {
          
             nlohmann::json loop;
@@ -190,15 +190,16 @@ namespace {
             if( !compute_scev(l, vis, loop) ) {
                 if( !compute_polly_scev(l, f, MST, polly_vis, loop) ) {               
                     loop = "undef";
-                    undefs = !manual_dependencies(l, dep, loop);
+                    everything_defined = false;
+                    manual_dependencies(l, dep, loop);
                 }
             }
             loops.push_back(loop);
         }
         function["loops"] = loops;
         function["dependencies"] = dep.dependencies;
-        function["have_undefs"] = undefs;
-        stats.processed_function(!undefs);
+        function["have_undefs"] = !everything_defined;
+        stats.processed_function(everything_defined);
         if(EnablePollySCEV) {
             isl_printer_free(isl_print);
         }
@@ -227,6 +228,7 @@ namespace {
             }
             return understood;
         }
+        return false;
     }
 
     bool ExtraPExtractorPass::compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis,
