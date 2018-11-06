@@ -50,9 +50,9 @@ namespace extrap {
 
         void find(const llvm::Argument * arg);
         void find(const llvm::GlobalVariable * instr);
-        void find(const llvm::Value * v);
-        void find(const llvm::Instruction * instr);
-        void find(const llvm::GetElementPtrInst * instr);
+        bool find(const llvm::Value * v);
+        bool find(const llvm::Instruction * instr);
+        //bool find(const llvm::GetElementPtrInst * instr);
     };
 
     // Serialization of Dependency

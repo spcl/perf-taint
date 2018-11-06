@@ -6,19 +6,19 @@
 
 namespace extrap {
 
-    void ScalarEvolutionVisitor::call(const llvm::SCEVNAryExpr * scev)
+    bool ScalarEvolutionVisitor::call(const llvm::SCEVNAryExpr * scev)
     {
+        bool understood = true;
         for(int i = 0; i < scev->getNumOperands(); ++i)
-           call( scev->getOperand(i) ); 
+           understood &= call( scev->getOperand(i) ); 
     }
     
-    void ScalarEvolutionVisitor::call(const llvm::SCEVUDivExpr * scev)
+    bool ScalarEvolutionVisitor::call(const llvm::SCEVUDivExpr * scev)
     {
-        call(scev->getLHS());
-        call(scev->getRHS());
+        return call(scev->getLHS()) && call(scev->getRHS());
     }
 
-    void ScalarEvolutionVisitor::call(const llvm::SCEV * scev)
+    bool ScalarEvolutionVisitor::call(const llvm::SCEV * scev)
     {
         switch(scev->getSCEVType()) {
             case llvm::scConstant:
@@ -26,21 +26,20 @@ namespace extrap {
             case llvm::scTruncate:
             case llvm::scZeroExtend:
             case llvm::scSignExtend:
-                call(llvm::cast<llvm::SCEVCastExpr>(scev)->getOperand());
+                return call(llvm::cast<llvm::SCEVCastExpr>(scev)->getOperand());
                 break;
             case llvm::scAddRecExpr:
             case llvm::scMulExpr:
             case llvm::scAddExpr:
             case llvm::scSMaxExpr:
             case llvm::scUMaxExpr:
-                call(llvm::cast<llvm::SCEVNAryExpr>(scev));
+                return call(llvm::cast<llvm::SCEVNAryExpr>(scev));
                 break;
             case llvm::scUDivExpr:
-                call(llvm::cast<llvm::SCEVUDivExpr>(scev));
+                return call(llvm::cast<llvm::SCEVUDivExpr>(scev));
                 break;
             case llvm::scUnknown:
-                llvm::outs() << *llvm::cast<llvm::SCEVUnknown>(scev)->getValue() << '\n';
-                dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
+                return dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
                 break;
             default:
                 llvm_unreachable( cppsprintf("Unhandled case %d!\n", scev->getSCEVType()).c_str() );

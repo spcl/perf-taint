@@ -15,9 +15,9 @@ namespace extrap {
     {
         DependencyFinder & dep;
 
-        void call(const llvm::SCEVNAryExpr * scev);
-        void call(const llvm::SCEVUDivExpr * scev);
-        void call(const llvm::SCEV * scev);
+        bool call(const llvm::SCEVNAryExpr * scev);
+        bool call(const llvm::SCEVUDivExpr * scev);
+        bool call(const llvm::SCEV * scev);
 
         static bool is_computable(const llvm::SCEV * scev);
     };

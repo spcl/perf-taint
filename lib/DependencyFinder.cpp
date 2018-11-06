@@ -89,41 +89,48 @@ namespace extrap {
             dependencies[name] = new GlobalArg();
     }
 
-    void DependencyFinder::find(const llvm::Value * v)
+    bool DependencyFinder::find(const llvm::Value * v)
     {
-        llvm::outs() << *v << ' ' << llvm::dyn_cast<llvm::LoadInst>(v) << ' ' << llvm::dyn_cast<llvm::GEPOperator>(v) << '\n';
-        if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v))
+        //llvm::outs() << *v << ' ' << llvm::dyn_cast<llvm::LoadInst>(v) << ' ' << llvm::dyn_cast<llvm::GEPOperator>(v) << '\n';
+        if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v)) {
             find(a);
-        else if(const llvm::GlobalVariable * glob = llvm::dyn_cast<llvm::GlobalVariable>(v))
+            return true;
+        } else if(const llvm::GlobalVariable * glob = llvm::dyn_cast<llvm::GlobalVariable>(v)) {
             find(glob);
-        else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v))
-            find(load->getPointerOperand());
+            return true;
+        } else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v)) {
+            return find(load->getPointerOperand());
+        }
         // results of a load instruction
-        else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(v))
-            find(gep->getPointerOperand());
+        else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(v)) {
+            return find(gep->getPointerOperand());
+        }
+        // We didn't understand the value
+        return false;
     }
 
-    void DependencyFinder::find(const llvm::GetElementPtrInst * instr)
-    {
-        llvm::outs() << *instr << '\n';
-        find(instr->getPointerOperand());
-    }
+    //void DependencyFinder::find(const llvm::GetElementPtrInst * instr)
+    //{
+    //    llvm::outs() << *instr << '\n';
+    //    find(instr->getPointerOperand());
+    //}
     
-    void DependencyFinder::find(const llvm::Instruction * instr)
+    bool DependencyFinder::find(const llvm::Instruction * instr)
     {
+        bool understood = true;
         for(int i = 0; i < instr->getNumOperands(); ++i) {
             llvm::Value * val = instr->getOperand(i);
             llvm::PHINode * phi = llvm::dyn_cast<llvm::PHINode>(val);
             if(phi) {
                 if(phi_nodes.find(phi) != phi_nodes.end()) {
-                   return; 
+                   return true;
                 }
                 phi_nodes.insert(phi);
             }
             if(llvm::Instruction * child_instr = llvm::dyn_cast<llvm::Instruction>(val)) {
-                find(child_instr);
+                understood &= find(child_instr);
             } else {
-                find(val);
+                understood &= find(val);
             }
             if(phi)
                 phi_nodes.erase(phi);

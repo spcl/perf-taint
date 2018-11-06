@@ -44,6 +44,11 @@ static llvm::cl::opt<bool> EnablePollySCEV("extrap-extractor-polly-scev",
                                        llvm::cl::init(true),
                                        llvm::cl::value_desc("boolean flag"));
 
+static llvm::cl::opt<bool> EnableManualDeps("extrap-extractor-man-deps",
+                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
+                                       llvm::cl::init(true),
+                                       llvm::cl::value_desc("boolean flag"));
+
 static llvm::cl::opt<bool> EnableJSONOutput("extrap-extractor-json-output",
                                        llvm::cl::desc("Enable Polly Scalar Evolution"),
                                        llvm::cl::init(true),
@@ -73,7 +78,6 @@ namespace {
 
     ExtraPExtractorPass::~ExtraPExtractorPass()
     {
-        stats.dump( llvm::outs() );
     }
 
     void ExtraPExtractorPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const
@@ -111,7 +115,7 @@ namespace {
                                       LogDirName.getValue().c_str());
         log.open(
             cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()),
-            std::ios::out);
+            std::ios::app);
         nlohmann::json loops;
 
         // extract file information
@@ -143,6 +147,7 @@ namespace {
             } else
                 llvm::outs() << loops.dump(2) << '\n';
         }
+        stats.dump(log);
         log.close();
 
         return false;
@@ -183,25 +188,9 @@ namespace {
             if(start_loc)
                 loop["line_number"] = start_loc.getLine();
             if( !compute_scev(l, vis, loop) ) {
-                if( !compute_polly_scev(l, f, MST, polly_vis, loop) ) {
-                   
-                    undefs = true;
+                if( !compute_polly_scev(l, f, MST, polly_vis, loop) ) {               
                     loop = "undef";
-                    // just process exit block?
-                    typedef std::pair< const llvm::BasicBlock*, const llvm::BasicBlock*> Edge;
-                    llvm::SmallVector<Edge, 4> exit_blocks;
-                    l->getExitEdges(exit_blocks);
-                    for(Edge edge : exit_blocks) {
-                        //for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
-                            //llvm::outs() << instr << '\n';
-                            //dep.find(&instr); 
-                        //}
-                        //llvm::outs() << *bb->getTerminator() << '\n';
-                        //llvm::outs() << llvm::dyn_cast<llvm::BranchInst>(bb->getTerminator()) << '\n';
-                        //dep.find( bb->getTerminator() );
-                        //llvm::outs() << *edge.first<< '\n';
-                        //dep.find( edge.first->getTerminator() );
-                    }
+                    undefs = !manual_dependencies(l, dep, loop);
                 }
             }
             loops.push_back(loop);
@@ -216,6 +205,30 @@ namespace {
         return function;
     }
 
+    bool ExtraPExtractorPass::manual_dependencies(llvm::Loop * l, extrap::DependencyFinder & dep,
+            nlohmann::json & result)
+    {
+        if(EnableManualDeps) {
+            // just process exit block?
+            typedef std::pair< const llvm::BasicBlock*, const llvm::BasicBlock*> Edge;
+            llvm::SmallVector<Edge, 4> exit_blocks;
+            l->getExitEdges(exit_blocks);
+            bool understood = true;
+            for(Edge edge : exit_blocks) {
+                //for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
+                    //llvm::outs() << instr << '\n';
+                    //dep.find(&instr); 
+                //}
+                //llvm::outs() << *bb->getTerminator() << '\n';
+                //llvm::outs() << llvm::dyn_cast<llvm::BranchInst>(bb->getTerminator()) << '\n';
+                //dep.find( bb->getTerminator() );
+                //llvm::outs() << *edge.first<< '\n';
+                understood &= dep.find( edge.first->getTerminator() );
+            }
+            return understood;
+        }
+    }
+
     bool ExtraPExtractorPass::compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis,
             nlohmann::json & result)
     {
@@ -223,8 +236,10 @@ namespace {
             const llvm::SCEV * count = SE->getBackedgeTakenCount(l);
             if( vis.is_computable(count) ) {
                 result["iterations"] = to_string(count);
-                vis.call(count);
-                return true;
+                if( vis.call(count) )
+                    return true;
+                else
+                    return false;
             }
             return false;
         }
@@ -239,7 +254,7 @@ namespace {
         polly::BasicBlockInfo bbi = SCEV->getYamlBB(*l->getHeader(), l->getLoopDepth(),
                 &f.getEntryBlock(), true, MST);
         if( vis.is_computable(bbi.Domain) ) {
-            vis.call(bbi.Domain);
+            bool understood = vis.call(bbi.Domain);
             isl_printer_print_set(isl_print, bbi.Domain.get());
             isl_printer_flush(isl_print);
             isl_pw_qpolynomial * poly = isl_set_card(bbi.Domain.copy());
@@ -247,8 +262,12 @@ namespace {
             isl_pw_qpolynomial_free(poly);
             char *ptr = isl_printer_get_str(isl_print);
             result["iterations"] = std::string(ptr);
+            if(!understood) {
+                log << "Loop at file: " << result["name"] << " line: " << result["line_number"];
+                log << " unrecognized Polly domain: " << ptr << '\n';
+            }
             free(ptr);
-            return true;
+            return understood;
         }
         return false;
     }

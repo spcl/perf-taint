@@ -43,7 +43,7 @@ namespace {
         template<typename OS>
         void dump(OS & os) const
         {
-            os << functions_count << ' ' << understood_functions << '\n';
+            os << "results " << functions_count << ' ' << understood_functions << '\n';
         }
     };
 
@@ -73,6 +73,7 @@ namespace {
         bool compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis, nlohmann::json & result);
         bool compute_polly_scev(llvm::Loop * l, llvm::Function & f, llvm::ModuleSlotTracker & MST,
                 extrap::PollyVisitor & vis, nlohmann::json & result);
+        bool manual_dependencies(llvm::Loop * l, extrap::DependencyFinder &, nlohmann::json &);
     };
 
 }

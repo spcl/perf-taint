@@ -10,12 +10,12 @@
 
 namespace extrap {
 
-    void PollyVisitor::call(isl::set set)
+    bool PollyVisitor::call(isl::set set)
     {
         for(size_t j = 0; j < set.dim( isl::dim::param ); ++j) {
             isl::id id = set.get_dim_id( isl::dim::param, j);
             if(llvm::Value * val = SCEV.findValue(id))
-                dep.find(val);
+                return dep.find(val);
             else {
                 isl_printer * isl_print = isl_printer_to_str( set.get_ctx().get() );
                 isl_printer_print_set(isl_print, set.get());

@@ -16,7 +16,7 @@ namespace extrap {
         DependencyFinder & dep;
         polly::PolySCEV & SCEV;
 
-        void call(isl::set set);
+        bool call(isl::set set);
         static bool is_computable(isl::set set);
     };
 
