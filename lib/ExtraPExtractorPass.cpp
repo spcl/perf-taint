@@ -46,6 +46,12 @@ static llvm::cl::opt<bool> EnablePollySCEV("extrap-extractor-polly-scev",
 
 namespace {
 
+    void Statistics::processed_function(bool undef)
+    {
+        ++functions_count;
+        understood_functions += undef;
+    }
+
     std::string to_string(const llvm::SCEV * scev)
     {
         std::string str; 
@@ -56,7 +62,9 @@ namespace {
     }
 
     ExtraPExtractorPass::~ExtraPExtractorPass()
-    {}
+    {
+        stats.dump( llvm::outs() );
+    }
 
     void ExtraPExtractorPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
@@ -162,10 +170,19 @@ namespace {
                     undefs = true;
                     loop = "undef";
                     // just process exit block?
-                    for(llvm::BasicBlock * bb : l->blocks()) {
-                        for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
-                            dep.find(&instr); 
-                        }
+                    typedef std::pair< const llvm::BasicBlock*, const llvm::BasicBlock*> Edge;
+                    llvm::SmallVector<Edge, 4> exit_blocks;
+                    l->getExitEdges(exit_blocks);
+                    for(Edge edge : exit_blocks) {
+                        //for(llvm::Instruction & instr : bb->instructionsWithoutDebug()) {
+                            //llvm::outs() << instr << '\n';
+                            //dep.find(&instr); 
+                        //}
+                        //llvm::outs() << *bb->getTerminator() << '\n';
+                        //llvm::outs() << llvm::dyn_cast<llvm::BranchInst>(bb->getTerminator()) << '\n';
+                        //dep.find( bb->getTerminator() );
+                        //llvm::outs() << *edge.first<< '\n';
+                        //dep.find( edge.first->getTerminator() );
                     }
                 }
             }
@@ -174,6 +191,7 @@ namespace {
         function["loops"] = loops;
         function["dependencies"] = dep.dependencies;
         function["have_undefs"] = undefs;
+        stats.processed_function(!undefs);
         if(EnablePollySCEV) {
             isl_printer_free(isl_print);
         }
