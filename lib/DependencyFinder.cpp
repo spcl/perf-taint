@@ -2,6 +2,8 @@
 #include "util/util.hpp"
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Operator.h>
+#include <llvm/ADT/SmallVector.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -19,6 +21,11 @@ namespace extrap {
     void FunctionArg::json(nlohmann::json & j) const
     {
         j = nlohmann::json{{"type", "arg"}, {"pos", pos}};
+    }
+    
+    void GlobalArg::json(nlohmann::json & j) const
+    {
+        j = nlohmann::json{{"type", "global"}};
     }
 
     DependencyFinder::~DependencyFinder()
@@ -70,14 +77,39 @@ namespace extrap {
         if(dependencies.find(name) == dependencies.end())
             dependencies[name] = new FunctionArg(arg->getArgNo());
     }
-
-    void DependencyFinder::find(llvm::Value * v)
+    
+    void DependencyFinder::find(const llvm::GlobalVariable * global_var)
     {
-        if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v))
-            find(a);
+        llvm::SmallVector<llvm::DIGlobalVariableExpression*, 10> debug;
+        global_var->getDebugInfo(debug);
+        //for(llvm::DIGlobalVariableExpression * var : debug)
+        //llvm::outs() << var->getVariable()->getName() << '\n';
+        std::string name = global_var->getName();
+        if(dependencies.find(name) == dependencies.end())
+            dependencies[name] = new GlobalArg();
     }
 
-    void DependencyFinder::find(llvm::Instruction * instr)
+    void DependencyFinder::find(const llvm::Value * v)
+    {
+        llvm::outs() << *v << ' ' << llvm::dyn_cast<llvm::LoadInst>(v) << ' ' << llvm::dyn_cast<llvm::GEPOperator>(v) << '\n';
+        if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v))
+            find(a);
+        else if(const llvm::GlobalVariable * glob = llvm::dyn_cast<llvm::GlobalVariable>(v))
+            find(glob);
+        else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v))
+            find(load->getPointerOperand());
+        // results of a load instruction
+        else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(v))
+            find(gep->getPointerOperand());
+    }
+
+    void DependencyFinder::find(const llvm::GetElementPtrInst * instr)
+    {
+        llvm::outs() << *instr << '\n';
+        find(instr->getPointerOperand());
+    }
+    
+    void DependencyFinder::find(const llvm::Instruction * instr)
     {
         for(int i = 0; i < instr->getNumOperands(); ++i) {
             llvm::Value * val = instr->getOperand(i);

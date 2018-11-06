@@ -39,6 +39,7 @@ namespace extrap {
                 call(llvm::cast<llvm::SCEVUDivExpr>(scev));
                 break;
             case llvm::scUnknown:
+                llvm::outs() << *llvm::cast<llvm::SCEVUnknown>(scev)->getValue() << '\n';
                 dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
                 break;
             default:

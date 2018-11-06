@@ -13,6 +13,8 @@ namespace llvm {
     class Instruction;
     class Value;
     class PHINode;
+    class GlobalVariable;
+    class GetElementPtrInst;
 }
 
 namespace extrap {
@@ -31,6 +33,13 @@ namespace extrap {
 
         void json(nlohmann::json & j) const override;
     };
+    
+    struct GlobalArg : Dependency
+    {
+        GlobalArg() = default;
+
+        void json(nlohmann::json & j) const override;
+    };
  
     struct DependencyFinder
     {
@@ -40,8 +49,10 @@ namespace extrap {
         ~DependencyFinder();
 
         void find(const llvm::Argument * arg);
-        void find(llvm::Value * v);
-        void find(llvm::Instruction * instr);
+        void find(const llvm::GlobalVariable * instr);
+        void find(const llvm::Value * v);
+        void find(const llvm::Instruction * instr);
+        void find(const llvm::GetElementPtrInst * instr);
     };
 
     // Serialization of Dependency
