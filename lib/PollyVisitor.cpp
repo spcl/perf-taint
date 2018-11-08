@@ -16,7 +16,8 @@ namespace extrap {
         for(size_t j = 0; j < set.dim( isl::dim::param ); ++j) {
             isl::id id = set.get_dim_id( isl::dim::param, j);
             if(llvm::Value * val = SCEV.findValue(id))
-                understood &= dep.find(val);
+                //understood &= dep.find(val);
+                understood = false;
             else {
                 isl_printer * isl_print = isl_printer_to_str( set.get_ctx().get() );
                 isl_printer_print_set(isl_print, set.get());

@@ -2,14 +2,15 @@
 #include "ExtraPExtractorPass.hpp"
 #include "ScalarEvolutionVisitor.hpp"
 #include "PollyVisitor.hpp"
+#include "FunctionAnalysis.hpp"
 #include "DependencyFinder.hpp"
+#include "JSONExporter.hpp"
 #include "util/util.hpp"
 
+#include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/ScalarEvolution.h>
 #include <llvm/IR/ModuleSlotTracker.h>
-#include <llvm/IR/DebugInfoMetadata.h>
-#include <llvm/IR/Function.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
@@ -90,6 +91,7 @@ namespace {
         if(EnablePollySCEV)
             AU.addRequired<polly::PolySCEV>();
         // Pass does not modify the input information
+        AU.addRequired<llvm::CallGraphWrapperPass>();
         AU.setPreservesAll();
     }
 
@@ -117,38 +119,38 @@ namespace {
             cppsprintf("%s_%s", name.c_str(), LogFileName.getValue().c_str()),
             std::ios::app);
         nlohmann::json loops;
-
-        // extract file information
-        auto it = m.debug_compile_units_begin(), end = m.debug_compile_units_end();
-        std::vector< nlohmann::json > units;
-        units.reserve( std::distance(it, end) );
-        for(;it != end; ++it) {
-            llvm::DICompileUnit * unit = *it;
-            nlohmann::json debug_info;
-            debug_info["directory"] = unit->getDirectory();
-            debug_info["file_name"] = unit->getFilename();
-            units.push_back( std::move(debug_info) );
-        }
-        loops["debug"] = units;
-        
+        extrap::JSONExporter exporter(m);
+ 
         std::vector<nlohmann::json> functions;
-        for (llvm::Function &f : m) {
-            auto res = runOnFunction(f);
-            if(res)
-                functions.push_back(res.getValue());
-        }
-        loops["functions"] = functions;
+        llvm::CallGraph & cgraph = getAnalysis<llvm::CallGraphWrapperPass>().getCallGraph();
+        extrap::FunctionAnalysis analysis(cgraph, m, exporter);
+        extrap::Parameters params;
+        std::vector< std::string > param_names{"global"};
+        params.find_globals(m, param_names);
+        assert(param_names.empty());
+        std::vector< std::string > param_names2{"x1", "x2"};
+        analysis.analyze_main(params, param_names2);
+        //llvm::Function * main = nullptr;
+        //for (llvm::Function &f : m) {
+            //auto res = runOnFunction(f);
+            //if(res)
+            //functions.push_back(res.getValue());
+        //if(f.getName() == "main")
+        //        main = &f;
+        //}
+        //loops["functions"] = functions;
         if(EnableJSONOutput) {
             if(JSONOutputToFile != "") {
                 std::ofstream json(JSONOutputToFile.getValue().c_str(),
                         std::ios::out);
-                json << loops.dump(2) << '\n';
+                exporter.print(json);
                 json.close();
             } else
-                llvm::outs() << loops.dump(2) << '\n';
+                exporter.print(llvm::outs());
         }
         stats.dump(log);
         log.close();
+
 
         return false;
     }
@@ -157,16 +159,8 @@ namespace {
     {
         if (f.isDeclaration())
             return llvm::Optional<nlohmann::json>();
-        nlohmann::json function;
         assert(debug);
         extrap::DependencyFinder dep;
-        if(llvm::DISubprogram * debug = f.getSubprogram()) {
-            function["name"] = debug->getName();
-            function["line"] = debug->getLine();
-        } else {
-            log << "Debug information not provided!\n";
-            function["name"] = f.getName();
-        }
 
         llvm::LoopInfo &LI = getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         if(EnableSCEV)
@@ -180,7 +174,9 @@ namespace {
         std::vector< nlohmann::json > loops;
         extrap::ScalarEvolutionVisitor vis{dep};
         extrap::PollyVisitor polly_vis{dep, *SCEV};
-        bool everything_defined = true;
+       
+         
+        /*bool everything_defined = true;
         for(llvm::Loop * l : LI) {
          
             nlohmann::json loop;
@@ -198,14 +194,15 @@ namespace {
         }
         function["loops"] = loops;
         function["dependencies"] = dep.dependencies;
-        function["have_undefs"] = !everything_defined;
-        stats.processed_function(everything_defined);
+        function["have_undefs"] = !everything_defined;*/
+        //stats.processed_function(everything_defined);
         if(EnablePollySCEV) {
             isl_printer_free(isl_print);
         }
-        return function;
+        //return function;
     }
 
+    // TODO: rework after changing dependeny cinder
     bool ExtraPExtractorPass::manual_dependencies(llvm::Loop * l, extrap::DependencyFinder & dep,
             nlohmann::json & result)
     {
@@ -224,7 +221,7 @@ namespace {
                 //llvm::outs() << llvm::dyn_cast<llvm::BranchInst>(bb->getTerminator()) << '\n';
                 //dep.find( bb->getTerminator() );
                 //llvm::outs() << *edge.first<< '\n';
-                understood &= dep.find( edge.first->getTerminator() );
+                //understood &= dep.find( edge.first->getTerminator() );
             }
             return understood;
         }
@@ -234,7 +231,10 @@ namespace {
     bool ExtraPExtractorPass::compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis,
             nlohmann::json & result)
     {
-        if( SE && SE->hasLoopInvariantBackedgeTakenCount(l)) {
+        //llvm::outs() << SE << ' ' << EnableSCEV << '\n';
+        //llvm::outs() << *l << '\n';
+        //llvm::outs() << SE->hasLoopInvariantBackedgeTakenCount(l) << '\n';
+        if( SE && l->getLoopDepth() == 1 && SE->hasLoopInvariantBackedgeTakenCount(l)) {
             const llvm::SCEV * count = SE->getBackedgeTakenCount(l);
             if( vis.is_computable(count) ) {
                 result["iterations"] = to_string(count);

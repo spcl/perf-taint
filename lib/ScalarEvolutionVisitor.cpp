@@ -39,7 +39,8 @@ namespace extrap {
                 return call(llvm::cast<llvm::SCEVUDivExpr>(scev));
                 break;
             case llvm::scUnknown:
-                return dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
+                //TODO: revert
+                //return dep.find(llvm::cast<llvm::SCEVUnknown>(scev)->getValue());
                 break;
             default:
                 llvm_unreachable( cppsprintf("Unhandled case %d!\n", scev->getSCEVType()).c_str() );

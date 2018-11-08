@@ -28,6 +28,7 @@ namespace extrap {
     class ScalarEvolutionVisitor;
     class PollyVisitor;
     class DependencyFinder;
+    class Parameters;
 }
 
 namespace {
@@ -70,6 +71,8 @@ namespace {
         polly::PolySCEV * SCEV;
         isl_printer * isl_print;
 
+
+        void findGlobals(const llvm::Module & m, std::vector<std::string> & globals, extrap::Parameters & params);
         bool compute_scev(llvm::Loop * l, extrap::ScalarEvolutionVisitor & vis, nlohmann::json & result);
         bool compute_polly_scev(llvm::Loop * l, llvm::Function & f, llvm::ModuleSlotTracker & MST,
                 extrap::PollyVisitor & vis, nlohmann::json & result);
