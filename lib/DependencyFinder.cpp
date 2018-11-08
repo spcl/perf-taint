@@ -91,7 +91,11 @@ namespace extrap {
         //std::string name = global_var->getName();
         //if(dependencies.find(name) == dependencies.end())
         //   dependencies[name] = new GlobalArg();
-        return false;
+        auto id = Parameters::find_global(global_var);
+        if(id != -1) {
+            ids.push_back(id);
+        }
+        return true;
     }
 
     bool DependencyFinder::find(const llvm::Value * v, const FunctionParameters & params, vec_t & ids)
@@ -114,6 +118,7 @@ namespace extrap {
         } else if(const llvm::GlobalVariable * glob = llvm::dyn_cast<llvm::GlobalVariable>(v)) {
             //return find(glob);
             //return true;
+            llvm::outs() << "GV: " << *glob << '\n';
             return find(glob, params, ids);
         } else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v)) {
             bool found = find(load->getPointerOperand(), params, ids);

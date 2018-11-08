@@ -29,7 +29,7 @@ namespace extrap {
 
     struct Parameters
     {
-        typedef uint32_t id_t;
+        typedef int32_t id_t;
         typedef llvm::SmallVector<id_t, 5> vec_t;
         static id_t GLOBAL_THRESHOLD; 
 
@@ -40,6 +40,7 @@ namespace extrap {
         static void find_globals(llvm::Module & m, std::vector<std::string> & globals);
         static id_t add_param(std::string name);
         static std::string get_param(id_t id);
+        static id_t find_global(const llvm::GlobalVariable *);
     };
    
     struct CallSite;

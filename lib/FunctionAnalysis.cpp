@@ -19,7 +19,7 @@ namespace extrap {
 
     std::string Parameters::get_param(id_t id)
     {
-        if(id > GLOBAL_THRESHOLD)
+        if(id >= GLOBAL_THRESHOLD)
             return globals_names[id - GLOBAL_THRESHOLD];
         else
             return arg_names[id];
@@ -41,6 +41,16 @@ namespace extrap {
         }
         if(!global_names.empty())
             std::runtime_error("Some globals have not been found!\n");
+    }
+
+    Parameters::id_t Parameters::find_global(const llvm::GlobalVariable * v)
+    {
+        typedef std::vector<const llvm::GlobalVariable*>::iterator iterator;
+        iterator it = std::find(globals.begin(), globals.end(), v);
+        if(it != globals.end())
+            return std::distance(globals.begin(), it) + GLOBAL_THRESHOLD;
+        else
+            return -1;
     }
     
     FunctionParameters find_args(llvm::Function * f, std::vector<std::string> & names)

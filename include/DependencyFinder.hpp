@@ -52,7 +52,7 @@ namespace extrap {
     {
         //std::unordered_map<std::string, Dependency*> dependencies;
         std::set<llvm::PHINode*> phi_nodes;
-        typedef llvm::SmallVector<uint32_t, 5> vec_t;
+        typedef llvm::SmallVector<int32_t, 5> vec_t;
 
         ~DependencyFinder();
 
