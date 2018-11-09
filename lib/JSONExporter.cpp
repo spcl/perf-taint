@@ -70,7 +70,7 @@ namespace extrap {
 
         if(func.globals)
             for(auto id : func.globals.getValue())
-                function["globals"].push_back( std::make_pair(id, Parameters::get_param(id)));
+                function["globals"].push_back(Parameters::get_param(id));
 
         out["functions"].push_back(function);
     }
