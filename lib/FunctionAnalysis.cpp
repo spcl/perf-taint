@@ -173,8 +173,8 @@ namespace extrap {
                         llvm::outs() << '\n';
                     }
                     llvm::outs() << '\n';
-                    insert_callsite(*f, f_analysis, callsite.getValue());
                     FunctionParameters call_parameters(*f, callsite.getValue());
+                    insert_callsite(*f, f_analysis, callsite.getValue());
                     analyze_function(*f, call_parameters);
                 }
             }
@@ -197,8 +197,8 @@ namespace extrap {
     {
         llvm::outs() << f.getName() << " calls:\n";
         llvm::CallGraphNode * node = cg[&f];
-        for(auto & x : params.arguments)
-            llvm::outs() << x.first << ' ' << x.second.size() << '\n';
+        //for(auto & x : params.arguments)
+        //llvm::outs() << x.first << ' ' << x.second.size() << '\n';
         for(auto callsite : *node)
         {
             llvm::CallGraphNode * node = callsite.second;
@@ -282,8 +282,10 @@ namespace extrap {
         FunctionParameters::vec_t ids;
         if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
             DependencyFinder dep;
+            llvm::outs() << "Arguments: ";
             for(auto & x : params.arguments)
-                llvm::outs() << x.first << ' ' << x.second.size() << '\n';
+                llvm::outs() << "(" << x.first << ',' << x.second.size() << ')';
+            llvm::outs() << "\n";
             // last operand is the function name
             for(int i = 0; i < call->getNumOperands() - 1; ++i) {
                 llvm::outs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
