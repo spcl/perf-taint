@@ -55,7 +55,7 @@ namespace extrap {
         std::unordered_map< const llvm::Value*, vec_t> arguments;
 
         // create an instance for a new function from the callsite
-        FunctionParameters(CallSite &);
+        FunctionParameters(llvm::Function & f, CallSite &);
         // empty arguments
         FunctionParameters();
 
@@ -106,6 +106,7 @@ namespace extrap {
             whitelist.close();
         }
 
+        void analyze_function(llvm::Function & f, const FunctionParameters &);
         void analyze_main(Parameters &, std::vector<std::string> &);
         bool is_analyzable(llvm::Function * f);
         void analyze(llvm::Function * f, const Parameters &);

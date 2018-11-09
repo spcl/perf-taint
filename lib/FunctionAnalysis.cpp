@@ -103,9 +103,17 @@ namespace extrap {
         return arg_names.size() - 1;
     }
     
-    FunctionParameters::FunctionParameters(CallSite & callsite)
+    FunctionParameters::FunctionParameters(llvm::Function & f, CallSite & callsite)
     {
-        //TODO:
+        // from pos -> ids
+        // llvm::Value-> ids
+        for(const CallSite::call_arg_t & call : callsite.parameters)
+        {
+            int position = std::get<0>(call);
+            auto it = f.arg_begin();
+            std::advance(it, position);
+            arguments[ &*it ] = std::get<1>(call);
+        }
     }
 
     FunctionParameters::FunctionParameters() {}
@@ -165,11 +173,51 @@ namespace extrap {
                         this->callsites[f] = std::vector<CallSite>{callsite.getValue()};
                     } else
                        (*it).second.push_back(callsite.getValue()); 
+                    FunctionParameters call_parameters(*f, callsite.getValue());
+                    analyze_function(*f, call_parameters);
                 }
             }
         }
         for(auto & f : this->callsites)
             exporter.export_function(*f.first, f.second.begin(), f.second.end());
+    }
+    
+    void FunctionAnalysis::analyze_function(llvm::Function & f, const FunctionParameters & params)
+    {
+        llvm::CallGraphNode * node = cg[&f];
+        for(auto & x : params.arguments)
+            llvm::outs() << x.first << ' ' << x.second.size() << '\n';
+        for(auto callsite : *node)
+        {
+            llvm::CallGraphNode * node = callsite.second;
+            llvm::Value * call = callsite.first;
+            llvm::Function * f = node->getFunction();
+            if( is_analyzable(f) ) {
+                llvm::outs() << "Main calls: " << f->getName() << " at: " << *call << '\n';
+ 
+                // does it use parameters?
+                llvm::Optional<CallSite> callsite = analyze_call(call, params);
+                
+                if(callsite) {
+                    llvm::outs() << "Found pos: "; 
+                    for(auto & pos : callsite.getValue().parameters) {
+                        llvm::outs() << std::get<0>(pos)<< ", ";
+                        llvm::outs() << " size: " << std::get<1>(pos).size() << ' ';
+                        for(auto & x : std::get<1>(pos))
+                            llvm::outs() << x << ' ';
+                        llvm::outs() << '\n';
+                    }
+                    llvm::outs() << '\n';
+                    auto it = this->callsites.find(f);
+                    if(it == this->callsites.end()) {
+                        this->callsites[f] = std::vector<CallSite>{callsite.getValue()};
+                    } else
+                       (*it).second.push_back(callsite.getValue()); 
+                    FunctionParameters call_parameters(*f, callsite.getValue());
+                    analyze_function(*f, call_parameters);
+                }
+            }
+        }
     }
 
     bool FunctionAnalysis::is_analyzable(llvm::Function * f)
