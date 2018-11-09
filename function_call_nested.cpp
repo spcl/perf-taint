@@ -21,7 +21,7 @@ int g(int x)
 
 int i(int x1, int x2, int x3)
 {
-    return f(100, x1) * x1 * x2 + x3 * f(2, 5);
+    return f(global, x1) * x1 * x2 + h(x3) * f(2, 5);
 }
 
 int main(int argc, char ** argv)

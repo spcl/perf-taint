@@ -77,6 +77,13 @@ namespace extrap {
         void called(int pos, const FunctionParameters::vec_t & args);
     };
 
+    struct AnalyzedFunction
+    {
+        std::vector<CallSite> callsites;
+
+        llvm::Optional<Parameters::vec_t> globals;
+    };
+
     struct FunctionAnalysis
     {
         llvm::CallGraph & cg;
@@ -88,7 +95,8 @@ namespace extrap {
         // Functions that are already analyzed
         std::set< llvm::Function* > verified;
 
-        std::unordered_map<llvm::Function *, std::vector<CallSite>> callsites;
+        // unify that into a single structure
+        std::unordered_map<llvm::Function *, AnalyzedFunction*> functions;
         
         FunctionAnalysis(llvm::CallGraph & _cg, llvm::Module & _m, extrap::JSONExporter & exp) :
             cg(_cg),
@@ -104,9 +112,17 @@ namespace extrap {
             unknown.close();
             blacklist.close();
             whitelist.close();
+            std::for_each(functions.begin(), functions.end(),
+                    [](std::pair<llvm::Function *, AnalyzedFunction*> p) {
+                        delete p.second;
+                    });
         }
 
+        void insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite &);
+        void insert_func(llvm::Function & f, Parameters::vec_t & globals);
+        AnalyzedFunction * analyze_body(llvm::Function & f);
         void analyze_function(llvm::Function & f, const FunctionParameters &);
+        AnalyzedFunction * analyze_function(llvm::Function & f);
         void analyze_main(Parameters &, std::vector<std::string> &);
         bool is_analyzable(llvm::Function * f);
         void analyze(llvm::Function * f, const Parameters &);

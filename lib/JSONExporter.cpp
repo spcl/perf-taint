@@ -5,6 +5,8 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
 
+#include <tuple>
+
 namespace extrap {
 
     JSONExporter::JSONExporter(llvm::Module & m)
@@ -22,6 +24,7 @@ namespace extrap {
         }
         out["debug"] = units;
     }
+
 
     nlohmann::json JSONExporter::export_callsite(CallSite & site)
     {
@@ -45,6 +48,25 @@ namespace extrap {
         function["name"] = debug->getName();
         function["line"] = debug->getLine();
         return function;
+    }
+    
+    nlohmann::json JSONExporter::export_function(llvm::Function & f, AnalyzedFunction & func)
+    {
+        nlohmann::json function = export_function(f);
+        auto callsite_begin = func.callsites.begin(), callsite_end = func.callsites.end(); 
+        while(callsite_begin != callsite_end) {
+            nlohmann::json callsite = export_callsite(*callsite_begin);
+            //group callsites by function
+            std::string function_name = llvm::dyn_cast<llvm::DISubprogram>((*callsite_begin).dbg_loc->getScope())->getName();
+            function["callsites"][function_name].push_back(callsite);
+            ++callsite_begin;
+        }
+
+        if(func.globals)
+            for(auto id : func.globals.getValue())
+                function["globals"].push_back( std::make_pair(id, Parameters::get_param(id)));
+
+        out["functions"].push_back(function);
     }
 
 }

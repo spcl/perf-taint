@@ -107,11 +107,13 @@ namespace extrap {
     {
         // from pos -> ids
         // llvm::Value-> ids
+        llvm::outs() << f.getName() << '\n';
         for(const CallSite::call_arg_t & call : callsite.parameters)
         {
             int position = std::get<0>(call);
             auto it = f.arg_begin();
             std::advance(it, position);
+            llvm::outs() << position << ' ' << std::get<1>(call).size() << '\n';
             arguments[ &*it ] = std::get<1>(call);
         }
     }
@@ -152,12 +154,15 @@ namespace extrap {
             llvm::CallGraphNode * node = callsite.second;
             llvm::Value * call = callsite.first;
             llvm::Function * f = node->getFunction();
+            AnalyzedFunction * f_analysis = analyze_function(*f);
             if( is_analyzable(f) ) {
                 llvm::outs() << "Main calls: " << f->getName() << " at: " << *call << '\n';
  
                 // does it use parameters?
                 llvm::Optional<CallSite> callsite = analyze_call(call, main_params);
-                
+               
+                analyze_body(*f);
+
                 if(callsite) {
                     llvm::outs() << "Found pos: "; 
                     for(auto & pos : callsite.getValue().parameters) {
@@ -168,22 +173,29 @@ namespace extrap {
                         llvm::outs() << '\n';
                     }
                     llvm::outs() << '\n';
-                    auto it = this->callsites.find(f);
-                    if(it == this->callsites.end()) {
-                        this->callsites[f] = std::vector<CallSite>{callsite.getValue()};
-                    } else
-                       (*it).second.push_back(callsite.getValue()); 
+                    insert_callsite(*f, f_analysis, callsite.getValue());
                     FunctionParameters call_parameters(*f, callsite.getValue());
                     analyze_function(*f, call_parameters);
                 }
             }
         }
-        for(auto & f : this->callsites)
-            exporter.export_function(*f.first, f.second.begin(), f.second.end());
+        for(auto & f : this->functions)
+            if(f.second)
+                exporter.export_function(*f.first, *f.second);
+    }
+
+    void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite & site)
+    {
+        if(!f_analysis) {
+            f_analysis = new AnalyzedFunction;
+            functions[&f] = f_analysis;
+        }
+        f_analysis->callsites.push_back( std::move(site) );
     }
     
     void FunctionAnalysis::analyze_function(llvm::Function & f, const FunctionParameters & params)
     {
+        llvm::outs() << f.getName() << " calls:\n";
         llvm::CallGraphNode * node = cg[&f];
         for(auto & x : params.arguments)
             llvm::outs() << x.first << ' ' << x.second.size() << '\n';
@@ -192,8 +204,9 @@ namespace extrap {
             llvm::CallGraphNode * node = callsite.second;
             llvm::Value * call = callsite.first;
             llvm::Function * f = node->getFunction();
+            AnalyzedFunction * f_analysis = analyze_function(*f);
             if( is_analyzable(f) ) {
-                llvm::outs() << "Main calls: " << f->getName() << " at: " << *call << '\n';
+                llvm::outs() << "calls: " << f->getName() << " at: " << *call << '\n';
  
                 // does it use parameters?
                 llvm::Optional<CallSite> callsite = analyze_call(call, params);
@@ -208,16 +221,49 @@ namespace extrap {
                         llvm::outs() << '\n';
                     }
                     llvm::outs() << '\n';
-                    auto it = this->callsites.find(f);
-                    if(it == this->callsites.end()) {
-                        this->callsites[f] = std::vector<CallSite>{callsite.getValue()};
-                    } else
-                       (*it).second.push_back(callsite.getValue()); 
+                    analyze_body(*f);
+                    insert_callsite(*f, f_analysis, callsite.getValue());
                     FunctionParameters call_parameters(*f, callsite.getValue());
                     analyze_function(*f, call_parameters);
                 }
             }
         }
+    }
+
+    AnalyzedFunction * FunctionAnalysis::analyze_function(llvm::Function & f)
+    {
+        //Caching
+        auto it = functions.find(&f);
+        if(it != functions.end()) {
+            //already here, just return ref
+            return (*it).second; 
+            //(*it).second.globals = std::move(ids);
+        } else { 
+            AnalyzedFunction * func = analyze_body(f);
+            functions[&f] = func;
+            return func;
+        }
+    }
+
+    AnalyzedFunction * FunctionAnalysis::analyze_body(llvm::Function & f)
+    {
+        // maybe just global lookup?
+        FunctionParameters empty;
+        DependencyFinder dep;
+        FunctionParameters::vec_t ids;
+        for(llvm::BasicBlock & bb : f) { 
+            for(llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
+                dep.find(&instr, empty, ids);
+            }
+        }
+        std::sort(ids.begin(), ids.end());
+        ids.erase( std::unique( ids.begin(), ids.end() ), ids.end() );
+        if(!ids.empty()) {
+            AnalyzedFunction * res = new AnalyzedFunction;
+            res->globals = std::move(ids);
+            return res;
+        } else
+            return nullptr;
     }
 
     bool FunctionAnalysis::is_analyzable(llvm::Function * f)
@@ -236,9 +282,11 @@ namespace extrap {
         FunctionParameters::vec_t ids;
         if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
             DependencyFinder dep;
+            for(auto & x : params.arguments)
+                llvm::outs() << x.first << ' ' << x.second.size() << '\n';
             // last operand is the function name
             for(int i = 0; i < call->getNumOperands() - 1; ++i) {
-                llvm::outs() << "Look in operand: " << *call->getOperand(i) << '\n';
+                llvm::outs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
                 dep.find(call->getOperand(i), params, ids);
                 if(!ids.empty()) {
                     if(!site)
