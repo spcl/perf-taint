@@ -34,8 +34,14 @@ namespace extrap {
         callsite["file"] = subprogram->getFile()->getFilename();
         callsite["line"] = site.dbg_loc->getLine();
         for(auto & param : site.parameters) {
-            for(auto id : std::get<1>(param))
-                callsite["operands"].push_back( std::make_pair(std::get<0>(param), Parameters::get_param(id)));
+            Parameters::vec_t & vec = std::get<1>(param);
+            llvm::SmallVector<std::string, 5> sv(vec.size());
+            // id -> param_name
+            std::transform(vec.begin(), vec.end(), sv.begin(),
+                    [](Parameters::id_t id) {
+                        return Parameters::get_param(id);
+                    });
+            callsite["operands"].push_back( std::make_pair(std::get<0>(param), sv) );
         }
         return callsite;
     }
