@@ -80,7 +80,6 @@ namespace extrap {
     struct AnalyzedFunction
     {
         std::vector<CallSite> callsites;
-
         llvm::Optional<Parameters::vec_t> globals;
     };
 
@@ -126,7 +125,7 @@ namespace extrap {
         void analyze_main(Parameters &, std::vector<std::string> &);
         bool is_analyzable(llvm::Function * f);
         void analyze(llvm::Function * f, const Parameters &);
-        llvm::Optional<CallSite> analyze_call(llvm::Value *, const FunctionParameters &);
+        llvm::Optional<CallSite> analyze_call(llvm::Value *, bool has_globals, const FunctionParameters &);
 
         void export_functions();
     };

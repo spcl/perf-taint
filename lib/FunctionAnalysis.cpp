@@ -159,7 +159,8 @@ namespace extrap {
                 llvm::outs() << "Main calls: " << f->getName() << " at: " << *call << '\n';
  
                 // does it use parameters?
-                llvm::Optional<CallSite> callsite = analyze_call(call, main_params);
+                llvm::Optional<CallSite> callsite = analyze_call(call, 
+                        f_analysis ? f_analysis->globals.hasValue() : false, main_params);
                
                 analyze_body(*f);
 
@@ -209,7 +210,8 @@ namespace extrap {
                 llvm::outs() << "calls: " << f->getName() << " at: " << *call << '\n';
  
                 // does it use parameters?
-                llvm::Optional<CallSite> callsite = analyze_call(call, params);
+                llvm::Optional<CallSite> callsite = analyze_call(call,
+                        f_analysis ? f_analysis->globals.hasValue() : false, params);
                 
                 if(callsite) {
                     llvm::outs() << "Found pos: "; 
@@ -276,12 +278,14 @@ namespace extrap {
         return true;
     }
 
-    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, const FunctionParameters & params)
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, bool has_globals, const FunctionParameters & params)
     {
         llvm::Optional<CallSite> site;
         FunctionParameters::vec_t ids;
         if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
             DependencyFinder dep;
+            if(has_globals)
+                site = CallSite(call->getDebugLoc());
             llvm::outs() << "Arguments: ";
             for(auto & x : params.arguments)
                 llvm::outs() << "(" << x.first << ',' << x.second.size() << ')';
