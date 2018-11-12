@@ -37,10 +37,16 @@ namespace extrap {
         static std::vector< std::string > globals_names;
         static std::vector< std::string > arg_names;
 
+        typedef std::vector<std::string>::const_iterator names_it;
+        typedef std::pair<names_it, names_it> names_range;
+
         static void find_globals(llvm::Module & m, std::vector<std::string> & globals);
         static id_t add_param(std::string name);
         static std::string get_param(id_t id);
         static id_t find_global(const llvm::GlobalVariable *);
+
+        names_range get_parameters() const;
+        names_range get_globals() const;
     };
    
     struct CallSite;

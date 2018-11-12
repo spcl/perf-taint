@@ -103,9 +103,7 @@ namespace extrap {
         //llvm::outs() << *v << ' ' << llvm::dyn_cast<llvm::LoadInst>(v) << ' ' << llvm::dyn_cast<llvm::GEPOperator>(v) << '\n';
         //
         //
-        //llvm::outs() << v << ' ' << *v << '\n';
         if( const vec_t * found_ids = params.find(v) ) {
-            llvm::outs() << "Found: " << v << ' ' << found_ids->size() << '\n';
             ids.append(found_ids->begin(), found_ids->end());
             return true;
         }
@@ -118,7 +116,6 @@ namespace extrap {
         } else if(const llvm::GlobalVariable * glob = llvm::dyn_cast<llvm::GlobalVariable>(v)) {
             //return find(glob);
             //return true;
-            llvm::outs() << "GV: " << *glob << '\n';
             return find(glob, params, ids);
         } else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v)) {
             bool found = find(load->getPointerOperand(), params, ids);
@@ -160,7 +157,6 @@ namespace extrap {
             //} else {
             //std::cout << found << '\n';
             understood &= find(val, params, ids);
-            //llvm::outs() << *val << '\n';
             //std::cout << found << '\n';
             //llvm::outs() << "Found: " << found << '\n';
             //} 

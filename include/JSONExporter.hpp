@@ -14,6 +14,7 @@ namespace extrap {
 
     class CallSite;
     class AnalyzedFunction;
+    class Parameters;
 
     struct JSONExporter
     {
@@ -22,8 +23,9 @@ namespace extrap {
         JSONExporter(llvm::Module &);
         
         nlohmann::json export_callsite(CallSite &);
-        nlohmann::json export_function(llvm::Function & f, AnalyzedFunction &); 
-        
+        void export_function(llvm::Function & f, AnalyzedFunction &); 
+        void export_parameters(const Parameters & params);
+ 
         nlohmann::json & json();
 
         template<typename OS>

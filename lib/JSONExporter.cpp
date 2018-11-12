@@ -55,8 +55,20 @@ namespace extrap {
         function["line"] = debug->getLine();
         return function;
     }
-    
-    nlohmann::json JSONExporter::export_function(llvm::Function & f, AnalyzedFunction & func)
+   
+    void JSONExporter::export_parameters(const Parameters & params)
+    {
+        nlohmann::json exported;
+        auto globals = params.get_globals();
+        for(auto it = globals.first; it != globals.second; ++it)
+            exported["global"].push_back(*it);
+        auto args = params.get_parameters();
+        for(auto it = args.first; it != args.second; ++it)
+            exported["args"].push_back(*it);
+        out["parameters"] = exported;
+    }
+
+    void JSONExporter::export_function(llvm::Function & f, AnalyzedFunction & func)
     {
         nlohmann::json function = export_function(f);
         auto callsite_begin = func.callsites.begin(), callsite_end = func.callsites.end(); 
