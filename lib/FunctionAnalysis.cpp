@@ -9,6 +9,7 @@
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/IR/Operator.h>
 
 namespace extrap {
 
@@ -53,6 +54,21 @@ namespace extrap {
             return -1;
     }
     
+    llvm::Optional<std::string> findDebugName(const llvm::Function * f, const llvm::Value * value)
+    {
+        for (auto Iter = llvm::inst_begin(f), End = llvm::inst_end(f); Iter != End; ++Iter) {
+            const llvm::Instruction* instr = &*Iter;
+            if (const llvm::DbgDeclareInst* DbgDeclare = llvm::dyn_cast<llvm::DbgDeclareInst>(instr)) {
+                if(DbgDeclare->getAddress() == value)
+                    return DbgDeclare->getVariable()->getName().str();
+            } else if (const llvm::DbgValueInst* DbgValue = llvm::dyn_cast<llvm::DbgValueInst>(instr)) {
+                if(DbgValue->getValue() == value)
+                    return DbgValue->getVariable()->getName().str();
+            }
+        }
+        return llvm::Optional<std::string>();
+    }
+
     FunctionParameters find_args(llvm::Function * f, std::vector<std::string> & names)
     {
         //TOOD: this can get messy with phi-nodes and missing declarations
@@ -76,7 +92,7 @@ namespace extrap {
             const llvm::Instruction* I = &*Iter;
             if (const llvm::DbgDeclareInst* DbgDeclare = llvm::dyn_cast<llvm::DbgDeclareInst>(I)) {
                 llvm::StringRef name = DbgDeclare->getVariable()->getName();
-                llvm::outs() << name << '\n';
+                //llvm::outs() << name << '\n';
                 for(std::string & param_name : names) {
                     if(param_name == name) {
                         Parameters::id_t id = Parameters::add_param(name);
@@ -85,14 +101,42 @@ namespace extrap {
                 }
             } else if (const llvm::DbgValueInst* DbgValue = llvm::dyn_cast<llvm::DbgValueInst>(I)) {
                 llvm::StringRef name = DbgValue->getVariable()->getName();
-                llvm::outs() << name << '\n';
+                //llvm::outs() << name << '\n';
                 for(std::string & param_name : names) {
                     if(param_name == name) {
                         Parameters::id_t id = Parameters::add_param(name);
                         params.add(DbgValue->getValue(), id);
                     }
                 }
+            } else if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
+                if(call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
+                    if(const llvm::GEPOperator * inst =
+                            llvm::dyn_cast<llvm::GEPOperator>(call->getOperand(1))) {
+                        const llvm::Value* operand = inst->getPointerOperand();
+                        if(const llvm::GlobalVariable * data
+                                = llvm::dyn_cast<llvm::GlobalVariable>(inst->getPointerOperand())) {
+                            if(const llvm::ConstantDataArray * initializer
+                                = llvm::dyn_cast<llvm::ConstantDataArray>(data->getInitializer())) {
+                                std::string str = initializer->getAsString().str();
+                                //ignore terminator at the endwhitespace
+                                bool name_equal = std::equal(str.begin(), str.end(), "extrap",
+                                        [](char a, char b) {
+                                            return a == b || !isprint(a); 
+                                        });
+                                if(name_equal) {
+                                    //now read the value
+                                    const llvm::Value * value = call->getOperand(0)->stripPointerCasts();
+                                    auto value_name = findDebugName(f, value);
+                                    assert(value_name.hasValue());
+                                    Parameters::id_t id = Parameters::add_param(value_name.getValue());
+                                    params.add(value, id);
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            
         }
         return params;
     }
@@ -113,14 +157,13 @@ namespace extrap {
             int position = std::get<0>(call);
             auto it = f.arg_begin();
             std::advance(it, position);
-            llvm::outs() << position << ' ' << std::get<1>(call).size() << '\n';
             arguments[ &*it ] = std::get<1>(call);
         }
     }
 
     FunctionParameters::FunctionParameters() {}
 
-    void FunctionParameters::add(llvm::Value * val, id_t id)
+    void FunctionParameters::add(const llvm::Value * val, id_t id)
     {
         auto it = arguments.find(val);
         if(it == arguments.end()) {

@@ -2,7 +2,9 @@
 #include <cmath>
 #include <cstdlib>
 
-int global = 100;
+#define EXTRAP __attribute__(( annotate("extrap") )) 
+
+int global EXTRAP = 100;
 
 int f(int x, int y)
 {
@@ -26,8 +28,8 @@ int i(int x1, int x2, int x3)
 
 int main(int argc, char ** argv)
 {
-    int x1 = atoi(argv[1]);
-    int x2 = atoi(argv[2]);
+    int x1 EXTRAP = atoi(argv[1]);
+    int x2 EXTRAP = atoi(argv[2]);
     int y = 2*x1 + 1;
 
     // pass param, pass global

@@ -60,7 +60,7 @@ namespace extrap {
         FunctionParameters();
 
         const vec_t * find(const llvm::Value *) const;
-        void add(llvm::Value *, id_t id);
+        void add(const llvm::Value *, id_t id);
     };
     
     static FunctionParameters find_args(llvm::Function * f, std::vector<std::string> &);
