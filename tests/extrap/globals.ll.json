@@ -1,0 +1,222 @@
+{
+  "debug": [
+    {
+      "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
+      "file_name": "globals_tu1.cpp"
+    },
+    {
+      "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
+      "file_name": "globals_tu2.cpp"
+    }
+  ],
+  "functions": [
+    {
+      "callsites": {
+        "i": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 28,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 41
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 10,
+      "name": "g"
+    },
+    {
+      "callsites": {
+        "i": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 29
+          },
+          {
+            "file": "globals_tu1.cpp",
+            "line": 29
+          }
+        ],
+        "main": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 38,
+            "operands": [
+              [
+                1,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "globals_tu1.cpp",
+            "line": 39
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 18,
+      "name": "f"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 48
+          }
+        ]
+      },
+      "globals": [
+        "global",
+        "global2"
+      ],
+      "line": 25,
+      "name": "i"
+    },
+    {
+      "callsites": {
+        "f": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 22,
+            "operands": [
+              [
+                0,
+                [
+                  "global",
+                  "global2"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "globals_tu1.cpp",
+            "line": 22,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "g": [
+          {
+            "file": "globals_tu2.cpp",
+            "line": 12,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "g_prune": [
+          {
+            "file": "globals_tu2.cpp",
+            "line": 17,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "globals_tu2.cpp",
+            "line": 17,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 45
+          },
+          {
+            "file": "globals_tu1.cpp",
+            "line": 46
+          }
+        ]
+      },
+      "globals": [
+        "global2"
+      ],
+      "line": 13,
+      "name": "h"
+    },
+    {
+      "callsites": {
+        "f": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 21,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "globals_tu1.cpp",
+            "line": 43,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 15,
+      "name": "g_prune"
+    }
+  ],
+  "parameters": {
+    "global": [
+      "global",
+      "global2"
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "debug": [
+    {
+      "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
+      "file_name": "function_call_nested.cpp"
+    }
+  ],
+  "functions": [
+    {
+      "callsites": {
+        "f": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 16,
+            "operands": [
+              [
+                0,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          }
+        ],
+        "g": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 21,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "i": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 26,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 41,
+            "operands": [
+              [
+                0,
+                [
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 9,
+      "name": "h"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 44,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ],
+              [
+                2,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 24,
+      "name": "i"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 39
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 19,
+      "name": "g"
+    },
+    {
+      "callsites": {
+        "i": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 26,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 36,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "function_call_nested.cpp",
+            "line": 37,
+            "operands": [
+              [
+                0,
+                [
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 14,
+      "name": "f"
+    }
+  ],
+  "parameters": {
+    "args": [
+      "x1",
+      "x2"
+    ],
+    "global": [
+      "global"
+    ]
+  }
+}
