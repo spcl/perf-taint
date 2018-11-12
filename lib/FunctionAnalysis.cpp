@@ -26,10 +26,37 @@ namespace extrap {
             return arg_names[id];
     }
 
+    bool string_compare(const std::string & str)
+    {
+        //ignore terminator at the endwhitespace
+        return std::equal(str.begin(), str.end(), "extrap",
+                [](char a, char b) {
+                    return a == b || !isprint(a); 
+                });
+    }
+
     void Parameters::find_globals(llvm::Module & m, std::vector<std::string> & global_names)
     {
         for(auto & global_var : m.getGlobalList())
         {
+            if(global_var.getName().equals("llvm.global.annotations")) {
+                llvm::ConstantArray *CA = llvm::dyn_cast<llvm::ConstantArray>(global_var.getInitializer());
+                for(auto OI = CA->op_begin(); OI != CA->op_end(); ++OI){
+                    llvm::ConstantStruct *CS = llvm::dyn_cast<llvm::ConstantStruct>(OI->get());
+                    // second operator is a GEP - find the source of load which is global variable with annotation
+                    llvm::GlobalVariable *annotation = llvm::dyn_cast<llvm::GlobalVariable>(CS->getOperand(1)->getOperand(0));
+                    llvm::ConstantDataArray * annotation_val = llvm::dyn_cast<llvm::ConstantDataArray>(
+                                annotation->getInitializer()
+                            );
+                    if(string_compare(annotation_val->getAsString())) {
+                        llvm::GlobalVariable * var = llvm::dyn_cast<llvm::GlobalVariable>(CS->getOperand(0)->getOperand(0));
+                        var = llvm::dyn_cast<llvm::GlobalVariable>(var->stripPointerCasts());
+                        globals.push_back(var);
+                        globals_names.push_back(var->getName());
+                    }
+                }
+            }
+
             // TODO: do I need to compare against dbg info?
             for(auto it = global_names.begin(); it != global_names.end(); ++it) {
                 if(global_var.getName() == (*it)) {
@@ -53,6 +80,7 @@ namespace extrap {
         else
             return -1;
     }
+
     
     llvm::Optional<std::string> findDebugName(const llvm::Function * f, const llvm::Value * value)
     {
@@ -118,12 +146,7 @@ namespace extrap {
                             if(const llvm::ConstantDataArray * initializer
                                 = llvm::dyn_cast<llvm::ConstantDataArray>(data->getInitializer())) {
                                 std::string str = initializer->getAsString().str();
-                                //ignore terminator at the endwhitespace
-                                bool name_equal = std::equal(str.begin(), str.end(), "extrap",
-                                        [](char a, char b) {
-                                            return a == b || !isprint(a); 
-                                        });
-                                if(name_equal) {
+                                if(string_compare(str)) {
                                     //now read the value
                                     const llvm::Value * value = call->getOperand(0)->stripPointerCasts();
                                     auto value_name = findDebugName(f, value);
