@@ -75,6 +75,8 @@ namespace extrap {
         CallSite(const llvm::DebugLoc & _dbg_loc) : dbg_loc(&_dbg_loc) {}
 
         void called(int pos, const FunctionParameters::vec_t & args);
+
+        bool operator==(const CallSite & site) const;
     };
 
     struct AnalyzedFunction

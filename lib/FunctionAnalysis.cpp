@@ -141,6 +141,13 @@ namespace extrap {
     {
         parameters.push_back( std::make_tuple(pos, args) );
     }
+        
+    bool CallSite::operator==(const CallSite & site) const
+    {
+        // same code location
+        return site.dbg_loc == dbg_loc &&
+            site.parameters == parameters;
+    }
 
     void FunctionAnalysis::analyze_main(Parameters & params, std::vector<std::string> & param_names)
     {
@@ -190,6 +197,13 @@ namespace extrap {
         if(!f_analysis) {
             f_analysis = new AnalyzedFunction;
             functions[&f] = f_analysis;
+        } else {
+            // don't place a callsite that is already there
+            // coming from a nested function call f->g->h
+            // h is called at the same place, same args when f is invoked
+            for(const CallSite & obj : f_analysis->callsites)
+                if(site == obj)
+                    return;
         }
         f_analysis->callsites.push_back( std::move(site) );
     }

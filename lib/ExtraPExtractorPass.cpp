@@ -125,10 +125,11 @@ namespace {
         llvm::CallGraph & cgraph = getAnalysis<llvm::CallGraphWrapperPass>().getCallGraph();
         extrap::FunctionAnalysis analysis(cgraph, m, exporter);
         extrap::Parameters params;
-        std::vector< std::string > param_names{"global"};
+        //std::vector< std::string > param_names{"grid_points"};
+        std::vector< std::string > param_names{"global", "global2"};
         params.find_globals(m, param_names);
         assert(param_names.empty());
-        std::vector< std::string > param_names2{"x1", "x2"};
+        std::vector< std::string > param_names2{}; //"x1", "x2"};
         analysis.analyze_main(params, param_names2);
         //llvm::Function * main = nullptr;
         //for (llvm::Function &f : m) {
