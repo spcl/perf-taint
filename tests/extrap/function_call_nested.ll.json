@@ -20,6 +20,19 @@
                 ]
               ]
             ]
+          },
+          {
+            "file": "function_call_nested.cpp",
+            "line": 16,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
           }
         ],
         "g": [

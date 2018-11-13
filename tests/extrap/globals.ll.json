@@ -100,8 +100,7 @@
               [
                 0,
                 [
-                  "global",
-                  "global2"
+                  "global"
                 ]
               ]
             ]
@@ -113,6 +112,7 @@
               [
                 0,
                 [
+                  "global2",
                   "global"
                 ]
               ]

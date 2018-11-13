@@ -13,6 +13,7 @@
 
 
 namespace llvm {
+    // TODO: this is far from from optimal...
     template<typename T, unsigned int N>
     bool operator==(const llvm::SmallSet<T, N> & obj1, const llvm::SmallSet<T, N> & obj2)
     {
@@ -24,6 +25,14 @@ namespace llvm {
             return true;
         }
         return false;
+    }
+
+    template<typename OS, typename T, unsigned int N>
+    OS & operator<<(OS & os, const llvm::SmallSet<T, N> & obj)
+    {
+        for(auto it = obj.begin(); it != obj.end(); ++it)
+            os << *it << ' ';
+        return os;
     }
 }
 
@@ -200,13 +209,16 @@ namespace extrap {
     {
         // from pos -> ids
         // llvm::Value-> ids
+        llvm::errs() << "Function: " << f.getName() << " arguments: ";
         for(const CallSite::call_arg_t & call : callsite.parameters)
         {
             int position = std::get<0>(call);
             auto it = f.arg_begin();
             std::advance(it, position);
+            llvm::errs() << "(" << position << ", " << std::get<1>(call) << ") " << '\n';
             arguments[ &*it ] = std::get<1>(call);
         }
+        llvm::errs() << '\n';
     }
 
     FunctionParameters::FunctionParameters() {}
@@ -273,7 +285,7 @@ namespace extrap {
                     //}
                     //llvm::outs() << '\n';
                     FunctionParameters call_parameters(*f, callsite.getValue());
-                    insert_callsite(*f, f_analysis, callsite.getValue());
+                    insert_callsite(*f, f_analysis, std::move(callsite.getValue()));
                     analyze_function(*f, call_parameters);
                 }
             }
@@ -284,7 +296,7 @@ namespace extrap {
                 exporter.export_function(*f.first, *f.second);
     }
 
-    void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite & site)
+    void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite && site)
     {
         if(!f_analysis) {
             f_analysis = new AnalyzedFunction;
@@ -297,7 +309,7 @@ namespace extrap {
                 if(site == obj)
                     return;
         }
-        f_analysis->callsites.push_back( std::move(site) );
+        f_analysis->callsites.push_back(site);
     }
     
     void FunctionAnalysis::analyze_function(llvm::Function & f, const FunctionParameters & params)
@@ -329,8 +341,9 @@ namespace extrap {
                     //}
                     //llvm::outs() << '\n';
                     analyze_body(*f);
-                    insert_callsite(*f, f_analysis, callsite.getValue());
+                    // copy construct 
                     FunctionParameters call_parameters(*f, callsite.getValue());
+                    insert_callsite(*f, f_analysis, std::move(callsite.getValue()));
                     analyze_function(*f, call_parameters);
                 }
             }
@@ -402,6 +415,8 @@ namespace extrap {
                     if(!site)
                         site = CallSite(call->getDebugLoc());
                     llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
+                    if(ids.size() == 1)
+                    llvm::errs() << "Called: " << i << " with ids: " << (*ids.begin())<< '\n';
                     site->called(i, ids);
                     ids.clear();
                 }

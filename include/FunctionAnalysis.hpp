@@ -128,7 +128,7 @@ namespace extrap {
                     });
         }
 
-        void insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite &);
+        void insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite &&);
         void insert_func(llvm::Function & f, Parameters::vec_t & globals);
         AnalyzedFunction * analyze_body(llvm::Function & f);
         void analyze_function(llvm::Function & f, const FunctionParameters &);
