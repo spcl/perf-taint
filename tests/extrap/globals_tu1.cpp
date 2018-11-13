@@ -8,7 +8,6 @@ int global EXTRAP = 100;
 extern double global2;
 
 int g(int);
-int g_prune(int);
 
 int h(int x)
 {
@@ -17,8 +16,6 @@ int h(int x)
 
 int f(int x, int y)
 {
-    // call should be pruned
-    g_prune(y);
     return 10*x + h(global * y);
 }
 
@@ -39,8 +36,6 @@ int main(int argc, char ** argv)
     f(x2, 100);
     // pass nothing, access global
     g(100);
-    // pass global to h but don't access anything -> prune
-    g_prune(global);
     // pass nothing, access nothing
     h(200);
     h(100);

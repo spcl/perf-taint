@@ -93,7 +93,7 @@ namespace extrap {
         //   dependencies[name] = new GlobalArg();
         auto id = Parameters::find_global(global_var);
         if(id != -1) {
-            ids.push_back(id);
+            ids.insert(id);
         }
         return true;
     }
@@ -104,7 +104,7 @@ namespace extrap {
         //
         //
         if( const vec_t * found_ids = params.find(v) ) {
-            ids.append(found_ids->begin(), found_ids->end());
+            ids.insert(found_ids->begin(), found_ids->end());
             return true;
         }
         if(const llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(v)) {

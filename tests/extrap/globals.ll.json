@@ -2,59 +2,46 @@
   "debug": [
     {
       "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
-      "file_name": "globals_tu1.cpp"
+      "file_name": "tests/extrap/globals_tu1.cpp"
     },
     {
       "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
-      "file_name": "globals_tu2.cpp"
+      "file_name": "tests/extrap/globals_tu2.cpp"
     }
   ],
   "functions": [
     {
       "callsites": {
-        "i": [
-          {
-            "file": "globals_tu1.cpp",
-            "line": 28,
-            "operands": [
-              [
-                0,
-                [
-                  "global2"
-                ]
-              ]
-            ]
-          }
-        ],
         "main": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 41
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 43
           }
         ]
       },
       "globals": [
+        "global2",
         "global"
       ],
-      "line": 10,
-      "name": "g"
+      "line": 22,
+      "name": "i"
     },
     {
       "callsites": {
         "i": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 29
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 26
           },
           {
-            "file": "globals_tu1.cpp",
-            "line": 29
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 26
           }
         ],
         "main": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 38,
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 35,
             "operands": [
               [
                 1,
@@ -65,39 +52,23 @@
             ]
           },
           {
-            "file": "globals_tu1.cpp",
-            "line": 39
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 36
           }
         ]
       },
       "globals": [
         "global"
       ],
-      "line": 18,
+      "line": 17,
       "name": "f"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "globals_tu1.cpp",
-            "line": 48
-          }
-        ]
-      },
-      "globals": [
-        "global",
-        "global2"
-      ],
-      "line": 25,
-      "name": "i"
     },
     {
       "callsites": {
         "f": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 22,
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 19,
             "operands": [
               [
                 0,
@@ -109,8 +80,8 @@
             ]
           },
           {
-            "file": "globals_tu1.cpp",
-            "line": 22,
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 19,
             "operands": [
               [
                 0,
@@ -123,7 +94,20 @@
         ],
         "g": [
           {
-            "file": "globals_tu2.cpp",
+            "file": "tests/extrap/globals_tu2.cpp",
+            "line": 12,
+            "operands": [
+              [
+                0,
+                [
+                  "global",
+                  "global2"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "tests/extrap/globals_tu2.cpp",
             "line": 12,
             "operands": [
               [
@@ -135,55 +119,29 @@
             ]
           }
         ],
-        "g_prune": [
-          {
-            "file": "globals_tu2.cpp",
-            "line": 17,
-            "operands": [
-              [
-                0,
-                [
-                  "global2"
-                ]
-              ]
-            ]
-          },
-          {
-            "file": "globals_tu2.cpp",
-            "line": 17,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ]
-            ]
-          }
-        ],
         "main": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 45
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 40
           },
           {
-            "file": "globals_tu1.cpp",
-            "line": 46
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 41
           }
         ]
       },
       "globals": [
         "global2"
       ],
-      "line": 13,
+      "line": 12,
       "name": "h"
     },
     {
       "callsites": {
-        "f": [
+        "i": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 21,
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 25,
             "operands": [
               [
                 0,
@@ -196,21 +154,16 @@
         ],
         "main": [
           {
-            "file": "globals_tu1.cpp",
-            "line": 43,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ]
-            ]
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 38
           }
         ]
       },
-      "line": 15,
-      "name": "g_prune"
+      "globals": [
+        "global"
+      ],
+      "line": 10,
+      "name": "g"
     }
   ],
   "parameters": {

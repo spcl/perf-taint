@@ -11,8 +11,3 @@ int g(int x)
 {
     return h(100 + x + std::pow((double)global, 3.0));
 }
-
-int g_prune(int x)
-{
-    return h(100 + x + std::pow((double)x, 3.0));
-}

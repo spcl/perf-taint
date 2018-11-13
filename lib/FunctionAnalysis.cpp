@@ -11,6 +11,22 @@
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/Operator.h>
 
+
+namespace llvm {
+    template<typename T, unsigned int N>
+    bool operator==(const llvm::SmallSet<T, N> & obj1, const llvm::SmallSet<T, N> & obj2)
+    {
+        if(obj1.size() == obj2.size()) {
+            auto end = obj1.end();
+            for(auto it = obj1.begin(); it != end; ++it)
+                if(!obj2.count(*it))
+                    return false;
+            return true;
+        }
+        return false;
+    }
+}
+
 namespace extrap {
 
     std::vector< const llvm::GlobalVariable * > Parameters::globals;
@@ -200,10 +216,10 @@ namespace extrap {
         auto it = arguments.find(val);
         if(it == arguments.end()) {
             vec_t vec;
-            vec.push_back(id);
+            vec.insert(id);
             arguments[val] = vec;
         } else
-            (*it).second.push_back(id); 
+            (*it).second.insert(id); 
     }
 
     const FunctionParameters::vec_t * FunctionParameters::find(const llvm::Value * v) const
@@ -216,12 +232,12 @@ namespace extrap {
     {
         parameters.push_back( std::make_tuple(pos, args) );
     }
-        
+
     bool CallSite::operator==(const CallSite & site) const
     {
-        // same code location
-        return site.dbg_loc == dbg_loc &&
-            site.parameters == parameters;
+        // same code location, same number of parameters
+        // params should be in the same order since we process them always from the first arg
+        return site.dbg_loc == dbg_loc && site.parameters == parameters;
     }
 
     void FunctionAnalysis::analyze_main(Parameters & params, std::vector<std::string> & param_names)
@@ -347,8 +363,6 @@ namespace extrap {
                 dep.find(&instr, empty, ids);
             }
         }
-        std::sort(ids.begin(), ids.end());
-        ids.erase( std::unique( ids.begin(), ids.end() ), ids.end() );
         if(!ids.empty()) {
             AnalyzedFunction * res = new AnalyzedFunction;
             res->globals = std::move(ids);
@@ -375,18 +389,19 @@ namespace extrap {
             DependencyFinder dep;
             if(has_globals)
                 site = CallSite(call->getDebugLoc());
-            //llvm::outs() << "Arguments: ";
-            //for(auto & x : params.arguments)
-            //    llvm::outs() << "(" << x.first << ',' << x.second.size() << ')';
-            //llvm::outs() << "\n";
+            llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
+            llvm::errs() << "Arguments: ";
+            for(auto & x : params.arguments)
+                llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
+            llvm::errs() << "\n";
             // last operand is the function name
             for(int i = 0; i < call->getNumOperands() - 1; ++i) {
-                //llvm::outs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
+                llvm::errs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
                 dep.find(call->getOperand(i), params, ids);
                 if(!ids.empty()) {
                     if(!site)
                         site = CallSite(call->getDebugLoc());
-                    //llvm::outs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
+                    llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
                     site->called(i, ids);
                     ids.clear();
                 }

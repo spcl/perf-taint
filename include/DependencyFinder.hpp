@@ -1,7 +1,7 @@
 #ifndef __DEPENDENCY_FINDER_HPP__
 #define __DEPENDENCY_FINDER_HPP__
 
-#include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/SmallSet.h>
 
 #include <algorithm>
 #include <unordered_map>
@@ -52,7 +52,7 @@ namespace extrap {
     {
         //std::unordered_map<std::string, Dependency*> dependencies;
         std::set<llvm::PHINode*> phi_nodes;
-        typedef llvm::SmallVector<int32_t, 5> vec_t;
+        typedef llvm::SmallSet<int32_t, 5> vec_t;
 
         ~DependencyFinder();
 

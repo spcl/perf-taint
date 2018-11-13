@@ -4,7 +4,7 @@
 
 
 #include <llvm/ADT/Optional.h>
-#include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/SmallSet.h>
 
 #include <vector>
 #include <fstream>
@@ -30,7 +30,10 @@ namespace extrap {
     struct Parameters
     {
         typedef int32_t id_t;
-        typedef llvm::SmallVector<id_t, 5> vec_t;
+        // TODO: this is not optimal since operator== is slower
+        // than just having a SmallVector which we sort and remove duplicates
+        // (unique + erase). however, we need comparison only when adding new callsites
+        typedef llvm::SmallSet<id_t, 5> vec_t;
         static id_t GLOBAL_THRESHOLD; 
 
         static std::vector< const llvm::GlobalVariable * > globals;
