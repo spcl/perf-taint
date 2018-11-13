@@ -21,6 +21,8 @@ namespace llvm {
     class Module;
     class CallGraph;
     class GlobalVariable;
+    template<typename Inst>
+    class CallBase;
 }
 
 namespace extrap {
@@ -139,6 +141,9 @@ namespace extrap {
         llvm::Optional<CallSite> analyze_call(llvm::Value *, bool has_globals, const FunctionParameters &);
 
         void export_functions();
+    private:
+        template<typename T>
+        llvm::Optional<CallSite> analyze_call(llvm::CallBase<T> * call, bool has_globals, const FunctionParameters & params);
     };
 
 }

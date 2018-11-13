@@ -287,6 +287,9 @@ namespace extrap {
                     FunctionParameters call_parameters(*f, callsite.getValue());
                     insert_callsite(*f, f_analysis, std::move(callsite.getValue()));
                     analyze_function(*f, call_parameters);
+                } else {
+                    FunctionParameters call_parameters;
+                    analyze_function(*f, call_parameters);
                 }
             }
         }
@@ -394,34 +397,41 @@ namespace extrap {
         return true;
     }
 
-    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, bool has_globals, const FunctionParameters & params)
+    template<typename T>
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::CallBase<T> * call, bool has_globals, const FunctionParameters & params)
     {
+
         llvm::Optional<CallSite> site;
         FunctionParameters::vec_t ids;
-        if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
-            DependencyFinder dep;
-            if(has_globals)
-                site = CallSite(call->getDebugLoc());
-            llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
-            llvm::errs() << "Arguments: ";
-            for(auto & x : params.arguments)
-                llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
-            llvm::errs() << "\n";
-            // last operand is the function name
-            for(int i = 0; i < call->getNumOperands() - 1; ++i) {
-                llvm::errs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
-                dep.find(call->getOperand(i), params, ids);
-                if(!ids.empty()) {
-                    if(!site)
-                        site = CallSite(call->getDebugLoc());
-                    llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
-                    if(ids.size() == 1)
-                    llvm::errs() << "Called: " << i << " with ids: " << (*ids.begin())<< '\n';
-                    site->called(i, ids);
-                    ids.clear();
-                }
+        DependencyFinder dep;
+        if(has_globals)
+            site = CallSite(call->getDebugLoc());
+        //llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
+        //llvm::errs() << "Arguments: ";
+        //for(auto & x : params.arguments)
+        //    llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
+        //llvm::errs() << "\n";
+        // last operand is the function name
+        for(int i = 0; i < call->getNumOperands() - 1; ++i) {
+            llvm::errs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
+            dep.find(call->getOperand(i), params, ids);
+            if(!ids.empty()) {
+                if(!site)
+                    site = CallSite(call->getDebugLoc());
+                llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
+                site->called(i, ids);
+                ids.clear();
             }
-            return site;
+        }
+        return site;
+    }
+
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, bool has_globals, const FunctionParameters & params)
+    {
+        if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
+            return analyze_call(call, has_globals, params);
+        } else if(llvm::InvokeInst * call = llvm::dyn_cast<llvm::InvokeInst>(v)) {
+            return analyze_call(call, has_globals, params);
         }
         assert(false);
     }
