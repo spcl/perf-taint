@@ -1,0 +1,83 @@
+{
+  "debug": [
+    {
+      "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
+      "file_name": "tests/extrap/prune.cpp"
+    }
+  ],
+  "functions": [
+    {
+      "callsites": {
+        "f_not_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 44
+          }
+        ],
+        "f_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 36
+          }
+        ],
+        "g_not_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 29
+          }
+        ],
+        "g_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 18,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 11,
+      "name": "h"
+    },
+    {
+      "callsites": {
+        "f_not_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 43
+          }
+        ],
+        "f_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 35
+          }
+        ]
+      },
+      "globals": [
+        "global2"
+      ],
+      "line": 21,
+      "name": "g_not_prune"
+    }
+  ],
+  "parameters": {
+    "args": [
+      "x1",
+      "x2"
+    ],
+    "global": [
+      "global",
+      "global2"
+    ]
+  }
+}
+
