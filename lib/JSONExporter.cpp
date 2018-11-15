@@ -87,4 +87,16 @@ namespace extrap {
         out["functions"].push_back(function);
     }
 
+    void JSONExporter::export_statistics_found(int callsites, int functions)
+    {
+        out["statistics"]["instrumented"]["callsites"] = callsites;
+        out["statistics"]["instrumented"]["functions"] = functions;
+    }
+
+    void JSONExporter::export_statistics_total(int callsites, int functions)
+    {
+        out["statistics"]["total"]["callsites"] = callsites;
+        out["statistics"]["total"]["functions"] = functions;
+    }
+
 }

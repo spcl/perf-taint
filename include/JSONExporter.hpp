@@ -25,6 +25,8 @@ namespace extrap {
         nlohmann::json export_callsite(CallSite &);
         void export_function(llvm::Function & f, AnalyzedFunction &); 
         void export_parameters(const Parameters & params);
+        void export_statistics_found(int, int);
+        void export_statistics_total(int, int);
  
         nlohmann::json & json();
 

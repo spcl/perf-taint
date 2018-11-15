@@ -274,6 +274,9 @@ namespace extrap {
                
                 analyze_body(*f);
 
+                if(stats) 
+                    stats->found_callsite(f, get_call_loc(call), callsite.hasValue());
+
                 if(callsite) {
                     //llvm::outs() << "Found pos: "; 
                     //for(auto & pos : callsite.getValue().parameters) {
@@ -294,9 +297,19 @@ namespace extrap {
             }
         }
         exporter.export_parameters(params);
-        for(auto & f : this->functions)
-            if(f.second)
+        int found_callsites = 0, found_functions = 0;
+        for(auto & f : this->functions) {
+            found_functions += static_cast<bool>(f.second);
+            if(f.second) {
                 exporter.export_function(*f.first, *f.second);
+                found_callsites += f.second->callsites.size();
+            }
+        }
+        if(stats) {
+            exporter.export_statistics_found(found_callsites, found_functions);
+            exporter.export_statistics_total(stats->callsites_count, stats->functions_count);
+        }
+            
     }
 
     void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite && site)
@@ -332,6 +345,8 @@ namespace extrap {
                 // does it use parameters?
                 llvm::Optional<CallSite> callsite = analyze_call(call,
                         f_analysis ? f_analysis->globals.hasValue() : false, params);
+                if(stats) 
+                    stats->found_callsite(f, get_call_loc(call), callsite.hasValue());
                 
                 if(callsite) {
                     //llvm::outs() << "Found pos: "; 
@@ -395,6 +410,22 @@ namespace extrap {
             return false;
         }
         return true;
+    }
+
+    template<typename Inst>
+    const llvm::DebugLoc * FunctionAnalysis::get_call_loc(llvm::CallBase<Inst> * call)
+    {
+        return &call->getDebugLoc();
+    }
+
+    const llvm::DebugLoc * FunctionAnalysis::get_call_loc(llvm::Value * v)
+    {
+        if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
+            return get_call_loc(call);
+        } else if(llvm::InvokeInst * call = llvm::dyn_cast<llvm::InvokeInst>(v)) {
+            return get_call_loc(call);
+        }
+        assert(false);
     }
 
     template<typename T>

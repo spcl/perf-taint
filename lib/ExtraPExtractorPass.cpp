@@ -60,6 +60,11 @@ static llvm::cl::opt<std::string> JSONOutputToFile("extrap-extractor-json-output
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("boolean flag"));
 
+static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
+                                       llvm::cl::desc("Specify directory for output logs"),
+                                       llvm::cl::init(false),
+                                       llvm::cl::value_desc("filename"));
+
 namespace {
 
     void Statistics::processed_function(bool undef)
@@ -123,7 +128,7 @@ namespace {
  
         std::vector<nlohmann::json> functions;
         llvm::CallGraph & cgraph = getAnalysis<llvm::CallGraphWrapperPass>().getCallGraph();
-        extrap::FunctionAnalysis analysis(cgraph, m, exporter);
+        extrap::FunctionAnalysis analysis(cgraph, m, exporter, GenerateStats.getValue());
         extrap::Parameters params;
         //std::vector< std::string > param_names{"grid_points"};
         std::vector< std::string > param_names{}; //"global", "global2"};

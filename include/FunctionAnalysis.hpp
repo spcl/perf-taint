@@ -2,6 +2,7 @@
 #ifndef __FUNCTION_ANALYSIS__
 #define __FUNCTION_ANALYSIS__
 
+#include "Statistics.hpp"
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/SmallSet.h>
@@ -101,6 +102,7 @@ namespace extrap {
         llvm::CallGraph & cg;
         llvm::Module & m;
         extrap::JSONExporter & exporter;
+        llvm::Optional<extrap::Statistics> stats;
         std::ofstream unknown;
         std::ofstream blacklist;
         std::ofstream whitelist;
@@ -110,14 +112,18 @@ namespace extrap {
         // unify that into a single structure
         std::unordered_map<llvm::Function *, AnalyzedFunction*> functions;
         
-        FunctionAnalysis(llvm::CallGraph & _cg, llvm::Module & _m, extrap::JSONExporter & exp) :
+        FunctionAnalysis(llvm::CallGraph & _cg, llvm::Module & _m,
+                extrap::JSONExporter & exp, bool generate_stats) :
             cg(_cg),
             m(_m),
             exporter(exp),
             unknown("unknown_functions", std::ios::out),
             blacklist("unknown_functions", std::ios::out),
             whitelist("unknown_functions", std::ios::out)
-        {}
+        {
+            if(generate_stats)
+                stats = Statistics();
+        }
 
         ~FunctionAnalysis()
         {
@@ -141,6 +147,10 @@ namespace extrap {
         llvm::Optional<CallSite> analyze_call(llvm::Value *, bool has_globals, const FunctionParameters &);
 
         void export_functions();
+
+        template<typename Inst>
+        const llvm::DebugLoc * get_call_loc(llvm::CallBase<Inst> * call);
+        const llvm::DebugLoc * get_call_loc(llvm::Value * call);
     private:
         template<typename T>
         llvm::Optional<CallSite> analyze_call(llvm::CallBase<T> * call, bool has_globals, const FunctionParameters & params);
