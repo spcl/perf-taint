@@ -12,6 +12,35 @@
   "functions": [
     {
       "callsites": {
+        "i": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 25,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 38
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 10,
+      "name": "g"
+    },
+    {
+      "callsites": {
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
@@ -135,35 +164,6 @@
       ],
       "line": 12,
       "name": "h"
-    },
-    {
-      "callsites": {
-        "i": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 25,
-            "operands": [
-              [
-                0,
-                [
-                  "global2"
-                ]
-              ]
-            ]
-          }
-        ],
-        "main": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 38
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 10,
-      "name": "g"
     }
   ],
   "parameters": {

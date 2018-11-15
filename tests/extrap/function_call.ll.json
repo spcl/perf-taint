@@ -11,6 +11,47 @@
         "main": [
           {
             "file": "function_call.cpp",
+            "line": 36,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 9,
+      "name": "f"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "function_call.cpp",
+            "line": 38
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 19,
+      "name": "g"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "function_call.cpp",
             "line": 43,
             "operands": [
               [
@@ -66,47 +107,6 @@
       },
       "line": 14,
       "name": "h"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call.cpp",
-            "line": 36,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1"
-                ]
-              ]
-            ]
-          }
-        ]
-      },
-      "line": 9,
-      "name": "f"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call.cpp",
-            "line": 38
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 19,
-      "name": "g"
     }
   ],
   "parameters": {
