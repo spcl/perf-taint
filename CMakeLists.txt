@@ -50,6 +50,7 @@ include_directories(${JSONCPP_INCLUDE_DIRS})
 #set_target_properties(LLVMLoopExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
 #set_target_properties(LLVMLoopStatistics PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
+
 add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp lib/DependencyFinder.cpp lib/ScalarEvolutionVisitor.cpp lib/PollyVisitor.cpp lib/FunctionAnalysis.cpp lib/JSONExporter.cpp lib/FunctionBodyAnalyzer.cpp lib/Statistics.cpp)
 set_property(TARGET ExtraPExtractor PROPERTY CXX_STANDARD 14)
 set_target_properties(ExtraPExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")

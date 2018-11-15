@@ -26,9 +26,9 @@ namespace extrap {
     }
 
 
-    nlohmann::json JSONExporter::export_callsite(CallSite & site)
+    json_t JSONExporter::export_callsite(CallSite & site)
     {
-        nlohmann::json callsite;
+        json_t callsite;
         llvm::DISubprogram * subprogram = llvm::dyn_cast<llvm::DISubprogram>(site.dbg_loc->getScope());
         assert(subprogram);
         callsite["file"] = subprogram->getFile()->getFilename();
@@ -46,9 +46,9 @@ namespace extrap {
         return callsite;
     }
 
-    nlohmann::json JSONExporter::export_function(llvm::Function & f)
+    json_t JSONExporter::export_function(llvm::Function & f)
     {
-        nlohmann::json function;
+        json_t function;
         llvm::DISubprogram * debug = f.getSubprogram();
         assert(debug);
         function["name"] = debug->getName();
@@ -58,7 +58,7 @@ namespace extrap {
    
     void JSONExporter::export_parameters(const Parameters & params)
     {
-        nlohmann::json exported;
+        json_t exported;
         auto globals = params.get_globals();
         for(auto it = globals.first; it != globals.second; ++it)
             exported["global"].push_back(*it);
@@ -70,10 +70,10 @@ namespace extrap {
 
     void JSONExporter::export_function(llvm::Function & f, AnalyzedFunction & func)
     {
-        nlohmann::json function = export_function(f);
+        json_t function = export_function(f);
         auto callsite_begin = func.callsites.begin(), callsite_end = func.callsites.end(); 
         while(callsite_begin != callsite_end) {
-            nlohmann::json callsite = export_callsite(*callsite_begin);
+            json_t callsite = export_callsite(*callsite_begin);
             //group callsites by function
             std::string function_name = llvm::dyn_cast<llvm::DISubprogram>((*callsite_begin).dbg_loc->getScope())->getName();
             function["callsites"][function_name].push_back(callsite);
