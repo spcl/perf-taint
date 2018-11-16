@@ -15,20 +15,20 @@ namespace extrap {
         auto it = m.debug_compile_units_begin(), end = m.debug_compile_units_end();
         std::vector< nlohmann::json > units;
         units.reserve( std::distance(it, end) );
-        for(;it != end; ++it) {
-            llvm::DICompileUnit * unit = *it;
-            nlohmann::json debug_info;
-            debug_info["directory"] = unit->getDirectory();
-            debug_info["file_name"] = unit->getFilename();
-            units.push_back( std::move(debug_info) );
+            for(;it != end; ++it) {
+                llvm::DICompileUnit * unit = *it;
+                nlohmann::json debug_info;
+                debug_info["directory"] = unit->getDirectory();
+                debug_info["file_name"] = unit->getFilename();
+                units.push_back( std::move(debug_info) );
+            }
+            out["debug"] = units;
         }
-        out["debug"] = units;
-    }
 
-    // DISubprogram for normal callsites
-    llvm::StringRef get_file_name(llvm::MDNode * scope)
-    {
-        if(const llvm::DILocalScope * local_scope =
+        // DISubprogram for normal callsites
+        llvm::StringRef get_file_name(llvm::MDNode * scope)
+        {
+            if(const llvm::DILocalScope * local_scope =
                 llvm::dyn_cast<llvm::DILocalScope>(scope)) {
             llvm::DIFile * file = local_scope->getFile();
             assert(file);
@@ -39,9 +39,12 @@ namespace extrap {
 
     llvm::StringRef get_function_name(llvm::MDNode * scope)
     {
-        if(const llvm::DILocalScope * local_scope =
-                llvm::dyn_cast<llvm::DILocalScope>(scope)) {
-            return local_scope->getName();
+        if(const llvm::DISubprogram* subprogram =
+                llvm::dyn_cast<llvm::DISubprogram>(scope)) {
+            return subprogram->getName();
+        } else if(const llvm::DILexicalBlockBase * lexblock =
+                llvm::dyn_cast<llvm::DILexicalBlockBase>(scope)) {
+            return lexblock->getSubprogram()->getName();
         }
         assert(false);
     }
