@@ -107,7 +107,10 @@ namespace extrap {
             ids.insert(found_ids->begin(), found_ids->end());
             return true;
         }
-        if(const llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(v)) {
+        if(const llvm::BasicBlock * bb = llvm::dyn_cast<llvm::BasicBlock>(v)) {
+            for(const llvm::Instruction & instr : bb->instructionsWithoutDebug())
+                return find(&instr, params, ids);
+        } else if(const llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(v)) {
             return find(instr, params, ids);
         } else if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v)) {
             //find(a);
@@ -129,6 +132,15 @@ namespace extrap {
         else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(v)) {
             return find(gep->getPointerOperand(), params, ids);
         }
+        if(const llvm::Constant * cons = llvm::dyn_cast<llvm::Constant>(v)) {
+            // constant is always known
+            return true; 
+        }
+        if(const llvm::Constant * cons = llvm::dyn_cast<llvm::Constant>(v)) {
+            // constant is always known
+            return true; 
+        }
+        llvm::errs() << "Unknown type: " << *v << '\n';
         // We didn't understand the value
         assert(false);
         return false;

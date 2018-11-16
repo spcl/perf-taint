@@ -25,13 +25,31 @@ namespace extrap {
         out["debug"] = units;
     }
 
+    // DISubprogram for normal callsites
+    llvm::StringRef get_file_name(llvm::MDNode * scope)
+    {
+        if(const llvm::DILocalScope * local_scope =
+                llvm::dyn_cast<llvm::DILocalScope>(scope)) {
+            llvm::DIFile * file = local_scope->getFile();
+            assert(file);
+            return file->getFilename();
+        }
+        assert(false);
+    }
+
+    llvm::StringRef get_function_name(llvm::MDNode * scope)
+    {
+        if(const llvm::DILocalScope * local_scope =
+                llvm::dyn_cast<llvm::DILocalScope>(scope)) {
+            return local_scope->getName();
+        }
+        assert(false);
+    }
 
     json_t JSONExporter::export_callsite(CallSite & site)
     {
         json_t callsite;
-        llvm::DISubprogram * subprogram = llvm::dyn_cast<llvm::DISubprogram>(site.dbg_loc->getScope());
-        assert(subprogram);
-        callsite["file"] = subprogram->getFile()->getFilename();
+        callsite["file"] = get_file_name(site.dbg_loc->getScope());
         callsite["line"] = site.dbg_loc->getLine();
         for(auto & param : site.parameters) {
             Parameters::vec_t & vec = std::get<1>(param);
@@ -75,7 +93,7 @@ namespace extrap {
         while(callsite_begin != callsite_end) {
             json_t callsite = export_callsite(*callsite_begin);
             //group callsites by function
-            std::string function_name = llvm::dyn_cast<llvm::DISubprogram>((*callsite_begin).dbg_loc->getScope())->getName();
+            std::string function_name = get_function_name((*callsite_begin).dbg_loc->getScope());
             function["callsites"][function_name].push_back(callsite);
             ++callsite_begin;
         }

@@ -170,7 +170,6 @@ namespace {
     {
         if (f.isDeclaration())
             return llvm::Optional<nlohmann::json>();
-        assert(debug);
         extrap::DependencyFinder dep;
 
         llvm::LoopInfo &LI = getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();

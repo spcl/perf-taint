@@ -1,6 +1,7 @@
 
 #include "ScalarEvolutionVisitor.hpp"
 #include "DependencyFinder.hpp"
+#include "util/util.hpp"
 
 #include <llvm/Analysis/ScalarEvolutionExpressions.h>
 
