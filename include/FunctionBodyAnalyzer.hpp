@@ -25,7 +25,7 @@ namespace extrap {
     {
         typedef llvm::SmallSet<int32_t, 5> vec_t;
         typedef void RetType;
-        std::set<llvm::PHINode*> phi_nodes;
+        std::set<const llvm::PHINode*> phi_nodes;
         const FunctionParameters & params;
         vec_t global_ids;
 
