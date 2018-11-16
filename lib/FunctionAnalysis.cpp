@@ -298,13 +298,29 @@ namespace extrap {
         }
         exporter.export_parameters(params);
         int found_callsites = 0, found_functions = 0;
+
+        // The Function->Analysis map sorts by default by the pointer value
+        // That might create different function orders in the LLVM
+        // We want to have this list generated always in the same order.
+        // Solution: copy to vector, sort. Assume at most few hundreds functions
+        //
+        // An alternative would be a map which either sorts deterministically
+        // or preserves the input order.
+        std::vector< std::pair<llvm::Function*, AnalyzedFunction*> > sorted;
+        sorted.reserve(this->functions.size());
         for(auto & f : this->functions) {
             found_functions += static_cast<bool>(f.second);
             if(f.second) {
-                exporter.export_function(*f.first, *f.second);
+                sorted.push_back(f);
                 found_callsites += f.second->callsites.size();
             }
         }
+        std::sort(sorted.begin(), sorted.end(),
+                [](auto a, auto b) {
+                    return a.first->getName().compare(b.first->getName());
+                });
+        for(auto & f : sorted)
+                exporter.export_function(*f.first, *f.second);
         if(stats) {
             exporter.export_statistics_found(found_callsites, found_functions);
             exporter.export_statistics_total(stats->callsites_count, stats->functions_count);

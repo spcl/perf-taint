@@ -8,62 +8,18 @@
   "functions": [
     {
       "callsites": {
-        "i": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 26,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1",
-                  "x2"
-                ]
-              ]
-            ]
-          }
-        ],
         "main": [
           {
             "file": "function_call_nested.cpp",
-            "line": 36,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1"
-                ]
-              ]
-            ]
-          },
-          {
-            "file": "function_call_nested.cpp",
-            "line": 37,
-            "operands": [
-              [
-                0,
-                [
-                  "x2"
-                ]
-              ]
-            ]
+            "line": 39
           }
         ]
       },
-      "line": 14,
-      "name": "f"
+      "globals": [
+        "global"
+      ],
+      "line": 19,
+      "name": "g"
     },
     {
       "callsites": {
@@ -142,6 +98,65 @@
     },
     {
       "callsites": {
+        "i": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 26,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "function_call_nested.cpp",
+            "line": 36,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "function_call_nested.cpp",
+            "line": 37,
+            "operands": [
+              [
+                0,
+                [
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 14,
+      "name": "f"
+    },
+    {
+      "callsites": {
         "main": [
           {
             "file": "function_call_nested.cpp",
@@ -175,21 +190,6 @@
       ],
       "line": 24,
       "name": "i"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 39
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 19,
-      "name": "g"
     }
   ],
   "parameters": {

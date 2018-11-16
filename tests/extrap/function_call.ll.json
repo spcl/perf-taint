@@ -11,6 +11,21 @@
         "main": [
           {
             "file": "function_call.cpp",
+            "line": 38
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 19,
+      "name": "g"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "function_call.cpp",
             "line": 36,
             "operands": [
               [
@@ -31,21 +46,6 @@
       },
       "line": 9,
       "name": "f"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call.cpp",
-            "line": 38
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 19,
-      "name": "g"
     },
     {
       "callsites": {
