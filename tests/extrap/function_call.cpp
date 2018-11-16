@@ -19,7 +19,7 @@ int h(int x)
 
 int g(int x)
 {
-    return h(100 + x + std::pow((double)global, 3.0));
+    return global ? h(100 + x + std::pow((double)global, 3.0)) : 1;
 }
 
 int i(int x1, int x2, int x3)

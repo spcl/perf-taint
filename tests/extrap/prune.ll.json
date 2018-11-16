@@ -11,25 +11,54 @@
         "f_not_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 44
+            "line": 49
           }
         ],
         "f_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 36
+            "line": 40
           }
-        ],
+        ]
+      },
+      "globals": [
+        "global2"
+      ],
+      "line": 23,
+      "name": "g_not_prune"
+    },
+    {
+      "callsites": {
         "g_not_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 29
+            "line": 32,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 34,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
           }
         ],
         "g_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 18,
+            "line": 20,
             "operands": [
               [
                 0,
@@ -41,32 +70,8 @@
           }
         ]
       },
-      "globals": [
-        "global"
-      ],
-      "line": 11,
+      "line": 12,
       "name": "h"
-    },
-    {
-      "callsites": {
-        "f_not_prune": [
-          {
-            "file": "tests/extrap/prune.cpp",
-            "line": 43
-          }
-        ],
-        "f_prune": [
-          {
-            "file": "tests/extrap/prune.cpp",
-            "line": 35
-          }
-        ]
-      },
-      "globals": [
-        "global2"
-      ],
-      "line": 21,
-      "name": "g_not_prune"
     }
   ],
   "parameters": {
@@ -80,4 +85,3 @@
     ]
   }
 }
-

@@ -17,7 +17,7 @@ int h(int x)
 // Can be pruned since global is accessed only in the function call
 int g_prune(int x)
 {
-    return global * h(global2 + x + std::pow((double)x, global2));
+    return global * h(x + std::pow((double)x, std::exp(global2)));
 }
 
 int g_not_prune(int x)
@@ -29,9 +29,9 @@ int g_not_prune(int x)
     // 3) Bug - h is called w/o parameters for some reason when x involves parameters (they are gone).
     // Solution: FunctionParameters created from a callsite which was already moved in insert_callsite
     if(global2 + 1 < 0)
-        return h(100*global + x + std::pow((double)global, 3.0));
+        return h(100 + x + std::pow((double)global, 3.0));
     else
-        return h(200*global + std::pow((double)global, 3.0));
+        return h(200*global + std::pow((double)x, 3.0));
 }
 
 int f_prune(int x, int y)

@@ -2,15 +2,74 @@
   "debug": [
     {
       "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
-      "file_name": "function_call_nested.cpp"
+      "file_name": "tests/extrap/function_call_nested.cpp"
     }
   ],
   "functions": [
     {
       "callsites": {
+        "i": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 26,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
         "main": [
           {
-            "file": "function_call_nested.cpp",
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 36,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 37,
+            "operands": [
+              [
+                0,
+                [
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 14,
+      "name": "f"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
             "line": 39
           }
         ]
@@ -23,9 +82,84 @@
     },
     {
       "callsites": {
+        "f": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 16,
+            "operands": [
+              [
+                0,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 16,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "g": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 21,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
+        "i": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 26,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ]
+            ]
+          }
+        ],
         "main": [
           {
-            "file": "function_call_nested.cpp",
+            "file": "tests/extrap/function_call_nested.cpp",
+            "line": 41,
+            "operands": [
+              [
+                0,
+                [
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 9,
+      "name": "h"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "tests/extrap/function_call_nested.cpp",
             "line": 44,
             "operands": [
               [
@@ -51,145 +185,8 @@
           }
         ]
       },
-      "globals": [
-        "global"
-      ],
       "line": 24,
       "name": "i"
-    },
-    {
-      "callsites": {
-        "f": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 16,
-            "operands": [
-              [
-                0,
-                [
-                  "x1"
-                ]
-              ]
-            ]
-          },
-          {
-            "file": "function_call_nested.cpp",
-            "line": 16,
-            "operands": [
-              [
-                0,
-                [
-                  "x1",
-                  "x2"
-                ]
-              ]
-            ]
-          }
-        ],
-        "g": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 21,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ]
-            ]
-          }
-        ],
-        "i": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 26,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ]
-            ]
-          }
-        ],
-        "main": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 41,
-            "operands": [
-              [
-                0,
-                [
-                  "x2"
-                ]
-              ]
-            ]
-          }
-        ]
-      },
-      "line": 9,
-      "name": "h"
-    },
-    {
-      "callsites": {
-        "i": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 26,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1",
-                  "x2"
-                ]
-              ]
-            ]
-          }
-        ],
-        "main": [
-          {
-            "file": "function_call_nested.cpp",
-            "line": 36,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1"
-                ]
-              ]
-            ]
-          },
-          {
-            "file": "function_call_nested.cpp",
-            "line": 37,
-            "operands": [
-              [
-                0,
-                [
-                  "x2"
-                ]
-              ]
-            ]
-          }
-        ]
-      },
-      "line": 14,
-      "name": "f"
     }
   ],
   "parameters": {

@@ -2,16 +2,57 @@
   "debug": [
     {
       "directory": "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool",
-      "file_name": "function_call.cpp"
+      "file_name": "tests/extrap/function_call.cpp"
     }
   ],
   "functions": [
     {
       "callsites": {
+        "main": [
+          {
+            "file": "tests/extrap/function_call.cpp",
+            "line": 37,
+            "operands": [
+              [
+                0,
+                [
+                  "global"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "line": 10,
+      "name": "f"
+    },
+    {
+      "callsites": {
+        "main": [
+          {
+            "file": "tests/extrap/function_call.cpp",
+            "line": 39
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 20,
+      "name": "g"
+    },
+    {
+      "callsites": {
         "g": [
           {
-            "file": "function_call.cpp",
-            "line": 21,
+            "file": "tests/extrap/function_call.cpp",
+            "line": 22,
             "operands": [
               [
                 0,
@@ -24,8 +65,8 @@
         ],
         "main": [
           {
-            "file": "function_call.cpp",
-            "line": 40,
+            "file": "tests/extrap/function_call.cpp",
+            "line": 41,
             "operands": [
               [
                 0,
@@ -37,15 +78,15 @@
           }
         ]
       },
-      "line": 14,
+      "line": 15,
       "name": "h"
     },
     {
       "callsites": {
         "main": [
           {
-            "file": "function_call.cpp",
-            "line": 43,
+            "file": "tests/extrap/function_call.cpp",
+            "line": 44,
             "operands": [
               [
                 0,
@@ -64,49 +105,8 @@
           }
         ]
       },
-      "line": 24,
+      "line": 25,
       "name": "i"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call.cpp",
-            "line": 38
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 19,
-      "name": "g"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "function_call.cpp",
-            "line": 36,
-            "operands": [
-              [
-                0,
-                [
-                  "global"
-                ]
-              ],
-              [
-                1,
-                [
-                  "x1"
-                ]
-              ]
-            ]
-          }
-        ]
-      },
-      "line": 9,
-      "name": "f"
     }
   ],
   "parameters": {
