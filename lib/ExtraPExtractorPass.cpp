@@ -19,7 +19,12 @@
 #include <llvm/Transforms/Utils.h>
 
 #include <polly/PolySCEV.h>
-#include <barvinok/isl.h>
+
+#if defined(EXTRAP_WITH_BARVINOK)
+    #include <barvinok/isl.h>
+#else
+    #include <isl/isl-noexceptions.h>
+#endif
 
 #include <iostream>
 #include <vector>
@@ -263,6 +268,7 @@ namespace {
                 &f.getEntryBlock(), true, MST);
         if( vis.is_computable(bbi.Domain) ) {
             bool understood = vis.call(bbi.Domain);
+#if defined(EXTRAP_WITH_BARVINOK)
             isl_printer_print_set(isl_print, bbi.Domain.get());
             isl_printer_flush(isl_print);
             isl_pw_qpolynomial * poly = isl_set_card(bbi.Domain.copy());
@@ -275,6 +281,7 @@ namespace {
                 log << " unrecognized Polly domain: " << ptr << '\n';
             }
             free(ptr);
+#endif
             return understood;
         }
         return false;
