@@ -100,9 +100,6 @@ namespace extrap {
 
     bool DependencyFinder::find(const llvm::Value * v, const FunctionParameters & params, vec_t & ids)
     {
-        //llvm::outs() << *v << ' ' << llvm::dyn_cast<llvm::LoadInst>(v) << ' ' << llvm::dyn_cast<llvm::GEPOperator>(v) << '\n';
-        //
-        //
         if( const vec_t * found_ids = params.find(v) ) {
             ids.insert(found_ids->begin(), found_ids->end());
             return true;
