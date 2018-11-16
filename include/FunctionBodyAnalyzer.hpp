@@ -4,6 +4,7 @@
 #include <set>
 
 #include <llvm/ADT/SmallSet.h>
+#include <llvm/IR/InstVisitor.h>
 
 namespace llvm {
     class Argument;
@@ -22,15 +23,20 @@ namespace extrap {
 
     struct FunctionBodyAnalyzer
     {
-        std::set<llvm::PHINode*> phi_nodes;
         typedef llvm::SmallSet<int32_t, 5> vec_t;
+        typedef void RetType;
+        std::set<llvm::PHINode*> phi_nodes;
+        const FunctionParameters & params;
+        vec_t global_ids;
 
-        AnalyzedFunction * analyze_body(llvm::Function & f);
+        FunctionBodyAnalyzer(const FunctionParameters & _params):
+            params(_params)
+        {}
 
-        bool find(const llvm::Argument * arg, const FunctionParameters & params, vec_t & ids);
-        bool find(const llvm::GlobalVariable * instr, const FunctionParameters & params, vec_t & ids);
-        bool find(const llvm::Value * v, const FunctionParameters & params, vec_t & ids);
-        bool find(const llvm::Instruction * instr, const FunctionParameters & params, vec_t & ids);
+        void find_globals(llvm::Function & f);
+        bool analyze_users(const llvm::Instruction & i);
+        bool found() const;
+        vec_t & ids();
     };
 }
 

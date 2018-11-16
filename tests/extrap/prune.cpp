@@ -8,25 +8,30 @@
 int global EXTRAP = 100;
 double global2 EXTRAP = 3.14;
 
+// Show because passed with global/global2 not because it is accessed
 int h(int x)
 {
     return 2*x*global;
 }
 
+// Can be pruned since global is accessed only in the function call
 int g_prune(int x)
 {
-    return h(global2 + x + std::pow((double)x, 3.0));
+    return global * h(global2 + x + std::pow((double)x, global2));
 }
 
 int g_not_prune(int x)
 {
     // Three bugs to test
-    // 1) Don't prune since x is used outside of call
+    // 1) Don't prune since global is used
     // 2) Bug - h is called with doubled id from x since it appears twice in the argument
     // Solution: SmallVector -> SmallSet in FunctionParameters
     // 3) Bug - h is called w/o parameters for some reason when x involves parameters (they are gone).
     // Solution: FunctionParameters created from a callsite which was already moved in insert_callsite
-    return global2 * h(100 + x + std::pow((double)x, 3.0));
+    if(global2 + 1 < 0)
+        return h(100*global + x + std::pow((double)global, 3.0));
+    else
+        return h(200*global + std::pow((double)global, 3.0));
 }
 
 int f_prune(int x, int y)
@@ -36,6 +41,7 @@ int f_prune(int x, int y)
     return h(y);
 }
 
+// Don't prune since x is used outside of call
 int f_not_prune(int x, int y)
 {
     int c = x + 2*y;

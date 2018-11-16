@@ -1,5 +1,3 @@
-; RUN: opt %loadpass  -o /dev/null < %s 2> /dev/null | diff -w %s.json -
-
 ; ModuleID = 'tests/extrap/prune.cpp'
 source_filename = "tests/extrap/prune.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -66,88 +64,114 @@ define dso_local i32 @_Z7g_prunei(i32) #0 !dbg !1294 {
   %2 = alloca i32, align 4
   store i32 %0, i32* %2, align 4, !tbaa !1284
   call void @llvm.dbg.declare(metadata i32* %2, metadata !1296, metadata !DIExpression()), !dbg !1297
-  %3 = load double, double* @global2, align 8, !dbg !1298, !tbaa !1299
-  %4 = load i32, i32* %2, align 4, !dbg !1301, !tbaa !1284
-  %5 = sitofp i32 %4 to double, !dbg !1301
-  %6 = fadd double %3, %5, !dbg !1302
-  %7 = load i32, i32* %2, align 4, !dbg !1303, !tbaa !1284
-  %8 = sitofp i32 %7 to double, !dbg !1303
-  %9 = call double @pow(double %8, double 3.000000e+00) #6, !dbg !1304
-  %10 = fadd double %6, %9, !dbg !1305
-  %11 = fptosi double %10 to i32, !dbg !1298
-  %12 = call i32 @_Z1hi(i32 %11), !dbg !1306
-  ret i32 %12, !dbg !1307
+  %3 = load i32, i32* @global, align 4, !dbg !1298, !tbaa !1284
+  %4 = load double, double* @global2, align 8, !dbg !1299, !tbaa !1300
+  %5 = load i32, i32* %2, align 4, !dbg !1302, !tbaa !1284
+  %6 = sitofp i32 %5 to double, !dbg !1302
+  %7 = fadd double %4, %6, !dbg !1303
+  %8 = load i32, i32* %2, align 4, !dbg !1304, !tbaa !1284
+  %9 = sitofp i32 %8 to double, !dbg !1304
+  %10 = load double, double* @global2, align 8, !dbg !1305, !tbaa !1300
+  %11 = call double @pow(double %9, double %10) #6, !dbg !1306
+  %12 = fadd double %7, %11, !dbg !1307
+  %13 = fptosi double %12 to i32, !dbg !1299
+  %14 = call i32 @_Z1hi(i32 %13), !dbg !1308
+  %15 = mul nsw i32 %3, %14, !dbg !1309
+  ret i32 %15, !dbg !1310
 }
 
 ; Function Attrs: nounwind
 declare dso_local double @pow(double, double) #2
 
 ; Function Attrs: nounwind uwtable
-define dso_local i32 @_Z11g_not_prunei(i32) #0 !dbg !1308 {
+define dso_local i32 @_Z11g_not_prunei(i32) #0 !dbg !1311 {
   %2 = alloca i32, align 4
-  store i32 %0, i32* %2, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %2, metadata !1310, metadata !DIExpression()), !dbg !1311
-  %3 = load double, double* @global2, align 8, !dbg !1312, !tbaa !1299
-  %4 = load i32, i32* %2, align 4, !dbg !1313, !tbaa !1284
-  %5 = add nsw i32 100, %4, !dbg !1314
-  %6 = sitofp i32 %5 to double, !dbg !1315
-  %7 = load i32, i32* %2, align 4, !dbg !1316, !tbaa !1284
-  %8 = sitofp i32 %7 to double, !dbg !1316
-  %9 = call double @pow(double %8, double 3.000000e+00) #6, !dbg !1317
-  %10 = fadd double %6, %9, !dbg !1318
-  %11 = fptosi double %10 to i32, !dbg !1315
-  %12 = call i32 @_Z1hi(i32 %11), !dbg !1319
-  %13 = sitofp i32 %12 to double, !dbg !1319
-  %14 = fmul double %3, %13, !dbg !1320
-  %15 = fptosi double %14 to i32, !dbg !1312
-  ret i32 %15, !dbg !1321
+  %3 = alloca i32, align 4
+  store i32 %0, i32* %3, align 4, !tbaa !1284
+  call void @llvm.dbg.declare(metadata i32* %3, metadata !1313, metadata !DIExpression()), !dbg !1314
+  %4 = load double, double* @global2, align 8, !dbg !1315, !tbaa !1300
+  %5 = fadd double %4, 1.000000e+00, !dbg !1317
+  %6 = fcmp olt double %5, 0.000000e+00, !dbg !1318
+  br i1 %6, label %7, label %19, !dbg !1319
+
+; <label>:7:                                      ; preds = %1
+  %8 = load i32, i32* @global, align 4, !dbg !1320, !tbaa !1284
+  %9 = mul nsw i32 100, %8, !dbg !1321
+  %10 = load i32, i32* %3, align 4, !dbg !1322, !tbaa !1284
+  %11 = add nsw i32 %9, %10, !dbg !1323
+  %12 = sitofp i32 %11 to double, !dbg !1324
+  %13 = load i32, i32* @global, align 4, !dbg !1325, !tbaa !1284
+  %14 = sitofp i32 %13 to double, !dbg !1325
+  %15 = call double @pow(double %14, double 3.000000e+00) #6, !dbg !1326
+  %16 = fadd double %12, %15, !dbg !1327
+  %17 = fptosi double %16 to i32, !dbg !1324
+  %18 = call i32 @_Z1hi(i32 %17), !dbg !1328
+  store i32 %18, i32* %2, align 4, !dbg !1329
+  br label %29, !dbg !1329
+
+; <label>:19:                                     ; preds = %1
+  %20 = load i32, i32* @global, align 4, !dbg !1330, !tbaa !1284
+  %21 = mul nsw i32 200, %20, !dbg !1331
+  %22 = sitofp i32 %21 to double, !dbg !1332
+  %23 = load i32, i32* @global, align 4, !dbg !1333, !tbaa !1284
+  %24 = sitofp i32 %23 to double, !dbg !1333
+  %25 = call double @pow(double %24, double 3.000000e+00) #6, !dbg !1334
+  %26 = fadd double %22, %25, !dbg !1335
+  %27 = fptosi double %26 to i32, !dbg !1332
+  %28 = call i32 @_Z1hi(i32 %27), !dbg !1336
+  store i32 %28, i32* %2, align 4, !dbg !1337
+  br label %29, !dbg !1337
+
+; <label>:29:                                     ; preds = %19, %7
+  %30 = load i32, i32* %2, align 4, !dbg !1338
+  ret i32 %30, !dbg !1338
 }
 
 ; Function Attrs: nounwind uwtable
-define dso_local i32 @_Z7f_pruneii(i32, i32) #0 !dbg !1322 {
+define dso_local i32 @_Z7f_pruneii(i32, i32) #0 !dbg !1339 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   store i32 %0, i32* %3, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %3, metadata !1326, metadata !DIExpression()), !dbg !1328
+  call void @llvm.dbg.declare(metadata i32* %3, metadata !1343, metadata !DIExpression()), !dbg !1345
   store i32 %1, i32* %4, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %4, metadata !1327, metadata !DIExpression()), !dbg !1329
-  %5 = load i32, i32* %3, align 4, !dbg !1330, !tbaa !1284
-  %6 = call i32 @_Z7g_prunei(i32 %5), !dbg !1331
-  %7 = load i32, i32* %4, align 4, !dbg !1332, !tbaa !1284
-  %8 = call i32 @_Z11g_not_prunei(i32 %7), !dbg !1333
-  %9 = load i32, i32* %4, align 4, !dbg !1334, !tbaa !1284
-  %10 = call i32 @_Z1hi(i32 %9), !dbg !1335
-  ret i32 %10, !dbg !1336
+  call void @llvm.dbg.declare(metadata i32* %4, metadata !1344, metadata !DIExpression()), !dbg !1346
+  %5 = load i32, i32* %3, align 4, !dbg !1347, !tbaa !1284
+  %6 = call i32 @_Z7g_prunei(i32 %5), !dbg !1348
+  %7 = load i32, i32* %4, align 4, !dbg !1349, !tbaa !1284
+  %8 = call i32 @_Z11g_not_prunei(i32 %7), !dbg !1350
+  %9 = load i32, i32* %4, align 4, !dbg !1351, !tbaa !1284
+  %10 = call i32 @_Z1hi(i32 %9), !dbg !1352
+  ret i32 %10, !dbg !1353
 }
 
 ; Function Attrs: nounwind uwtable
-define dso_local i32 @_Z11f_not_pruneii(i32, i32) #0 !dbg !1337 {
+define dso_local i32 @_Z11f_not_pruneii(i32, i32) #0 !dbg !1354 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   %5 = alloca i32, align 4
   store i32 %0, i32* %3, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %3, metadata !1339, metadata !DIExpression()), !dbg !1342
+  call void @llvm.dbg.declare(metadata i32* %3, metadata !1356, metadata !DIExpression()), !dbg !1359
   store i32 %1, i32* %4, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %4, metadata !1340, metadata !DIExpression()), !dbg !1343
-  %6 = bitcast i32* %5 to i8*, !dbg !1344
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #6, !dbg !1344
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !1341, metadata !DIExpression()), !dbg !1345
-  %7 = load i32, i32* %3, align 4, !dbg !1346, !tbaa !1284
-  %8 = load i32, i32* %4, align 4, !dbg !1347, !tbaa !1284
-  %9 = mul nsw i32 2, %8, !dbg !1348
-  %10 = add nsw i32 %7, %9, !dbg !1349
-  store i32 %10, i32* %5, align 4, !dbg !1345, !tbaa !1284
-  %11 = load i32, i32* %3, align 4, !dbg !1350, !tbaa !1284
-  %12 = call i32 @_Z7g_prunei(i32 %11), !dbg !1351
-  %13 = load i32, i32* %4, align 4, !dbg !1352, !tbaa !1284
-  %14 = call i32 @_Z11g_not_prunei(i32 %13), !dbg !1353
-  %15 = load i32, i32* %5, align 4, !dbg !1354, !tbaa !1284
-  %16 = load i32, i32* %4, align 4, !dbg !1355, !tbaa !1284
-  %17 = call i32 @_Z1hi(i32 %16), !dbg !1356
-  %18 = add nsw i32 %15, %17, !dbg !1357
-  %19 = bitcast i32* %5 to i8*, !dbg !1358
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %19) #6, !dbg !1358
-  ret i32 %18, !dbg !1359
+  call void @llvm.dbg.declare(metadata i32* %4, metadata !1357, metadata !DIExpression()), !dbg !1360
+  %6 = bitcast i32* %5 to i8*, !dbg !1361
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #6, !dbg !1361
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !1358, metadata !DIExpression()), !dbg !1362
+  %7 = load i32, i32* %3, align 4, !dbg !1363, !tbaa !1284
+  %8 = load i32, i32* %4, align 4, !dbg !1364, !tbaa !1284
+  %9 = mul nsw i32 2, %8, !dbg !1365
+  %10 = add nsw i32 %7, %9, !dbg !1366
+  store i32 %10, i32* %5, align 4, !dbg !1362, !tbaa !1284
+  %11 = load i32, i32* %3, align 4, !dbg !1367, !tbaa !1284
+  %12 = call i32 @_Z7g_prunei(i32 %11), !dbg !1368
+  %13 = load i32, i32* %4, align 4, !dbg !1369, !tbaa !1284
+  %14 = call i32 @_Z11g_not_prunei(i32 %13), !dbg !1370
+  %15 = load i32, i32* %5, align 4, !dbg !1371, !tbaa !1284
+  %16 = load i32, i32* %4, align 4, !dbg !1372, !tbaa !1284
+  %17 = call i32 @_Z1hi(i32 %16), !dbg !1373
+  %18 = add nsw i32 %15, %17, !dbg !1374
+  %19 = bitcast i32* %5 to i8*, !dbg !1375
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %19) #6, !dbg !1375
+  ret i32 %18, !dbg !1376
 }
 
 ; Function Attrs: argmemonly nounwind
@@ -157,7 +181,7 @@ declare void @llvm.lifetime.start.p0i8(i64, i8* nocapture) #3
 declare void @llvm.lifetime.end.p0i8(i64, i8* nocapture) #3
 
 ; Function Attrs: norecurse uwtable
-define dso_local i32 @main(i32, i8**) #4 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1360 {
+define dso_local i32 @main(i32, i8**) #4 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1377 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   %5 = alloca i8**, align 8
@@ -168,166 +192,166 @@ define dso_local i32 @main(i32, i8**) #4 personality i8* bitcast (i32 (...)* @__
   %10 = alloca i32
   store i32 0, i32* %3, align 4
   store i32 %0, i32* %4, align 4, !tbaa !1284
-  call void @llvm.dbg.declare(metadata i32* %4, metadata !1364, metadata !DIExpression()), !dbg !1373
-  store i8** %1, i8*** %5, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata i8*** %5, metadata !1365, metadata !DIExpression()), !dbg !1376
-  %11 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1377
-  call void @llvm.lifetime.start.p0i8(i64 520, i8* %11) #6, !dbg !1377
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"* %6, metadata !1366, metadata !DIExpression()), !dbg !1378
-  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ifstream"* %6), !dbg !1378
-  %12 = bitcast i32* %7 to i8*, !dbg !1379
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %12) #6, !dbg !1379
-  call void @llvm.dbg.declare(metadata i32* %7, metadata !1371, metadata !DIExpression()), !dbg !1380
-  %13 = bitcast i32* %7 to i8*, !dbg !1379
-  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.1, i32 0, i32 0), i32 50), !dbg !1379
-  %14 = load i8**, i8*** %5, align 8, !dbg !1381, !tbaa !1374
-  %15 = getelementptr inbounds i8*, i8** %14, i64 1, !dbg !1381
-  %16 = load i8*, i8** %15, align 8, !dbg !1381, !tbaa !1374
-  %17 = call i32 @atoi(i8* %16) #9, !dbg !1382
-  store i32 %17, i32* %7, align 4, !dbg !1380, !tbaa !1284
-  %18 = bitcast i32* %8 to i8*, !dbg !1383
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %18) #6, !dbg !1383
-  call void @llvm.dbg.declare(metadata i32* %8, metadata !1372, metadata !DIExpression()), !dbg !1384
-  %19 = bitcast i32* %8 to i8*, !dbg !1383
-  call void @llvm.var.annotation(i8* %19, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.1, i32 0, i32 0), i32 51), !dbg !1383
-  %20 = bitcast %"class.std::basic_ifstream"* %6 to %"class.std::basic_istream"*, !dbg !1385
+  call void @llvm.dbg.declare(metadata i32* %4, metadata !1381, metadata !DIExpression()), !dbg !1390
+  store i8** %1, i8*** %5, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata i8*** %5, metadata !1382, metadata !DIExpression()), !dbg !1393
+  %11 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1394
+  call void @llvm.lifetime.start.p0i8(i64 520, i8* %11) #6, !dbg !1394
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"* %6, metadata !1383, metadata !DIExpression()), !dbg !1395
+  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ifstream"* %6), !dbg !1395
+  %12 = bitcast i32* %7 to i8*, !dbg !1396
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %12) #6, !dbg !1396
+  call void @llvm.dbg.declare(metadata i32* %7, metadata !1388, metadata !DIExpression()), !dbg !1397
+  %13 = bitcast i32* %7 to i8*, !dbg !1396
+  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.1, i32 0, i32 0), i32 56), !dbg !1396
+  %14 = load i8**, i8*** %5, align 8, !dbg !1398, !tbaa !1391
+  %15 = getelementptr inbounds i8*, i8** %14, i64 1, !dbg !1398
+  %16 = load i8*, i8** %15, align 8, !dbg !1398, !tbaa !1391
+  %17 = call i32 @atoi(i8* %16) #9, !dbg !1399
+  store i32 %17, i32* %7, align 4, !dbg !1397, !tbaa !1284
+  %18 = bitcast i32* %8 to i8*, !dbg !1400
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %18) #6, !dbg !1400
+  call void @llvm.dbg.declare(metadata i32* %8, metadata !1389, metadata !DIExpression()), !dbg !1401
+  %19 = bitcast i32* %8 to i8*, !dbg !1400
+  call void @llvm.var.annotation(i8* %19, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.1, i32 0, i32 0), i32 57), !dbg !1400
+  %20 = bitcast %"class.std::basic_ifstream"* %6 to %"class.std::basic_istream"*, !dbg !1402
   %21 = invoke dereferenceable(280) %"class.std::basic_istream"* @_ZNSirsERi(%"class.std::basic_istream"* %20, i32* dereferenceable(4) %8)
-          to label %22 unwind label %31, !dbg !1386
+          to label %22 unwind label %31, !dbg !1403
 
 ; <label>:22:                                     ; preds = %2
   %23 = invoke i32 @_Z7f_pruneii(i32 1, i32 2)
-          to label %24 unwind label %31, !dbg !1387
+          to label %24 unwind label %31, !dbg !1404
 
 ; <label>:24:                                     ; preds = %22
   %25 = invoke i32 @_Z11f_not_pruneii(i32 1, i32 2)
-          to label %26 unwind label %31, !dbg !1388
+          to label %26 unwind label %31, !dbg !1405
 
 ; <label>:26:                                     ; preds = %24
-  store i32 0, i32* %3, align 4, !dbg !1389
-  %27 = bitcast i32* %8 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %27) #6, !dbg !1390
-  %28 = bitcast i32* %7 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %28) #6, !dbg !1390
-  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %6) #6, !dbg !1390
-  %29 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 520, i8* %29) #6, !dbg !1390
-  %30 = load i32, i32* %3, align 4, !dbg !1390
-  ret i32 %30, !dbg !1390
+  store i32 0, i32* %3, align 4, !dbg !1406
+  %27 = bitcast i32* %8 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %27) #6, !dbg !1407
+  %28 = bitcast i32* %7 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %28) #6, !dbg !1407
+  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %6) #6, !dbg !1407
+  %29 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 520, i8* %29) #6, !dbg !1407
+  %30 = load i32, i32* %3, align 4, !dbg !1407
+  ret i32 %30, !dbg !1407
 
 ; <label>:31:                                     ; preds = %24, %22, %2
   %32 = landingpad { i8*, i32 }
-          cleanup, !dbg !1390
-  %33 = extractvalue { i8*, i32 } %32, 0, !dbg !1390
-  store i8* %33, i8** %9, align 8, !dbg !1390
-  %34 = extractvalue { i8*, i32 } %32, 1, !dbg !1390
-  store i32 %34, i32* %10, align 4, !dbg !1390
-  %35 = bitcast i32* %8 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %35) #6, !dbg !1390
-  %36 = bitcast i32* %7 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %36) #6, !dbg !1390
-  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %6) #6, !dbg !1390
-  %37 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1390
-  call void @llvm.lifetime.end.p0i8(i64 520, i8* %37) #6, !dbg !1390
-  br label %38, !dbg !1390
+          cleanup, !dbg !1407
+  %33 = extractvalue { i8*, i32 } %32, 0, !dbg !1407
+  store i8* %33, i8** %9, align 8, !dbg !1407
+  %34 = extractvalue { i8*, i32 } %32, 1, !dbg !1407
+  store i32 %34, i32* %10, align 4, !dbg !1407
+  %35 = bitcast i32* %8 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %35) #6, !dbg !1407
+  %36 = bitcast i32* %7 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %36) #6, !dbg !1407
+  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %6) #6, !dbg !1407
+  %37 = bitcast %"class.std::basic_ifstream"* %6 to i8*, !dbg !1407
+  call void @llvm.lifetime.end.p0i8(i64 520, i8* %37) #6, !dbg !1407
+  br label %38, !dbg !1407
 
 ; <label>:38:                                     ; preds = %31
-  %39 = load i8*, i8** %9, align 8, !dbg !1390
-  %40 = load i32, i32* %10, align 4, !dbg !1390
-  %41 = insertvalue { i8*, i32 } undef, i8* %39, 0, !dbg !1390
-  %42 = insertvalue { i8*, i32 } %41, i32 %40, 1, !dbg !1390
-  resume { i8*, i32 } %42, !dbg !1390
+  %39 = load i8*, i8** %9, align 8, !dbg !1407
+  %40 = load i32, i32* %10, align 4, !dbg !1407
+  %41 = insertvalue { i8*, i32 } undef, i8* %39, 0, !dbg !1407
+  %42 = insertvalue { i8*, i32 } %41, i32 %40, 1, !dbg !1407
+  resume { i8*, i32 } %42, !dbg !1407
 }
 
 ; Function Attrs: uwtable
-define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ifstream"*) unnamed_addr #5 align 2 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1391 {
+define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ifstream"*) unnamed_addr #5 align 2 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1408 {
   %2 = alloca %"class.std::basic_ifstream"*, align 8
   %3 = alloca i8*
   %4 = alloca i32
-  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1398, metadata !DIExpression()), !dbg !1400
+  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1415, metadata !DIExpression()), !dbg !1417
   %5 = load %"class.std::basic_ifstream"*, %"class.std::basic_ifstream"** %2, align 8
-  %6 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1401
-  %7 = getelementptr inbounds i8, i8* %6, i64 256, !dbg !1401
-  %8 = bitcast i8* %7 to %"class.std::basic_ios"*, !dbg !1401
-  call void @_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev(%"class.std::basic_ios"* %8), !dbg !1402
-  %9 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1401
+  %6 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1418
+  %7 = getelementptr inbounds i8, i8* %6, i64 256, !dbg !1418
+  %8 = bitcast i8* %7 to %"class.std::basic_ios"*, !dbg !1418
+  call void @_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev(%"class.std::basic_ios"* %8), !dbg !1419
+  %9 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1418
   invoke void @_ZNSiC2Ev(%"class.std::basic_istream"* %9, i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt14basic_ifstreamIcSt11char_traitsIcEE, i64 0, i64 1))
-          to label %10 unwind label %28, !dbg !1403
+          to label %10 unwind label %28, !dbg !1420
 
 ; <label>:10:                                     ; preds = %1
-  %11 = bitcast %"class.std::basic_ifstream"* %5 to i32 (...)***, !dbg !1401
-  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [5 x i8*], [5 x i8*] }, { [5 x i8*], [5 x i8*] }* @_ZTVSt14basic_ifstreamIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 3) to i32 (...)**), i32 (...)*** %11, align 8, !dbg !1401, !tbaa !1404
-  %12 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1401
-  %13 = getelementptr inbounds i8, i8* %12, i64 256, !dbg !1401
-  %14 = bitcast i8* %13 to i32 (...)***, !dbg !1401
-  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [5 x i8*], [5 x i8*] }, { [5 x i8*], [5 x i8*] }* @_ZTVSt14basic_ifstreamIcSt11char_traitsIcEE, i32 0, inrange i32 1, i32 3) to i32 (...)**), i32 (...)*** %14, align 8, !dbg !1401, !tbaa !1404
-  %15 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1406
+  %11 = bitcast %"class.std::basic_ifstream"* %5 to i32 (...)***, !dbg !1418
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [5 x i8*], [5 x i8*] }, { [5 x i8*], [5 x i8*] }* @_ZTVSt14basic_ifstreamIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 3) to i32 (...)**), i32 (...)*** %11, align 8, !dbg !1418, !tbaa !1421
+  %12 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1418
+  %13 = getelementptr inbounds i8, i8* %12, i64 256, !dbg !1418
+  %14 = bitcast i8* %13 to i32 (...)***, !dbg !1418
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [5 x i8*], [5 x i8*] }, { [5 x i8*], [5 x i8*] }* @_ZTVSt14basic_ifstreamIcSt11char_traitsIcEE, i32 0, inrange i32 1, i32 3) to i32 (...)**), i32 (...)*** %14, align 8, !dbg !1418, !tbaa !1421
+  %15 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1423
   invoke void @_ZNSt13basic_filebufIcSt11char_traitsIcEEC1Ev(%"class.std::basic_filebuf"* %15)
-          to label %16 unwind label %32, !dbg !1406
+          to label %16 unwind label %32, !dbg !1423
 
 ; <label>:16:                                     ; preds = %10
-  %17 = bitcast %"class.std::basic_ifstream"* %5 to i8**, !dbg !1407
-  %18 = load i8*, i8** %17, align 8, !dbg !1407, !tbaa !1404
-  %19 = getelementptr i8, i8* %18, i64 -24, !dbg !1407
-  %20 = bitcast i8* %19 to i64*, !dbg !1407
-  %21 = load i64, i64* %20, align 8, !dbg !1407
-  %22 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1407
-  %23 = getelementptr inbounds i8, i8* %22, i64 %21, !dbg !1407
-  %24 = bitcast i8* %23 to %"class.std::basic_ios"*, !dbg !1407
-  %25 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1409
-  %26 = bitcast %"class.std::basic_filebuf"* %25 to %"class.std::basic_streambuf"*, !dbg !1410
+  %17 = bitcast %"class.std::basic_ifstream"* %5 to i8**, !dbg !1424
+  %18 = load i8*, i8** %17, align 8, !dbg !1424, !tbaa !1421
+  %19 = getelementptr i8, i8* %18, i64 -24, !dbg !1424
+  %20 = bitcast i8* %19 to i64*, !dbg !1424
+  %21 = load i64, i64* %20, align 8, !dbg !1424
+  %22 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1424
+  %23 = getelementptr inbounds i8, i8* %22, i64 %21, !dbg !1424
+  %24 = bitcast i8* %23 to %"class.std::basic_ios"*, !dbg !1424
+  %25 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1426
+  %26 = bitcast %"class.std::basic_filebuf"* %25 to %"class.std::basic_streambuf"*, !dbg !1427
   invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E(%"class.std::basic_ios"* %24, %"class.std::basic_streambuf"* %26)
-          to label %27 unwind label %36, !dbg !1407
+          to label %27 unwind label %36, !dbg !1424
 
 ; <label>:27:                                     ; preds = %16
-  ret void, !dbg !1411
+  ret void, !dbg !1428
 
 ; <label>:28:                                     ; preds = %1
   %29 = landingpad { i8*, i32 }
-          cleanup, !dbg !1411
-  %30 = extractvalue { i8*, i32 } %29, 0, !dbg !1411
-  store i8* %30, i8** %3, align 8, !dbg !1411
-  %31 = extractvalue { i8*, i32 } %29, 1, !dbg !1411
-  store i32 %31, i32* %4, align 4, !dbg !1411
-  br label %42, !dbg !1411
+          cleanup, !dbg !1428
+  %30 = extractvalue { i8*, i32 } %29, 0, !dbg !1428
+  store i8* %30, i8** %3, align 8, !dbg !1428
+  %31 = extractvalue { i8*, i32 } %29, 1, !dbg !1428
+  store i32 %31, i32* %4, align 4, !dbg !1428
+  br label %42, !dbg !1428
 
 ; <label>:32:                                     ; preds = %10
   %33 = landingpad { i8*, i32 }
-          cleanup, !dbg !1411
-  %34 = extractvalue { i8*, i32 } %33, 0, !dbg !1411
-  store i8* %34, i8** %3, align 8, !dbg !1411
-  %35 = extractvalue { i8*, i32 } %33, 1, !dbg !1411
-  store i32 %35, i32* %4, align 4, !dbg !1411
-  br label %40, !dbg !1411
+          cleanup, !dbg !1428
+  %34 = extractvalue { i8*, i32 } %33, 0, !dbg !1428
+  store i8* %34, i8** %3, align 8, !dbg !1428
+  %35 = extractvalue { i8*, i32 } %33, 1, !dbg !1428
+  store i32 %35, i32* %4, align 4, !dbg !1428
+  br label %40, !dbg !1428
 
 ; <label>:36:                                     ; preds = %16
   %37 = landingpad { i8*, i32 }
-          cleanup, !dbg !1412
-  %38 = extractvalue { i8*, i32 } %37, 0, !dbg !1412
-  store i8* %38, i8** %3, align 8, !dbg !1412
-  %39 = extractvalue { i8*, i32 } %37, 1, !dbg !1412
-  store i32 %39, i32* %4, align 4, !dbg !1412
-  call void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"* %15) #6, !dbg !1412
-  br label %40, !dbg !1412
+          cleanup, !dbg !1429
+  %38 = extractvalue { i8*, i32 } %37, 0, !dbg !1429
+  store i8* %38, i8** %3, align 8, !dbg !1429
+  %39 = extractvalue { i8*, i32 } %37, 1, !dbg !1429
+  store i32 %39, i32* %4, align 4, !dbg !1429
+  call void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"* %15) #6, !dbg !1429
+  br label %40, !dbg !1429
 
 ; <label>:40:                                     ; preds = %36, %32
-  %41 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1412
-  call void @_ZNSiD2Ev(%"class.std::basic_istream"* %41, i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt14basic_ifstreamIcSt11char_traitsIcEE, i64 0, i64 1)) #6, !dbg !1412
-  br label %42, !dbg !1412
+  %41 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1429
+  call void @_ZNSiD2Ev(%"class.std::basic_istream"* %41, i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt14basic_ifstreamIcSt11char_traitsIcEE, i64 0, i64 1)) #6, !dbg !1429
+  br label %42, !dbg !1429
 
 ; <label>:42:                                     ; preds = %40, %28
-  %43 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1412
-  %44 = getelementptr inbounds i8, i8* %43, i64 256, !dbg !1412
-  %45 = bitcast i8* %44 to %"class.std::basic_ios"*, !dbg !1412
-  call void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"* %45) #6, !dbg !1412
-  br label %46, !dbg !1412
+  %43 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1429
+  %44 = getelementptr inbounds i8, i8* %43, i64 256, !dbg !1429
+  %45 = bitcast i8* %44 to %"class.std::basic_ios"*, !dbg !1429
+  call void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"* %45) #6, !dbg !1429
+  br label %46, !dbg !1429
 
 ; <label>:46:                                     ; preds = %42
-  %47 = load i8*, i8** %3, align 8, !dbg !1412
-  %48 = load i32, i32* %4, align 4, !dbg !1412
-  %49 = insertvalue { i8*, i32 } undef, i8* %47, 0, !dbg !1412
-  %50 = insertvalue { i8*, i32 } %49, i32 %48, 1, !dbg !1412
-  resume { i8*, i32 } %50, !dbg !1412
+  %47 = load i8*, i8** %3, align 8, !dbg !1429
+  %48 = load i32, i32* %4, align 4, !dbg !1429
+  %49 = insertvalue { i8*, i32 } undef, i8* %47, 0, !dbg !1429
+  %50 = insertvalue { i8*, i32 } %49, i32 %48, 1, !dbg !1429
+  resume { i8*, i32 } %50, !dbg !1429
 }
 
 ; Function Attrs: nounwind
@@ -336,12 +360,12 @@ declare void @llvm.var.annotation(i8*, i8*, i8*, i32) #6
 ; Function Attrs: inlinehint nounwind readonly uwtable
 define available_externally dso_local i32 @atoi(i8* nonnull) #7 !dbg !388 {
   %2 = alloca i8*, align 8
-  store i8* %0, i8** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata i8** %2, metadata !392, metadata !DIExpression()), !dbg !1413
-  %3 = load i8*, i8** %2, align 8, !dbg !1414, !tbaa !1374
-  %4 = call i64 @strtol(i8* %3, i8** null, i32 10) #6, !dbg !1415
-  %5 = trunc i64 %4 to i32, !dbg !1415
-  ret i32 %5, !dbg !1416
+  store i8* %0, i8** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata i8** %2, metadata !392, metadata !DIExpression()), !dbg !1430
+  %3 = load i8*, i8** %2, align 8, !dbg !1431, !tbaa !1391
+  %4 = call i64 @strtol(i8* %3, i8** null, i32 10) #6, !dbg !1432
+  %5 = trunc i64 %4 to i32, !dbg !1432
+  ret i32 %5, !dbg !1433
 }
 
 declare dso_local dereferenceable(280) %"class.std::basic_istream"* @_ZNSirsERi(%"class.std::basic_istream"*, i32* dereferenceable(4)) #8
@@ -349,87 +373,87 @@ declare dso_local dereferenceable(280) %"class.std::basic_istream"* @_ZNSirsERi(
 declare dso_local i32 @__gxx_personality_v0(...)
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"*) unnamed_addr #0 align 2 !dbg !1417 {
+define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"*) unnamed_addr #0 align 2 !dbg !1434 {
   %2 = alloca %"class.std::basic_ifstream"*, align 8
-  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1420, metadata !DIExpression()), !dbg !1421
+  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1437, metadata !DIExpression()), !dbg !1438
   %3 = load %"class.std::basic_ifstream"*, %"class.std::basic_ifstream"** %2, align 8
-  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev(%"class.std::basic_ifstream"* %3, i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt14basic_ifstreamIcSt11char_traitsIcEE, i64 0, i64 0)) #6, !dbg !1422
-  %4 = bitcast %"class.std::basic_ifstream"* %3 to i8*, !dbg !1422
-  %5 = getelementptr inbounds i8, i8* %4, i64 256, !dbg !1422
-  %6 = bitcast i8* %5 to %"class.std::basic_ios"*, !dbg !1422
-  call void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"* %6) #6, !dbg !1422
-  ret void, !dbg !1423
+  call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev(%"class.std::basic_ifstream"* %3, i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt14basic_ifstreamIcSt11char_traitsIcEE, i64 0, i64 0)) #6, !dbg !1439
+  %4 = bitcast %"class.std::basic_ifstream"* %3 to i8*, !dbg !1439
+  %5 = getelementptr inbounds i8, i8* %4, i64 256, !dbg !1439
+  %6 = bitcast i8* %5 to %"class.std::basic_ios"*, !dbg !1439
+  call void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"* %6) #6, !dbg !1439
+  ret void, !dbg !1440
 }
 
 ; Function Attrs: nounwind
 declare dso_local i64 @strtol(i8*, i8**, i32) #2
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev(%"class.std::basic_ios"*) unnamed_addr #0 align 2 !dbg !1424 {
+define available_externally dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev(%"class.std::basic_ios"*) unnamed_addr #0 align 2 !dbg !1441 {
   %2 = alloca %"class.std::basic_ios"*, align 8
-  store %"class.std::basic_ios"* %0, %"class.std::basic_ios"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ios"** %2, metadata !1433, metadata !DIExpression()), !dbg !1435
+  store %"class.std::basic_ios"* %0, %"class.std::basic_ios"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ios"** %2, metadata !1450, metadata !DIExpression()), !dbg !1452
   %3 = load %"class.std::basic_ios"*, %"class.std::basic_ios"** %2, align 8
-  %4 = bitcast %"class.std::basic_ios"* %3 to %"class.std::ios_base"*, !dbg !1436
-  call void @_ZNSt8ios_baseC2Ev(%"class.std::ios_base"* %4) #6, !dbg !1437
-  %5 = bitcast %"class.std::basic_ios"* %3 to i32 (...)***, !dbg !1436
-  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [4 x i8*] }, { [4 x i8*] }* @_ZTVSt9basic_iosIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %5, align 8, !dbg !1436, !tbaa !1404
-  %6 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 1, !dbg !1438
-  store %"class.std::basic_ostream"* null, %"class.std::basic_ostream"** %6, align 8, !dbg !1438, !tbaa !1439
-  %7 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 2, !dbg !1442
-  store i8 0, i8* %7, align 8, !dbg !1442, !tbaa !1443
-  %8 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 3, !dbg !1444
-  store i8 0, i8* %8, align 1, !dbg !1444, !tbaa !1445
-  %9 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 4, !dbg !1446
-  store %"class.std::basic_streambuf"* null, %"class.std::basic_streambuf"** %9, align 8, !dbg !1446, !tbaa !1447
-  %10 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 5, !dbg !1448
-  store %"class.std::ctype"* null, %"class.std::ctype"** %10, align 8, !dbg !1448, !tbaa !1449
-  %11 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 6, !dbg !1450
-  store %"class.std::num_put"* null, %"class.std::num_put"** %11, align 8, !dbg !1450, !tbaa !1451
-  %12 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 7, !dbg !1452
-  store %"class.std::num_get"* null, %"class.std::num_get"** %12, align 8, !dbg !1452, !tbaa !1453
-  ret void, !dbg !1454
+  %4 = bitcast %"class.std::basic_ios"* %3 to %"class.std::ios_base"*, !dbg !1453
+  call void @_ZNSt8ios_baseC2Ev(%"class.std::ios_base"* %4) #6, !dbg !1454
+  %5 = bitcast %"class.std::basic_ios"* %3 to i32 (...)***, !dbg !1453
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [4 x i8*] }, { [4 x i8*] }* @_ZTVSt9basic_iosIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %5, align 8, !dbg !1453, !tbaa !1421
+  %6 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 1, !dbg !1455
+  store %"class.std::basic_ostream"* null, %"class.std::basic_ostream"** %6, align 8, !dbg !1455, !tbaa !1456
+  %7 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 2, !dbg !1459
+  store i8 0, i8* %7, align 8, !dbg !1459, !tbaa !1460
+  %8 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 3, !dbg !1461
+  store i8 0, i8* %8, align 1, !dbg !1461, !tbaa !1462
+  %9 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 4, !dbg !1463
+  store %"class.std::basic_streambuf"* null, %"class.std::basic_streambuf"** %9, align 8, !dbg !1463, !tbaa !1464
+  %10 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 5, !dbg !1465
+  store %"class.std::ctype"* null, %"class.std::ctype"** %10, align 8, !dbg !1465, !tbaa !1466
+  %11 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 6, !dbg !1467
+  store %"class.std::num_put"* null, %"class.std::num_put"** %11, align 8, !dbg !1467, !tbaa !1468
+  %12 = getelementptr inbounds %"class.std::basic_ios", %"class.std::basic_ios"* %3, i32 0, i32 7, !dbg !1469
+  store %"class.std::num_get"* null, %"class.std::num_get"** %12, align 8, !dbg !1469, !tbaa !1470
+  ret void, !dbg !1471
 }
 
 ; Function Attrs: uwtable
-define available_externally dso_local void @_ZNSiC2Ev(%"class.std::basic_istream"*, i8**) unnamed_addr #5 align 2 !dbg !1455 {
+define available_externally dso_local void @_ZNSiC2Ev(%"class.std::basic_istream"*, i8**) unnamed_addr #5 align 2 !dbg !1472 {
   %3 = alloca %"class.std::basic_istream"*, align 8
   %4 = alloca i8**, align 8
-  store %"class.std::basic_istream"* %0, %"class.std::basic_istream"** %3, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_istream"** %3, metadata !1464, metadata !DIExpression()), !dbg !1468
-  store i8** %1, i8*** %4, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1466, metadata !DIExpression()), !dbg !1468
+  store %"class.std::basic_istream"* %0, %"class.std::basic_istream"** %3, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_istream"** %3, metadata !1481, metadata !DIExpression()), !dbg !1485
+  store i8** %1, i8*** %4, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1483, metadata !DIExpression()), !dbg !1485
   %5 = load %"class.std::basic_istream"*, %"class.std::basic_istream"** %3, align 8
   %6 = load i8**, i8*** %4, align 8
-  %7 = load i8*, i8** %6, align 8, !dbg !1469
-  %8 = bitcast %"class.std::basic_istream"* %5 to i32 (...)***, !dbg !1469
-  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1469
-  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1469, !tbaa !1404
-  %10 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1469
-  %11 = load i8*, i8** %10, align 8, !dbg !1469
-  %12 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1469
-  %13 = load i8*, i8** %12, align 8, !dbg !1469, !tbaa !1404
-  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1469
-  %15 = bitcast i8* %14 to i64*, !dbg !1469
-  %16 = load i64, i64* %15, align 8, !dbg !1469
-  %17 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1469
-  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1469
-  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1469
-  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1469
-  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1469, !tbaa !1404
-  %21 = getelementptr inbounds %"class.std::basic_istream", %"class.std::basic_istream"* %5, i32 0, i32 1, !dbg !1470
-  store i64 0, i64* %21, align 8, !dbg !1470, !tbaa !1471
-  %22 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1474
-  %23 = load i8*, i8** %22, align 8, !dbg !1474, !tbaa !1404
-  %24 = getelementptr i8, i8* %23, i64 -24, !dbg !1474
-  %25 = bitcast i8* %24 to i64*, !dbg !1474
-  %26 = load i64, i64* %25, align 8, !dbg !1474
-  %27 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1474
-  %28 = getelementptr inbounds i8, i8* %27, i64 %26, !dbg !1474
-  %29 = bitcast i8* %28 to %"class.std::basic_ios"*, !dbg !1474
-  call void @_ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E(%"class.std::basic_ios"* %29, %"class.std::basic_streambuf"* null), !dbg !1474
-  ret void, !dbg !1476
+  %7 = load i8*, i8** %6, align 8, !dbg !1486
+  %8 = bitcast %"class.std::basic_istream"* %5 to i32 (...)***, !dbg !1486
+  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1486
+  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1486, !tbaa !1421
+  %10 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1486
+  %11 = load i8*, i8** %10, align 8, !dbg !1486
+  %12 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1486
+  %13 = load i8*, i8** %12, align 8, !dbg !1486, !tbaa !1421
+  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1486
+  %15 = bitcast i8* %14 to i64*, !dbg !1486
+  %16 = load i64, i64* %15, align 8, !dbg !1486
+  %17 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1486
+  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1486
+  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1486
+  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1486
+  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1486, !tbaa !1421
+  %21 = getelementptr inbounds %"class.std::basic_istream", %"class.std::basic_istream"* %5, i32 0, i32 1, !dbg !1487
+  store i64 0, i64* %21, align 8, !dbg !1487, !tbaa !1488
+  %22 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1491
+  %23 = load i8*, i8** %22, align 8, !dbg !1491, !tbaa !1421
+  %24 = getelementptr i8, i8* %23, i64 -24, !dbg !1491
+  %25 = bitcast i8* %24 to i64*, !dbg !1491
+  %26 = load i64, i64* %25, align 8, !dbg !1491
+  %27 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1491
+  %28 = getelementptr inbounds i8, i8* %27, i64 %26, !dbg !1491
+  %29 = bitcast i8* %28 to %"class.std::basic_ios"*, !dbg !1491
+  call void @_ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E(%"class.std::basic_ios"* %29, %"class.std::basic_streambuf"* null), !dbg !1491
+  ret void, !dbg !1493
 }
 
 declare dso_local void @_ZNSt13basic_filebufIcSt11char_traitsIcEEC1Ev(%"class.std::basic_filebuf"*) unnamed_addr #8
@@ -437,85 +461,85 @@ declare dso_local void @_ZNSt13basic_filebufIcSt11char_traitsIcEEC1Ev(%"class.st
 declare dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E(%"class.std::basic_ios"*, %"class.std::basic_streambuf"*) #8
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"*) unnamed_addr #0 align 2 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1477 {
+define available_externally dso_local void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"*) unnamed_addr #0 align 2 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !1494 {
   %2 = alloca %"class.std::basic_filebuf"*, align 8
   %3 = alloca i8*
   %4 = alloca i32
-  store %"class.std::basic_filebuf"* %0, %"class.std::basic_filebuf"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_filebuf"** %2, metadata !1484, metadata !DIExpression()), !dbg !1486
+  store %"class.std::basic_filebuf"* %0, %"class.std::basic_filebuf"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_filebuf"** %2, metadata !1501, metadata !DIExpression()), !dbg !1503
   %5 = load %"class.std::basic_filebuf"*, %"class.std::basic_filebuf"** %2, align 8
-  %6 = bitcast %"class.std::basic_filebuf"* %5 to i32 (...)***, !dbg !1487
-  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt13basic_filebufIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %6, align 8, !dbg !1487, !tbaa !1404
+  %6 = bitcast %"class.std::basic_filebuf"* %5 to i32 (...)***, !dbg !1504
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt13basic_filebufIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %6, align 8, !dbg !1504, !tbaa !1421
   %7 = invoke %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE5closeEv(%"class.std::basic_filebuf"* %5)
-          to label %8 unwind label %11, !dbg !1488
+          to label %8 unwind label %11, !dbg !1505
 
 ; <label>:8:                                      ; preds = %1
-  %9 = getelementptr inbounds %"class.std::basic_filebuf", %"class.std::basic_filebuf"* %5, i32 0, i32 2, !dbg !1490
-  call void @_ZNSt12__basic_fileIcED1Ev(%"class.std::__basic_file"* %9) #6, !dbg !1490
-  %10 = bitcast %"class.std::basic_filebuf"* %5 to %"class.std::basic_streambuf"*, !dbg !1490
-  call void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"* %10) #6, !dbg !1490
-  ret void, !dbg !1491
+  %9 = getelementptr inbounds %"class.std::basic_filebuf", %"class.std::basic_filebuf"* %5, i32 0, i32 2, !dbg !1507
+  call void @_ZNSt12__basic_fileIcED1Ev(%"class.std::__basic_file"* %9) #6, !dbg !1507
+  %10 = bitcast %"class.std::basic_filebuf"* %5 to %"class.std::basic_streambuf"*, !dbg !1507
+  call void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"* %10) #6, !dbg !1507
+  ret void, !dbg !1508
 
 ; <label>:11:                                     ; preds = %1
   %12 = landingpad { i8*, i32 }
           cleanup
-          filter [0 x i8*] zeroinitializer, !dbg !1490
-  %13 = extractvalue { i8*, i32 } %12, 0, !dbg !1490
-  store i8* %13, i8** %3, align 8, !dbg !1490
-  %14 = extractvalue { i8*, i32 } %12, 1, !dbg !1490
-  store i32 %14, i32* %4, align 4, !dbg !1490
-  %15 = getelementptr inbounds %"class.std::basic_filebuf", %"class.std::basic_filebuf"* %5, i32 0, i32 2, !dbg !1490
-  call void @_ZNSt12__basic_fileIcED1Ev(%"class.std::__basic_file"* %15) #6, !dbg !1490
-  %16 = bitcast %"class.std::basic_filebuf"* %5 to %"class.std::basic_streambuf"*, !dbg !1490
-  call void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"* %16) #6, !dbg !1490
-  br label %17, !dbg !1490
+          filter [0 x i8*] zeroinitializer, !dbg !1507
+  %13 = extractvalue { i8*, i32 } %12, 0, !dbg !1507
+  store i8* %13, i8** %3, align 8, !dbg !1507
+  %14 = extractvalue { i8*, i32 } %12, 1, !dbg !1507
+  store i32 %14, i32* %4, align 4, !dbg !1507
+  %15 = getelementptr inbounds %"class.std::basic_filebuf", %"class.std::basic_filebuf"* %5, i32 0, i32 2, !dbg !1507
+  call void @_ZNSt12__basic_fileIcED1Ev(%"class.std::__basic_file"* %15) #6, !dbg !1507
+  %16 = bitcast %"class.std::basic_filebuf"* %5 to %"class.std::basic_streambuf"*, !dbg !1507
+  call void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"* %16) #6, !dbg !1507
+  br label %17, !dbg !1507
 
 ; <label>:17:                                     ; preds = %11
-  %18 = load i8*, i8** %3, align 8, !dbg !1491
-  call void @__cxa_call_unexpected(i8* %18) #10, !dbg !1491
-  unreachable, !dbg !1491
+  %18 = load i8*, i8** %3, align 8, !dbg !1508
+  call void @__cxa_call_unexpected(i8* %18) #10, !dbg !1508
+  unreachable, !dbg !1508
 }
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSiD2Ev(%"class.std::basic_istream"*, i8**) unnamed_addr #0 align 2 !dbg !1492 {
+define available_externally dso_local void @_ZNSiD2Ev(%"class.std::basic_istream"*, i8**) unnamed_addr #0 align 2 !dbg !1509 {
   %3 = alloca %"class.std::basic_istream"*, align 8
   %4 = alloca i8**, align 8
-  store %"class.std::basic_istream"* %0, %"class.std::basic_istream"** %3, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_istream"** %3, metadata !1495, metadata !DIExpression()), !dbg !1497
-  store i8** %1, i8*** %4, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1496, metadata !DIExpression()), !dbg !1497
+  store %"class.std::basic_istream"* %0, %"class.std::basic_istream"** %3, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_istream"** %3, metadata !1512, metadata !DIExpression()), !dbg !1514
+  store i8** %1, i8*** %4, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1513, metadata !DIExpression()), !dbg !1514
   %5 = load %"class.std::basic_istream"*, %"class.std::basic_istream"** %3, align 8
   %6 = load i8**, i8*** %4, align 8
-  %7 = load i8*, i8** %6, align 8, !dbg !1498
-  %8 = bitcast %"class.std::basic_istream"* %5 to i32 (...)***, !dbg !1498
-  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1498
-  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1498, !tbaa !1404
-  %10 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1498
-  %11 = load i8*, i8** %10, align 8, !dbg !1498
-  %12 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1498
-  %13 = load i8*, i8** %12, align 8, !dbg !1498, !tbaa !1404
-  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1498
-  %15 = bitcast i8* %14 to i64*, !dbg !1498
-  %16 = load i64, i64* %15, align 8, !dbg !1498
-  %17 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1498
-  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1498
-  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1498
-  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1498
-  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1498, !tbaa !1404
-  %21 = getelementptr inbounds %"class.std::basic_istream", %"class.std::basic_istream"* %5, i32 0, i32 1, !dbg !1499
-  store i64 0, i64* %21, align 8, !dbg !1501, !tbaa !1471
-  ret void, !dbg !1502
+  %7 = load i8*, i8** %6, align 8, !dbg !1515
+  %8 = bitcast %"class.std::basic_istream"* %5 to i32 (...)***, !dbg !1515
+  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1515
+  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1515, !tbaa !1421
+  %10 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1515
+  %11 = load i8*, i8** %10, align 8, !dbg !1515
+  %12 = bitcast %"class.std::basic_istream"* %5 to i8**, !dbg !1515
+  %13 = load i8*, i8** %12, align 8, !dbg !1515, !tbaa !1421
+  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1515
+  %15 = bitcast i8* %14 to i64*, !dbg !1515
+  %16 = load i64, i64* %15, align 8, !dbg !1515
+  %17 = bitcast %"class.std::basic_istream"* %5 to i8*, !dbg !1515
+  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1515
+  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1515
+  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1515
+  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1515, !tbaa !1421
+  %21 = getelementptr inbounds %"class.std::basic_istream", %"class.std::basic_istream"* %5, i32 0, i32 1, !dbg !1516
+  store i64 0, i64* %21, align 8, !dbg !1518, !tbaa !1488
+  ret void, !dbg !1519
 }
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"*) unnamed_addr #0 align 2 !dbg !1503 {
+define available_externally dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev(%"class.std::basic_ios"*) unnamed_addr #0 align 2 !dbg !1520 {
   %2 = alloca %"class.std::basic_ios"*, align 8
-  store %"class.std::basic_ios"* %0, %"class.std::basic_ios"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ios"** %2, metadata !1506, metadata !DIExpression()), !dbg !1507
+  store %"class.std::basic_ios"* %0, %"class.std::basic_ios"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ios"** %2, metadata !1523, metadata !DIExpression()), !dbg !1524
   %3 = load %"class.std::basic_ios"*, %"class.std::basic_ios"** %2, align 8
-  %4 = bitcast %"class.std::basic_ios"* %3 to %"class.std::ios_base"*, !dbg !1508
-  call void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"* %4) #6, !dbg !1508
-  ret void, !dbg !1510
+  %4 = bitcast %"class.std::basic_ios"* %3 to %"class.std::ios_base"*, !dbg !1525
+  call void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"* %4) #6, !dbg !1525
+  ret void, !dbg !1527
 }
 
 ; Function Attrs: nounwind
@@ -527,16 +551,16 @@ declare dso_local %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_t
 declare dso_local void @_ZNSt12__basic_fileIcED1Ev(%"class.std::__basic_file"*) unnamed_addr #2
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"*) unnamed_addr #0 align 2 !dbg !1511 {
+define available_externally dso_local void @_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev(%"class.std::basic_streambuf"*) unnamed_addr #0 align 2 !dbg !1528 {
   %2 = alloca %"class.std::basic_streambuf"*, align 8
-  store %"class.std::basic_streambuf"* %0, %"class.std::basic_streambuf"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_streambuf"** %2, metadata !1520, metadata !DIExpression()), !dbg !1522
+  store %"class.std::basic_streambuf"* %0, %"class.std::basic_streambuf"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_streambuf"** %2, metadata !1537, metadata !DIExpression()), !dbg !1539
   %3 = load %"class.std::basic_streambuf"*, %"class.std::basic_streambuf"** %2, align 8
-  %4 = bitcast %"class.std::basic_streambuf"* %3 to i32 (...)***, !dbg !1523
-  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_streambufIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %4, align 8, !dbg !1523, !tbaa !1404
-  %5 = getelementptr inbounds %"class.std::basic_streambuf", %"class.std::basic_streambuf"* %3, i32 0, i32 7, !dbg !1524
-  call void @_ZNSt6localeD1Ev(%"class.std::locale"* %5) #6, !dbg !1524
-  ret void, !dbg !1526
+  %4 = bitcast %"class.std::basic_streambuf"* %3 to i32 (...)***, !dbg !1540
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_streambufIcSt11char_traitsIcEE, i32 0, inrange i32 0, i32 2) to i32 (...)**), i32 (...)*** %4, align 8, !dbg !1540, !tbaa !1421
+  %5 = getelementptr inbounds %"class.std::basic_streambuf", %"class.std::basic_streambuf"* %3, i32 0, i32 7, !dbg !1541
+  call void @_ZNSt6localeD1Ev(%"class.std::locale"* %5) #6, !dbg !1541
+  ret void, !dbg !1543
 }
 
 declare dso_local void @__cxa_call_unexpected(i8*)
@@ -548,55 +572,55 @@ declare dso_local void @_ZNSt6localeD1Ev(%"class.std::locale"*) unnamed_addr #2
 declare dso_local void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"*) unnamed_addr #2
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev(%"class.std::basic_ifstream"*, i8**) unnamed_addr #0 align 2 !dbg !1527 {
+define available_externally dso_local void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev(%"class.std::basic_ifstream"*, i8**) unnamed_addr #0 align 2 !dbg !1544 {
   %3 = alloca %"class.std::basic_ifstream"*, align 8
   %4 = alloca i8**, align 8
-  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %3, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %3, metadata !1529, metadata !DIExpression()), !dbg !1531
-  store i8** %1, i8*** %4, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1530, metadata !DIExpression()), !dbg !1531
+  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %3, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %3, metadata !1546, metadata !DIExpression()), !dbg !1548
+  store i8** %1, i8*** %4, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata i8*** %4, metadata !1547, metadata !DIExpression()), !dbg !1548
   %5 = load %"class.std::basic_ifstream"*, %"class.std::basic_ifstream"** %3, align 8
   %6 = load i8**, i8*** %4, align 8
-  %7 = load i8*, i8** %6, align 8, !dbg !1532
-  %8 = bitcast %"class.std::basic_ifstream"* %5 to i32 (...)***, !dbg !1532
-  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1532
-  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1532, !tbaa !1404
-  %10 = getelementptr inbounds i8*, i8** %6, i64 3, !dbg !1532
-  %11 = load i8*, i8** %10, align 8, !dbg !1532
-  %12 = bitcast %"class.std::basic_ifstream"* %5 to i8**, !dbg !1532
-  %13 = load i8*, i8** %12, align 8, !dbg !1532, !tbaa !1404
-  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1532
-  %15 = bitcast i8* %14 to i64*, !dbg !1532
-  %16 = load i64, i64* %15, align 8, !dbg !1532
-  %17 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1532
-  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1532
-  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1532
-  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1532
-  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1532, !tbaa !1404
-  %21 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1533
-  call void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"* %21) #6, !dbg !1533
-  %22 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1533
-  %23 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1533
-  call void @_ZNSiD2Ev(%"class.std::basic_istream"* %22, i8** %23) #6, !dbg !1533
-  ret void, !dbg !1535
+  %7 = load i8*, i8** %6, align 8, !dbg !1549
+  %8 = bitcast %"class.std::basic_ifstream"* %5 to i32 (...)***, !dbg !1549
+  %9 = bitcast i8* %7 to i32 (...)**, !dbg !1549
+  store i32 (...)** %9, i32 (...)*** %8, align 8, !dbg !1549, !tbaa !1421
+  %10 = getelementptr inbounds i8*, i8** %6, i64 3, !dbg !1549
+  %11 = load i8*, i8** %10, align 8, !dbg !1549
+  %12 = bitcast %"class.std::basic_ifstream"* %5 to i8**, !dbg !1549
+  %13 = load i8*, i8** %12, align 8, !dbg !1549, !tbaa !1421
+  %14 = getelementptr i8, i8* %13, i64 -24, !dbg !1549
+  %15 = bitcast i8* %14 to i64*, !dbg !1549
+  %16 = load i64, i64* %15, align 8, !dbg !1549
+  %17 = bitcast %"class.std::basic_ifstream"* %5 to i8*, !dbg !1549
+  %18 = getelementptr inbounds i8, i8* %17, i64 %16, !dbg !1549
+  %19 = bitcast i8* %18 to i32 (...)***, !dbg !1549
+  %20 = bitcast i8* %11 to i32 (...)**, !dbg !1549
+  store i32 (...)** %20, i32 (...)*** %19, align 8, !dbg !1549, !tbaa !1421
+  %21 = getelementptr inbounds %"class.std::basic_ifstream", %"class.std::basic_ifstream"* %5, i32 0, i32 1, !dbg !1550
+  call void @_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev(%"class.std::basic_filebuf"* %21) #6, !dbg !1550
+  %22 = bitcast %"class.std::basic_ifstream"* %5 to %"class.std::basic_istream"*, !dbg !1550
+  %23 = getelementptr inbounds i8*, i8** %6, i64 1, !dbg !1550
+  call void @_ZNSiD2Ev(%"class.std::basic_istream"* %22, i8** %23) #6, !dbg !1550
+  ret void, !dbg !1552
 }
 
 ; Function Attrs: nounwind uwtable
-define available_externally dso_local void @_ZTv0_n24_NSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"*) unnamed_addr #0 align 2 !dbg !1536 {
+define available_externally dso_local void @_ZTv0_n24_NSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"*) unnamed_addr #0 align 2 !dbg !1553 {
   %2 = alloca %"class.std::basic_ifstream"*, align 8
-  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1374
-  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1539, metadata !DIExpression()), !dbg !1540
-  %3 = load %"class.std::basic_ifstream"*, %"class.std::basic_ifstream"** %2, align 8, !dbg !1540
-  %4 = bitcast %"class.std::basic_ifstream"* %3 to i8*, !dbg !1540
-  %5 = bitcast i8* %4 to i8**, !dbg !1540
-  %6 = load i8*, i8** %5, align 8, !dbg !1540
-  %7 = getelementptr inbounds i8, i8* %6, i64 -24, !dbg !1540
-  %8 = bitcast i8* %7 to i64*, !dbg !1540
-  %9 = load i64, i64* %8, align 8, !dbg !1540
-  %10 = getelementptr inbounds i8, i8* %4, i64 %9, !dbg !1540
-  %11 = bitcast i8* %10 to %"class.std::basic_ifstream"*, !dbg !1540
-  tail call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %11) #6, !dbg !1540
-  ret void, !dbg !1540
+  store %"class.std::basic_ifstream"* %0, %"class.std::basic_ifstream"** %2, align 8, !tbaa !1391
+  call void @llvm.dbg.declare(metadata %"class.std::basic_ifstream"** %2, metadata !1556, metadata !DIExpression()), !dbg !1557
+  %3 = load %"class.std::basic_ifstream"*, %"class.std::basic_ifstream"** %2, align 8, !dbg !1557
+  %4 = bitcast %"class.std::basic_ifstream"* %3 to i8*, !dbg !1557
+  %5 = bitcast i8* %4 to i8**, !dbg !1557
+  %6 = load i8*, i8** %5, align 8, !dbg !1557
+  %7 = getelementptr inbounds i8, i8* %6, i64 -24, !dbg !1557
+  %8 = bitcast i8* %7 to i64*, !dbg !1557
+  %9 = load i64, i64* %8, align 8, !dbg !1557
+  %10 = getelementptr inbounds i8, i8* %4, i64 %9, !dbg !1557
+  %11 = bitcast i8* %10 to %"class.std::basic_ifstream"*, !dbg !1557
+  tail call void @_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ifstream"* %11) #6, !dbg !1557
+  ret void, !dbg !1557
 }
 
 attributes #0 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
@@ -1896,263 +1920,280 @@ attributes #10 = { noreturn }
 !1278 = !{i32 2, !"Debug Info Version", i32 3}
 !1279 = !{i32 1, !"wchar_size", i32 4}
 !1280 = !{!"clang version 8.0.0 (git@github.com:llvm-mirror/clang.git e3e8f2a67bc17cb4f751b22e53e16d7c39b371d0) (git@github.com:llvm-mirror/LLVM.git 48e9774b6791c48760d18775039eefa6d824522d)"}
-!1281 = distinct !DISubprogram(name: "h", linkageName: "_Z1hi", scope: !3, file: !3, line: 11, type: !24, isLocal: false, isDefinition: true, scopeLine: 12, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1282)
+!1281 = distinct !DISubprogram(name: "h", linkageName: "_Z1hi", scope: !3, file: !3, line: 12, type: !24, isLocal: false, isDefinition: true, scopeLine: 13, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1282)
 !1282 = !{!1283}
-!1283 = !DILocalVariable(name: "x", arg: 1, scope: !1281, file: !3, line: 11, type: !7)
+!1283 = !DILocalVariable(name: "x", arg: 1, scope: !1281, file: !3, line: 12, type: !7)
 !1284 = !{!1285, !1285, i64 0}
 !1285 = !{!"int", !1286, i64 0}
 !1286 = !{!"omnipotent char", !1287, i64 0}
 !1287 = !{!"Simple C++ TBAA"}
-!1288 = !DILocation(line: 11, column: 11, scope: !1281)
-!1289 = !DILocation(line: 13, column: 14, scope: !1281)
-!1290 = !DILocation(line: 13, column: 13, scope: !1281)
-!1291 = !DILocation(line: 13, column: 16, scope: !1281)
-!1292 = !DILocation(line: 13, column: 15, scope: !1281)
-!1293 = !DILocation(line: 13, column: 5, scope: !1281)
-!1294 = distinct !DISubprogram(name: "g_prune", linkageName: "_Z7g_prunei", scope: !3, file: !3, line: 16, type: !24, isLocal: false, isDefinition: true, scopeLine: 17, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1295)
+!1288 = !DILocation(line: 12, column: 11, scope: !1281)
+!1289 = !DILocation(line: 14, column: 14, scope: !1281)
+!1290 = !DILocation(line: 14, column: 13, scope: !1281)
+!1291 = !DILocation(line: 14, column: 16, scope: !1281)
+!1292 = !DILocation(line: 14, column: 15, scope: !1281)
+!1293 = !DILocation(line: 14, column: 5, scope: !1281)
+!1294 = distinct !DISubprogram(name: "g_prune", linkageName: "_Z7g_prunei", scope: !3, file: !3, line: 18, type: !24, isLocal: false, isDefinition: true, scopeLine: 19, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1295)
 !1295 = !{!1296}
-!1296 = !DILocalVariable(name: "x", arg: 1, scope: !1294, file: !3, line: 16, type: !7)
-!1297 = !DILocation(line: 16, column: 17, scope: !1294)
-!1298 = !DILocation(line: 18, column: 14, scope: !1294)
-!1299 = !{!1300, !1300, i64 0}
-!1300 = !{!"double", !1286, i64 0}
-!1301 = !DILocation(line: 18, column: 24, scope: !1294)
-!1302 = !DILocation(line: 18, column: 22, scope: !1294)
-!1303 = !DILocation(line: 18, column: 45, scope: !1294)
-!1304 = !DILocation(line: 18, column: 28, scope: !1294)
-!1305 = !DILocation(line: 18, column: 26, scope: !1294)
-!1306 = !DILocation(line: 18, column: 12, scope: !1294)
-!1307 = !DILocation(line: 18, column: 5, scope: !1294)
-!1308 = distinct !DISubprogram(name: "g_not_prune", linkageName: "_Z11g_not_prunei", scope: !3, file: !3, line: 21, type: !24, isLocal: false, isDefinition: true, scopeLine: 22, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1309)
-!1309 = !{!1310}
-!1310 = !DILocalVariable(name: "x", arg: 1, scope: !1308, file: !3, line: 21, type: !7)
-!1311 = !DILocation(line: 21, column: 21, scope: !1308)
-!1312 = !DILocation(line: 29, column: 12, scope: !1308)
-!1313 = !DILocation(line: 29, column: 30, scope: !1308)
-!1314 = !DILocation(line: 29, column: 28, scope: !1308)
-!1315 = !DILocation(line: 29, column: 24, scope: !1308)
-!1316 = !DILocation(line: 29, column: 51, scope: !1308)
-!1317 = !DILocation(line: 29, column: 34, scope: !1308)
-!1318 = !DILocation(line: 29, column: 32, scope: !1308)
-!1319 = !DILocation(line: 29, column: 22, scope: !1308)
-!1320 = !DILocation(line: 29, column: 20, scope: !1308)
-!1321 = !DILocation(line: 29, column: 5, scope: !1308)
-!1322 = distinct !DISubprogram(name: "f_prune", linkageName: "_Z7f_pruneii", scope: !3, file: !3, line: 32, type: !1323, isLocal: false, isDefinition: true, scopeLine: 33, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1325)
-!1323 = !DISubroutineType(types: !1324)
-!1324 = !{!7, !7, !7}
-!1325 = !{!1326, !1327}
-!1326 = !DILocalVariable(name: "x", arg: 1, scope: !1322, file: !3, line: 32, type: !7)
-!1327 = !DILocalVariable(name: "y", arg: 2, scope: !1322, file: !3, line: 32, type: !7)
-!1328 = !DILocation(line: 32, column: 17, scope: !1322)
-!1329 = !DILocation(line: 32, column: 24, scope: !1322)
-!1330 = !DILocation(line: 34, column: 13, scope: !1322)
-!1331 = !DILocation(line: 34, column: 5, scope: !1322)
-!1332 = !DILocation(line: 35, column: 17, scope: !1322)
-!1333 = !DILocation(line: 35, column: 5, scope: !1322)
-!1334 = !DILocation(line: 36, column: 14, scope: !1322)
-!1335 = !DILocation(line: 36, column: 12, scope: !1322)
-!1336 = !DILocation(line: 36, column: 5, scope: !1322)
-!1337 = distinct !DISubprogram(name: "f_not_prune", linkageName: "_Z11f_not_pruneii", scope: !3, file: !3, line: 39, type: !1323, isLocal: false, isDefinition: true, scopeLine: 40, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1338)
-!1338 = !{!1339, !1340, !1341}
-!1339 = !DILocalVariable(name: "x", arg: 1, scope: !1337, file: !3, line: 39, type: !7)
-!1340 = !DILocalVariable(name: "y", arg: 2, scope: !1337, file: !3, line: 39, type: !7)
-!1341 = !DILocalVariable(name: "c", scope: !1337, file: !3, line: 41, type: !7)
-!1342 = !DILocation(line: 39, column: 21, scope: !1337)
-!1343 = !DILocation(line: 39, column: 28, scope: !1337)
-!1344 = !DILocation(line: 41, column: 5, scope: !1337)
-!1345 = !DILocation(line: 41, column: 9, scope: !1337)
-!1346 = !DILocation(line: 41, column: 13, scope: !1337)
-!1347 = !DILocation(line: 41, column: 19, scope: !1337)
-!1348 = !DILocation(line: 41, column: 18, scope: !1337)
-!1349 = !DILocation(line: 41, column: 15, scope: !1337)
-!1350 = !DILocation(line: 42, column: 13, scope: !1337)
-!1351 = !DILocation(line: 42, column: 5, scope: !1337)
-!1352 = !DILocation(line: 43, column: 17, scope: !1337)
-!1353 = !DILocation(line: 43, column: 5, scope: !1337)
-!1354 = !DILocation(line: 44, column: 12, scope: !1337)
-!1355 = !DILocation(line: 44, column: 18, scope: !1337)
-!1356 = !DILocation(line: 44, column: 16, scope: !1337)
-!1357 = !DILocation(line: 44, column: 14, scope: !1337)
-!1358 = !DILocation(line: 45, column: 1, scope: !1337)
-!1359 = !DILocation(line: 44, column: 5, scope: !1337)
-!1360 = distinct !DISubprogram(name: "main", scope: !3, file: !3, line: 47, type: !1361, isLocal: false, isDefinition: true, scopeLine: 48, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1363)
-!1361 = !DISubroutineType(types: !1362)
-!1362 = !{!7, !7, !8}
-!1363 = !{!1364, !1365, !1366, !1371, !1372}
-!1364 = !DILocalVariable(name: "argc", arg: 1, scope: !1360, file: !3, line: 47, type: !7)
-!1365 = !DILocalVariable(name: "argv", arg: 2, scope: !1360, file: !3, line: 47, type: !8)
-!1366 = !DILocalVariable(name: "file", scope: !1360, file: !3, line: 49, type: !1367)
-!1367 = !DIDerivedType(tag: DW_TAG_typedef, name: "ifstream", scope: !13, file: !1368, line: 162, baseType: !1369)
-!1368 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/iosfwd", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1369 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_ifstream<char, std::char_traits<char> >", scope: !13, file: !1370, line: 1054, flags: DIFlagFwdDecl, identifier: "_ZTSSt14basic_ifstreamIcSt11char_traitsIcEE")
-!1370 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/fstream.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1371 = !DILocalVariable(name: "x1", scope: !1360, file: !3, line: 50, type: !7)
-!1372 = !DILocalVariable(name: "x2", scope: !1360, file: !3, line: 51, type: !7)
-!1373 = !DILocation(line: 47, column: 14, scope: !1360)
-!1374 = !{!1375, !1375, i64 0}
-!1375 = !{!"any pointer", !1286, i64 0}
-!1376 = !DILocation(line: 47, column: 28, scope: !1360)
-!1377 = !DILocation(line: 49, column: 5, scope: !1360)
-!1378 = !DILocation(line: 49, column: 19, scope: !1360)
-!1379 = !DILocation(line: 50, column: 5, scope: !1360)
-!1380 = !DILocation(line: 50, column: 9, scope: !1360)
-!1381 = !DILocation(line: 50, column: 26, scope: !1360)
-!1382 = !DILocation(line: 50, column: 21, scope: !1360)
-!1383 = !DILocation(line: 51, column: 5, scope: !1360)
-!1384 = !DILocation(line: 51, column: 9, scope: !1360)
-!1385 = !DILocation(line: 52, column: 5, scope: !1360)
-!1386 = !DILocation(line: 52, column: 10, scope: !1360)
-!1387 = !DILocation(line: 54, column: 5, scope: !1360)
-!1388 = !DILocation(line: 55, column: 5, scope: !1360)
-!1389 = !DILocation(line: 66, column: 5, scope: !1360)
-!1390 = !DILocation(line: 67, column: 1, scope: !1360)
-!1391 = distinct !DISubprogram(name: "basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev", scope: !1369, file: !1392, line: 481, type: !1393, isLocal: false, isDefinition: true, scopeLine: 482, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1396, retainedNodes: !1397)
-!1392 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/fstream", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1393 = !DISubroutineType(types: !1394)
-!1394 = !{null, !1395}
-!1395 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1369, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1396 = !DISubprogram(name: "basic_ifstream", scope: !1369, file: !1392, line: 481, type: !1393, isLocal: false, isDefinition: false, scopeLine: 481, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1397 = !{!1398}
-!1398 = !DILocalVariable(name: "this", arg: 1, scope: !1391, type: !1399, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1399 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1369, size: 64)
-!1400 = !DILocation(line: 0, scope: !1391)
-!1401 = !DILocation(line: 482, column: 7, scope: !1391)
-!1402 = !DILocation(line: 481, column: 7, scope: !1391)
-!1403 = !DILocation(line: 481, column: 26, scope: !1391)
-!1404 = !{!1405, !1405, i64 0}
-!1405 = !{!"vtable pointer", !1287, i64 0}
-!1406 = !DILocation(line: 481, column: 44, scope: !1391)
-!1407 = !DILocation(line: 482, column: 15, scope: !1408)
-!1408 = distinct !DILexicalBlock(scope: !1391, file: !1392, line: 482, column: 7)
-!1409 = !DILocation(line: 482, column: 21, scope: !1408)
-!1410 = !DILocation(line: 482, column: 20, scope: !1408)
-!1411 = !DILocation(line: 482, column: 34, scope: !1391)
-!1412 = !DILocation(line: 482, column: 34, scope: !1408)
-!1413 = !DILocation(line: 361, column: 1, scope: !388)
-!1414 = !DILocation(line: 363, column: 24, scope: !388)
-!1415 = !DILocation(line: 363, column: 16, scope: !388)
-!1416 = !DILocation(line: 363, column: 3, scope: !388)
-!1417 = distinct !DISubprogram(name: "~basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev", scope: !1369, file: !1392, line: 533, type: !1393, isLocal: false, isDefinition: true, scopeLine: 534, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1418, retainedNodes: !1419)
-!1418 = !DISubprogram(name: "~basic_ifstream", scope: !1369, file: !1392, line: 533, type: !1393, isLocal: false, isDefinition: false, scopeLine: 533, containingType: !1369, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1419 = !{!1420}
-!1420 = !DILocalVariable(name: "this", arg: 1, scope: !1417, type: !1399, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1421 = !DILocation(line: 0, scope: !1417)
-!1422 = !DILocation(line: 534, column: 7, scope: !1417)
-!1423 = !DILocation(line: 534, column: 9, scope: !1417)
-!1424 = distinct !DISubprogram(name: "basic_ios", linkageName: "_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev", scope: !1426, file: !1425, line: 460, type: !1428, isLocal: false, isDefinition: true, scopeLine: 463, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1431, retainedNodes: !1432)
-!1425 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/basic_ios.h", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1426 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_ios<char, std::char_traits<char> >", scope: !13, file: !1427, line: 178, flags: DIFlagFwdDecl, identifier: "_ZTSSt9basic_iosIcSt11char_traitsIcEE")
-!1427 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/basic_ios.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1428 = !DISubroutineType(types: !1429)
-!1429 = !{null, !1430}
-!1430 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1426, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1431 = !DISubprogram(name: "basic_ios", scope: !1426, file: !1425, line: 460, type: !1428, isLocal: false, isDefinition: false, scopeLine: 460, flags: DIFlagProtected | DIFlagPrototyped, isOptimized: true)
-!1432 = !{!1433}
-!1433 = !DILocalVariable(name: "this", arg: 1, scope: !1424, type: !1434, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1434 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1426, size: 64)
-!1435 = !DILocation(line: 0, scope: !1424)
-!1436 = !DILocation(line: 463, column: 7, scope: !1424)
-!1437 = !DILocation(line: 461, column: 9, scope: !1424)
-!1438 = !DILocation(line: 461, column: 21, scope: !1424)
-!1439 = !{!1440, !1375, i64 216}
-!1440 = !{!"_ZTSSt9basic_iosIcSt11char_traitsIcEE", !1375, i64 216, !1286, i64 224, !1441, i64 225, !1375, i64 232, !1375, i64 240, !1375, i64 248, !1375, i64 256}
-!1441 = !{!"bool", !1286, i64 0}
-!1442 = !DILocation(line: 461, column: 32, scope: !1424)
-!1443 = !{!1440, !1286, i64 224}
-!1444 = !DILocation(line: 461, column: 54, scope: !1424)
-!1445 = !{!1440, !1441, i64 225}
-!1446 = !DILocation(line: 462, column: 2, scope: !1424)
-!1447 = !{!1440, !1375, i64 232}
-!1448 = !DILocation(line: 462, column: 19, scope: !1424)
-!1449 = !{!1440, !1375, i64 240}
-!1450 = !DILocation(line: 462, column: 32, scope: !1424)
-!1451 = !{!1440, !1375, i64 248}
-!1452 = !DILocation(line: 462, column: 47, scope: !1424)
-!1453 = !{!1440, !1375, i64 256}
-!1454 = !DILocation(line: 463, column: 9, scope: !1424)
-!1455 = distinct !DISubprogram(name: "basic_istream", linkageName: "_ZNSiC2Ev", scope: !1457, file: !1456, line: 606, type: !1459, isLocal: false, isDefinition: true, scopeLine: 608, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1462, retainedNodes: !1463)
-!1456 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/istream", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1457 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_istream<char, std::char_traits<char> >", scope: !13, file: !1458, line: 1048, flags: DIFlagFwdDecl, identifier: "_ZTSSi")
-!1458 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/istream.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1459 = !DISubroutineType(types: !1460)
-!1460 = !{null, !1461}
-!1461 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1457, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1462 = !DISubprogram(name: "basic_istream", scope: !1457, file: !1456, line: 606, type: !1459, isLocal: false, isDefinition: false, scopeLine: 606, flags: DIFlagProtected | DIFlagPrototyped, isOptimized: true)
-!1463 = !{!1464, !1466}
-!1464 = !DILocalVariable(name: "this", arg: 1, scope: !1455, type: !1465, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1465 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1457, size: 64)
-!1466 = !DILocalVariable(name: "vtt", arg: 2, scope: !1455, type: !1467, flags: DIFlagArtificial)
-!1467 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !402, size: 64)
-!1468 = !DILocation(line: 0, scope: !1455)
-!1469 = !DILocation(line: 608, column: 7, scope: !1455)
-!1470 = !DILocation(line: 607, column: 9, scope: !1455)
-!1471 = !{!1472, !1473, i64 8}
-!1472 = !{!"_ZTSSi", !1473, i64 8}
-!1473 = !{!"long", !1286, i64 0}
-!1474 = !DILocation(line: 608, column: 15, scope: !1475)
-!1475 = distinct !DILexicalBlock(scope: !1455, file: !1456, line: 608, column: 7)
-!1476 = !DILocation(line: 608, column: 24, scope: !1455)
-!1477 = distinct !DISubprogram(name: "~basic_filebuf", linkageName: "_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev", scope: !1478, file: !1392, line: 238, type: !1479, isLocal: false, isDefinition: true, scopeLine: 239, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1482, retainedNodes: !1483)
-!1478 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_filebuf<char, std::char_traits<char> >", scope: !13, file: !1370, line: 1053, flags: DIFlagFwdDecl, identifier: "_ZTSSt13basic_filebufIcSt11char_traitsIcEE")
-!1479 = !DISubroutineType(types: !1480)
-!1480 = !{null, !1481}
-!1481 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1478, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1482 = !DISubprogram(name: "~basic_filebuf", scope: !1478, file: !1392, line: 238, type: !1479, isLocal: false, isDefinition: false, scopeLine: 238, containingType: !1478, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1483 = !{!1484}
-!1484 = !DILocalVariable(name: "this", arg: 1, scope: !1477, type: !1485, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1485 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1478, size: 64)
-!1486 = !DILocation(line: 0, scope: !1477)
-!1487 = !DILocation(line: 239, column: 7, scope: !1477)
-!1488 = !DILocation(line: 239, column: 15, scope: !1489)
-!1489 = distinct !DILexicalBlock(scope: !1477, file: !1392, line: 239, column: 7)
-!1490 = !DILocation(line: 239, column: 24, scope: !1489)
-!1491 = !DILocation(line: 239, column: 24, scope: !1477)
-!1492 = distinct !DISubprogram(name: "~basic_istream", linkageName: "_ZNSiD2Ev", scope: !1457, file: !1456, line: 103, type: !1459, isLocal: false, isDefinition: true, scopeLine: 104, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1493, retainedNodes: !1494)
-!1493 = !DISubprogram(name: "~basic_istream", scope: !1457, file: !1456, line: 103, type: !1459, isLocal: false, isDefinition: false, scopeLine: 103, containingType: !1457, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1494 = !{!1495, !1496}
-!1495 = !DILocalVariable(name: "this", arg: 1, scope: !1492, type: !1465, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1496 = !DILocalVariable(name: "vtt", arg: 2, scope: !1492, type: !1467, flags: DIFlagArtificial)
-!1497 = !DILocation(line: 0, scope: !1492)
-!1498 = !DILocation(line: 104, column: 7, scope: !1492)
-!1499 = !DILocation(line: 104, column: 9, scope: !1500)
-!1500 = distinct !DILexicalBlock(scope: !1492, file: !1456, line: 104, column: 7)
-!1501 = !DILocation(line: 104, column: 19, scope: !1500)
-!1502 = !DILocation(line: 104, column: 36, scope: !1492)
-!1503 = distinct !DISubprogram(name: "~basic_ios", linkageName: "_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev", scope: !1426, file: !1425, line: 282, type: !1428, isLocal: false, isDefinition: true, scopeLine: 282, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1504, retainedNodes: !1505)
-!1504 = !DISubprogram(name: "~basic_ios", scope: !1426, file: !1425, line: 282, type: !1428, isLocal: false, isDefinition: false, scopeLine: 282, containingType: !1426, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1505 = !{!1506}
-!1506 = !DILocalVariable(name: "this", arg: 1, scope: !1503, type: !1434, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1507 = !DILocation(line: 0, scope: !1503)
-!1508 = !DILocation(line: 282, column: 22, scope: !1509)
-!1509 = distinct !DILexicalBlock(scope: !1503, file: !1425, line: 282, column: 20)
-!1510 = !DILocation(line: 282, column: 22, scope: !1503)
-!1511 = distinct !DISubprogram(name: "~basic_streambuf", linkageName: "_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev", scope: !1513, file: !1512, line: 197, type: !1515, isLocal: false, isDefinition: true, scopeLine: 198, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1518, retainedNodes: !1519)
-!1512 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/streambuf", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1513 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_streambuf<char, std::char_traits<char> >", scope: !13, file: !1514, line: 149, flags: DIFlagFwdDecl, identifier: "_ZTSSt15basic_streambufIcSt11char_traitsIcEE")
-!1514 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/streambuf.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!1515 = !DISubroutineType(types: !1516)
-!1516 = !{null, !1517}
-!1517 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1513, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1518 = !DISubprogram(name: "~basic_streambuf", scope: !1513, file: !1512, line: 197, type: !1515, isLocal: false, isDefinition: false, scopeLine: 197, containingType: !1513, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
-!1519 = !{!1520}
-!1520 = !DILocalVariable(name: "this", arg: 1, scope: !1511, type: !1521, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1521 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1513, size: 64)
-!1522 = !DILocation(line: 0, scope: !1511)
-!1523 = !DILocation(line: 198, column: 7, scope: !1511)
-!1524 = !DILocation(line: 198, column: 9, scope: !1525)
-!1525 = distinct !DILexicalBlock(scope: !1511, file: !1512, line: 198, column: 7)
-!1526 = !DILocation(line: 198, column: 9, scope: !1511)
-!1527 = distinct !DISubprogram(name: "~basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev", scope: !1369, file: !1392, line: 533, type: !1393, isLocal: false, isDefinition: true, scopeLine: 534, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1418, retainedNodes: !1528)
-!1528 = !{!1529, !1530}
-!1529 = !DILocalVariable(name: "this", arg: 1, scope: !1527, type: !1399, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1530 = !DILocalVariable(name: "vtt", arg: 2, scope: !1527, type: !1467, flags: DIFlagArtificial)
-!1531 = !DILocation(line: 0, scope: !1527)
-!1532 = !DILocation(line: 534, column: 7, scope: !1527)
-!1533 = !DILocation(line: 534, column: 9, scope: !1534)
-!1534 = distinct !DILexicalBlock(scope: !1527, file: !1392, line: 534, column: 7)
-!1535 = !DILocation(line: 534, column: 9, scope: !1527)
-!1536 = distinct !DISubprogram(linkageName: "_ZTv0_n24_NSt14basic_ifstreamIcSt11char_traitsIcEED1Ev", scope: !1392, file: !1392, line: 533, type: !1537, isLocal: false, isDefinition: true, flags: DIFlagArtificial | DIFlagThunk, isOptimized: true, unit: !2, retainedNodes: !1538)
-!1537 = !DISubroutineType(types: !4)
-!1538 = !{!1539}
-!1539 = !DILocalVariable(name: "this", arg: 1, scope: !1536, type: !1399, flags: DIFlagArtificial | DIFlagObjectPointer)
-!1540 = !DILocation(line: 0, scope: !1536)
+!1296 = !DILocalVariable(name: "x", arg: 1, scope: !1294, file: !3, line: 18, type: !7)
+!1297 = !DILocation(line: 18, column: 17, scope: !1294)
+!1298 = !DILocation(line: 20, column: 12, scope: !1294)
+!1299 = !DILocation(line: 20, column: 23, scope: !1294)
+!1300 = !{!1301, !1301, i64 0}
+!1301 = !{!"double", !1286, i64 0}
+!1302 = !DILocation(line: 20, column: 33, scope: !1294)
+!1303 = !DILocation(line: 20, column: 31, scope: !1294)
+!1304 = !DILocation(line: 20, column: 54, scope: !1294)
+!1305 = !DILocation(line: 20, column: 57, scope: !1294)
+!1306 = !DILocation(line: 20, column: 37, scope: !1294)
+!1307 = !DILocation(line: 20, column: 35, scope: !1294)
+!1308 = !DILocation(line: 20, column: 21, scope: !1294)
+!1309 = !DILocation(line: 20, column: 19, scope: !1294)
+!1310 = !DILocation(line: 20, column: 5, scope: !1294)
+!1311 = distinct !DISubprogram(name: "g_not_prune", linkageName: "_Z11g_not_prunei", scope: !3, file: !3, line: 23, type: !24, isLocal: false, isDefinition: true, scopeLine: 24, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1312)
+!1312 = !{!1313}
+!1313 = !DILocalVariable(name: "x", arg: 1, scope: !1311, file: !3, line: 23, type: !7)
+!1314 = !DILocation(line: 23, column: 21, scope: !1311)
+!1315 = !DILocation(line: 31, column: 8, scope: !1316)
+!1316 = distinct !DILexicalBlock(scope: !1311, file: !3, line: 31, column: 8)
+!1317 = !DILocation(line: 31, column: 16, scope: !1316)
+!1318 = !DILocation(line: 31, column: 20, scope: !1316)
+!1319 = !DILocation(line: 31, column: 8, scope: !1311)
+!1320 = !DILocation(line: 32, column: 22, scope: !1316)
+!1321 = !DILocation(line: 32, column: 21, scope: !1316)
+!1322 = !DILocation(line: 32, column: 31, scope: !1316)
+!1323 = !DILocation(line: 32, column: 29, scope: !1316)
+!1324 = !DILocation(line: 32, column: 18, scope: !1316)
+!1325 = !DILocation(line: 32, column: 52, scope: !1316)
+!1326 = !DILocation(line: 32, column: 35, scope: !1316)
+!1327 = !DILocation(line: 32, column: 33, scope: !1316)
+!1328 = !DILocation(line: 32, column: 16, scope: !1316)
+!1329 = !DILocation(line: 32, column: 9, scope: !1316)
+!1330 = !DILocation(line: 34, column: 22, scope: !1316)
+!1331 = !DILocation(line: 34, column: 21, scope: !1316)
+!1332 = !DILocation(line: 34, column: 18, scope: !1316)
+!1333 = !DILocation(line: 34, column: 48, scope: !1316)
+!1334 = !DILocation(line: 34, column: 31, scope: !1316)
+!1335 = !DILocation(line: 34, column: 29, scope: !1316)
+!1336 = !DILocation(line: 34, column: 16, scope: !1316)
+!1337 = !DILocation(line: 34, column: 9, scope: !1316)
+!1338 = !DILocation(line: 35, column: 1, scope: !1311)
+!1339 = distinct !DISubprogram(name: "f_prune", linkageName: "_Z7f_pruneii", scope: !3, file: !3, line: 37, type: !1340, isLocal: false, isDefinition: true, scopeLine: 38, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1342)
+!1340 = !DISubroutineType(types: !1341)
+!1341 = !{!7, !7, !7}
+!1342 = !{!1343, !1344}
+!1343 = !DILocalVariable(name: "x", arg: 1, scope: !1339, file: !3, line: 37, type: !7)
+!1344 = !DILocalVariable(name: "y", arg: 2, scope: !1339, file: !3, line: 37, type: !7)
+!1345 = !DILocation(line: 37, column: 17, scope: !1339)
+!1346 = !DILocation(line: 37, column: 24, scope: !1339)
+!1347 = !DILocation(line: 39, column: 13, scope: !1339)
+!1348 = !DILocation(line: 39, column: 5, scope: !1339)
+!1349 = !DILocation(line: 40, column: 17, scope: !1339)
+!1350 = !DILocation(line: 40, column: 5, scope: !1339)
+!1351 = !DILocation(line: 41, column: 14, scope: !1339)
+!1352 = !DILocation(line: 41, column: 12, scope: !1339)
+!1353 = !DILocation(line: 41, column: 5, scope: !1339)
+!1354 = distinct !DISubprogram(name: "f_not_prune", linkageName: "_Z11f_not_pruneii", scope: !3, file: !3, line: 45, type: !1340, isLocal: false, isDefinition: true, scopeLine: 46, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1355)
+!1355 = !{!1356, !1357, !1358}
+!1356 = !DILocalVariable(name: "x", arg: 1, scope: !1354, file: !3, line: 45, type: !7)
+!1357 = !DILocalVariable(name: "y", arg: 2, scope: !1354, file: !3, line: 45, type: !7)
+!1358 = !DILocalVariable(name: "c", scope: !1354, file: !3, line: 47, type: !7)
+!1359 = !DILocation(line: 45, column: 21, scope: !1354)
+!1360 = !DILocation(line: 45, column: 28, scope: !1354)
+!1361 = !DILocation(line: 47, column: 5, scope: !1354)
+!1362 = !DILocation(line: 47, column: 9, scope: !1354)
+!1363 = !DILocation(line: 47, column: 13, scope: !1354)
+!1364 = !DILocation(line: 47, column: 19, scope: !1354)
+!1365 = !DILocation(line: 47, column: 18, scope: !1354)
+!1366 = !DILocation(line: 47, column: 15, scope: !1354)
+!1367 = !DILocation(line: 48, column: 13, scope: !1354)
+!1368 = !DILocation(line: 48, column: 5, scope: !1354)
+!1369 = !DILocation(line: 49, column: 17, scope: !1354)
+!1370 = !DILocation(line: 49, column: 5, scope: !1354)
+!1371 = !DILocation(line: 50, column: 12, scope: !1354)
+!1372 = !DILocation(line: 50, column: 18, scope: !1354)
+!1373 = !DILocation(line: 50, column: 16, scope: !1354)
+!1374 = !DILocation(line: 50, column: 14, scope: !1354)
+!1375 = !DILocation(line: 51, column: 1, scope: !1354)
+!1376 = !DILocation(line: 50, column: 5, scope: !1354)
+!1377 = distinct !DISubprogram(name: "main", scope: !3, file: !3, line: 53, type: !1378, isLocal: false, isDefinition: true, scopeLine: 54, flags: DIFlagPrototyped, isOptimized: true, unit: !2, retainedNodes: !1380)
+!1378 = !DISubroutineType(types: !1379)
+!1379 = !{!7, !7, !8}
+!1380 = !{!1381, !1382, !1383, !1388, !1389}
+!1381 = !DILocalVariable(name: "argc", arg: 1, scope: !1377, file: !3, line: 53, type: !7)
+!1382 = !DILocalVariable(name: "argv", arg: 2, scope: !1377, file: !3, line: 53, type: !8)
+!1383 = !DILocalVariable(name: "file", scope: !1377, file: !3, line: 55, type: !1384)
+!1384 = !DIDerivedType(tag: DW_TAG_typedef, name: "ifstream", scope: !13, file: !1385, line: 162, baseType: !1386)
+!1385 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/iosfwd", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1386 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_ifstream<char, std::char_traits<char> >", scope: !13, file: !1387, line: 1054, flags: DIFlagFwdDecl, identifier: "_ZTSSt14basic_ifstreamIcSt11char_traitsIcEE")
+!1387 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/fstream.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1388 = !DILocalVariable(name: "x1", scope: !1377, file: !3, line: 56, type: !7)
+!1389 = !DILocalVariable(name: "x2", scope: !1377, file: !3, line: 57, type: !7)
+!1390 = !DILocation(line: 53, column: 14, scope: !1377)
+!1391 = !{!1392, !1392, i64 0}
+!1392 = !{!"any pointer", !1286, i64 0}
+!1393 = !DILocation(line: 53, column: 28, scope: !1377)
+!1394 = !DILocation(line: 55, column: 5, scope: !1377)
+!1395 = !DILocation(line: 55, column: 19, scope: !1377)
+!1396 = !DILocation(line: 56, column: 5, scope: !1377)
+!1397 = !DILocation(line: 56, column: 9, scope: !1377)
+!1398 = !DILocation(line: 56, column: 26, scope: !1377)
+!1399 = !DILocation(line: 56, column: 21, scope: !1377)
+!1400 = !DILocation(line: 57, column: 5, scope: !1377)
+!1401 = !DILocation(line: 57, column: 9, scope: !1377)
+!1402 = !DILocation(line: 58, column: 5, scope: !1377)
+!1403 = !DILocation(line: 58, column: 10, scope: !1377)
+!1404 = !DILocation(line: 60, column: 5, scope: !1377)
+!1405 = !DILocation(line: 61, column: 5, scope: !1377)
+!1406 = !DILocation(line: 72, column: 5, scope: !1377)
+!1407 = !DILocation(line: 73, column: 1, scope: !1377)
+!1408 = distinct !DISubprogram(name: "basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1Ev", scope: !1386, file: !1409, line: 481, type: !1410, isLocal: false, isDefinition: true, scopeLine: 482, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1413, retainedNodes: !1414)
+!1409 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/fstream", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1410 = !DISubroutineType(types: !1411)
+!1411 = !{null, !1412}
+!1412 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1386, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1413 = !DISubprogram(name: "basic_ifstream", scope: !1386, file: !1409, line: 481, type: !1410, isLocal: false, isDefinition: false, scopeLine: 481, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1414 = !{!1415}
+!1415 = !DILocalVariable(name: "this", arg: 1, scope: !1408, type: !1416, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1416 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1386, size: 64)
+!1417 = !DILocation(line: 0, scope: !1408)
+!1418 = !DILocation(line: 482, column: 7, scope: !1408)
+!1419 = !DILocation(line: 481, column: 7, scope: !1408)
+!1420 = !DILocation(line: 481, column: 26, scope: !1408)
+!1421 = !{!1422, !1422, i64 0}
+!1422 = !{!"vtable pointer", !1287, i64 0}
+!1423 = !DILocation(line: 481, column: 44, scope: !1408)
+!1424 = !DILocation(line: 482, column: 15, scope: !1425)
+!1425 = distinct !DILexicalBlock(scope: !1408, file: !1409, line: 482, column: 7)
+!1426 = !DILocation(line: 482, column: 21, scope: !1425)
+!1427 = !DILocation(line: 482, column: 20, scope: !1425)
+!1428 = !DILocation(line: 482, column: 34, scope: !1408)
+!1429 = !DILocation(line: 482, column: 34, scope: !1425)
+!1430 = !DILocation(line: 361, column: 1, scope: !388)
+!1431 = !DILocation(line: 363, column: 24, scope: !388)
+!1432 = !DILocation(line: 363, column: 16, scope: !388)
+!1433 = !DILocation(line: 363, column: 3, scope: !388)
+!1434 = distinct !DISubprogram(name: "~basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEED1Ev", scope: !1386, file: !1409, line: 533, type: !1410, isLocal: false, isDefinition: true, scopeLine: 534, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1435, retainedNodes: !1436)
+!1435 = !DISubprogram(name: "~basic_ifstream", scope: !1386, file: !1409, line: 533, type: !1410, isLocal: false, isDefinition: false, scopeLine: 533, containingType: !1386, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1436 = !{!1437}
+!1437 = !DILocalVariable(name: "this", arg: 1, scope: !1434, type: !1416, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1438 = !DILocation(line: 0, scope: !1434)
+!1439 = !DILocation(line: 534, column: 7, scope: !1434)
+!1440 = !DILocation(line: 534, column: 9, scope: !1434)
+!1441 = distinct !DISubprogram(name: "basic_ios", linkageName: "_ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev", scope: !1443, file: !1442, line: 460, type: !1445, isLocal: false, isDefinition: true, scopeLine: 463, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1448, retainedNodes: !1449)
+!1442 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/basic_ios.h", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1443 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_ios<char, std::char_traits<char> >", scope: !13, file: !1444, line: 178, flags: DIFlagFwdDecl, identifier: "_ZTSSt9basic_iosIcSt11char_traitsIcEE")
+!1444 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/basic_ios.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1445 = !DISubroutineType(types: !1446)
+!1446 = !{null, !1447}
+!1447 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1443, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1448 = !DISubprogram(name: "basic_ios", scope: !1443, file: !1442, line: 460, type: !1445, isLocal: false, isDefinition: false, scopeLine: 460, flags: DIFlagProtected | DIFlagPrototyped, isOptimized: true)
+!1449 = !{!1450}
+!1450 = !DILocalVariable(name: "this", arg: 1, scope: !1441, type: !1451, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1451 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1443, size: 64)
+!1452 = !DILocation(line: 0, scope: !1441)
+!1453 = !DILocation(line: 463, column: 7, scope: !1441)
+!1454 = !DILocation(line: 461, column: 9, scope: !1441)
+!1455 = !DILocation(line: 461, column: 21, scope: !1441)
+!1456 = !{!1457, !1392, i64 216}
+!1457 = !{!"_ZTSSt9basic_iosIcSt11char_traitsIcEE", !1392, i64 216, !1286, i64 224, !1458, i64 225, !1392, i64 232, !1392, i64 240, !1392, i64 248, !1392, i64 256}
+!1458 = !{!"bool", !1286, i64 0}
+!1459 = !DILocation(line: 461, column: 32, scope: !1441)
+!1460 = !{!1457, !1286, i64 224}
+!1461 = !DILocation(line: 461, column: 54, scope: !1441)
+!1462 = !{!1457, !1458, i64 225}
+!1463 = !DILocation(line: 462, column: 2, scope: !1441)
+!1464 = !{!1457, !1392, i64 232}
+!1465 = !DILocation(line: 462, column: 19, scope: !1441)
+!1466 = !{!1457, !1392, i64 240}
+!1467 = !DILocation(line: 462, column: 32, scope: !1441)
+!1468 = !{!1457, !1392, i64 248}
+!1469 = !DILocation(line: 462, column: 47, scope: !1441)
+!1470 = !{!1457, !1392, i64 256}
+!1471 = !DILocation(line: 463, column: 9, scope: !1441)
+!1472 = distinct !DISubprogram(name: "basic_istream", linkageName: "_ZNSiC2Ev", scope: !1474, file: !1473, line: 606, type: !1476, isLocal: false, isDefinition: true, scopeLine: 608, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1479, retainedNodes: !1480)
+!1473 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/istream", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1474 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_istream<char, std::char_traits<char> >", scope: !13, file: !1475, line: 1048, flags: DIFlagFwdDecl, identifier: "_ZTSSi")
+!1475 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/istream.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1476 = !DISubroutineType(types: !1477)
+!1477 = !{null, !1478}
+!1478 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1474, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1479 = !DISubprogram(name: "basic_istream", scope: !1474, file: !1473, line: 606, type: !1476, isLocal: false, isDefinition: false, scopeLine: 606, flags: DIFlagProtected | DIFlagPrototyped, isOptimized: true)
+!1480 = !{!1481, !1483}
+!1481 = !DILocalVariable(name: "this", arg: 1, scope: !1472, type: !1482, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1482 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1474, size: 64)
+!1483 = !DILocalVariable(name: "vtt", arg: 2, scope: !1472, type: !1484, flags: DIFlagArtificial)
+!1484 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !402, size: 64)
+!1485 = !DILocation(line: 0, scope: !1472)
+!1486 = !DILocation(line: 608, column: 7, scope: !1472)
+!1487 = !DILocation(line: 607, column: 9, scope: !1472)
+!1488 = !{!1489, !1490, i64 8}
+!1489 = !{!"_ZTSSi", !1490, i64 8}
+!1490 = !{!"long", !1286, i64 0}
+!1491 = !DILocation(line: 608, column: 15, scope: !1492)
+!1492 = distinct !DILexicalBlock(scope: !1472, file: !1473, line: 608, column: 7)
+!1493 = !DILocation(line: 608, column: 24, scope: !1472)
+!1494 = distinct !DISubprogram(name: "~basic_filebuf", linkageName: "_ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev", scope: !1495, file: !1409, line: 238, type: !1496, isLocal: false, isDefinition: true, scopeLine: 239, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1499, retainedNodes: !1500)
+!1495 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_filebuf<char, std::char_traits<char> >", scope: !13, file: !1387, line: 1053, flags: DIFlagFwdDecl, identifier: "_ZTSSt13basic_filebufIcSt11char_traitsIcEE")
+!1496 = !DISubroutineType(types: !1497)
+!1497 = !{null, !1498}
+!1498 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1495, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1499 = !DISubprogram(name: "~basic_filebuf", scope: !1495, file: !1409, line: 238, type: !1496, isLocal: false, isDefinition: false, scopeLine: 238, containingType: !1495, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1500 = !{!1501}
+!1501 = !DILocalVariable(name: "this", arg: 1, scope: !1494, type: !1502, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1502 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1495, size: 64)
+!1503 = !DILocation(line: 0, scope: !1494)
+!1504 = !DILocation(line: 239, column: 7, scope: !1494)
+!1505 = !DILocation(line: 239, column: 15, scope: !1506)
+!1506 = distinct !DILexicalBlock(scope: !1494, file: !1409, line: 239, column: 7)
+!1507 = !DILocation(line: 239, column: 24, scope: !1506)
+!1508 = !DILocation(line: 239, column: 24, scope: !1494)
+!1509 = distinct !DISubprogram(name: "~basic_istream", linkageName: "_ZNSiD2Ev", scope: !1474, file: !1473, line: 103, type: !1476, isLocal: false, isDefinition: true, scopeLine: 104, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1510, retainedNodes: !1511)
+!1510 = !DISubprogram(name: "~basic_istream", scope: !1474, file: !1473, line: 103, type: !1476, isLocal: false, isDefinition: false, scopeLine: 103, containingType: !1474, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1511 = !{!1512, !1513}
+!1512 = !DILocalVariable(name: "this", arg: 1, scope: !1509, type: !1482, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1513 = !DILocalVariable(name: "vtt", arg: 2, scope: !1509, type: !1484, flags: DIFlagArtificial)
+!1514 = !DILocation(line: 0, scope: !1509)
+!1515 = !DILocation(line: 104, column: 7, scope: !1509)
+!1516 = !DILocation(line: 104, column: 9, scope: !1517)
+!1517 = distinct !DILexicalBlock(scope: !1509, file: !1473, line: 104, column: 7)
+!1518 = !DILocation(line: 104, column: 19, scope: !1517)
+!1519 = !DILocation(line: 104, column: 36, scope: !1509)
+!1520 = distinct !DISubprogram(name: "~basic_ios", linkageName: "_ZNSt9basic_iosIcSt11char_traitsIcEED2Ev", scope: !1443, file: !1442, line: 282, type: !1445, isLocal: false, isDefinition: true, scopeLine: 282, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1521, retainedNodes: !1522)
+!1521 = !DISubprogram(name: "~basic_ios", scope: !1443, file: !1442, line: 282, type: !1445, isLocal: false, isDefinition: false, scopeLine: 282, containingType: !1443, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1522 = !{!1523}
+!1523 = !DILocalVariable(name: "this", arg: 1, scope: !1520, type: !1451, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1524 = !DILocation(line: 0, scope: !1520)
+!1525 = !DILocation(line: 282, column: 22, scope: !1526)
+!1526 = distinct !DILexicalBlock(scope: !1520, file: !1442, line: 282, column: 20)
+!1527 = !DILocation(line: 282, column: 22, scope: !1520)
+!1528 = distinct !DISubprogram(name: "~basic_streambuf", linkageName: "_ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev", scope: !1530, file: !1529, line: 197, type: !1532, isLocal: false, isDefinition: true, scopeLine: 198, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1535, retainedNodes: !1536)
+!1529 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/streambuf", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1530 = !DICompositeType(tag: DW_TAG_class_type, name: "basic_streambuf<char, std::char_traits<char> >", scope: !13, file: !1531, line: 149, flags: DIFlagFwdDecl, identifier: "_ZTSSt15basic_streambufIcSt11char_traitsIcEE")
+!1531 = !DIFile(filename: "/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/streambuf.tcc", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!1532 = !DISubroutineType(types: !1533)
+!1533 = !{null, !1534}
+!1534 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1530, size: 64, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1535 = !DISubprogram(name: "~basic_streambuf", scope: !1530, file: !1529, line: 197, type: !1532, isLocal: false, isDefinition: false, scopeLine: 197, containingType: !1530, virtuality: DW_VIRTUALITY_virtual, virtualIndex: 0, flags: DIFlagPublic | DIFlagPrototyped, isOptimized: true)
+!1536 = !{!1537}
+!1537 = !DILocalVariable(name: "this", arg: 1, scope: !1528, type: !1538, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1538 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !1530, size: 64)
+!1539 = !DILocation(line: 0, scope: !1528)
+!1540 = !DILocation(line: 198, column: 7, scope: !1528)
+!1541 = !DILocation(line: 198, column: 9, scope: !1542)
+!1542 = distinct !DILexicalBlock(scope: !1528, file: !1529, line: 198, column: 7)
+!1543 = !DILocation(line: 198, column: 9, scope: !1528)
+!1544 = distinct !DISubprogram(name: "~basic_ifstream", linkageName: "_ZNSt14basic_ifstreamIcSt11char_traitsIcEED2Ev", scope: !1386, file: !1409, line: 533, type: !1410, isLocal: false, isDefinition: true, scopeLine: 534, flags: DIFlagPrototyped, isOptimized: true, unit: !2, declaration: !1435, retainedNodes: !1545)
+!1545 = !{!1546, !1547}
+!1546 = !DILocalVariable(name: "this", arg: 1, scope: !1544, type: !1416, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1547 = !DILocalVariable(name: "vtt", arg: 2, scope: !1544, type: !1484, flags: DIFlagArtificial)
+!1548 = !DILocation(line: 0, scope: !1544)
+!1549 = !DILocation(line: 534, column: 7, scope: !1544)
+!1550 = !DILocation(line: 534, column: 9, scope: !1551)
+!1551 = distinct !DILexicalBlock(scope: !1544, file: !1409, line: 534, column: 7)
+!1552 = !DILocation(line: 534, column: 9, scope: !1544)
+!1553 = distinct !DISubprogram(linkageName: "_ZTv0_n24_NSt14basic_ifstreamIcSt11char_traitsIcEED1Ev", scope: !1409, file: !1409, line: 533, type: !1554, isLocal: false, isDefinition: true, flags: DIFlagArtificial | DIFlagThunk, isOptimized: true, unit: !2, retainedNodes: !1555)
+!1554 = !DISubroutineType(types: !4)
+!1555 = !{!1556}
+!1556 = !DILocalVariable(name: "this", arg: 1, scope: !1553, type: !1416, flags: DIFlagArtificial | DIFlagObjectPointer)
+!1557 = !DILocation(line: 0, scope: !1553)

@@ -365,18 +365,18 @@ namespace extrap {
     {
         // maybe just global lookup?
         FunctionParameters empty;
-        DependencyFinder dep;
-        FunctionParameters::vec_t ids;
-        //FunctionBodyAnalyzer analyzer(empty);
-        //analyzer.find_globals(f);
-        for(llvm::BasicBlock & bb : f) { 
-            for(llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
-                dep.find(&instr, empty, ids);
-            }
-        }
-        if(!ids.empty()) {
+        //DependencyFinder dep;
+        //FunctionParameters::vec_t ids;
+        FunctionBodyAnalyzer analyzer(empty);
+        analyzer.find_globals(f);
+        //for(llvm::BasicBlock & bb : f) { 
+        //    for(llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
+        //        dep.find(&instr, empty, ids);
+        //    }
+        //}
+        if(analyzer.found()) {
             AnalyzedFunction * res = new AnalyzedFunction;
-            res->globals = std::move(ids);
+            res->globals = std::move(analyzer.ids());
             return res;
         } else
             return nullptr;
@@ -417,16 +417,16 @@ namespace extrap {
         DependencyFinder dep;
         if(has_globals)
             site = CallSite(call->getDebugLoc());
-        //llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
-        //llvm::errs() << "Arguments: ";
-        //for(auto & x : params.arguments)
-        //    llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
-        //llvm::errs() << "\n";
-        //// last operand is the function name
-        //llvm::errs() << "Operands: " << call->getNumOperands() << '\n';
-        for(int i = 0; i < call->getNumOperands() - 1; ++i) {
-            llvm::errs() << "Look in operand: " << *call->getOperand(i) << ' ' << ids.size() << '\n';
-            dep.find(call->getOperand(i), params, ids);
+        llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
+        llvm::errs() << "Arguments: ";
+        for(auto & x : params.arguments)
+            llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
+        llvm::errs() << "\n";
+        // last operand is the function name
+        llvm::errs() << "Operands: " << call->getNumArgOperands() << '\n';
+        for(int i = 0; i < call->getNumArgOperands(); ++i) {
+            llvm::errs() << "Look in operand: " << *call->getArgOperand(i) << ' ' << ids.size() << '\n';
+            dep.find(call->getArgOperand(i), params, ids);
             if(!ids.empty()) {
                 if(!site)
                     site = CallSite(call->getDebugLoc());
