@@ -11,17 +11,20 @@ int g(int);
 
 int h(int x)
 {
-    return 100 * x * std::log((double)global2);
+    return (global2 > 0) ? 1 : 100 * x * std::log((double)global2);
 }
 
 int f(int x, int y)
 {
-    return 10*x + h(global * y);
+    if(global)
+        return 10*x + h(global * y);
+    else
+        return 0;
 }
 
 int i(int x1, int x2, int x3)
 {
-    int c = global2 + 1;
+    int c = global2 + global >= 1 ? global2 : 1;
     g(c);
     return f(x2, x1) * x2 + x3 * f(2, 5) + global;
 }

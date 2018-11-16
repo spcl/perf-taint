@@ -294,9 +294,12 @@ namespace extrap {
                 found_callsites += f.second->callsites.size();
             }
         }
+
+        // Compare: -1 for less, 0 equal, 1 for greater
+        // Lambdar return: 0 for less, 1 for greater or equal
         std::sort(sorted.begin(), sorted.end(),
                 [](auto a, auto b) {
-                    return a.first->getName().compare(b.first->getName());
+                    return a.first->getName().compare(b.first->getName()) == -1;
                 });
         for(auto & f : sorted)
                 exporter.export_function(*f.first, *f.second);

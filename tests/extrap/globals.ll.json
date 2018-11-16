@@ -12,10 +12,76 @@
   "functions": [
     {
       "callsites": {
+        "i": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 29
+          },
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 29
+          }
+        ],
+        "main": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 38,
+            "operands": [
+              [
+                1,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          },
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 39
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 17,
+      "name": "f"
+    },
+    {
+      "callsites": {
+        "i": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 28,
+            "operands": [
+              [
+                0,
+                [
+                  "global2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "main": [
+          {
+            "file": "tests/extrap/globals_tu1.cpp",
+            "line": 41
+          }
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 11,
+      "name": "g"
+    },
+    {
+      "callsites": {
         "f": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 19,
+            "line": 20,
             "operands": [
               [
                 0,
@@ -28,7 +94,7 @@
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 19,
+            "line": 20,
             "operands": [
               [
                 0,
@@ -42,7 +108,7 @@
         "g": [
           {
             "file": "tests/extrap/globals_tu2.cpp",
-            "line": 12,
+            "line": 15,
             "operands": [
               [
                 0,
@@ -54,7 +120,7 @@
           },
           {
             "file": "tests/extrap/globals_tu2.cpp",
-            "line": 12,
+            "line": 15,
             "operands": [
               [
                 0,
@@ -69,11 +135,11 @@
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 40
+            "line": 43
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 41
+            "line": 44
           }
         ]
       },
@@ -85,47 +151,10 @@
     },
     {
       "callsites": {
-        "i": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 26
-          },
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 26
-          }
-        ],
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 35,
-            "operands": [
-              [
-                1,
-                [
-                  "global2"
-                ]
-              ]
-            ]
-          },
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 36
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 17,
-      "name": "f"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 43
+            "line": 46
           }
         ]
       },
@@ -133,37 +162,8 @@
         "global2",
         "global"
       ],
-      "line": 22,
+      "line": 25,
       "name": "i"
-    },
-    {
-      "callsites": {
-        "i": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 25,
-            "operands": [
-              [
-                0,
-                [
-                  "global2"
-                ]
-              ]
-            ]
-          }
-        ],
-        "main": [
-          {
-            "file": "tests/extrap/globals_tu1.cpp",
-            "line": 38
-          }
-        ]
-      },
-      "globals": [
-        "global"
-      ],
-      "line": 10,
-      "name": "g"
     }
   ],
   "parameters": {
