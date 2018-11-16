@@ -18,6 +18,13 @@ namespace extrap {
     
     bool FunctionBodyAnalyzer::analyze_users(const llvm::Instruction & i)
     {
+        const llvm::PHINode * phi = llvm::dyn_cast<llvm::PHINode>(&i);
+        if(phi) {
+            if(phi_nodes.find(phi) != phi_nodes.end()) {
+               return false;
+            }
+            phi_nodes.insert(phi);
+        }
         bool ret_val = false;
         for(const llvm::Value * val : i.users()) {
             if(const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(val))
@@ -28,6 +35,8 @@ namespace extrap {
             if(const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(val))
                 ret_val |= analyze_users(*inst);
         }
+        if(phi)
+            phi_nodes.erase(phi);
         return ret_val;
     }
 
