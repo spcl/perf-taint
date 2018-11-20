@@ -5,6 +5,7 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Operator.h>
 
 namespace extrap {
 
@@ -62,6 +63,17 @@ namespace extrap {
         return ret_val;
     }
 
+    void FunctionBodyAnalyzer::check_global(const llvm::Value * val, const llvm::Instruction & instr)
+    {
+        if(const llvm::GlobalVariable * gvar = llvm::dyn_cast<llvm::GlobalVariable>(val)) {
+            Parameters::id_t id = params.find_global(gvar);
+            if(id > -1 && analyze_users(instr))
+                used_globals.insert(id);
+            if(id > -1)
+                acc_globals.insert(id);
+        }
+    }
+
     // Algorithm: for every user of the global variable, analyze each children
     // If the application is not possible to determine, such as store/load, mark as used
     // If the application is conditional branch, mark as used.
@@ -70,16 +82,16 @@ namespace extrap {
     void FunctionBodyAnalyzer::find_globals(llvm::Function & f)
     {
         for(const llvm::BasicBlock & bb : f)
-            for(const llvm::Instruction & instr : bb.instructionsWithoutDebug())
-                for(const llvm::Value * val : instr.operands())
-                    if(const llvm::GlobalVariable * gvar =
-                            llvm::dyn_cast<llvm::GlobalVariable>(val)) {
-                        Parameters::id_t id = params.find_global(gvar);
-                        if(id > -1 && analyze_users(instr))
-                            used_globals.insert(id);
-                        if(id > -1)
-                            acc_globals.insert(id);
+            for(const llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
+                for(const llvm::Value * val : instr.operands()) {
+                    // Load and getelementptr are joined together
+                    if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(val)) {
+                        check_global(gep->getPointerOperand(), instr);
+                    } else {
+                        check_global(val, instr);
                     }
+                }
+            }
     }
     
     void FunctionBodyAnalyzer::find_used_args(llvm::Function & f)

@@ -41,6 +41,7 @@ namespace extrap {
 
         bool analyze(llvm::Function & f);
         void find_globals(llvm::Function & f);
+        void check_global(const llvm::Value * val, const llvm::Instruction & instr);
         void find_used_args(llvm::Function &f);
         bool analyze_users(const llvm::Instruction & i);
         bool found_used_globals() const;
