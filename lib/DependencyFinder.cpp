@@ -117,23 +117,7 @@ namespace extrap {
             //return find(glob);
             //return true;
             return find(glob, params, ids);
-        } else if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(v)) {
-            bool found = find(load->getPointerOperand(), params, ids);
-            if(!found) {
-                llvm::errs() << "Unable to understand the instruction: " << *load << '\n';
-                return true;
-            }
-            return found;
-        }
-        // results of a load instruction
-        else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(v)) {
-            return find(gep->getPointerOperand(), params, ids);
-        }
-        if(const llvm::Constant * cons = llvm::dyn_cast<llvm::Constant>(v)) {
-            // constant is always known
-            return true; 
-        }
-        if(const llvm::Constant * cons = llvm::dyn_cast<llvm::Constant>(v)) {
+        } else if(const llvm::Constant * cons = llvm::dyn_cast<llvm::Constant>(v)) {
             // constant is always known
             return true; 
         }
@@ -161,11 +145,23 @@ namespace extrap {
                 }
                 phi_nodes.insert(phi);
             }
+            if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(instr)) {
+                bool found = find(load->getPointerOperand(), params, ids);
+                if(!found) {
+                    llvm::errs() << "Unable to understand the instruction: " << *load << '\n';
+                    understood = false;
+                }
+            }
+            // results of a load instruction
+            else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(instr)) {
+                understood &= find(gep->getPointerOperand(), params, ids);
+            } else {
+                understood &= find(val, params, ids);
+            }
             //if(llvm::Instruction * child_instr = llvm::dyn_cast<llvm::Instruction>(val)) {
             //found |= find(child_instr, params);
             //} else {
             //std::cout << found << '\n';
-            understood &= find(val, params, ids);
             //std::cout << found << '\n';
             //llvm::outs() << "Found: " << found << '\n';
             //} 
