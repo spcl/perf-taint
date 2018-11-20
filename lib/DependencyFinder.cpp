@@ -141,7 +141,7 @@ namespace extrap {
             llvm::PHINode * phi = llvm::dyn_cast<llvm::PHINode>(val);
             if(phi) {
                 if(phi_nodes.find(phi) != phi_nodes.end()) {
-                   return false;
+                   continue;
                 }
                 phi_nodes.insert(phi);
             }
