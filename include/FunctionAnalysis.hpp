@@ -39,6 +39,7 @@ namespace extrap {
         // (unique + erase). however, we need comparison only when adding new callsites
         typedef llvm::SmallSet<id_t, 5> vec_t;
         static id_t GLOBAL_THRESHOLD; 
+        static bool IS_GLOBAL(id_t);
 
         static std::vector< const llvm::GlobalVariable * > globals;
         static std::vector< std::string > globals_names;

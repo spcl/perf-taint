@@ -45,6 +45,11 @@ namespace extrap {
     std::vector< std::string > Parameters::arg_names;
     Parameters::id_t Parameters::GLOBAL_THRESHOLD = 100;
 
+    bool Parameters::IS_GLOBAL(id_t id)
+    {
+        return id >= GLOBAL_THRESHOLD;
+    }
+
     std::string Parameters::get_param(id_t id)
     {
         if(id >= GLOBAL_THRESHOLD)

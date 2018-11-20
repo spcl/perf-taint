@@ -1,3 +1,4 @@
+#include "DependencyFinder.hpp"
 #include "FunctionBodyAnalyzer.hpp"
 #include "FunctionAnalysis.hpp"
 
@@ -49,9 +50,11 @@ namespace extrap {
             phi_nodes.insert(phi);
         }
         bool ret_val = false;
+        //TODO: check just branches and see if their operands somehow depend on the value
         for(const llvm::Value * val : i.users()) {
+            //TODO: can an unconditional branch be a user of parameter?
             if(const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(val))
-                return true;
+                return br->isConditional();
             // we don't know what's going to happen, overapproximate - we use it
             if(const llvm::StoreInst * st = llvm::dyn_cast<llvm::StoreInst>(val))
                 return true;
@@ -96,12 +99,39 @@ namespace extrap {
     
     void FunctionBodyAnalyzer::find_used_args(llvm::Function & f)
     {
-        for(const llvm::Argument & arg : f.args()) {
-            for(const llvm::Value * val : arg.users())
-            {
-                if(const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(val)) {
-                    if(analyze_users(*inst))
-                        used_args.insert(arg.getArgNo());
+        //for(const llvm::Argument & arg : f.args()) {
+        //    for(const llvm::Value * val : arg.users())
+        //    {
+        //        if(f.getName() != "error_norm")
+        //            return;
+        //        if(const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(val)) {
+        //            llvm::outs() << *inst << '\n';
+        //            if(analyze_users(*inst))
+        //                used_args.insert(arg.getArgNo());
+        //        }
+        //    }
+        //}
+        //if(f.getName() != "verify")
+        //    return;
+        DependencyFinder dep;
+        FunctionParameters params;
+        for(const llvm::Argument & arg : f.args())
+            params.add(&arg, arg.getArgNo());
+        Parameters::vec_t ids;
+        int found_branches = 0, dependent_branches = 0;
+        for(const llvm::BasicBlock & bb : f) {
+            for(const llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
+                if(const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&instr)) {
+                    if(!br->isConditional())
+                        continue;
+                    found_branches++;
+                    dep.find(br->getCondition(), params, ids);
+                    for(auto id : ids) {
+                        if(!Parameters::IS_GLOBAL(id))
+                            used_args.insert(id);
+                    }
+                    dependent_branches += !ids.empty();
+                    ids.clear();
                 }
             }
         }
