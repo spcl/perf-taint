@@ -442,11 +442,11 @@ namespace extrap {
 
     const llvm::DebugLoc * FunctionAnalysis::get_call_loc(llvm::Value * v)
     {
-        //if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
-            //return get_call_loc(call);
-        //} else if(llvm::InvokeInst * call = llvm::dyn_cast<llvm::InvokeInst>(v)) {
-         //   return get_call_loc(call);
-        //}
+        if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
+            return get_call_loc(call);
+        } else if(llvm::InvokeInst * call = llvm::dyn_cast<llvm::InvokeInst>(v)) {
+            return get_call_loc(call);
+        }
         assert(false);
     }
 
