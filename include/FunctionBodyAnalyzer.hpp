@@ -14,6 +14,7 @@ namespace llvm {
     class GlobalVariable;
     class GetElementPtrInst;
     class Function;
+    class LoopInfo;
 }
 
 namespace extrap {
@@ -27,16 +28,27 @@ namespace extrap {
         typedef void RetType;
         std::set<const llvm::PHINode*> phi_nodes;
         const FunctionParameters & params;
-        vec_t global_ids;
+        const llvm::LoopInfo & linfo;
+        vec_t acc_globals;
+        vec_t used_globals;
+        vec_t used_args;
 
-        FunctionBodyAnalyzer(const FunctionParameters & _params):
+        FunctionBodyAnalyzer(const llvm::LoopInfo & _linfo,
+                const FunctionParameters & _params):
+            linfo(_linfo),
             params(_params)
         {}
 
+        bool analyze(llvm::Function & f);
         void find_globals(llvm::Function & f);
+        void find_used_args(llvm::Function &f);
         bool analyze_users(const llvm::Instruction & i);
-        bool found() const;
-        vec_t & ids();
+        bool found_used_globals() const;
+        bool found_globals() const;
+        bool found_args() const;
+        vec_t & accessed_global_ids();
+        vec_t & used_global_ids();
+        vec_t & used_arg_positions();
     };
 }
 

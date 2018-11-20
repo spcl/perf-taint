@@ -3,6 +3,7 @@
 #include "FunctionBodyAnalyzer.hpp"
 #include "DependencyFinder.hpp"
 #include "JSONExporter.hpp"
+#include "ExtraPExtractorPass.hpp"
 
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/IR/Function.h>
@@ -252,9 +253,17 @@ namespace extrap {
         // params should be in the same order since we process them always from the first arg
         return site.dbg_loc == dbg_loc && site.parameters == parameters;
     }
+        
+    bool AnalyzedFunction::matters() const
+    {
+        //(uses globals OR called with args) AND contains computation
+        return (globals || !callsites.empty()) && contains_computation;
+    }
 
     void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite && site)
     {
+        //nullptr means this function is processed but not important
+        //just store callsites since we found the callsite to be important
         if(!f_analysis) {
             f_analysis = new AnalyzedFunction;
             functions[&f] = f_analysis;
@@ -265,6 +274,23 @@ namespace extrap {
             for(const CallSite & obj : f_analysis->callsites)
                 if(site == obj)
                     return;
+        }
+        if(f_analysis->cf_args && !f_analysis->called_with_used_args) {
+            auto begin = f_analysis->cf_args->begin(),
+                 end = f_analysis->cf_args->end();
+            //llvm::outs() << "Args: "; 
+            //for(auto it = begin; it != end;++it)
+            //    llvm::outs() << (*it) << ' ';
+            //llvm::outs() << '\n'; 
+            //llvm::outs() << "Called: "; 
+            for(auto & arg : site.parameters) {
+                //llvm::outs() << std::get<0>(arg) << ' ';
+                if(std::find(begin, end, std::get<0>(arg)) != end) {
+                    f_analysis->called_with_used_args = true;
+                    break;
+                }
+            }
+            //llvm::outs() << '\n'; 
         }
         f_analysis->callsites.push_back(site);
     }
@@ -301,8 +327,10 @@ namespace extrap {
                 [](auto a, auto b) {
                     return a.first->getName().compare(b.first->getName()) == -1;
                 });
-        for(auto & f : sorted)
+        for(auto & f : sorted) {
+            if(f.second && f.second->matters())
                 exporter.export_function(*f.first, *f.second);
+        }
         if(stats) {
             exporter.export_statistics_found(found_callsites, found_functions);
             exporter.export_statistics_total(stats->callsites_count, stats->functions_count);
@@ -366,23 +394,34 @@ namespace extrap {
 
     AnalyzedFunction * FunctionAnalysis::analyze_body(llvm::Function & f)
     {
-        // maybe just global lookup?
-        FunctionParameters empty;
-        //DependencyFinder dep;
-        //FunctionParameters::vec_t ids;
-        FunctionBodyAnalyzer analyzer(empty);
-        analyzer.find_globals(f);
-        //for(llvm::BasicBlock & bb : f) { 
-        //    for(llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
-        //        dep.find(&instr, empty, ids);
-        //    }
-        //}
-        if(analyzer.found()) {
-            AnalyzedFunction * res = new AnalyzedFunction;
-            res->globals = std::move(analyzer.ids());
+        if(is_analyzable(&f)) {
+            // maybe just global lookup?
+            FunctionParameters empty;
+            //DependencyFinder dep;
+            //FunctionParameters::vec_t ids;
+            FunctionBodyAnalyzer analyzer(pass.getLoopInfo(f), empty);
+            //for(llvm::BasicBlock & bb : f) { 
+            //    for(llvm::Instruction & instr : bb.instructionsWithoutDebug()) {
+            //        dep.find(&instr, empty, ids);
+            //    }
+            //}
+            AnalyzedFunction * res = nullptr;
+            if(analyzer.analyze(f)) {
+                res = new AnalyzedFunction;
+                res->contains_computation = true;
+                if(analyzer.found_globals()) {
+                    res->globals = std::move(analyzer.accessed_global_ids());
+                }
+                if(analyzer.found_used_globals()) {
+                    res->cf_globals = std::move(analyzer.used_global_ids());
+                }
+                if(analyzer.found_args()) {
+                    res->cf_args = std::move(analyzer.used_arg_positions());
+                } 
+            }
             return res;
-        } else
-            return nullptr;
+        }
+        return nullptr;
     }
 
     bool FunctionAnalysis::is_analyzable(llvm::Function * f)

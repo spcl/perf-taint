@@ -29,6 +29,7 @@ namespace llvm {
 namespace extrap {
 
     class JSONExporter;
+    class ExtraPExtractorPass;
 
     struct Parameters
     {
@@ -94,11 +95,29 @@ namespace extrap {
     struct AnalyzedFunction
     {
         std::vector<CallSite> callsites;
+        // accessed globals
         llvm::Optional<Parameters::vec_t> globals;
+        // Contains loops
+        // TODO: remove const loop
+        bool contains_computation;
+
+        // globals influencing control flow
+        llvm::Optional<Parameters::vec_t> cf_globals;
+        // args influencing control flow
+        llvm::Optional<Parameters::vec_t> cf_args;
+        bool called_with_used_args;
+
+        AnalyzedFunction() :
+            contains_computation(false)
+        {}
+
+        void call(const FunctionParameters &);
+        bool matters() const;
     };
 
     struct FunctionAnalysis
     {
+        ExtraPExtractorPass & pass;
         llvm::CallGraph & cg;
         llvm::Module & m;
         extrap::JSONExporter & exporter;
@@ -111,9 +130,11 @@ namespace extrap {
 
         // unify that into a single structure
         std::unordered_map<llvm::Function *, AnalyzedFunction*> functions;
-        
-        FunctionAnalysis(llvm::CallGraph & _cg, llvm::Module & _m,
+
+        //TODO: remove that reference
+        FunctionAnalysis(ExtraPExtractorPass & _pass, llvm::CallGraph & _cg, llvm::Module & _m,
                 extrap::JSONExporter & exp, bool generate_stats) :
+            pass(_pass),
             cg(_cg),
             m(_m),
             exporter(exp),

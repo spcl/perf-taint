@@ -18,6 +18,7 @@ namespace llvm {
     class Function;
     class ModuleSlotTracker;
     class Loop;
+    class LoopInfo;
 }
 
 namespace polly {
@@ -31,9 +32,9 @@ namespace extrap {
     class Parameters;
 }
 
-namespace {
+namespace extrap {
 
-    struct Statistics
+    /*struct Statistics
     {
         uint32_t functions_count;
         uint32_t understood_functions;
@@ -46,13 +47,13 @@ namespace {
         {
             os << "results " << functions_count << ' ' << understood_functions << '\n';
         }
-    };
+    };*/
 
     struct ExtraPExtractorPass : public llvm::ModulePass
     {
         static char ID;
         std::fstream log;
-        Statistics stats;
+        //Statistics stats;
         ExtraPExtractorPass():
             ModulePass(ID),
             SE(nullptr),
@@ -66,6 +67,7 @@ namespace {
 
         llvm::Optional<nlohmann::json> runOnFunction(llvm::Function & f);
         bool runOnModule(llvm::Module & f) override;
+        llvm::LoopInfo & getLoopInfo(llvm::Function &f);
     private:
         llvm::ScalarEvolution * SE;
         polly::PolySCEV * SCEV;

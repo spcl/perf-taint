@@ -105,6 +105,21 @@ namespace extrap {
             for(auto id : func.globals.getValue())
                 function["globals"].push_back(Parameters::get_param(id));
 
+        json_t control_flow_params;
+        bool has_cf_params = false;
+        if(func.cf_globals) {
+            has_cf_params = true; 
+            for(auto id : func.cf_globals.getValue())
+                control_flow_params["globals"].push_back(Parameters::get_param(id));
+        }
+        if(func.cf_args) {
+            has_cf_params = true; 
+            for(auto id : func.cf_args.getValue())
+                control_flow_params["args"].push_back(id);
+        }
+        if(has_cf_params)
+            function["control_flow_params"] = control_flow_params;
+
         out["functions"].push_back(function);
     }
 

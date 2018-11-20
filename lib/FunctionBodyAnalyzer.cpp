@@ -1,19 +1,41 @@
 #include "FunctionBodyAnalyzer.hpp"
 #include "FunctionAnalysis.hpp"
 
+#include <llvm/Pass.h>
+#include <llvm/Analysis/LoopInfo.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Function.h>
 
 namespace extrap {
 
-    bool FunctionBodyAnalyzer::found() const
+    bool FunctionBodyAnalyzer::found_globals() const
     {
-        return !global_ids.empty();
+        return !acc_globals.empty();
     }
-    
-    FunctionBodyAnalyzer::vec_t & FunctionBodyAnalyzer::ids()
+
+    bool FunctionBodyAnalyzer::found_used_globals() const
     {
-        return global_ids;
+        return !used_globals.empty();
+    }
+
+    bool FunctionBodyAnalyzer::found_args() const
+    {
+        return !used_args.empty();
+    }
+
+    FunctionBodyAnalyzer::vec_t & FunctionBodyAnalyzer::accessed_global_ids()
+    {
+        return acc_globals;
+    }
+
+    FunctionBodyAnalyzer::vec_t & FunctionBodyAnalyzer::used_global_ids()
+    {
+        return used_globals;
+    }
+
+    FunctionBodyAnalyzer::vec_t & FunctionBodyAnalyzer::used_arg_positions()
+    {
+        return used_args;
     }
     
     bool FunctionBodyAnalyzer::analyze_users(const llvm::Instruction & i)
@@ -54,8 +76,31 @@ namespace extrap {
                             llvm::dyn_cast<llvm::GlobalVariable>(val)) {
                         Parameters::id_t id = params.find_global(gvar);
                         if(id > -1 && analyze_users(instr))
-                            global_ids.insert(id);
+                            used_globals.insert(id);
+                        if(id > -1)
+                            acc_globals.insert(id);
                     }
+    }
+    
+    void FunctionBodyAnalyzer::find_used_args(llvm::Function & f)
+    {
+        for(const llvm::Argument & arg : f.args()) {
+            for(const llvm::Value * val : arg.users())
+            {
+                if(const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(val)) {
+                    if(analyze_users(*inst))
+                        used_args.insert(arg.getArgNo());
+                }
+            }
+        }
+    }
+
+    bool FunctionBodyAnalyzer::analyze(llvm::Function & f)
+    {
+        find_globals(f);
+        find_used_args(f);
+        // TODO: here process const loops
+        return !linfo.empty();
     }
 
     // For function f, find out which global variables and which arguments

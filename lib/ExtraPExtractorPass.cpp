@@ -70,13 +70,13 @@ static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("filename"));
 
-namespace {
+namespace extrap {
 
-    void Statistics::processed_function(bool undef)
-    {
-        ++functions_count;
-        understood_functions += undef;
-    }
+    //void Statistics::processed_function(bool undef)
+    //{
+    //    ++functions_count;
+    //    understood_functions += undef;
+    //}
 
     std::string to_string(const llvm::SCEV * scev)
     {
@@ -133,7 +133,7 @@ namespace {
  
         std::vector<nlohmann::json> functions;
         llvm::CallGraph & cgraph = getAnalysis<llvm::CallGraphWrapperPass>().getCallGraph();
-        extrap::FunctionAnalysis analysis(cgraph, m, exporter, GenerateStats.getValue());
+        extrap::FunctionAnalysis analysis(*this, cgraph, m, exporter, GenerateStats.getValue());
         extrap::Parameters params;
         //std::vector< std::string > param_names{"grid_points"};
         std::vector< std::string > param_names{}; //"global", "global2"};
@@ -159,7 +159,7 @@ namespace {
             } else
                 exporter.print(llvm::outs());
         }
-        stats.dump(log);
+        //stats.dump(log);
         log.close();
 
 
@@ -285,10 +285,15 @@ namespace {
         }
         return false;
     }
+
+    llvm::LoopInfo & ExtraPExtractorPass::getLoopInfo(llvm::Function &f)
+    {
+        return getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+    }
 }
 
-char ExtraPExtractorPass::ID = 0;
-static llvm::RegisterPass<ExtraPExtractorPass> register_pass(
+char extrap::ExtraPExtractorPass::ID = 0;
+static llvm::RegisterPass<extrap::ExtraPExtractorPass> register_pass(
     "extrap-extractor",
     "Extract loop information",
     true /* Only looks at CFG */,
@@ -297,7 +302,7 @@ static llvm::RegisterPass<ExtraPExtractorPass> register_pass(
 // Allow running dynamically through frontend such as Clang
 void addLoopExtractor(const llvm::PassManagerBuilder &Builder,
                         llvm::legacy::PassManagerBase &PM) {
-  PM.add(new ExtraPExtractorPass());
+  PM.add(new extrap::ExtraPExtractorPass());
 }
 
 // run after optimizations
