@@ -344,15 +344,20 @@ namespace extrap {
         for(auto callsite : *node)
         {
             llvm::CallGraphNode * node = callsite.second;
-            llvm::Value * call = callsite.first;
             llvm::Function * called_f = node->getFunction();
-            assert(called_f);
+            llvm::Value * call = callsite.first;
+            if(!called_f) {
+                unknown << "External function call in: " << f.getName().str() << '\n';
+                continue;
+            }
             assert(call);
-            //non-NULL when the f is already known to access globals and call with params
-            AnalyzedFunction * f_analysis = analyze_function(*called_f);
 
             if( is_analyzable(called_f) ) {
 
+                assert(called_f);
+                FunctionParameters call_parameters;
+                //non-NULL when the f is already known to access globals and call with params
+                AnalyzedFunction * f_analysis = analyze_function(*called_f);
                 llvm::Optional<CallSite> callsite = analyze_call(call, 
                         f_analysis ? f_analysis->globals.hasValue() : false, params); 
                 if(stats) 
@@ -367,13 +372,11 @@ namespace extrap {
                     //    llvm::outs() << '\n';
                     //}
                     //llvm::outs() << '\n';
-                    FunctionParameters call_parameters(*called_f, callsite.getValue());
+                    call_parameters = FunctionParameters(*called_f, callsite.getValue());
                     insert_callsite(*called_f, f_analysis, std::move(callsite.getValue()));
-                    analyze_function(*called_f, call_parameters);
-                } else {
-                    FunctionParameters call_parameters;
-                    analyze_function(*called_f, call_parameters);
                 }
+                // Call with empty call_parameters (only globals) if callsite is unimportant
+                analyze_function(*called_f, call_parameters);
             }
         }
     }
