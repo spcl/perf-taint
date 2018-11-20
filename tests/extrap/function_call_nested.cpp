@@ -8,22 +8,34 @@ int global EXTRAP = 100;
 
 int h(int x)
 {
-    return 100 * x * std::log((double)x);
+    int tmp = 0;
+    for(int i = x; i < 100; ++i)
+        tmp += i;
+    return 100 * tmp * std::log((double)x);
 }
 
 int f(int x, int y)
 {
-    return 10*x + h(y/2);
+    int tmp = 0;
+    for(int i = x; i < y; ++i)
+        tmp += i;
+    return 10*x + h(y/2) + tmp;
 }
 
 int g(int x)
 {
-    return global ? h(100 + x + std::pow((double)global, 3.0)) : 1;
+    int tmp = 0;
+    for(int i = x; i < global; ++i)
+        tmp += i;
+    return h(100 + x + tmp + std::pow((double)global, 3.0));
 }
 
 int i(int x1, int x2, int x3)
 {
-    return f(global, x1) * x1 * x2 + h(x3) * f(2, 5);
+    int tmp = 0;
+    for(int i = x1; i < x2; i += x3)
+        tmp += i*1.1;
+    return f(global, x1) * x1 * x2 + tmp + h(x3) * f(2, 5);
 }
 
 int main(int argc, char ** argv)

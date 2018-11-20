@@ -11,7 +11,7 @@
         "i": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 26,
+            "line": 38,
             "operands": [
               [
                 0,
@@ -32,7 +32,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 36,
+            "line": 48,
             "operands": [
               [
                 0,
@@ -50,7 +50,7 @@
           },
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 37,
+            "line": 49,
             "operands": [
               [
                 0,
@@ -62,7 +62,13 @@
           }
         ]
       },
-      "line": 14,
+      "control_flow_params": {
+        "args": [
+          0,
+          1
+        ]
+      },
+      "line": 17,
       "name": "f"
     },
     {
@@ -70,14 +76,22 @@
         "main": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 39
+            "line": 51
           }
+        ]
+      },
+      "control_flow_params": {
+        "args": [
+          0
+        ],
+        "globals": [
+          "global"
         ]
       },
       "globals": [
         "global"
       ],
-      "line": 19,
+      "line": 25,
       "name": "g"
     },
     {
@@ -85,7 +99,7 @@
         "f": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 16,
+            "line": 22,
             "operands": [
               [
                 0,
@@ -97,7 +111,7 @@
           },
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 16,
+            "line": 22,
             "operands": [
               [
                 0,
@@ -112,7 +126,7 @@
         "g": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 21,
+            "line": 30,
             "operands": [
               [
                 0,
@@ -126,7 +140,7 @@
         "i": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 26,
+            "line": 38,
             "operands": [
               [
                 0,
@@ -140,7 +154,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 41,
+            "line": 53,
             "operands": [
               [
                 0,
@@ -152,6 +166,11 @@
           }
         ]
       },
+      "control_flow_params": {
+        "args": [
+          0
+        ]
+      },
       "line": 9,
       "name": "h"
     },
@@ -160,7 +179,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call_nested.cpp",
-            "line": 44,
+            "line": 56,
             "operands": [
               [
                 0,
@@ -185,7 +204,17 @@
           }
         ]
       },
-      "line": 24,
+      "control_flow_params": {
+        "args": [
+          0,
+          1,
+          2
+        ]
+      },
+      "globals": [
+        "global"
+      ],
+      "line": 33,
       "name": "i"
     }
   ],

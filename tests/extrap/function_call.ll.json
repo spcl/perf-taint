@@ -11,7 +11,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call.cpp",
-            "line": 37,
+            "line": 45,
             "operands": [
               [
                 0,
@@ -29,30 +29,21 @@
           }
         ]
       },
-      "line": 10,
-      "name": "f"
-    },
-    {
-      "callsites": {
-        "main": [
-          {
-            "file": "tests/extrap/function_call.cpp",
-            "line": 39
-          }
+      "control_flow_params": {
+        "args": [
+          0,
+          1
         ]
       },
-      "globals": [
-        "global"
-      ],
-      "line": 20,
-      "name": "g"
+      "line": 9,
+      "name": "f"
     },
     {
       "callsites": {
         "g": [
           {
             "file": "tests/extrap/function_call.cpp",
-            "line": 22,
+            "line": 27,
             "operands": [
               [
                 0,
@@ -66,7 +57,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call.cpp",
-            "line": 41,
+            "line": 49,
             "operands": [
               [
                 0,
@@ -78,7 +69,12 @@
           }
         ]
       },
-      "line": 15,
+      "control_flow_params": {
+        "args": [
+          0
+        ]
+      },
+      "line": 17,
       "name": "h"
     },
     {
@@ -86,7 +82,7 @@
         "main": [
           {
             "file": "tests/extrap/function_call.cpp",
-            "line": 44,
+            "line": 52,
             "operands": [
               [
                 0,
@@ -105,7 +101,14 @@
           }
         ]
       },
-      "line": 25,
+      "control_flow_params": {
+        "args": [
+          0,
+          1,
+          2
+        ]
+      },
+      "line": 30,
       "name": "i"
     }
   ],

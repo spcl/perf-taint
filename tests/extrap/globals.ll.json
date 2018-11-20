@@ -15,17 +15,17 @@
         "i": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 29
+            "line": 38
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 29
+            "line": 38
           }
         ],
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 38,
+            "line": 47,
             "operands": [
               [
                 1,
@@ -37,14 +37,23 @@
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 39
+            "line": 48
           }
+        ]
+      },
+      "control_flow_params": {
+        "args": [
+          0,
+          1
+        ],
+        "globals": [
+          "global"
         ]
       },
       "globals": [
         "global"
       ],
-      "line": 17,
+      "line": 20,
       "name": "f"
     },
     {
@@ -52,7 +61,7 @@
         "i": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 28,
+            "line": 37,
             "operands": [
               [
                 0,
@@ -66,8 +75,13 @@
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 41
+            "line": 50
           }
+        ]
+      },
+      "control_flow_params": {
+        "globals": [
+          "global"
         ]
       },
       "globals": [
@@ -81,7 +95,7 @@
         "f": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 20,
+            "line": 26,
             "operands": [
               [
                 0,
@@ -94,7 +108,7 @@
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 20,
+            "line": 26,
             "operands": [
               [
                 0,
@@ -135,12 +149,20 @@
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 43
+            "line": 52
           },
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 44
+            "line": 53
           }
+        ]
+      },
+      "control_flow_params": {
+        "args": [
+          0
+        ],
+        "globals": [
+          "global2"
         ]
       },
       "globals": [
@@ -154,15 +176,26 @@
         "main": [
           {
             "file": "tests/extrap/globals_tu1.cpp",
-            "line": 46
+            "line": 55
           }
+        ]
+      },
+      "control_flow_params": {
+        "args": [
+          0,
+          1,
+	  2
+        ],
+        "globals": [
+          "global2",
+          "global"
         ]
       },
       "globals": [
         "global2",
         "global"
       ],
-      "line": 25,
+      "line": 31,
       "name": "i"
     }
   ],

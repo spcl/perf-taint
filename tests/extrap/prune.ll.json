@@ -8,31 +8,136 @@
   "functions": [
     {
       "callsites": {
+        "main": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 72,
+            "operands": [
+              [
+                0,
+                [
+                  "x1"
+                ]
+              ],
+              [
+                1,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ]
+      },
+      "control_flow_params": {
+        "args": [
+          0
+        ]
+      },
+      "line": 51,
+      "name": "f_not_prune"
+    },
+    {
+      "callsites": {
         "f_not_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 49
+            "line": 57
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 57,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
           }
         ],
         "f_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 40
+            "line": 46
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 46,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
           }
         ]
       },
+      "control_flow_params": {
+        "args": [
+          0
+        ],
+        "globals": [
+          "global2"
+        ]
+      },
       "globals": [
-        "global2"
+        "global2",
+        "global"
       ],
-      "line": 23,
+      "line": 26,
       "name": "g_not_prune"
     },
     {
       "callsites": {
+        "f_not_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 58
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 58,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
+        "f_prune": [
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 47
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 47,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
+          }
+        ],
         "g_not_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 32,
+            "line": 38,
             "operands": [
               [
                 0,
@@ -44,7 +149,7 @@
           },
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 34,
+            "line": 40,
             "operands": [
               [
                 0,
@@ -53,12 +158,26 @@
                 ]
               ]
             ]
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 40,
+            "operands": [
+              [
+                0,
+                [
+                  "global",
+                  "x1",
+                  "x2"
+                ]
+              ]
+            ]
           }
         ],
         "g_prune": [
           {
             "file": "tests/extrap/prune.cpp",
-            "line": 20,
+            "line": 23,
             "operands": [
               [
                 0,
@@ -67,9 +186,30 @@
                 ]
               ]
             ]
+          },
+          {
+            "file": "tests/extrap/prune.cpp",
+            "line": 23,
+            "operands": [
+              [
+                0,
+                [
+                  "x1",
+                  "global2"
+                ]
+              ]
+            ]
           }
         ]
       },
+      "control_flow_params": {
+        "args": [
+          0
+        ]
+      },
+      "globals": [
+        "global"
+      ],
       "line": 12,
       "name": "h"
     }

@@ -3,17 +3,22 @@
 #include <cstdlib>
 
 #define EXTRAP __attribute__(( annotate("extrap") )) 
-#define EXTRAP __attribute__(( annotate("extrap") )) 
 
 int global EXTRAP = 100;
 
 int f(int x, int y)
 {
-    return 10*x + y/2;
+    int tmp = 0;
+    for(int i = x; i < y; ++i)
+        tmp += i;
+    return tmp*10*x + y/2;
 }
 
 int h(int x)
 {
+    int tmp = 0;
+    for(int i = x; i < 100; ++i)
+        tmp += i;
     return 100 * x * std::log((double)x);
 }
 
@@ -24,6 +29,9 @@ int g(int x)
 
 int i(int x1, int x2, int x3)
 {
+    int tmp = 0;
+    for(int i = x1; i < x2; i += x3)
+        tmp += i*1.1;
     return 100 * x1 * x2 + x3 * 2;
 }
 
