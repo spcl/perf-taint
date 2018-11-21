@@ -179,7 +179,7 @@ namespace extrap {
                     }
                 }
             } else if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
-                if(call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
+                if(call->getCalledFunction() && call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
                     if(const llvm::GEPOperator * inst =
                             llvm::dyn_cast<llvm::GEPOperator>(call->getOperand(1))) {
                         const llvm::Value* operand = inst->getPointerOperand();
