@@ -305,6 +305,7 @@ namespace extrap {
         llvm::Function * main = m.getFunction("main");
         llvm::CallGraphNode * main_node = cg[main];
         FunctionParameters main_params = find_args(main, param_names);
+        analyze_function(*main);
         analyze_function(*main, main_params);
         exporter.export_parameters(params);
         int found_callsites = 0, found_functions = 0;
