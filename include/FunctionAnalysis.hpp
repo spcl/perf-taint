@@ -29,6 +29,7 @@ namespace extrap {
 
     class JSONExporter;
     class ExtraPExtractorPass;
+    class AnalyzedFunction;
 
     struct CallSite
     {
@@ -42,29 +43,6 @@ namespace extrap {
         void called(int pos, const FunctionParameters::vec_t & args);
 
         bool operator==(const CallSite & site) const;
-    };
-
-    struct AnalyzedFunction
-    {
-        std::vector<CallSite> callsites;
-        // accessed globals
-        llvm::Optional<Parameters::vec_t> globals;
-        // Contains loops
-        // TODO: remove const loop
-        bool contains_computation;
-
-        // globals influencing control flow
-        llvm::Optional<Parameters::vec_t> cf_globals;
-        // args influencing control flow
-        llvm::Optional<Parameters::vec_t> cf_args;
-        bool called_with_used_args;
-
-        AnalyzedFunction() :
-            contains_computation(false)
-        {}
-
-        void call(const FunctionParameters &);
-        bool matters() const;
     };
 
     struct FunctionAnalysis
@@ -97,27 +75,17 @@ namespace extrap {
             if(generate_stats)
                 stats = Statistics();
         }
-
-        ~FunctionAnalysis()
-        {
-            unknown.close();
-            blacklist.close();
-            whitelist.close();
-            std::for_each(functions.begin(), functions.end(),
-                    [](std::pair<llvm::Function *, AnalyzedFunction*> p) {
-                        delete p.second;
-                    });
-        }
+        ~FunctionAnalysis();
 
         void insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite &&);
         void insert_func(llvm::Function & f, Parameters::vec_t & globals);
         AnalyzedFunction * analyze_body(llvm::Function & f);
-        void analyze_function(llvm::Function & f, const FunctionParameters &);
+        void analyze_function(llvm::Function & f, AnalyzedFunction *, const FunctionParameters &);
         AnalyzedFunction * analyze_function(llvm::Function & f);
         void analyze_main(Parameters &, std::vector<std::string> &);
         bool is_analyzable(llvm::Function * f);
         void analyze(llvm::Function * f, const Parameters &);
-        llvm::Optional<CallSite> analyze_call(llvm::Value *, bool has_globals, const FunctionParameters &);
+        llvm::Optional<CallSite> analyze_call(llvm::Value *, AnalyzedFunction *, AnalyzedFunction*, const FunctionParameters &);
 
         void export_functions();
 
@@ -126,7 +94,7 @@ namespace extrap {
         const llvm::DebugLoc * get_call_loc(llvm::Value * call);
     private:
         template<typename T>
-        llvm::Optional<CallSite> analyze_call(llvm::CallBase<T> * call, bool has_globals, const FunctionParameters & params);
+        llvm::Optional<CallSite> analyze_call(llvm::CallBase<T> * call, AnalyzedFunction *, AnalyzedFunction*, const FunctionParameters & params);
     };
 
 }

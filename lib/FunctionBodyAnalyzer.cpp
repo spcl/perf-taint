@@ -6,9 +6,28 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/InstIterator.h>
 #include <llvm/IR/Operator.h>
 
+namespace {
+    
+    bool string_compare(const std::string & str)
+    {
+        //ignore terminator at the endwhitespace
+        return std::equal(str.begin(), str.end(), "extrap",
+                [](char a, char b) {
+                    return a == b || !isprint(a); 
+                });
+    }
+}
+
 namespace extrap {
+ 
+    bool AnalyzedFunction::matters() const
+    {
+        //(uses globals OR called with args) AND contains computation
+        return (globals || !callsites.empty()) && contains_computation;
+    }
 
     bool FunctionBodyAnalyzer::found_globals() const
     {
@@ -125,7 +144,7 @@ namespace extrap {
                     if(!br->isConditional())
                         continue;
                     found_branches++;
-                    dep.find(br->getCondition(), params, ids);
+                    dep.find(br->getCondition(), nullptr, params, ids);
                     for(auto id : ids) {
                         if(!Parameters::IS_GLOBAL(id))
                             used_args.insert(id);
@@ -137,12 +156,128 @@ namespace extrap {
         }
     }
 
-    bool FunctionBodyAnalyzer::analyze(llvm::Function & f)
+    AnalyzedFunction * FunctionBodyAnalyzer::analyze(llvm::Function & f)
     {
         find_globals(f);
         find_used_args(f);
+        find_annotations(f);
+        llvm::errs() << "Finished " << located_fields.size() << '\n';
         // TODO: here process const loops
-        return !linfo.empty();
+        AnalyzedFunction * res = new AnalyzedFunction;
+        if(!linfo.empty()) {
+            res->contains_computation = true;
+        }
+        if(found_globals()) {
+            res->globals = std::move(accessed_global_ids());
+        }
+        if(found_used_globals()) {
+            res->cf_globals = std::move(used_global_ids());
+        }
+        if(found_args()) {
+            res->cf_args = std::move(used_arg_positions());
+        }
+        llvm::errs() << "Finish " << f.getName() << ' ' << located_fields.size() << '\n';
+        if(!located_fields.empty())
+            res->located_fields = std::move(located_fields);
+        return res;
+    }
+
+    bool check_annotation(const llvm::CallInst * call)
+    {
+        if(const llvm::GEPOperator * inst =
+                llvm::dyn_cast<llvm::GEPOperator>(call->getOperand(1))) {
+            const llvm::Value* operand = inst->getPointerOperand();
+            if(const llvm::GlobalVariable * data
+                    = llvm::dyn_cast<llvm::GlobalVariable>(inst->getPointerOperand())) {
+                if(const llvm::ConstantDataArray * initializer
+                    = llvm::dyn_cast<llvm::ConstantDataArray>(data->getInitializer())) {
+                    std::string str = initializer->getAsString().str();
+                    return string_compare(str);
+                }
+            }
+        }
+        return false;
+    }
+
+    void FunctionBodyAnalyzer::process_struct_load(const llvm::Value * val)
+    {
+        if(const llvm::GEPOperator * inst =
+                llvm::dyn_cast<llvm::GEPOperator>(val)) {
+            const llvm::Value * operand = inst->getPointerOperand();
+            // we should expect a pointer to struct_type coming from an arg or alloca
+            //llvm::outs() << *operand << ' ' << *operand->getType()  << '\n';
+            if(const llvm::StructType * type =
+                    llvm::dyn_cast<llvm::StructType>(operand->getType()->getPointerElementType())) {
+                // access always the zero element and the n-th fields where n is integer constant
+                assert(inst->hasAllConstantIndices());
+                auto it = inst->idx_begin();
+                // second operand - struct idx
+                std::advance(it, 1); 
+                llvm::ConstantInt * c = llvm::dyn_cast<llvm::ConstantInt>( (*it) );
+                //llvm::outs() << "Load: " << *val << " from: " << *operand << " and struct field: " << c->getValue() << '\n';
+                Parameters::StructType & struct_type = Parameters::find_struct(type);
+                id_t id = Parameters::found_struct_field(struct_type,
+                        c->getValue().getZExtValue(),
+                        llvm::isa<llvm::GlobalVariable>(operand)
+                        );
+                located_fields.push_back( std::make_tuple(val, id) );
+                //llvm::outs() << "Structs fields: " << located_fields.size() << '\n';
+            }
+        }
+    }
+
+    void FunctionBodyAnalyzer::find_annotations(llvm::Function & f)
+    {
+        //TODO: move to a seperate lib
+        for (auto Iter = llvm::inst_begin(f), End = llvm::inst_end(f); Iter != End; ++Iter) {
+            const llvm::Instruction* I = &*Iter;
+            //llvm::outs() << "Inst: " << *I << '\n';
+            if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
+                //llvm::outs() << *call << ' ' << call->getCalledFunction()->getName() << '\n';
+                // stripPointerCasts() removes bitcasts but it also removes zero GEPs
+                // Such appear when accessing the first field of structure
+                if(call->getCalledFunction() &&
+                        call->getCalledFunction()->getName().equals("llvm.val.annotation")) {
+                    if( check_annotation(call) ) {
+                        //now read the value
+                        const llvm::Value * value = call->getOperand(0);
+                        const llvm::BitCastInst * inst = llvm::dyn_cast<llvm::BitCastInst>(value);
+                        assert(inst);
+                        //llvm::outs() << "Value: " << *value << ' ' << *call->getOperand(0)  << '\n';
+                        process_struct_load(inst->getOperand(0));
+                    }
+                } else if(call->getCalledFunction() &&
+                        call->getCalledFunction()->getName().startswith("llvm.ptr.annotation")) {
+                    if( check_annotation(call) ) {
+                        //now read the value
+                        const llvm::Value * value = call->getOperand(0);
+                        const llvm::BitCastInst * inst = llvm::dyn_cast<llvm::BitCastInst>(value);
+                        assert(inst);
+                        //llvm::outs() << "Value: " << *value << ' ' << *call->getOperand(0)  << '\n';
+                        process_struct_load(inst->getOperand(0));
+                    }
+                }
+            }
+            
+        }
+
+    }
+
+    AnalyzedFunction * FunctionBodyAnalyzer::get_analysis()
+    {
+        AnalyzedFunction * res = new AnalyzedFunction;
+        res->contains_computation = true;
+        if(found_globals()) {
+            res->globals = std::move(accessed_global_ids());
+        }
+        if(found_used_globals()) {
+            res->cf_globals = std::move(used_global_ids());
+        }
+        if(found_args()) {
+            res->cf_args = std::move(used_arg_positions());
+        } 
+        res->located_fields = std::move(located_fields);
+        return res;
     }
 
     // For function f, find out which global variables and which arguments

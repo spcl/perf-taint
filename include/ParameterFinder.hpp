@@ -7,12 +7,14 @@
 #include <unordered_map>
 
 #include <llvm/ADT/SmallSet.h>
+#include <llvm/IR/Instructions.h>
 
 namespace llvm {
     class GlobalVariable;
     class Module;
     class Value;
     class Function;
+    class StructType;
 }
 
 namespace extrap {
@@ -26,6 +28,7 @@ namespace extrap {
         // than just having a SmallVector which we sort and remove duplicates
         // (unique + erase). however, we need comparison only when adding new callsites
         typedef llvm::SmallSet<id_t, 5> vec_t;
+        typedef llvm::SmallVector<id_t, 5> svec_t;
         static id_t GLOBAL_THRESHOLD; 
         static bool IS_GLOBAL(id_t);
 
@@ -33,13 +36,34 @@ namespace extrap {
         static std::vector< std::string > globals_names;
         static std::vector< std::string > arg_names;
 
+        struct StructType
+        {
+            const llvm::StructType * type;
+            // field number -> variable id, global variable id
+            // -1 if never used
+            llvm::SmallVector< std::pair<id_t, id_t>, 10> fields;
+            StructType(const llvm::StructType * _type):
+                type(_type),
+                fields(type->getNumElements(), std::make_pair(-1, -1))
+            {}
+            id_t & get_field(int idx, bool is_global)
+            {
+                return is_global ? fields[idx].second : fields[idx].first;
+            }
+        };
+        // Store annotated structure and the corresponding ID
+        static std::vector<StructType> annotated_structs;
+
         typedef std::vector<std::string>::const_iterator names_it;
         typedef std::pair<names_it, names_it> names_range;
 
         static void find_globals(llvm::Module & m, std::vector<std::string> & globals);
-        static id_t add_param(std::string name);
+        static id_t add_param(std::string name, const llvm::Value *);
+        static id_t add_param(std::string name, bool is_global = false);
         static std::string get_param(id_t id);
         static id_t find_global(const llvm::GlobalVariable *);
+        static StructType & find_struct(const llvm::StructType *);
+        static id_t found_struct_field(StructType &, int field, bool is_global = false);
 
         names_range get_parameters() const;
         names_range get_globals() const;
@@ -74,6 +98,7 @@ namespace extrap {
         {}
 
         FunctionParameters find_args(std::vector<std::string> & names);
+        void analyze_load(const llvm::LoadInst * load, const llvm::Value * found_val);
     };
 
 }

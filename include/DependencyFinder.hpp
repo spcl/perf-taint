@@ -22,6 +22,7 @@ namespace llvm {
 namespace extrap {
 
     class FunctionParameters;
+    class AnalyzedFunction;
 
     struct Dependency
     {
@@ -58,8 +59,8 @@ namespace extrap {
 
         bool find(const llvm::Argument * arg, const FunctionParameters & params, vec_t & ids);
         bool find(const llvm::GlobalVariable * instr, const FunctionParameters & params, vec_t & ids);
-        bool find(const llvm::Value * v, const FunctionParameters & params, vec_t & ids);
-        bool find(const llvm::Instruction * instr, const FunctionParameters & params, vec_t & ids);
+        bool find(const llvm::Value * v, const AnalyzedFunction *, const FunctionParameters & params, vec_t & ids);
+        bool find(const llvm::Instruction * instr, const AnalyzedFunction *, const FunctionParameters & params, vec_t & ids);
         //bool find(const llvm::GetElementPtrInst * instr);
         //
     };

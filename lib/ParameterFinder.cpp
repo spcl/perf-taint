@@ -7,10 +7,13 @@
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Operator.h>
+#include <llvm/Support/Casting.h>
+
 
 namespace llvm {
     template<typename OS, typename T, unsigned int N>
@@ -27,6 +30,7 @@ namespace extrap {
     std::vector< const llvm::GlobalVariable * > Parameters::globals;
     std::vector< std::string > Parameters::globals_names;
     std::vector< std::string > Parameters::arg_names;
+    std::vector<Parameters::StructType> Parameters::annotated_structs;
     Parameters::id_t Parameters::GLOBAL_THRESHOLD = 100;
     
     llvm::Optional<std::string> findDebugName(const llvm::Function & f, const llvm::Value * value)
@@ -123,17 +127,74 @@ namespace extrap {
             return -1;
     }
     
-    Parameters::id_t Parameters::add_param(std::string name)
+    Parameters::id_t Parameters::add_param(std::string name, bool is_global)
     {
-        arg_names.push_back(name);
-        return arg_names.size() - 1;
+        if(is_global) {
+            globals_names.push_back(name);
+            //llvm::outs() << "Add global field: " << name << '\n';
+            return globals_names.size() - 1 + GLOBAL_THRESHOLD;
+        } else {
+            arg_names.push_back(name);
+            //llvm::outs() << "Add field: " << name << '\n';
+            return arg_names.size() - 1;
+        }
+    }
+
+    Parameters::id_t Parameters::add_param(std::string name, const llvm::Value * val)
+    {
+        // push annotated structure
+        if(const llvm::StructType * struct_val = llvm::dyn_cast<llvm::StructType>(val->getType())) {
+            //TODO: do we need to store for each struct its instances?
+            //auto ids = find_struct(struct_val);
+            //if(ids) {
+            //    ids->push_back(arg_names.size() - 1);
+            //} else {
+            //    svec_t vec;
+            //    vec.push_back(arg_names.size() - 1);
+            //    annotated_structs.emplace_back(struct_val);
+            //}
+            find_struct(struct_val);
+        }
+        if(llvm::isa<llvm::GlobalVariable>(val)) {
+            globals_names.push_back(name);
+            return globals_names.size() - 1 + GLOBAL_THRESHOLD;
+        } else {
+            arg_names.push_back(name);
+            return arg_names.size() - 1;
+        }
+    }
+
+    Parameters::StructType & Parameters::find_struct(const llvm::StructType * struct_val)
+    {
+        typedef typename decltype(annotated_structs)::value_type val_t;
+        auto it = std::find_if(annotated_structs.begin(), annotated_structs.end(),
+                [struct_val](const val_t & x) {
+                    return x.type == struct_val;
+                });
+        if(it == annotated_structs.end()) {
+            annotated_structs.emplace_back(struct_val);
+            return annotated_structs.back();
+        } else
+            return (*it);
+    }
+    
+    Parameters::id_t Parameters::found_struct_field(StructType & s, int field, bool is_global)
+    {
+        //llvm::outs() << "Add field: " << field << " to global? " << is_global << " id " << s.get_field(field, is_global) << '\n';
+        assert(field < s.fields.size());
+        if(s.get_field(field, is_global) == -1) {
+            id_t id = add_param(s.type->getName().str() + "_field_" + std::to_string(field), is_global);
+            s.get_field(field, is_global) = id;
+            return id;
+        } else
+            return s.get_field(field, is_global);
     }
     
     FunctionParameters::FunctionParameters(llvm::Function & f, CallSite & callsite)
     {
         // from pos -> ids
         // llvm::Value-> ids
-        llvm::errs() << "Function: " << f.getName() << " arguments: ";
+        //llvm::errs() << "Function: " << f.getName() << " arguments: ";
         for(const CallSite::call_arg_t & call : callsite.parameters)
         {
             int position = std::get<0>(call);
@@ -190,7 +251,7 @@ namespace extrap {
                 //llvm::outs() << name << '\n';
                 for(std::string & param_name : names) {
                     if(param_name == name) {
-                        Parameters::id_t id = Parameters::add_param(name);
+                        Parameters::id_t id = Parameters::add_param(name, DbgDeclare->getAddress());
                         params.add(DbgDeclare->getAddress(), id);
                     }
                 }
@@ -199,12 +260,13 @@ namespace extrap {
                 //llvm::outs() << name << '\n';
                 for(std::string & param_name : names) {
                     if(param_name == name) {
-                        Parameters::id_t id = Parameters::add_param(name);
+                        Parameters::id_t id = Parameters::add_param(name, DbgValue->getValue());
                         params.add(DbgValue->getValue(), id);
                     }
                 }
             } else if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
-                if(call->getCalledFunction() && call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
+                if(call->getCalledFunction() &&
+                        call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
                     if(const llvm::GEPOperator * inst =
                             llvm::dyn_cast<llvm::GEPOperator>(call->getOperand(1))) {
                         const llvm::Value* operand = inst->getPointerOperand();
@@ -218,7 +280,7 @@ namespace extrap {
                                     const llvm::Value * value = call->getOperand(0)->stripPointerCasts();
                                     auto value_name = findDebugName(f, value);
                                     assert(value_name.hasValue());
-                                    Parameters::id_t id = Parameters::add_param(value_name.getValue());
+                                    Parameters::id_t id = Parameters::add_param(value_name.getValue(), value);
                                     params.add(value, id);
                                 }
                             }
@@ -230,4 +292,22 @@ namespace extrap {
         }
         return params;
     }
+
+    llvm::Type * remove_pointer(llvm::Type * type)
+    {
+        if(type->isPointerTy())
+            return remove_pointer(type->getPointerElementType());
+        else
+            return type;
+    }
+
+    //void ParameterFinder::analyze_load(const llvm::LoadInst * load, const llvm::Value * found_val)
+    //{
+    //    // annotated structure - find if the variable inside is annotated
+    //    llvm::Type * type = remove_pointer(found_val->getType());
+    //    if(const llvm::StructType * struct_val = llvm::dyn_cast<llvm::StructType>(type)) {
+    //        llvm::outs() << *load << '\n';
+    //        // find out 
+    //    }
+    //}
 }

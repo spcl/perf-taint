@@ -1,5 +1,6 @@
 #include "JSONExporter.hpp"
 #include "FunctionAnalysis.hpp"
+#include "FunctionBodyAnalyzer.hpp"
 
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/Function.h>
@@ -91,6 +92,8 @@ namespace extrap {
 
     void JSONExporter::export_function(llvm::Function & f, AnalyzedFunction & func)
     {
+        if(!func.matters())
+            return;
         json_t function = export_function(f);
         auto callsite_begin = func.callsites.begin(), callsite_end = func.callsites.end(); 
         while(callsite_begin != callsite_end) {

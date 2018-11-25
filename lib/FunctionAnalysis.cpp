@@ -32,6 +32,32 @@ namespace llvm {
 
 namespace extrap {
 
+    FunctionAnalysis::~FunctionAnalysis()
+    {
+        unknown.close();
+        blacklist.close();
+        whitelist.close();
+        std::for_each(functions.begin(), functions.end(),
+                [](std::pair<llvm::Function *, AnalyzedFunction*> p) {
+                    delete p.second;
+                });
+    }
+    
+    llvm::Optional<std::string> findDebugName(const llvm::Function * f, const llvm::Value * value)
+    {
+        for (auto Iter = llvm::inst_begin(f), End = llvm::inst_end(f); Iter != End; ++Iter) {
+            const llvm::Instruction* instr = &*Iter;
+            if (const llvm::DbgDeclareInst* DbgDeclare = llvm::dyn_cast<llvm::DbgDeclareInst>(instr)) {
+                if(DbgDeclare->getAddress() == value)
+                    return DbgDeclare->getVariable()->getName().str();
+            } else if (const llvm::DbgValueInst* DbgValue = llvm::dyn_cast<llvm::DbgValueInst>(instr)) {
+                if(DbgValue->getValue() == value)
+                    return DbgValue->getVariable()->getName().str();
+            }
+        }
+        return llvm::Optional<std::string>();
+    }
+
     void CallSite::called(int pos, const FunctionParameters::vec_t & args)
     {
         parameters.push_back( std::make_tuple(pos, args) );
@@ -42,12 +68,6 @@ namespace extrap {
         // same code location, same number of parameters
         // params should be in the same order since we process them always from the first arg
         return site.dbg_loc == dbg_loc && site.parameters == parameters;
-    }
-        
-    bool AnalyzedFunction::matters() const
-    {
-        //(uses globals OR called with args) AND contains computation
-        return (globals || !callsites.empty()) && contains_computation;
     }
 
     void FunctionAnalysis::insert_callsite(llvm::Function & f, AnalyzedFunction * f_analysis, CallSite && site)
@@ -91,8 +111,8 @@ namespace extrap {
         llvm::CallGraphNode * main_node = cg[main];
         ParameterFinder finder(m, *main);
         FunctionParameters main_params = finder.find_args(param_names);
-        analyze_function(*main);
-        analyze_function(*main, main_params);
+        AnalyzedFunction * f_analyzed = analyze_function(*main);
+        analyze_function(*main, f_analyzed, main_params);
         exporter.export_parameters(params);
         int found_callsites = 0, found_functions = 0;
 
@@ -130,7 +150,7 @@ namespace extrap {
             
     }
     
-    void FunctionAnalysis::analyze_function(llvm::Function & f, const FunctionParameters & params)
+    void FunctionAnalysis::analyze_function(llvm::Function & f, AnalyzedFunction * f_analyzed, const FunctionParameters & params)
     {
         llvm::CallGraphNode * node = cg[&f];
         for(auto callsite : *node)
@@ -150,8 +170,7 @@ namespace extrap {
                 FunctionParameters call_parameters;
                 //non-NULL when the f is already known to access globals and call with params
                 AnalyzedFunction * f_analysis = analyze_function(*called_f);
-                llvm::Optional<CallSite> callsite = analyze_call(call, 
-                        f_analysis ? f_analysis->globals.hasValue() : false, params); 
+                llvm::Optional<CallSite> callsite = analyze_call(call, f_analyzed, f_analysis, params); 
                 if(stats) 
                     stats->found_callsite(called_f, get_call_loc(call), callsite.hasValue());
                 if(callsite) {
@@ -168,7 +187,7 @@ namespace extrap {
                     insert_callsite(*called_f, f_analysis, std::move(callsite.getValue()));
                 }
                 // Call with empty call_parameters (only globals) if callsite is unimportant
-                analyze_function(*called_f, call_parameters);
+                analyze_function(*called_f, f_analysis, call_parameters);
             }
         }
     }
@@ -200,21 +219,7 @@ namespace extrap {
             //        dep.find(&instr, empty, ids);
             //    }
             //}
-            AnalyzedFunction * res = nullptr;
-            if(analyzer.analyze(f)) {
-                res = new AnalyzedFunction;
-                res->contains_computation = true;
-                if(analyzer.found_globals()) {
-                    res->globals = std::move(analyzer.accessed_global_ids());
-                }
-                if(analyzer.found_used_globals()) {
-                    res->cf_globals = std::move(analyzer.used_global_ids());
-                }
-                if(analyzer.found_args()) {
-                    res->cf_args = std::move(analyzer.used_arg_positions());
-                } 
-            }
-            return res;
+            return analyzer.analyze(f);
         }
         return nullptr;
     }
@@ -246,41 +251,44 @@ namespace extrap {
     }
 
     template<typename T>
-    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::CallBase<T> * call, bool has_globals, const FunctionParameters & params)
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::CallBase<T> * call, AnalyzedFunction * caller_an, AnalyzedFunction * called_an, const FunctionParameters & params)
     {
-
         llvm::Optional<CallSite> site;
         FunctionParameters::vec_t ids;
         DependencyFinder dep;
+        bool has_globals = called_an->globals.hasValue();
         if(has_globals)
             site = CallSite(call->getDebugLoc());
-        llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
-        llvm::errs() << "Arguments: ";
-        for(auto & x : params.arguments)
-            llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
-        llvm::errs() << "\n";
-        // last operand is the function name
-        llvm::errs() << "Operands: " << call->getNumArgOperands() << '\n';
+        //llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
+        //llvm::errs() << "Arguments: ";
+        //for(auto & x : params.arguments)
+        //    llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
+        //llvm::errs() << "\n";
+        //// last operand is the function name
+        //llvm::errs() << "Operands: " << call->getNumArgOperands() << '\n';
+        //llvm::errs() << "Start analysis of callsite: " << call->getCalledFunction()->getName() << '\n';
+        //llvm::errs() << " " << (f_analysis ? f_analysis->located_fields.size() : 0 )<< '\n';
         for(int i = 0; i < call->getNumArgOperands(); ++i) {
-            llvm::errs() << "Look in operand: " << *call->getArgOperand(i) << ' ' << ids.size() << '\n';
-            dep.find(call->getArgOperand(i), params, ids);
+            //llvm::errs() << "Look in operand: " << *call->getArgOperand(i) << ' ' << ids.size() << '\n';
+            dep.find(call->getArgOperand(i), caller_an, params, ids);
             if(!ids.empty()) {
                 if(!site)
                     site = CallSite(call->getDebugLoc());
-                llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
+                //llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
                 site->called(i, ids);
                 ids.clear();
             }
         }
+        llvm::errs() << "Found: " << site.hasValue() << '\n'; 
         return site;
     }
 
-    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, bool has_globals, const FunctionParameters & params)
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::Value * v, AnalyzedFunction * caller_an, AnalyzedFunction * called_an, const FunctionParameters & params)
     {
         if(llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(v)) {
-            return analyze_call(call, has_globals, params);
+            return analyze_call(call, caller_an, called_an, params);
         } else if(llvm::InvokeInst * call = llvm::dyn_cast<llvm::InvokeInst>(v)) {
-            return analyze_call(call, has_globals, params);
+            return analyze_call(call, caller_an, called_an, params);
         }
         assert(false);
     }

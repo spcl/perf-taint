@@ -1,4 +1,5 @@
 #include "DependencyFinder.hpp"
+#include "FunctionBodyAnalyzer.hpp"
 #include "FunctionAnalysis.hpp"
 #include "util/util.hpp"
 
@@ -12,6 +13,14 @@
 
 #include <nlohmann/json.hpp>
 
+
+llvm::Type * remove_pointer(llvm::Type * type)
+{
+    if(type->isPointerTy())
+        return remove_pointer(type->getPointerElementType());
+    else
+        return type;
+}
 
 namespace extrap {
 
@@ -98,17 +107,26 @@ namespace extrap {
         return true;
     }
 
-    bool DependencyFinder::find(const llvm::Value * v, const FunctionParameters & params, vec_t & ids)
+    bool DependencyFinder::find(const llvm::Value * v, const AnalyzedFunction * f_analysis, const FunctionParameters & params, vec_t & ids)
     {
         if( const vec_t * found_ids = params.find(v) ) {
             ids.insert(found_ids->begin(), found_ids->end());
             return true;
         }
+        //llvm::outs() << "Value: " << *v << " fields_count: " << (f_analysis ? f_analysis->located_fields.size() : 0) << '\n';
+        //if(f_analysis) {
+        //    for(auto & x : f_analysis->located_fields) {
+        //        if(v == std::get<0>(x) ) {
+        //            ids.insert(std::get<1>(x));
+        //            return true;
+        //        }
+        //    }
+        //}
         if(const llvm::BasicBlock * bb = llvm::dyn_cast<llvm::BasicBlock>(v)) {
             for(const llvm::Instruction & instr : bb->instructionsWithoutDebug())
-                return find(&instr, params, ids);
+                return find(&instr, f_analysis, params, ids);
         } else if(const llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(v)) {
-            return find(instr, params, ids);
+            return find(instr, f_analysis, params, ids);
         } else if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v)) {
             //find(a);
             //return true;
@@ -133,7 +151,7 @@ namespace extrap {
     //    find(instr->getPointerOperand());
     //}
     
-    bool DependencyFinder::find(const llvm::Instruction * instr, const FunctionParameters & params, vec_t & ids)
+    bool DependencyFinder::find(const llvm::Instruction * instr, const AnalyzedFunction * f_analysis, const FunctionParameters & params, vec_t & ids)
     {
         bool understood = true;
         for(int i = 0; i < instr->getNumOperands(); ++i) {
@@ -146,7 +164,7 @@ namespace extrap {
                 phi_nodes.insert(phi);
             }
             if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(instr)) {
-                bool found = find(load->getPointerOperand(), params, ids);
+                bool found = find(load->getPointerOperand(), f_analysis, params, ids);
                 if(!found) {
                     llvm::errs() << "Unable to understand the instruction: " << *load << '\n';
                     understood = false;
@@ -154,9 +172,22 @@ namespace extrap {
             }
             // results of a load instruction
             else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(instr)) {
-                understood &= find(gep->getPointerOperand(), params, ids);
+
+                llvm::Type * type = remove_pointer(gep->getPointerOperand()->getType());
+                if(const llvm::StructType * struct_val = llvm::dyn_cast<llvm::StructType>(type)) {
+                    // loading from struct, check for fields
+                    for(auto & x : f_analysis->located_fields) {
+                        if(instr == std::get<0>(x) ) {
+                            ids.insert(std::get<1>(x));
+                            break;
+                        }
+                    }
+                    //unknown field - skip, assume no dependency between non-marked and marked fields 
+                } else {
+                    understood &= find(gep->getPointerOperand(), f_analysis, params, ids);
+                }
             } else {
-                understood &= find(val, params, ids);
+                understood &= find(val, f_analysis, params, ids);
             }
             //if(llvm::Instruction * child_instr = llvm::dyn_cast<llvm::Instruction>(val)) {
             //found |= find(child_instr, params);
