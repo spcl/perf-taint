@@ -174,7 +174,8 @@ namespace extrap {
             else if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(instr)) {
 
                 llvm::Type * type = remove_pointer(gep->getPointerOperand()->getType());
-                if(const llvm::StructType * struct_val = llvm::dyn_cast<llvm::StructType>(type)) {
+                const llvm::StructType * struct_val = llvm::dyn_cast<llvm::StructType>(type);
+                if(f_analysis && struct_val) {
                     // loading from struct, check for fields
                     for(auto & x : f_analysis->located_fields) {
                         if(instr == std::get<0>(x) ) {
