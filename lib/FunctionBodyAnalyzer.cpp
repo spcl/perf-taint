@@ -19,6 +19,14 @@ namespace {
                     return a == b || !isprint(a); 
                 });
     }
+
+    llvm::Type * remove_pointer(llvm::Type * type)
+    {
+        if(type->isPointerTy())
+            return remove_pointer(type->getPointerElementType());
+        else
+            return type;
+    }
 }
 
 namespace extrap {
@@ -96,6 +104,15 @@ namespace extrap {
         }
     }
 
+    int get_field_index(const llvm::GEPOperator * inst)
+    {
+        auto it = inst->idx_begin();
+        // second operand - struct idx
+        std::advance(it, 1);
+        llvm::ConstantInt * c = llvm::dyn_cast<llvm::ConstantInt>( (*it) );
+        return c->getZExtValue();
+    }
+
     // Algorithm: for every user of the global variable, analyze each children
     // If the application is not possible to determine, such as store/load, mark as used
     // If the application is conditional branch, mark as used.
@@ -108,7 +125,26 @@ namespace extrap {
                 for(const llvm::Value * val : instr.operands()) {
                     // Load and getelementptr are joined together
                     if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(val)) {
-                        check_global(gep->getPointerOperand(), instr);
+
+                        if(const llvm::GlobalVariable * gvar = llvm::dyn_cast<llvm::GlobalVariable>(gep->getPointerOperand())) {
+                            llvm::errs() << "Global: " << *gvar << ' ' << *gep << '\n';
+                            llvm::Type * type = remove_pointer(gvar->getType());
+                            if(const llvm::StructType * struct_type = llvm::dyn_cast<llvm::StructType>(type)) {
+                                // if it is a global variable with annotated struct, we verify if this field is known
+                                // if this is a load from global struct that we don't know, then it doesn't matter
+                                llvm::errs() << "Struct: " << *struct_type << '\n';
+                                if(Parameters::StructType * type = Parameters::find_struct(struct_type)) {
+                                    Parameters::id_t id = type->get_field(get_field_index(gep), true);
+                                    llvm::errs() << "Struct: " << *struct_type << ' ' << get_field_index(gep) << ' ' << id << '\n';
+                                    if(id > -1 && analyze_users(instr))
+                                        used_globals.insert(id);
+                                    if(id > -1)
+                                        acc_globals.insert(id);
+                                }
+                            } else {
+                                check_global(gep->getPointerOperand(), instr);
+                            }
+                        }
                     } else {
                         check_global(val, instr);
                     }
@@ -158,9 +194,12 @@ namespace extrap {
 
     AnalyzedFunction * FunctionBodyAnalyzer::analyze(llvm::Function & f)
     {
-        find_globals(f);
-        find_used_args(f);
+        // localize accessed struct fields
         find_annotations(f);
+        // localize used global variables
+        find_globals(f);
+        // localize uses of arguments
+        find_used_args(f);
         llvm::errs() << "Finished " << located_fields.size() << '\n';
         // TODO: here process const loops
         AnalyzedFunction * res = new AnalyzedFunction;
@@ -214,8 +253,8 @@ namespace extrap {
                 // second operand - struct idx
                 std::advance(it, 1); 
                 llvm::ConstantInt * c = llvm::dyn_cast<llvm::ConstantInt>( (*it) );
-                //llvm::outs() << "Load: " << *val << " from: " << *operand << " and struct field: " << c->getValue() << '\n';
-                Parameters::StructType & struct_type = Parameters::find_struct(type);
+                Parameters::StructType & struct_type = Parameters::insert_struct(type);
+                llvm::errs() << "Load: " << *val << " from: " << *operand << " and struct field: " << c->getValue() << ' ' << llvm::isa<llvm::GlobalVariable>(operand) << '\n';
                 id_t id = Parameters::found_struct_field(struct_type,
                         c->getValue().getZExtValue(),
                         llvm::isa<llvm::GlobalVariable>(operand)

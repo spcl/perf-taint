@@ -62,7 +62,8 @@ namespace extrap {
         static id_t add_param(std::string name, bool is_global = false);
         static std::string get_param(id_t id);
         static id_t find_global(const llvm::GlobalVariable *);
-        static StructType & find_struct(const llvm::StructType *);
+        static StructType & insert_struct(const llvm::StructType *);
+        static StructType * find_struct(const llvm::StructType *);
         static id_t found_struct_field(StructType &, int field, bool is_global = false);
 
         names_range get_parameters() const;

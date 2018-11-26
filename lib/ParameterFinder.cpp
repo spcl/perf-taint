@@ -164,7 +164,17 @@ namespace extrap {
         }
     }
 
-    Parameters::StructType & Parameters::find_struct(const llvm::StructType * struct_val)
+    Parameters::StructType * Parameters::find_struct(const llvm::StructType * struct_val)
+    {
+        typedef typename decltype(annotated_structs)::value_type val_t;
+        auto it = std::find_if(annotated_structs.begin(), annotated_structs.end(),
+                [struct_val](const val_t & x) {
+                    return x.type == struct_val;
+                });
+        return it == annotated_structs.end() ? nullptr : &*it;
+    }
+ 
+    Parameters::StructType & Parameters::insert_struct(const llvm::StructType * struct_val)
     {
         typedef typename decltype(annotated_structs)::value_type val_t;
         auto it = std::find_if(annotated_structs.begin(), annotated_structs.end(),
