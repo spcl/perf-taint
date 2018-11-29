@@ -35,31 +35,16 @@ if(NOT Jsoncpp_FOUND)
 endif()
 include_directories(${JSONCPP_INCLUDE_DIRS})
 
-#add_library(LLVMLoopTools STATIC lib/io/SCEVAnalyzer.cpp lib/LoopCounters.cpp
-#        lib/io/ValueToString.cpp lib/LoopClassification.cpp lib/LoopIV.cpp
-#        lib/util.cpp)
-#set_property(TARGET LLVMLoopTools PROPERTY CXX_STANDARD 14)
-#set_target_properties(LLVMLoopTools PROPERTIES COMPILE_FLAGS "-fno-rtti")
-#set_target_properties(LLVMLoopTools PROPERTIES POSITION_INDEPENDENT_CODE On)
-#add_dependencies(LLVMLoopTools jsoncpp)
-#
-#add_library(LLVMLoopExtractor MODULE lib/LoopExtractorPass.cpp lib/LoopExtractor.cpp)
-#add_library(LLVMLoopStatistics MODULE lib/LoopStatisticsPass.cpp)
-#target_link_libraries(LLVMLoopExtractor PRIVATE LLVMLoopTools)
-#target_link_libraries(LLVMLoopStatistics PRIVATE LLVMLoopTools)
-#set_property(TARGET LLVMLoopExtractor PROPERTY CXX_STANDARD 14)
-#set_property(TARGET LLVMLoopStatistics PROPERTY CXX_STANDARD 14)
-#set_target_properties(LLVMLoopExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
-#set_target_properties(LLVMLoopStatistics PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
-
-add_library(ExtraPExtractor MODULE lib/ExtraPExtractorPass.cpp lib/DependencyFinder.cpp lib/ScalarEvolutionVisitor.cpp lib/PollyVisitor.cpp lib/FunctionAnalysis.cpp lib/JSONExporter.cpp lib/FunctionBodyAnalyzer.cpp lib/Statistics.cpp lib/ParameterFinder.cpp)
-set_property(TARGET ExtraPExtractor PROPERTY CXX_STANDARD 14)
-set_target_properties(ExtraPExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
-set_target_properties(ExtraPExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
-add_dependencies(ExtraPExtractor jsoncpp)
-
-target_link_libraries(ExtraPExtractor LLVMPolly)
+file(GLOB StaticExtractor
+    "lib/static-extractor/*.cpp"
+)
+add_library(StaticExtractor MODULE ${StaticExtractor} lib/ParameterFinder.cpp)
+set_property(TARGET StaticExtractor PROPERTY CXX_STANDARD 14)
+set_target_properties(StaticExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
+set_target_properties(StaticExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
+add_dependencies(StaticExtractor jsoncpp)
+target_link_libraries(StaticExtractor LLVMPolly)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 

@@ -1,6 +1,6 @@
 
-#include "PollyVisitor.hpp"
-#include "DependencyFinder.hpp"
+#include "static-extractor/PollyVisitor.hpp"
+#include "static-extractor/DependencyFinder.hpp"
 #include "util/util.hpp"
 
 #include <llvm/Support/raw_ostream.h>

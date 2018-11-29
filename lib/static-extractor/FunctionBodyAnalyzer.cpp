@@ -1,6 +1,6 @@
-#include "DependencyFinder.hpp"
-#include "FunctionBodyAnalyzer.hpp"
-#include "FunctionAnalysis.hpp"
+#include "static-extractor/DependencyFinder.hpp"
+#include "static-extractor/FunctionBodyAnalyzer.hpp"
+#include "static-extractor/FunctionAnalysis.hpp"
 
 #include <llvm/Pass.h>
 #include <llvm/Analysis/LoopInfo.h>
@@ -197,7 +197,6 @@ namespace extrap {
         find_globals(f);
         // localize uses of arguments
         find_used_args(f);
-        llvm::errs() << "Finished " << located_fields.size() << '\n';
         // TODO: here process const loops
         AnalyzedFunction * res = new AnalyzedFunction;
         if(!linfo.empty()) {
@@ -212,7 +211,6 @@ namespace extrap {
         if(found_args()) {
             res->cf_args = std::move(used_arg_positions());
         }
-        llvm::errs() << "Finish " << f.getName() << ' ' << located_fields.size() << '\n';
         if(!located_fields.empty())
             res->located_fields = std::move(located_fields);
         return res;

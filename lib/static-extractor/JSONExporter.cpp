@@ -1,6 +1,6 @@
-#include "JSONExporter.hpp"
-#include "FunctionAnalysis.hpp"
-#include "FunctionBodyAnalyzer.hpp"
+#include "static-extractor/JSONExporter.hpp"
+#include "static-extractor/FunctionAnalysis.hpp"
+#include "static-extractor/FunctionBodyAnalyzer.hpp"
 
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/Function.h>

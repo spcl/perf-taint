@@ -1,6 +1,6 @@
-#include "DependencyFinder.hpp"
-#include "FunctionBodyAnalyzer.hpp"
-#include "FunctionAnalysis.hpp"
+#include "static-extractor/DependencyFinder.hpp"
+#include "static-extractor/FunctionBodyAnalyzer.hpp"
+#include "static-extractor/FunctionAnalysis.hpp"
 #include "util/util.hpp"
 
 #include <llvm/IR/Function.h>
@@ -156,12 +156,12 @@ namespace extrap {
     bool DependencyFinder::find(const llvm::Instruction * instr, const AnalyzedFunction * f_analysis, const FunctionParameters & params, vec_t & ids)
     {
         bool understood = true;
-        llvm::errs() << "Process_instr: of # operands: " << instr->getNumOperands() << " " << *instr << '\n';
-        for(int i = 0; i < instr->getNumOperands(); ++i)
-          llvm::errs() << "Process_instr: " << i << " " << *instr->getOperand(i) << '\n';
         const llvm::CallInst* call = llvm::dyn_cast<llvm::CallInst>(instr);
         int args = call ? call->getNumArgOperands() : instr->getNumOperands();
-        llvm::errs() << "Process_instr: of # operands: " << static_cast<bool>(call) << '\n';
+        //llvm::errs() << "Process_instr: of # operands: " << instr->getNumOperands() << " " << *instr << '\n';
+        //for(int i = 0; i < instr->getNumOperands(); ++i)
+        //  llvm::errs() << "Process_instr: " << i << " " << *instr->getOperand(i) << '\n';
+        //llvm::errs() << "Process_instr: of # operands: " << static_cast<bool>(call) << '\n';
         for(int i = 0; i < args; ++i) {
             llvm::Value * val = call ? call->getArgOperand(i) : instr->getOperand(i);
             llvm::PHINode * phi = llvm::dyn_cast<llvm::PHINode>(val);
@@ -173,11 +173,11 @@ namespace extrap {
             }
             if(llvm::isa<llvm::BasicBlock>(val))
                 continue;
-            llvm::errs() << "Process: " << *val << ' ' << *(val->getType()) << '\n';
+            //llvm::errs() << "Process: " << *val << ' ' << *(val->getType()) << '\n';
             if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(instr)) {
                 bool found = find(load->getPointerOperand(), f_analysis, params, ids);
                 if(!found) {
-                    llvm::errs() << "Unable to understand the instruction: " << *load << '\n';
+                    //llvm::errs() << "Unable to understand the instruction: " << *load << '\n';
                     understood = false;
                 }
             }

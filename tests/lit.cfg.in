@@ -12,6 +12,6 @@ config.suffixes = ['.ll']
 
 config.substitutions.append( ('%loadpass', '-load '
     + config.lib_dir
-    + '/libExtraPExtractor.so'
+    + '/libStaticExtractor.so'
     + ' -extrap-extractor')
     )

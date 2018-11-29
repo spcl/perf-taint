@@ -1,4 +1,4 @@
-#include "Statistics.hpp"
+#include "static-extractor/Statistics.hpp"
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/DebugInfoMetadata.h>

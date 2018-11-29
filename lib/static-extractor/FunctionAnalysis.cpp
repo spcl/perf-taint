@@ -1,9 +1,9 @@
 
-#include "FunctionAnalysis.hpp"
-#include "FunctionBodyAnalyzer.hpp"
-#include "DependencyFinder.hpp"
-#include "JSONExporter.hpp"
-#include "ExtraPExtractorPass.hpp"
+#include "static-extractor/FunctionAnalysis.hpp"
+#include "static-extractor/FunctionBodyAnalyzer.hpp"
+#include "static-extractor/DependencyFinder.hpp"
+#include "static-extractor/JSONExporter.hpp"
+#include "static-extractor/ExtraPExtractorPass.hpp"
 
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/IR/Function.h>
@@ -168,7 +168,6 @@ namespace extrap {
                continue;
             }
             phi_nodes.insert(called_f);
-            llvm::outs() << f.getName() << " calls: " << called_f->getName() << '\n';
 
             if( is_analyzable(called_f) ) {
 

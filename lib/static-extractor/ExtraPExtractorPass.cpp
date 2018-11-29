@@ -1,10 +1,10 @@
 
-#include "ExtraPExtractorPass.hpp"
-#include "ScalarEvolutionVisitor.hpp"
-#include "PollyVisitor.hpp"
-#include "FunctionAnalysis.hpp"
-#include "DependencyFinder.hpp"
-#include "JSONExporter.hpp"
+#include "static-extractor/ExtraPExtractorPass.hpp"
+#include "static-extractor/ScalarEvolutionVisitor.hpp"
+#include "static-extractor/PollyVisitor.hpp"
+#include "static-extractor/FunctionAnalysis.hpp"
+#include "static-extractor/DependencyFinder.hpp"
+#include "static-extractor/JSONExporter.hpp"
 #include "util/util.hpp"
 
 #include <llvm/Analysis/CallGraph.h>
