@@ -123,8 +123,10 @@ namespace extrap {
         //    }
         //}
         if(const llvm::BasicBlock * bb = llvm::dyn_cast<llvm::BasicBlock>(v)) {
-            for(const llvm::Instruction & instr : bb->instructionsWithoutDebug())
-                return find(&instr, f_analysis, params, ids);
+            //for(const llvm::Instruction & instr : bb->instructionsWithoutDebug())
+            //return find(&instr, f_analysis, params, ids);
+            //TODO: when we get bb as param? only for invokes?
+            return true;
         } else if(const llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(v)) {
             return find(instr, f_analysis, params, ids);
         } else if(const llvm::Argument * a = llvm::dyn_cast<llvm::Argument>(v)) {
@@ -154,8 +156,14 @@ namespace extrap {
     bool DependencyFinder::find(const llvm::Instruction * instr, const AnalyzedFunction * f_analysis, const FunctionParameters & params, vec_t & ids)
     {
         bool understood = true;
-        for(int i = 0; i < instr->getNumOperands(); ++i) {
-            llvm::Value * val = instr->getOperand(i);
+        llvm::errs() << "Process_instr: of # operands: " << instr->getNumOperands() << " " << *instr << '\n';
+        for(int i = 0; i < instr->getNumOperands(); ++i)
+          llvm::errs() << "Process_instr: " << i << " " << *instr->getOperand(i) << '\n';
+        const llvm::CallInst* call = llvm::dyn_cast<llvm::CallInst>(instr);
+        int args = call ? call->getNumArgOperands() : instr->getNumOperands();
+        llvm::errs() << "Process_instr: of # operands: " << static_cast<bool>(call) << '\n';
+        for(int i = 0; i < args; ++i) {
+            llvm::Value * val = call ? call->getArgOperand(i) : instr->getOperand(i);
             llvm::PHINode * phi = llvm::dyn_cast<llvm::PHINode>(val);
             if(phi) {
                 if(phi_nodes.find(phi) != phi_nodes.end()) {
@@ -163,6 +171,9 @@ namespace extrap {
                 }
                 phi_nodes.insert(phi);
             }
+            if(llvm::isa<llvm::BasicBlock>(val))
+                continue;
+            llvm::errs() << "Process: " << *val << ' ' << *(val->getType()) << '\n';
             if(const llvm::LoadInst * load = llvm::dyn_cast<llvm::LoadInst>(instr)) {
                 bool found = find(load->getPointerOperand(), f_analysis, params, ids);
                 if(!found) {

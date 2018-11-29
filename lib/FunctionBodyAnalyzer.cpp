@@ -127,15 +127,12 @@ namespace extrap {
                     if(const llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(val)) {
 
                         if(const llvm::GlobalVariable * gvar = llvm::dyn_cast<llvm::GlobalVariable>(gep->getPointerOperand())) {
-                            llvm::errs() << "Global: " << *gvar << ' ' << *gep << '\n';
                             llvm::Type * type = remove_pointer(gvar->getType());
                             if(const llvm::StructType * struct_type = llvm::dyn_cast<llvm::StructType>(type)) {
                                 // if it is a global variable with annotated struct, we verify if this field is known
                                 // if this is a load from global struct that we don't know, then it doesn't matter
-                                llvm::errs() << "Struct: " << *struct_type << '\n';
                                 if(Parameters::StructType * type = Parameters::find_struct(struct_type)) {
                                     Parameters::id_t id = type->get_field(get_field_index(gep), true);
-                                    llvm::errs() << "Struct: " << *struct_type << ' ' << get_field_index(gep) << ' ' << id << '\n';
                                     if(id > -1 && analyze_users(instr))
                                         used_globals.insert(id);
                                     if(id > -1)
@@ -254,7 +251,7 @@ namespace extrap {
                 std::advance(it, 1); 
                 llvm::ConstantInt * c = llvm::dyn_cast<llvm::ConstantInt>( (*it) );
                 Parameters::StructType & struct_type = Parameters::insert_struct(type);
-                llvm::errs() << "Load: " << *val << " from: " << *operand << " and struct field: " << c->getValue() << ' ' << llvm::isa<llvm::GlobalVariable>(operand) << '\n';
+                //llvm::errs() << "Load: " << *val << " from: " << *operand << " and struct field: " << c->getValue() << ' ' << llvm::isa<llvm::GlobalVariable>(operand) << '\n';
                 id_t id = Parameters::found_struct_field(struct_type,
                         c->getValue().getZExtValue(),
                         llvm::isa<llvm::GlobalVariable>(operand)
@@ -293,6 +290,9 @@ namespace extrap {
                         const llvm::BitCastInst * inst = llvm::dyn_cast<llvm::BitCastInst>(value);
                         assert(inst);
                         //llvm::outs() << "Value: " << *value << ' ' << *call->getOperand(0)  << '\n';
+                        llvm::errs() << "DBg: " << *(inst->getOperand(0)) << '\n';
+                        for(auto x : inst->getOperand(0)->users())
+                            llvm::errs() << *x << '\n';
                         process_struct_load(inst->getOperand(0));
                     }
                 }

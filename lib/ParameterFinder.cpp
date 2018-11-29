@@ -190,6 +190,7 @@ namespace extrap {
     
     Parameters::id_t Parameters::found_struct_field(StructType & s, int field, bool is_global)
     {
+        //TODO: debug module - struct fields
         //llvm::outs() << "Add field: " << field << " to global? " << is_global << " id " << s.get_field(field, is_global) << '\n';
         assert(field < s.fields.size());
         if(s.get_field(field, is_global) == -1) {
