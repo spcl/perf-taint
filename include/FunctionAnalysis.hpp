@@ -61,6 +61,9 @@ namespace extrap {
         // unify that into a single structure
         std::unordered_map<llvm::Function *, AnalyzedFunction*> functions;
 
+        // functions allready processing - remove recursions
+        std::set<llvm::Function*> phi_nodes;
+
         //TODO: remove that reference
         FunctionAnalysis(ExtraPExtractorPass & _pass, llvm::CallGraph & _cg, llvm::Module & _m,
                 extrap::JSONExporter & exp, bool generate_stats) :

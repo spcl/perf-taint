@@ -126,8 +126,8 @@ namespace extrap {
         std::vector< std::pair<llvm::Function*, AnalyzedFunction*> > sorted;
         sorted.reserve(this->functions.size());
         for(auto & f : this->functions) {
-            found_functions += static_cast<bool>(f.second);
-            if(f.second) {
+            found_functions += f.second->matters();
+            if(f.second->matters()) {
                 sorted.push_back(f);
                 found_callsites += f.second->callsites.size();
             }
@@ -164,6 +164,12 @@ namespace extrap {
             }
             assert(call);
 
+            if(phi_nodes.find(called_f) != phi_nodes.end()) {
+               continue;
+            }
+            phi_nodes.insert(called_f);
+            llvm::outs() << f.getName() << " calls: " << called_f->getName() << '\n';
+
             if( is_analyzable(called_f) ) {
 
                 assert(called_f);
@@ -189,6 +195,7 @@ namespace extrap {
                 // Call with empty call_parameters (only globals) if callsite is unimportant
                 analyze_function(*called_f, f_analysis, call_parameters);
             }
+            phi_nodes.erase(called_f);
         }
     }
 
@@ -259,27 +266,15 @@ namespace extrap {
         bool has_globals = called_an->globals.hasValue();
         if(has_globals)
             site = CallSite(call->getDebugLoc());
-        //llvm::errs() << call->getFunction()->getName() << " " << call->getCalledFunction()->getName() << '\n';
-        //llvm::errs() << "Arguments: ";
-        //for(auto & x : params.arguments)
-        //    llvm::errs() << "(" << x.first << ',' << x.second.size() << ')';
-        //llvm::errs() << "\n";
-        //// last operand is the function name
-        //llvm::errs() << "Operands: " << call->getNumArgOperands() << '\n';
-        //llvm::errs() << "Start analysis of callsite: " << call->getCalledFunction()->getName() << '\n';
-        //llvm::errs() << " " << (f_analysis ? f_analysis->located_fields.size() : 0 )<< '\n';
         for(int i = 0; i < call->getNumArgOperands(); ++i) {
-            //llvm::errs() << "Look in operand: " << *call->getArgOperand(i) << ' ' << ids.size() << '\n';
             dep.find(call->getArgOperand(i), caller_an, params, ids);
             if(!ids.empty()) {
                 if(!site)
                     site = CallSite(call->getDebugLoc());
-                //llvm::errs() << "Called: " << i << " with ids_size: " << ids.size() << '\n';
                 site->called(i, ids);
                 ids.clear();
             }
         }
-        llvm::errs() << "Found: " << site.hasValue() << '\n'; 
         return site;
     }
 
