@@ -46,6 +46,16 @@ set_target_properties(StaticExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
 add_dependencies(StaticExtractor jsoncpp)
 target_link_libraries(StaticExtractor LLVMPolly)
 
+file(GLOB DfsanInstrument
+    "lib/dfsan-instr/*.cpp"
+)
+add_library(DfsanInstrument MODULE ${DfsanInstrument} lib/ParameterFinder.cpp)
+set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
+set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
+set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
+add_dependencies(DfsanInstrument jsoncpp)
+target_link_libraries(DfsanInstrument LLVMPolly)
+
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
 

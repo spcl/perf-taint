@@ -57,7 +57,7 @@ namespace extrap {
         typedef std::vector<std::string>::const_iterator names_it;
         typedef std::pair<names_it, names_it> names_range;
 
-        static void find_globals(llvm::Module & m, std::vector<std::string> & globals);
+        static void find_globals(llvm::Module & m); //, std::vector<std::string> & globals);
         static id_t add_param(std::string name, const llvm::Value *);
         static id_t add_param(std::string name, bool is_global = false);
         static std::string get_param(id_t id);
@@ -65,6 +65,7 @@ namespace extrap {
         static StructType & insert_struct(const llvm::StructType *);
         static StructType * find_struct(const llvm::StructType *);
         static id_t found_struct_field(StructType &, int field, bool is_global = false);
+        static size_t parameters_count();
 
         names_range get_parameters() const;
         names_range get_globals() const;
@@ -90,15 +91,15 @@ namespace extrap {
 
     struct ParameterFinder
     {
-        llvm::Module & m;
+        //llvm::Module & m;
         llvm::Function & f;
 
-        ParameterFinder(llvm::Module & _m, llvm::Function & _main_function):
-            m(_m),
+        ParameterFinder(/*llvm::Module & _m, */llvm::Function & _main_function):
+            //m(_m),
             f(_main_function)
         {}
 
-        FunctionParameters find_args(std::vector<std::string> & names);
+        FunctionParameters find_args();
         void analyze_load(const llvm::LoadInst * load, const llvm::Value * found_val);
     };
 

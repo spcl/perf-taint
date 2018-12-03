@@ -1,4 +1,4 @@
-#include "static-extractor/ParameterFinder.hpp"
+#include "ParameterFinder.hpp"
 // callsite
 #include "static-extractor/FunctionAnalysis.hpp"
 
@@ -80,7 +80,7 @@ namespace extrap {
         return std::make_pair(globals_names.cbegin(), globals_names.cend());
     }
 
-    void Parameters::find_globals(llvm::Module & m, std::vector<std::string> & global_names)
+    void Parameters::find_globals(llvm::Module & m)//, std::vector<std::string> & global_names)
     {
         for(auto & global_var : m.getGlobalList())
         {
@@ -106,14 +106,14 @@ namespace extrap {
             }
 
             // TODO: do I need to compare against dbg info? is global name preserved?
-            for(auto it = global_names.begin(); it != global_names.end(); ++it) {
-                if(global_var.getName() == (*it)) {
-                    globals.push_back(&global_var);
-                    globals_names.push_back((*it));
-                    global_names.erase(it);
-                    break;
-                }
-            }
+            //for(auto it = global_names.begin(); it != global_names.end(); ++it) {
+            //    if(global_var.getName() == (*it)) {
+            //        globals.push_back(&global_var);
+            //        globals_names.push_back((*it));
+            //        global_names.erase(it);
+            //        break;
+            //    }
+            //}
         }
     }
 
@@ -200,6 +200,11 @@ namespace extrap {
         } else
             return s.get_field(field, is_global);
     }
+
+    size_t Parameters::parameters_count()
+    {
+        return arg_names.size() + globals_names.size();
+    }
     
     FunctionParameters::FunctionParameters(llvm::Function & f, CallSite & callsite)
     {
@@ -236,7 +241,7 @@ namespace extrap {
         return it != arguments.end() ? &(*it).second : nullptr;
     }
     
-    FunctionParameters ParameterFinder::find_args(std::vector<std::string> & names)
+    FunctionParameters ParameterFinder::find_args()
     {
         //TOOD: this can get messy with phi-nodes and missing declarations
         //maybe we need to check by debug names?
@@ -245,7 +250,6 @@ namespace extrap {
         //        instr.
         //    }
         //}
-        FunctionParameters params;
         llvm::DISubprogram * prog = f.getSubprogram();
         //for(llvm::DINode * dbg_info : prog->getRetainedNodes()){
         //    if(llvm::DILocalVariable * var = llvm::dyn_cast<llvm::DILocalVariable>(dbg_info)) {
@@ -255,27 +259,29 @@ namespace extrap {
         //                args.push_back(
         //    }
         //}
+        FunctionParameters params;
         for (auto Iter = llvm::inst_begin(f), End = llvm::inst_end(f); Iter != End; ++Iter) {
             const llvm::Instruction* I = &*Iter;
-            if (const llvm::DbgDeclareInst* DbgDeclare = llvm::dyn_cast<llvm::DbgDeclareInst>(I)) {
-                llvm::StringRef name = DbgDeclare->getVariable()->getName();
-                //llvm::outs() << name << '\n';
-                for(std::string & param_name : names) {
-                    if(param_name == name) {
-                        Parameters::id_t id = Parameters::add_param(name, DbgDeclare->getAddress());
-                        params.add(DbgDeclare->getAddress(), id);
-                    }
-                }
-            } else if (const llvm::DbgValueInst* DbgValue = llvm::dyn_cast<llvm::DbgValueInst>(I)) {
-                llvm::StringRef name = DbgValue->getVariable()->getName();
-                //llvm::outs() << name << '\n';
-                for(std::string & param_name : names) {
-                    if(param_name == name) {
-                        Parameters::id_t id = Parameters::add_param(name, DbgValue->getValue());
-                        params.add(DbgValue->getValue(), id);
-                    }
-                }
-            } else if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
+            //if (const llvm::DbgDeclareInst* DbgDeclare = llvm::dyn_cast<llvm::DbgDeclareInst>(I)) {
+            //    llvm::StringRef name = DbgDeclare->getVariable()->getName();
+            //    //llvm::outs() << name << '\n';
+            //    for(std::string & param_name : names) {
+            //        if(param_name == name) {
+            //            Parameters::id_t id = Parameters::add_param(name, DbgDeclare->getAddress());
+            //            params.add(DbgDeclare->getAddress(), id);
+            //        }
+            //    }
+            //} else if (const llvm::DbgValueInst* DbgValue = llvm::dyn_cast<llvm::DbgValueInst>(I)) {
+            //    llvm::StringRef name = DbgValue->getVariable()->getName();
+            //    //llvm::outs() << name << '\n';
+            //    for(std::string & param_name : names) {
+            //        if(param_name == name) {
+            //            Parameters::id_t id = Parameters::add_param(name, DbgValue->getValue());
+            //            params.add(DbgValue->getValue(), id);
+            //        }
+            //    }
+            //} else
+            if(const llvm::CallInst * call = llvm::dyn_cast<llvm::CallInst>(I)) {
                 if(call->getCalledFunction() &&
                         call->getCalledFunction()->getName().equals("llvm.var.annotation")) {
                     if(const llvm::GEPOperator * inst =

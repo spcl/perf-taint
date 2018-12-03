@@ -109,8 +109,8 @@ namespace extrap {
     {
         llvm::Function * main = m.getFunction("main");
         llvm::CallGraphNode * main_node = cg[main];
-        ParameterFinder finder(m, *main);
-        FunctionParameters main_params = finder.find_args(param_names);
+        ParameterFinder finder(*main);
+        FunctionParameters main_params = finder.find_args();
         AnalyzedFunction * f_analyzed = analyze_function(*main);
         analyze_function(*main, f_analyzed, main_params);
         exporter.export_parameters(params);

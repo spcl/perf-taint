@@ -136,9 +136,7 @@ namespace extrap {
         extrap::FunctionAnalysis analysis(*this, cgraph, m, exporter, GenerateStats.getValue());
         extrap::Parameters params;
         //std::vector< std::string > param_names{"grid_points"};
-        std::vector< std::string > param_names{}; //"global", "global2"};
-        params.find_globals(m, param_names);
-        assert(param_names.empty());
+        params.find_globals(m);
         std::vector< std::string > param_names2{}; //"x1", "x2"};
         analysis.analyze_main(params, param_names2);
         //llvm::Function * main = nullptr;
