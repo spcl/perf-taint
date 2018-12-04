@@ -56,6 +56,12 @@ set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
 add_dependencies(DfsanInstrument jsoncpp)
 target_link_libraries(DfsanInstrument LLVMPolly)
 
+add_library(dfsan_runtime STATIC lib/runtime/runtime.c)
+set_target_properties(dfsan_runtime PROPERTIES
+    COMPILE_FLAGS "-fsanitize=dataflow -g"
+)
+set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
 
