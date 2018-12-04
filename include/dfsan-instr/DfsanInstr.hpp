@@ -30,25 +30,42 @@ namespace extrap {
         //std::unordered_map<Parameters::id_t, llvm::GlobalVariable> allocated;
         size_t functions_count;
         size_t params_count;
-        llvm::GlobalVariable * result_array;
-        static constexpr const char * result_array_name = "__EXTRAP_INSTRUMENTATION_RESULTS";
+        // Allocated global size: (functions_count) x found_parameters
+        llvm::GlobalVariable * glob_funcs_count;
+        llvm::GlobalVariable * glob_params_count;
+        llvm::GlobalVariable * glob_result_array;
+        static constexpr const char * glob_funcs_count_name = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
+        static constexpr const char * glob_params_count_name = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
+        static constexpr const char * glob_result_array_name = "__EXTRAP_INSTRUMENTATION_RESULTS";
 
+        // __EXTRAP_CHECK_LABEL(int * addr, function_idx)
         llvm::Function * load_function;
+        // __EXTRAP_STORE_LABEL(int * addr, param_idx)
+        llvm::Function * store_function;
+        // __EXTRAP_AT_EXIT()
+        llvm::Function * at_exit_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
             functions_count(0),
-            result_array(nullptr)
+            glob_funcs_count(nullptr),
+            glob_params_count(nullptr),
+            glob_result_array(nullptr)
         {
             declareFunctions();
         }
 
-        // Allocated global size: (functions_count) x found_parameters
+        // insert a call atexit(__EXTRAP__AT_EXIT)
+        void initialize(llvm::Function * main);
         void declareFunctions();
         void createGlobalStorage(size_t functions_count);
         void checkLabel(int function_idx, llvm::BranchInst * br);
-        void checkLabel(int function_idx, llvm::Value * cast);
+        void callCheckLabel(int function_idx, size_t size, llvm::Value * cast);
+        void setLabel(llvm::Value * param);
+        void callSetLabel();
+
+        llvm::Function * getAtExit();
     };
     
     struct InstrumenterVisiter : public llvm::InstVisitor<InstrumenterVisiter, void>

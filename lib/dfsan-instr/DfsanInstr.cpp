@@ -97,6 +97,7 @@ namespace extrap {
         runOnFunction(*main);
         Instrumenter instr(m);
         instr.createGlobalStorage(instrumented_functions.size());
+        instr.initialize(main);
         size_t params_count = Parameters::globals_names.size() + Parameters::arg_names.size();
         for(auto & f : instrumented_functions)
         {
@@ -154,24 +155,34 @@ namespace extrap {
     {
         this->functions_count = functions_count;
         params_count = Parameters::parameters_count();
+
+        llvm::Type * llvm_int_type = builder.getInt32Ty();
+        glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(functions_count),
+                glob_funcs_count_name);
+        glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(params_count),
+                glob_params_count_name);
+
         llvm::ArrayType *array_type = llvm::ArrayType::get(builder.getInt32Ty(), params_count * functions_count);
         std::vector<llvm::Constant*> V;
         for(int i = 0; i < params_count*functions_count; ++i)
             V.push_back( builder.getInt32(0));
-        result_array = new llvm::GlobalVariable(m, array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, V), result_array_name); 
+        glob_result_array = new llvm::GlobalVariable(m, array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, V), glob_result_array_name); 
     }
     
     void Instrumenter::checkLabel(int function_idx, llvm::BranchInst * br)
     {
-        assert(result_array);
+        assert(glob_result_array);
         // insert call before branch
         builder.SetInsertPoint( br->getPrevNode() );
         InstrumenterVisiter vis{*this, 0};
         const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
         assert(inst);
-        llvm::outs() << "Visit: " << *inst << '\n';
-        // TODO: why instvisit is not for const inst?
+        // TODO: why instvisit is not for const instruction?
         vis.visit( const_cast<llvm::Instruction*>(inst) );
     }
     
@@ -180,26 +191,34 @@ namespace extrap {
         llvm::Type * void_t = builder.getVoidTy();
         llvm::Type * int8_ptr = builder.getInt8PtrTy();
         llvm::Type * idx_t = builder.getInt32Ty();
-        llvm::FunctionType * func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t}, false);
-        m.getOrInsertFunction("__EXTRAP_CHECK_LABEL", func_t);
-        load_function = m.getFunction("__EXTRAP_CHECK_LABEL");
+        llvm::FunctionType * func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
+        load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
         assert(load_function);
+
+        func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_STORE_LABEL", func_t);
+        store_function = m.getFunction("__dfsw_EXTRAP_STORE_LABEL");
+        assert(store_function);
+
+        func_t = llvm::FunctionType::get(void_t, {}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_AT_EXIT", func_t);
+        at_exit_function = m.getFunction("__dfsw_EXTRAP_AT_EXIT");
+        assert(at_exit_function);
     } 
     
-    void Instrumenter::checkLabel(int function_idx, llvm::Value * operand)
+    void Instrumenter::callCheckLabel(int function_idx, size_t size, llvm::Value * operand)
     {
         llvm::Value * cast = builder.CreatePointerCast(operand, builder.getInt8PtrTy());
-        llvm::outs() << "Insert cast: " << *cast << '\n';
-        builder.CreateCall(load_function, {cast, builder.getInt32(function_idx) });
+        builder.CreateCall(load_function, {cast, builder.getInt32(size), builder.getInt32(function_idx) });
     }
     
     void InstrumenterVisiter::visitLoadInst(llvm::LoadInst & load)
     {
-        llvm::outs() << "Visit: " << load << '\n';
         if(processed_loads.count(&load))
             return;
         processed_loads.insert(&load);
-        instr.checkLabel(function_idx, load.getPointerOperand());
+        instr.callCheckLabel(function_idx, 0, load.getPointerOperand());
     }
     
     void InstrumenterVisiter::visitInstruction(llvm::Instruction & inst)
@@ -207,7 +226,29 @@ namespace extrap {
         for(int i = 0; i < inst.getNumOperands(); ++i)
             if(llvm::Instruction * inst_new = llvm::dyn_cast<llvm::Instruction>(inst.getOperand(i)))
                 visit(inst_new);
-    } 
+    }
+
+    // polly lib/CodeGen/PerfMonitor.cpp
+    llvm::Function * Instrumenter::getAtExit()
+    {
+        llvm::Function * f = m.getFunction("atexit");
+        if(!f) {
+            llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalValue::ExternalLinkage;
+            llvm::FunctionType * f_type = llvm::FunctionType::get(
+                    builder.getInt32Ty(),
+                    {builder.getInt8PtrTy()}, false
+                );
+            f = llvm::Function::Create(f_type, linkage, "atexit", m);
+        }
+        return f;
+    }
+
+    void Instrumenter::initialize(llvm::Function * main)
+    {
+        builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
+        llvm::Value * cast_f = builder.CreatePointerCast(at_exit_function, builder.getInt8PtrTy());
+        builder.CreateCall(getAtExit(), {cast_f});
+    }
 }
 
 char extrap::DfsanInstr::ID = 0;
