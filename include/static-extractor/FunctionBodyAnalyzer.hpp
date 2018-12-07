@@ -60,8 +60,8 @@ namespace extrap {
         vec_t used_globals;
         vec_t used_args;
         // Contains pairs of llvm::Value -> parameter ID
-        typedef std::tuple<const llvm::Value*, Parameters::id_t> value_t;
-        llvm::SmallVector<value_t, 5> located_fields;
+        //typedef std::tuple<const llvm::Value*, Parameters::id_t> value_t;
+        //llvm::SmallVector<value_t, 5> located_fields;
 
         FunctionBodyAnalyzer(const llvm::LoopInfo & _linfo,
                 const FunctionParameters & _params):

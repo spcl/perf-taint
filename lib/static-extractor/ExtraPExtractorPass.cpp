@@ -1,4 +1,5 @@
 
+#include "AnnotationAnalyzer.hpp"
 #include "static-extractor/ExtraPExtractorPass.hpp"
 #include "static-extractor/ScalarEvolutionVisitor.hpp"
 #include "static-extractor/PollyVisitor.hpp"
@@ -135,8 +136,13 @@ namespace extrap {
         llvm::CallGraph & cgraph = getAnalysis<llvm::CallGraphWrapperPass>().getCallGraph();
         extrap::FunctionAnalysis analysis(*this, cgraph, m, exporter, GenerateStats.getValue());
         extrap::Parameters params;
-        //std::vector< std::string > param_names{"grid_points"};
-        params.find_globals(m);
+        AnnotationAnalyzer annotations("extrap");
+        annotations.findGlobalAnnotations(m,
+                [params](llvm::GlobalVariable * var) {
+                    //TODO: global dbg name
+                    params.process_param(var->getName(), var);
+                });
+        
         std::vector< std::string > param_names2{}; //"x1", "x2"};
         analysis.analyze_main(params, param_names2);
         //llvm::Function * main = nullptr;

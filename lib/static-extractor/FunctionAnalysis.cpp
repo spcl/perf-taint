@@ -240,8 +240,7 @@ namespace extrap {
         return true;
     }
 
-    template<typename Inst>
-    const llvm::DebugLoc * FunctionAnalysis::get_call_loc(llvm::CallBase<Inst> * call)
+    const llvm::DebugLoc * FunctionAnalysis::get_call_loc(llvm::CallBase * call)
     {
         return &call->getDebugLoc();
     }
@@ -256,8 +255,7 @@ namespace extrap {
         assert(false);
     }
 
-    template<typename T>
-    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::CallBase<T> * call, AnalyzedFunction * caller_an, AnalyzedFunction * called_an, const FunctionParameters & params)
+    llvm::Optional<CallSite> FunctionAnalysis::analyze_call(llvm::CallBase * call, AnalyzedFunction * caller_an, AnalyzedFunction * called_an, const FunctionParameters & params)
     {
         llvm::Optional<CallSite> site;
         FunctionParameters::vec_t ids;

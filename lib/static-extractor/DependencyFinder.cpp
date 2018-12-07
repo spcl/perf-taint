@@ -100,7 +100,7 @@ namespace extrap {
         //std::string name = global_var->getName();
         //if(dependencies.find(name) == dependencies.end())
         //   dependencies[name] = new GlobalArg();
-        auto id = Parameters::find_global(global_var);
+        auto id = Parameters::find_id(global_var);
         if(id != -1) {
             ids.insert(id);
         }

@@ -61,7 +61,7 @@ namespace extrap {
             // id -> param_name
             std::transform(vec.begin(), vec.end(), sv.begin(),
                     [](Parameters::id_t id) {
-                        return Parameters::get_param(id);
+                        return Parameters::get_name(id);
                     });
             callsite["operands"].push_back( std::make_pair(std::get<0>(param), sv) );
         }
@@ -106,14 +106,14 @@ namespace extrap {
 
         if(func.globals)
             for(auto id : func.globals.getValue())
-                function["globals"].push_back(Parameters::get_param(id));
+                function["globals"].push_back(Parameters::get_name(id));
 
         json_t control_flow_params;
         bool has_cf_params = false;
         if(func.cf_globals) {
             has_cf_params = true; 
             for(auto id : func.cf_globals.getValue())
-                control_flow_params["globals"].push_back(Parameters::get_param(id));
+                control_flow_params["globals"].push_back(Parameters::get_name(id));
         }
         if(func.cf_args) {
             has_cf_params = true; 

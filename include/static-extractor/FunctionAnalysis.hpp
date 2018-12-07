@@ -21,7 +21,6 @@ namespace llvm {
     class Module;
     class CallGraph;
     class GlobalVariable;
-    template<typename Inst>
     class CallBase;
 }
 
@@ -92,12 +91,10 @@ namespace extrap {
 
         void export_functions();
 
-        template<typename Inst>
-        const llvm::DebugLoc * get_call_loc(llvm::CallBase<Inst> * call);
+        const llvm::DebugLoc * get_call_loc(llvm::CallBase* call);
         const llvm::DebugLoc * get_call_loc(llvm::Value * call);
     private:
-        template<typename T>
-        llvm::Optional<CallSite> analyze_call(llvm::CallBase<T> * call, AnalyzedFunction *, AnalyzedFunction*, const FunctionParameters & params);
+        llvm::Optional<CallSite> analyze_call(llvm::CallBase * call, AnalyzedFunction *, AnalyzedFunction*, const FunctionParameters & params);
     };
 
 }

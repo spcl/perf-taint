@@ -63,7 +63,7 @@ namespace extrap {
 
         ~ExtraPExtractorPass();
 
-        virtual void getAnalysisUsage(llvm::AnalysisUsage & AU) const;
+        virtual void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
 
         llvm::Optional<nlohmann::json> runOnFunction(llvm::Function & f);
         bool runOnModule(llvm::Module & f) override;
