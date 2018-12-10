@@ -142,6 +142,7 @@ namespace extrap {
         //}
         bool is_global = false;
         id_t struct_field_id = process_struct_load(val, is_global);
+        //llvm::outs() << *val << ' ' << struct_field_id << ' ' << name << '\n';
         return struct_field_id == INVALID_ID ? add_param(name, is_global) : struct_field_id;
     }
     
@@ -273,8 +274,9 @@ namespace extrap {
         annotations.findAnnotations(f,
                 [this, &params](const llvm::Value * value) {
                     auto value_name = findDebugName(f, value);
-                    assert(value_name.hasValue());
-                    Parameters::id_t id = Parameters::process_param(value_name.getValue(), value);
+                    //assert(value_name.hasValue());
+                    std::string name = value_name.hasValue() ? value_name.getValue() : "";
+                    Parameters::id_t id = Parameters::process_param(name, value);
                     params.add(value, id);
                 });
         //for (auto Iter = llvm::inst_begin(f), End = llvm::inst_end(f); Iter != End; ++Iter) {
