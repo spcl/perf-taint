@@ -271,9 +271,10 @@ namespace extrap {
         //}
         FunctionParameters params;
         AnnotationAnalyzer annotations("extrap");
+        DebugInfo info;
         annotations.findAnnotations(f,
-                [this, &params](const llvm::Value * value) {
-                    auto value_name = findDebugName(f, value);
+                [this, &info, &params](const llvm::Value * value) {
+                    auto value_name = info.findDebugName(f, value);
                     //assert(value_name.hasValue());
                     std::string name = value_name.hasValue() ? value_name.getValue() : "";
                     Parameters::id_t id = Parameters::process_param(name, value);

@@ -35,10 +35,12 @@ namespace extrap {
         llvm::GlobalVariable * glob_params_count;
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_result_array;
+        llvm::GlobalVariable * glob_funcs_names;
         static constexpr const char * glob_funcs_count_name = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_params_count_name = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
         static constexpr const char * glob_labels_name = "__EXTRAP_INSTRUMENTATION_LABELS";
         static constexpr const char * glob_result_array_name = "__EXTRAP_INSTRUMENTATION_RESULTS";
+        static constexpr const char * glob_funcs_names_name = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
 
         // __EXTRAP_CHECK_LABEL(int * addr, function_idx)
         llvm::Function * load_function;
@@ -51,9 +53,12 @@ namespace extrap {
             m(_m),
             builder(m.getContext()),
             functions_count(0),
+            params_count(0),
             glob_funcs_count(nullptr),
             glob_params_count(nullptr),
-            glob_result_array(nullptr)
+            glob_labels(nullptr),
+            glob_result_array(nullptr),
+            glob_funcs_names(nullptr)
         {
             declareFunctions();
         }
@@ -61,13 +66,15 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        void createGlobalStorage(size_t functions_count);
+        template<typename FuncIter>
+        void createGlobalStorage(FuncIter begin, FuncIter end);
         void checkLabel(int function_idx, llvm::BranchInst * br);
         void callCheckLabel(int function_idx, size_t size, llvm::Value * cast);
        
         void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params); 
         void setLabel(Parameters::id_t param, const llvm::Value * val);
         void callSetLabel(int param_idx, const char * param_name, size_t size, llvm::Value * operand);
+        llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
 
         llvm::Function * getAtExit();
     };
@@ -141,7 +148,7 @@ namespace extrap {
 
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
         void runOnFunction(llvm::Function & f );
-        void modifyFunction(llvm::Function & f, Instrumenter &);
+        void modifyFunction(llvm::Function & f, int idx, Instrumenter &);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
     };

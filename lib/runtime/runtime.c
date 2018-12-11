@@ -3,6 +3,7 @@
 #include <sanitizer/dfsan_interface.h>
 
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
+extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
 extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
 extern dfsan_label __EXTRAP_LABELS[];
@@ -11,7 +12,7 @@ void __dfsw_EXTRAP_AT_EXIT()
 {
     int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
-        printf("Function %d depends on: ", i);
+        printf("Function %s depends on: ", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
         for(int j = 0; j < vars_count; ++j) {
             //printf("f %d var %d status %d \n", i, j, __EXTRAP_INSTRUMENTATION_RESULTS[i*vars_count + j]);
             if(__EXTRAP_INSTRUMENTATION_RESULTS[i*vars_count + j])

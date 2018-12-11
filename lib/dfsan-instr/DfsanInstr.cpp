@@ -1,5 +1,6 @@
 #include "dfsan-instr/DfsanInstr.hpp"
 #include "AnnotationAnalyzer.hpp"
+#include "DebugInfo.hpp"
 #include "ParameterFinder.hpp"
 #include "util/util.hpp"
 
@@ -50,7 +51,7 @@ static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
                                        llvm::cl::value_desc("filename"));
 
 namespace extrap {
-    
+ 
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
@@ -103,13 +104,13 @@ namespace extrap {
 
         runOnFunction(*main);
         Instrumenter instr(m);
-        instr.createGlobalStorage(instrumented_functions.size());
+        instr.createGlobalStorage(instrumented_functions.begin(), instrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
         for(auto & f : instrumented_functions)
         {
-            modifyFunction(*f.first, instr);
+            modifyFunction(*f.first, f.second, instr);
         }
 
         return false;
@@ -124,7 +125,6 @@ namespace extrap {
         ParameterFinder finder(f);
         FunctionParameters parameters = finder.find_args();
         for(auto & param : parameters.locals) {
-            llvm::outs() << std::get<1>(param) << '\n';
             found_params.push_back(param);
         }
         instrumented_functions.insert( std::make_pair(&f, instrumented_functions.size()) );
@@ -138,14 +138,14 @@ namespace extrap {
         }
     }
     
-    void DfsanInstr::modifyFunction(llvm::Function & f, Instrumenter & instr)
+    void DfsanInstr::modifyFunction(llvm::Function & f, int idx, Instrumenter & instr)
     {
         for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
         {
             if(llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&*i)) {
                 if(br->isConditional()) {
                     // insert the check for labels
-                    instr.checkLabel(0, br);
+                    instr.checkLabel(idx, br);
                 }
             } 
         }
@@ -161,11 +161,13 @@ namespace extrap {
         return true;
     }
 
-    void Instrumenter::createGlobalStorage(size_t functions_count)
+    template<typename FuncIter>
+    void Instrumenter::createGlobalStorage(FuncIter begin, FuncIter end)
     {
-        this->functions_count = functions_count;
+        functions_count = std::distance(begin, end);
         params_count = Parameters::parameters_count();
 
+        // count of functions, count of params
         llvm::Type * llvm_int_type = builder.getInt32Ty();
         glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
@@ -176,8 +178,31 @@ namespace extrap {
                 builder.getInt32(params_count),
                 glob_params_count_name); 
 
+        // function names
+        llvm::ArrayType * array_type = llvm::ArrayType::get(
+                    builder.getInt8PtrTy(),
+                    functions_count
+                );
+        DebugInfo info;
+        std::vector<llvm::Constant*> function_names(functions_count);
+        // dummy insert since we only create global variables
+        // but IRBuilder uses BB to determine the module
+        // insert into first BB of first function
+        builder.SetInsertPoint( &*(m.begin()->begin()) );
+        for(; begin != end; ++begin) {
+            llvm::StringRef name = info.getFunctionName( *(*begin).first );
+            llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
+            function_names[ (*begin).second ] = fname;
+        }
+        glob_funcs_names = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, function_names),
+                glob_funcs_names_name);
+
         // global int16_t instrumentation_labels[] = {0..}
-        llvm::ArrayType *array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
+        array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
         std::vector<llvm::Constant*> labels;
         for(int i = 0; i < params_count; ++i)
             labels.push_back( builder.getInt16(0));
@@ -201,7 +226,7 @@ namespace extrap {
         assert(glob_result_array);
         // insert call before branch
         builder.SetInsertPoint( br->getPrevNode() );
-        InstrumenterVisiter vis{*this, 0};
+        InstrumenterVisiter vis{*this, function_idx};
         const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
         assert(inst);
         // TODO: why instvisit is not for const instruction?
@@ -322,6 +347,14 @@ namespace extrap {
                 assert(false);
             LabelAnnotator::annotated_params.insert(std::get<1>(params[i]));
         }
+    }
+    
+    llvm::Instruction * Instrumenter::createGlobalStringPtr(const char * name, llvm::Instruction * placement)
+    {
+        llvm::Value * str = builder.CreateGlobalString(name, "");
+        llvm::Value * zero = builder.getInt32(0);
+        llvm::Value * indices[] = {zero, zero};
+        return llvm::GetElementPtrInst::CreateInBounds(str, llvm::makeArrayRef(indices, 2), "", placement);
     }
         
     uint64_t InstrumenterVisiter::size_of(llvm::Value * val)
