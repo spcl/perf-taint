@@ -36,8 +36,11 @@ struct DebugInfo
     llvm::StringRef getFunctionName(llvm::Function & f)
     {
         const llvm::DISubprogram* subprogram = f.getSubprogram();
-        return subprogram->getName();
-        assert(false);
+        // Not all functions have a debug information
+        if(subprogram)
+            return subprogram->getName();
+        else
+            return f.getName();
     }
 };
 

@@ -121,6 +121,8 @@ namespace extrap {
         // ignore declarations
         if(!is_analyzable(*m, f))
             return;
+        if(instrumented_functions.find(&f) != instrumented_functions.end())
+            return;
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
         FunctionParameters parameters = finder.find_args();
@@ -134,7 +136,9 @@ namespace extrap {
             llvm::CallGraphNode * node = callsite.second;
             llvm::Function * called_f = node->getFunction();
             llvm::Value * call = callsite.first;
-            runOnFunction(*called_f);
+            // For some reason I keep seeing nullptr here
+            if(called_f)
+                runOnFunction(*called_f);
         }
     }
     
@@ -167,18 +171,19 @@ namespace extrap {
         functions_count = std::distance(begin, end);
         params_count = Parameters::parameters_count();
 
-        // count of functions, count of params
+        // int32_t functions_count;
         llvm::Type * llvm_int_type = builder.getInt32Ty();
         glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(functions_count),
                 glob_funcs_count_name);
+        // int32_t params_count
         glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(params_count),
                 glob_params_count_name); 
 
-        // function names
+        // char ** functions_names
         llvm::ArrayType * array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     functions_count
@@ -201,7 +206,7 @@ namespace extrap {
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
 
-        // global int16_t instrumentation_labels[] = {0..}
+        // int16_t instrumentation_labels[] = {0..}
         array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
         std::vector<llvm::Constant*> labels;
         for(int i = 0; i < params_count; ++i)
@@ -225,7 +230,6 @@ namespace extrap {
     {
         assert(glob_result_array);
         // insert call before branch
-        builder.SetInsertPoint( br->getPrevNode() );
         InstrumenterVisiter vis{*this, function_idx};
         const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
         assert(inst);
@@ -253,9 +257,6 @@ namespace extrap {
         //TODO: can we embed a const string in code?
         //llvm::Constant * name = llvm::ConstantDataArray::getString(builder.getContext(), param_name, false);
         llvm::Value * name = builder.CreateGlobalString(param_name, "");
-        //llvm::outs() << *name << '\n';
-        //llvm::outs() << *name->getType() << '\n';
-        //llvm::Value * gep = builder.CreateConstGEP1_32(glob_labels, 0, "param");
         llvm::Value * cast = builder.CreatePointerCast(operand, builder.getInt8PtrTy());
         llvm::Value * zero = builder.getInt32(0);
         llvm::Value * indices[] = {zero, zero};
@@ -306,6 +307,11 @@ namespace extrap {
         return f;
     }
 
+    void Instrumenter::setInsertPoint(llvm::Instruction & instr)
+    {
+        builder.SetInsertPoint(&instr);
+    }
+
     void Instrumenter::initialize(llvm::Function * main)
     {
         builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
@@ -320,7 +326,6 @@ namespace extrap {
             if(LabelAnnotator::visited(std::get<1>(params[i])))
                 continue;
             LabelAnnotator vis{*this, std::get<1>(params[i])};
-            llvm::outs() << std::get<1>(params[i]) << ' ' << *std::get<0>(params[i]) << '\n';
             const llvm::Value * param = std::get<0>(params[i]);
             if(const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(param)) {
                 assert( vis.visit( const_cast<llvm::Instruction*>(inst) ) );
@@ -334,7 +339,6 @@ namespace extrap {
                     indices[i] = llvm::dyn_cast<llvm::Value>(*it);
                     assert(indices[i]);
                 }
-                //llvm::outs() << *gep << ' ' << *ptr << ' ' << llvm::dyn_cast<llvm::Value>((*gep->idx_begin())) << '\n';
                 llvm::Value * value = builder.CreateGEP(ptr, llvm::makeArrayRef(indices, gep->getNumIndices()));
                 delete[] indices;
                 //for(const llvm::Value * use : gep->users()) {
@@ -371,10 +375,32 @@ namespace extrap {
             return;
         processed_loads.insert(&load);
 
+        // we perform verification close to the original load
+        // branches 
+        instr.setInsertPoint(load);
         uint64_t size = size_of(load.getPointerOperand());
         instr.callCheckLabel(function_idx, size, load.getPointerOperand());
     }
-    
+
+    llvm::Instruction * to_instr(llvm::Value * val)
+    {
+        return llvm::dyn_cast<llvm::Instruction>(val);
+    }
+
+    void InstrumenterVisiter::visitPHINode(llvm::PHINode & inst)
+    {
+        // Avoid cyclic references in loops
+        if(phis.find(&inst) != phis.end())
+            return;
+        phis.insert(&inst);
+        for(int i = 0; i < inst.getNumIncomingValues(); ++i) {
+            if(llvm::Instruction * operand
+                    = to_instr(inst.getIncomingValue(i)))
+                visit(operand);
+        }
+        phis.erase(&inst);
+    }
+
     void InstrumenterVisiter::visitInstruction(llvm::Instruction & inst)
     {
         for(int i = 0; i < inst.getNumOperands(); ++i)
@@ -424,7 +450,6 @@ namespace extrap {
     bool LabelAnnotator::visitBitCastInst(llvm::BitCastInst & cast)
     {
         instr.builder.SetInsertPoint(cast.getNextNode());
-        llvm::outs() << *cast.getOperand(0) << ' ' << llvm::isa<llvm::Instruction>(cast.getOperand(0)) << '\n';
         if(!llvm::isa<llvm::Instruction>(cast.getOperand(0))) {
             llvm::GEPOperator * gep = llvm::dyn_cast<llvm::GEPOperator>(cast.getOperand(0));
             assert(gep);

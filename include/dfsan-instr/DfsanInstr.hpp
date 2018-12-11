@@ -11,6 +11,7 @@
 #include <llvm/Pass.h>
 
 #include <fstream>
+#include <unordered_set>
 #include <unordered_map>
 
 #include <nlohmann/json.hpp>
@@ -36,11 +37,16 @@ namespace extrap {
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_result_array;
         llvm::GlobalVariable * glob_funcs_names;
-        static constexpr const char * glob_funcs_count_name = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
-        static constexpr const char * glob_params_count_name = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
-        static constexpr const char * glob_labels_name = "__EXTRAP_INSTRUMENTATION_LABELS";
-        static constexpr const char * glob_result_array_name = "__EXTRAP_INSTRUMENTATION_RESULTS";
-        static constexpr const char * glob_funcs_names_name = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
+        static constexpr const char * glob_funcs_count_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
+        static constexpr const char * glob_params_count_name
+            = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
+        static constexpr const char * glob_labels_name
+            = "__EXTRAP_INSTRUMENTATION_LABELS";
+        static constexpr const char * glob_result_array_name
+            = "__EXTRAP_INSTRUMENTATION_RESULTS";
+        static constexpr const char * glob_funcs_names_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
 
         // __EXTRAP_CHECK_LABEL(int * addr, function_idx)
         llvm::Function * load_function;
@@ -73,7 +79,9 @@ namespace extrap {
        
         void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params); 
         void setLabel(Parameters::id_t param, const llvm::Value * val);
-        void callSetLabel(int param_idx, const char * param_name, size_t size, llvm::Value * operand);
+        void callSetLabel(int param_idx, const char * param_name,
+                size_t size, llvm::Value * operand);
+        void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
 
         llvm::Function * getAtExit();
@@ -105,6 +113,8 @@ namespace extrap {
         int function_idx;
         // avoid duplicates
         llvm::SmallSet<llvm::LoadInst*, 10> processed_loads;
+        std::unordered_set<llvm::PHINode*> phis;
+
         InstrumenterVisiter(Instrumenter & _instr, int idx):
             layout(new llvm::DataLayout(&_instr.m)),
             instr(_instr),
@@ -116,6 +126,7 @@ namespace extrap {
         }
         void visitLoadInst(llvm::LoadInst &);
         void visitInstruction(llvm::Instruction &);
+        void visitPHINode(llvm::PHINode &);
 
         uint64_t size_of(llvm::Value * val);
     };
