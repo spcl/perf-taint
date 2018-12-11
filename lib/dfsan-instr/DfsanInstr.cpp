@@ -113,6 +113,8 @@ namespace extrap {
             modifyFunction(*f.first, f.second, instr);
         }
 
+        stats.print();
+
         return false;
     }
 
@@ -123,6 +125,7 @@ namespace extrap {
             return;
         if(instrumented_functions.find(&f) != instrumented_functions.end())
             return;
+        stats.found_function();
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
         FunctionParameters parameters = finder.find_args();
@@ -144,15 +147,18 @@ namespace extrap {
     
     void DfsanInstr::modifyFunction(llvm::Function & f, int idx, Instrumenter & instr)
     {
+        int labels = 0;
         for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
         {
             if(llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&*i)) {
                 if(br->isConditional()) {
                     // insert the check for labels
                     instr.checkLabel(idx, br);
+                    labels++;
                 }
             } 
         }
+        stats.label_function(labels);
     }
     
     bool DfsanInstr::is_analyzable(llvm::Module & m, llvm::Function & f)
@@ -184,11 +190,11 @@ namespace extrap {
                 glob_params_count_name); 
 
         // char ** functions_names
+        DebugInfo info;
         llvm::ArrayType * array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     functions_count
                 );
-        DebugInfo info;
         std::vector<llvm::Constant*> function_names(functions_count);
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -218,12 +224,16 @@ namespace extrap {
                 llvm::ConstantArray::get(array_type, labels),
                 glob_labels_name);
 
-        array_type = llvm::ArrayType::get(builder.getInt32Ty(), params_count * functions_count);
+        // int32_t instrumentation_results[functions * params];
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                params_count * functions_count);
         std::vector<llvm::Constant*> V;
         for(int i = 0; i < params_count*functions_count; ++i)
             V.push_back( builder.getInt32(0));
-        glob_result_array = new llvm::GlobalVariable(m, array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, V), glob_result_array_name); 
+        glob_result_array = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, V),
+                glob_result_array_name); 
     }
     
     void Instrumenter::checkLabel(int function_idx, llvm::BranchInst * br)
@@ -276,16 +286,22 @@ namespace extrap {
         llvm::Type * void_t = builder.getVoidTy();
         llvm::Type * int8_ptr = builder.getInt8PtrTy();
         llvm::Type * idx_t = builder.getInt32Ty();
-        llvm::FunctionType * func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t, idx_t}, false);
+
+        // void check_label(int8_t *, int32_t, int32_t)
+        llvm::FunctionType * func_t = llvm::FunctionType::get(
+                void_t, {int8_ptr, idx_t, idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
         load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
         assert(load_function);
 
-        func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t, idx_t, int8_ptr}, false);
+        // void store_label(int8_t *, int32_t, int32_t, int8_t*)
+        func_t = llvm::FunctionType::get(void_t,
+                {int8_ptr, idx_t, idx_t, int8_ptr}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_STORE_LABEL", func_t);
         store_function = m.getFunction("__dfsw_EXTRAP_STORE_LABEL");
         assert(store_function);
 
+        // void at_exit()
         func_t = llvm::FunctionType::get(void_t, {}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_AT_EXIT", func_t);
         at_exit_function = m.getFunction("__dfsw_EXTRAP_AT_EXIT");
@@ -297,7 +313,9 @@ namespace extrap {
     {
         llvm::Function * f = m.getFunction("atexit");
         if(!f) {
-            llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalValue::ExternalLinkage;
+            //int32_t atexit(int8_t*)
+            llvm::GlobalValue::LinkageTypes linkage
+                = llvm::GlobalValue::ExternalLinkage;
             llvm::FunctionType * f_type = llvm::FunctionType::get(
                     builder.getInt32Ty(),
                     {builder.getInt8PtrTy()}, false
@@ -407,7 +425,28 @@ namespace extrap {
             if(llvm::Instruction * inst_new = llvm::dyn_cast<llvm::Instruction>(inst.getOperand(i)))
                 visit(inst_new);
     }
+
+    void Statistics::found_function()
+    {
+        functions_count++;
+    }
     
+    void Statistics::label_function(int labels)
+    {
+        functions_checked++;
+        calls_to_check += labels;
+    }
+
+    void Statistics::print()
+    {
+        llvm::outs() << "Found internal functions: "
+            << functions_count << '\n';
+        llvm::outs() << "Instrumented internal functions: "
+            << functions_checked << '\n';
+        llvm::outs() << "Average # of labels: "
+            << double(calls_to_check) / functions_checked << '\n';
+    }
+
     bool LabelAnnotator::visitLoadInst(llvm::LoadInst & load)
     {
         instr.builder.SetInsertPoint(load.getNextNode());

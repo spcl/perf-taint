@@ -69,9 +69,6 @@ namespace extrap {
         static id_t process_param(std::string name, const llvm::Value *);
         static id_t process_param(std::string name, const llvm::GlobalVariable *);
         
-        //static id_t found_struct_field(StructType &, int field, bool is_global = false);
-        //static void process_struct_load(const llvm::Value * val);
-
     private:
         static StructType * find_struct(const llvm::StructType *);
         static StructType & insert_struct(const llvm::StructType *);

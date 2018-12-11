@@ -23,6 +23,22 @@ namespace llvm {
 
 namespace extrap {
 
+    struct Statistics
+    {
+        int functions_count;
+        int functions_checked;
+        int calls_to_check;
+
+        Statistics():
+            functions_count(0),
+            functions_checked(0),
+            calls_to_check(0)
+        {}
+
+        void found_function();
+        void label_function(int labels);
+        void print();
+    };
 
     struct Instrumenter
     {
@@ -140,6 +156,7 @@ namespace extrap {
         FunctionParameters parameters;
         std::unordered_map<llvm::Function *, int> instrumented_functions;
         std::ofstream unknown;
+        Statistics stats;
         // TODO: something smarter here
         // first traversal of functions cannot 
         std::vector< std::tuple<const llvm::Value*, Parameters::id_t>> found_params;
