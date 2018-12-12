@@ -32,9 +32,11 @@ namespace extrap {
     {
         if(const llvm::DILocalScope * local_scope =
             llvm::dyn_cast<llvm::DILocalScope>(scope)) {
-        llvm::DIFile * file = local_scope->getFile();
-        assert(file);
-        return file->getFilename();
+            llvm::DIFile * file = local_scope->getFile();
+            assert(file);
+            return file->getFilename();
+        }
+        assert(false);
     }
 
     llvm::StringRef get_function_name(llvm::MDNode * scope)

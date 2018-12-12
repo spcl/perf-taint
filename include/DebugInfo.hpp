@@ -1,8 +1,11 @@
 #ifndef __DEBUG_INFO_HPP__
 #define __DEBUG_INFO_HPP__  
 
+#include <llvm/ADT/Optional.h>
 #include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/IR/InstIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
+#include <llvm/IR/Module.h>
 
 struct DebugInfo
 {
@@ -41,6 +44,33 @@ struct DebugInfo
             return subprogram->getName();
         else
             return f.getName();
+    }
+    
+    llvm::Optional<std::tuple<llvm::StringRef, int>> 
+        getFunctionLocation(llvm::Function & f)
+    {
+        typedef llvm::Optional<std::tuple<llvm::StringRef, int>> opt_t;
+        const llvm::DISubprogram* subprogram = f.getSubprogram();
+        // Not all functions have a debug information
+        if(subprogram)
+            return opt_t(std::make_tuple(
+                        subprogram->getFilename(),
+                        subprogram->getLine()
+                    ));
+        else
+            return opt_t();
+    }
+
+    template<typename F>
+    void getTranslationUnits(llvm::Module & m, F && f)
+    {
+        // extract file information
+        auto it = m.debug_compile_units_begin(),
+             end = m.debug_compile_units_end();
+        for(;it != end; ++it) {
+            llvm::DICompileUnit * unit = *it;
+            f(unit->getDirectory(), unit->getFilename());
+        }
     }
 };
 

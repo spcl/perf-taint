@@ -4,6 +4,7 @@
 #define DFSAN_INSTR_PASS_HPP
 
 #include "ParameterFinder.hpp"
+#include "DebugInfo.hpp"
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/IRBuilder.h>
@@ -15,6 +16,8 @@
 #include <unordered_map>
 
 #include <nlohmann/json.hpp>
+
+class DebugInfo;
 
 namespace llvm {
     class Function;
@@ -40,30 +43,60 @@ namespace extrap {
         void print();
     };
 
+    struct FileIndex
+    {
+        typedef std::map<llvm::StringRef,std::tuple<int, llvm::StringRef>> idx_t;
+        typedef typename idx_t::iterator iterator;
+        // file_name -> (idx, dir)
+        idx_t index;
+
+        void import(llvm::Module &, DebugInfo &);
+        int getIdx(llvm::StringRef &);
+        iterator begin();
+        iterator end();
+    };
+
     struct Instrumenter
     {
         llvm::Module & m;
         llvm::IRBuilder<> builder;
+        DebugInfo info;
+        FileIndex file_index;
         //std::unordered_map<Parameters::id_t, llvm::GlobalVariable> allocated;
         size_t functions_count;
         size_t params_count;
-        // Allocated global size: (functions_count) x found_parameters
-        llvm::GlobalVariable * glob_funcs_count;
-        llvm::GlobalVariable * glob_params_count;
+
+        // `parameters` dfsan labels, dynamically assigned at runtime
         llvm::GlobalVariable * glob_labels;
-        llvm::GlobalVariable * glob_result_array;
+        llvm::GlobalVariable * glob_files;
+        
+        llvm::GlobalVariable * glob_funcs_count;
+        // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
+        // 2*`functions` integers, line of code and file index, compile time
+        llvm::GlobalVariable * glob_funcs_dbg;
+        llvm::GlobalVariable * glob_params_count;
+        // `params` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_params_names;
+        
+        // `functions` * `parameters` integers, storing control-flow dependency
+        // of a function on each parameter
+        llvm::GlobalVariable * glob_result_array;
+
+        static constexpr const char * glob_labels_name
+            = "__EXTRAP_INSTRUMENTATION_LABELS";
+        static constexpr const char * glob_files_name
+            = "__EXTRAP_INSTRUMENTATION_FILES";
         static constexpr const char * glob_funcs_count_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_params_count_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
-        static constexpr const char * glob_labels_name
-            = "__EXTRAP_INSTRUMENTATION_LABELS";
         static constexpr const char * glob_result_array_name
             = "__EXTRAP_INSTRUMENTATION_RESULTS";
         static constexpr const char * glob_funcs_names_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
+        static constexpr const char * glob_funcs_dbg_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_DBG";
         static constexpr const char * glob_params_names_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
 
@@ -79,13 +112,16 @@ namespace extrap {
             builder(m.getContext()),
             functions_count(0),
             params_count(0),
-            glob_funcs_count(nullptr),
-            glob_params_count(nullptr),
             glob_labels(nullptr),
-            glob_result_array(nullptr),
+            glob_files(nullptr),
+            glob_funcs_count(nullptr),
             glob_funcs_names(nullptr),
-            glob_params_names(nullptr)
+            glob_funcs_dbg(nullptr),
+            glob_params_count(nullptr),
+            glob_params_names(nullptr),
+            glob_result_array(nullptr)
         {
+            file_index.import(m, info); 
             declareFunctions();
         }
 
@@ -171,7 +207,8 @@ namespace extrap {
             m(nullptr),
             cgraph(nullptr),
             unknown(std::ofstream("unknown", std::ios::out))
-        {}
+        {
+        }
 
         ~DfsanInstr()
         {

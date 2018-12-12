@@ -175,7 +175,11 @@ namespace extrap {
     void Instrumenter::createGlobalStorage(FuncIter begin, FuncIter end)
     {
         functions_count = std::distance(begin, end);
-        params_count = Parameters::parameters_count();
+        params_count = Parameters::parameters_count(); 
+        // dummy insert since we only create global variables
+        // but IRBuilder uses BB to determine the module
+        // insert into first BB of first function
+        builder.SetInsertPoint( &*(m.begin()->begin()) );
 
         // int32_t functions_count;
         llvm::Type * llvm_int_type = builder.getInt32Ty();
@@ -188,23 +192,38 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(params_count),
                 glob_params_count_name); 
- 
-        // dummy insert since we only create global variables
-        // but IRBuilder uses BB to determine the module
-        // insert into first BB of first function
-        builder.SetInsertPoint( &*(m.begin()->begin()) );
+        
+        // char ** file_names
+        auto file_it = file_index.begin(), file_end = file_index.end();
+        size_t file_count = std::distance(file_it, file_end);
+        llvm::ArrayType * array_type = llvm::ArrayType::get(
+                    builder.getInt8PtrTy(),
+                    file_count
+                );
+        std::vector<llvm::Constant*> file_names(file_count);
+        for(; file_it != file_end; ++file_it) {
+            llvm::StringRef fname = (*file_it).first;
+            llvm::Constant * allocated = builder.CreateGlobalStringPtr(fname);
+            file_names[ std::get<0>((*file_it).second) ] = allocated;
+        }
+        glob_files = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, file_names),
+                glob_files_name);
 
         // char ** functions_names
-        DebugInfo info;
-        llvm::ArrayType * array_type = llvm::ArrayType::get(
+        array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     functions_count
                 );
         std::vector<llvm::Constant*> function_names(functions_count);
-        for(; begin != end; ++begin) {
-            llvm::StringRef name = info.getFunctionName( *(*begin).first );
+        for(auto it = begin; it != end; ++it) {
+            llvm::outs() << (*it).first->getName() << '\n';
+            llvm::StringRef name = info.getFunctionName( *(*it).first );
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
-            function_names[ (*begin).second ] = fname;
+            function_names[ (*it).second ] = fname;
         }
         glob_funcs_names = new llvm::GlobalVariable(m,
                 array_type,
@@ -213,13 +232,41 @@ namespace extrap {
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
 
+        // int * functions_dbg_info
+        array_type = llvm::ArrayType::get(
+                    builder.getInt32Ty(),
+                    functions_count*2
+                );
+        std::vector<llvm::Constant*> functions_dbg_info(2*functions_count);
+        for(auto it = begin; it != end; ++it) {
+            int f_idx = (*it).second;
+            auto loc = info.getFunctionLocation(*(*it).first);
+            int line = -1, file_idx = -1;
+            if(loc.hasValue()) {
+                // line of code
+                line = std::get<1>(*loc);
+                // file index
+                file_idx = file_index.getIdx(std::get<0>(*loc));
+            }
+            // line of code
+            functions_dbg_info[2*f_idx] = builder.getInt32(line);
+            // file index
+            functions_dbg_info[2*f_idx + 1] = builder.getInt32(file_idx);
+        }
+        glob_funcs_dbg = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, functions_dbg_info),
+                glob_funcs_dbg_name);
+
         // char ** params_names
         // filled during execution
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     params_count
                 );
-        glob_funcs_names = new llvm::GlobalVariable(m,
+        glob_params_names = new llvm::GlobalVariable(m,
                 array_type,
                 false,
                 llvm::GlobalValue::WeakAnyLinkage,
@@ -459,6 +506,36 @@ namespace extrap {
             << functions_checked << '\n';
         llvm::outs() << "Average # of labels: "
             << double(calls_to_check) / functions_checked << '\n';
+    }
+
+    FileIndex::iterator FileIndex::begin()
+    {
+        return index.begin();
+    }
+    
+    FileIndex::iterator FileIndex::end()
+    {
+        return index.end();
+    }
+
+    void FileIndex::import(llvm::Module & m, DebugInfo & info)
+    {
+        int idx = 0;
+        info.getTranslationUnits(m,
+            [this, &idx](const llvm::StringRef & dir,
+                        const llvm::StringRef & name) {
+                index[name] = std::make_tuple(idx++, dir);
+            }
+        );
+    }
+        
+    int FileIndex::getIdx(llvm::StringRef & name)
+    {
+        auto it = index.find(name);
+        if(it != index.end())
+            return std::get<0>((*it).second);
+        else
+            return -1;
     }
 
     bool LabelAnnotator::visitLoadInst(llvm::LoadInst & load)
