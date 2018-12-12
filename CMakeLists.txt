@@ -56,11 +56,14 @@ set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
 add_dependencies(DfsanInstrument jsoncpp)
 target_link_libraries(DfsanInstrument LLVMPolly)
 
-add_library(dfsan_runtime STATIC lib/runtime/runtime.c)
+# Split into two targets so C++ JSON code is not instrumented
+add_library(json_export STATIC lib/runtime/json_export.cpp)
+add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
 set_target_properties(dfsan_runtime PROPERTIES
-    COMPILE_FLAGS "-fsanitize=dataflow -g"
+    COMPILE_FLAGS "-fsanitize=dataflow -fsanitize-blacklist=/home/mcopik/projects/clang_llvm/install_release/lib/clang/8.0.0/share/dfsan_abilist.txt -g -stdlib=libc++ -I/home/mcopik/projects/clang_llvm/build_dfsan_full/include/c++/v1"
 )
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 

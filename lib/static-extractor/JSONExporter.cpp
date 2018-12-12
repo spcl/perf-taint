@@ -25,17 +25,16 @@ namespace extrap {
             }
             out["debug"] = units;
         }
+    }
 
-        // DISubprogram for normal callsites
-        llvm::StringRef get_file_name(llvm::MDNode * scope)
-        {
-            if(const llvm::DILocalScope * local_scope =
-                llvm::dyn_cast<llvm::DILocalScope>(scope)) {
-            llvm::DIFile * file = local_scope->getFile();
-            assert(file);
-            return file->getFilename();
-        }
-        assert(false);
+    // DISubprogram for normal callsites
+    llvm::StringRef get_file_name(llvm::MDNode * scope)
+    {
+        if(const llvm::DILocalScope * local_scope =
+            llvm::dyn_cast<llvm::DILocalScope>(scope)) {
+        llvm::DIFile * file = local_scope->getFile();
+        assert(file);
+        return file->getFilename();
     }
 
     llvm::StringRef get_function_name(llvm::MDNode * scope)

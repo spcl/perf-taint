@@ -188,6 +188,11 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(params_count),
                 glob_params_count_name); 
+ 
+        // dummy insert since we only create global variables
+        // but IRBuilder uses BB to determine the module
+        // insert into first BB of first function
+        builder.SetInsertPoint( &*(m.begin()->begin()) );
 
         // char ** functions_names
         DebugInfo info;
@@ -196,10 +201,6 @@ namespace extrap {
                     functions_count
                 );
         std::vector<llvm::Constant*> function_names(functions_count);
-        // dummy insert since we only create global variables
-        // but IRBuilder uses BB to determine the module
-        // insert into first BB of first function
-        builder.SetInsertPoint( &*(m.begin()->begin()) );
         for(; begin != end; ++begin) {
             llvm::StringRef name = info.getFunctionName( *(*begin).first );
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
@@ -211,6 +212,19 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
+
+        // char ** params_names
+        // filled during execution
+        array_type = llvm::ArrayType::get(
+                    builder.getInt8PtrTy(),
+                    params_count
+                );
+        glob_funcs_names = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantAggregateZero::get(array_type),
+                glob_params_names_name);
 
         // int16_t instrumentation_labels[] = {0..}
         array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);

@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 #include <sanitizer/dfsan_interface.h>
 
-extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
-extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
-extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
-extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+#include "json_export.h"
+
+//extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
+//extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
+//extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
+//extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
 void __dfsw_EXTRAP_AT_EXIT()
@@ -21,6 +22,7 @@ void __dfsw_EXTRAP_AT_EXIT()
         }
         printf("\n");
     }
+    __dfsw_dump_json_output();
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
@@ -58,6 +60,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
 {
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
+    __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
     printf("Create label %d for %d at %d %p %s\n", lab, param_idx, size, addr, name);
     dfsan_set_label(lab, addr, size);
     printf("Set label %d\n", dfsan_read_label(addr, size));

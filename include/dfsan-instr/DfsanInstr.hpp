@@ -53,6 +53,7 @@ namespace extrap {
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_result_array;
         llvm::GlobalVariable * glob_funcs_names;
+        llvm::GlobalVariable * glob_params_names;
         static constexpr const char * glob_funcs_count_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_params_count_name
@@ -63,6 +64,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_RESULTS";
         static constexpr const char * glob_funcs_names_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
+        static constexpr const char * glob_params_names_name
+            = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
 
         // __EXTRAP_CHECK_LABEL(int * addr, function_idx)
         llvm::Function * load_function;
@@ -80,7 +83,8 @@ namespace extrap {
             glob_params_count(nullptr),
             glob_labels(nullptr),
             glob_result_array(nullptr),
-            glob_funcs_names(nullptr)
+            glob_funcs_names(nullptr),
+            glob_params_names(nullptr)
         {
             declareFunctions();
         }
