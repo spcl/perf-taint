@@ -58,7 +58,7 @@ namespace extrap {
     {
         ModulePass::getAnalysisUsage(AU);
         // We require loop information
-        AU.addRequiredTransitive<llvm::LoopInfoWrapperPass>();
+        AU.addRequired<llvm::LoopInfoWrapperPass>();
         if(EnableSCEV)
             AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
         if(EnablePollySCEV)
@@ -103,14 +103,17 @@ namespace extrap {
         assert(main);
 
         runOnFunction(*main);
+
         Instrumenter instr(m);
-        instr.createGlobalStorage(instrumented_functions.begin(), instrumented_functions.end());
+        instr.createGlobalStorage(instrumented_functions_counter,
+                instrumented_functions.begin(), instrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
         for(auto & f : instrumented_functions)
         {
-            modifyFunction(*f.first, f.second, instr);
+            if(f.second != -1)
+                modifyFunction(*f.first, f.second, instr);
         }
 
         stats.print();
@@ -118,13 +121,33 @@ namespace extrap {
         return false;
     }
 
-    void DfsanInstr::runOnFunction(llvm::Function & f)
+    bool DfsanInstr::analyzeFunction(llvm::Function & f)
+    { 
+        linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+        assert(linfo);
+        if(!linfo->empty()) {
+            instrumented_functions.insert(
+                    std::make_pair(&f, instrumented_functions_counter++)
+                );
+            llvm::outs() << "has loops: " << instrumented_functions_counter << '\n';
+            return true;
+        } else {
+            instrumented_functions.insert(std::make_pair(&f, -1));
+            stats.empty_function();
+            llvm::outs() << "Empty: " << instrumented_functions_counter << '\n';
+            return false;
+        }
+    }
+
+    bool DfsanInstr::runOnFunction(llvm::Function & f)
     {
         // ignore declarations
+        // TODO: handle instrumentation of unknown functions
         if(!is_analyzable(*m, f))
-            return;
-        if(instrumented_functions.find(&f) != instrumented_functions.end())
-            return;
+            return true;
+        auto it = instrumented_functions.find(&f) ;
+        if(it != instrumented_functions.end())
+            return (*it).second != -1;
         stats.found_function();
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
@@ -132,7 +155,8 @@ namespace extrap {
         for(auto & param : parameters.locals) {
             found_params.push_back(param);
         }
-        instrumented_functions.insert( std::make_pair(&f, instrumented_functions.size()) );
+
+        bool is_important = analyzeFunction(f);
         
         for(auto & callsite : *f_node)
         {
@@ -141,8 +165,10 @@ namespace extrap {
             llvm::Value * call = callsite.first;
             // For some reason I keep seeing nullptr here
             if(called_f)
-                runOnFunction(*called_f);
+                // it's important if at least one of subfunctions is important
+                is_important |= runOnFunction(*called_f);
         }
+        return is_important;
     }
     
     void DfsanInstr::modifyFunction(llvm::Function & f, int idx, Instrumenter & instr)
@@ -172,9 +198,9 @@ namespace extrap {
     }
 
     template<typename FuncIter>
-    void Instrumenter::createGlobalStorage(FuncIter begin, FuncIter end)
+    void Instrumenter::createGlobalStorage(int functions_count,
+            FuncIter begin, FuncIter end)
     {
-        functions_count = std::distance(begin, end);
         params_count = Parameters::parameters_count(); 
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -220,7 +246,9 @@ namespace extrap {
                 );
         std::vector<llvm::Constant*> function_names(functions_count);
         for(auto it = begin; it != end; ++it) {
-            llvm::outs() << (*it).first->getName() << '\n';
+            if((*it).second == -1)
+                continue;
+            //llvm::outs() << (*it).first->getName() << '\n';
             llvm::StringRef name = info.getFunctionName( *(*it).first );
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
             function_names[ (*it).second ] = fname;
@@ -238,8 +266,12 @@ namespace extrap {
                     functions_count*2
                 );
         std::vector<llvm::Constant*> functions_dbg_info(2*functions_count);
+        for(int i = 0; i < 2*functions_count;++i)
+            functions_dbg_info[i] = nullptr;
         for(auto it = begin; it != end; ++it) {
             int f_idx = (*it).second;
+            if(f_idx == -1)
+                continue;
             auto loc = info.getFunctionLocation(*(*it).first);
             int line = -1, file_idx = -1;
             if(loc.hasValue()) {
@@ -253,6 +285,12 @@ namespace extrap {
             // file index
             functions_dbg_info[2*f_idx + 1] = builder.getInt32(file_idx);
         }
+        for(int i = 0; i < 2*functions_count;++i)
+            if(!functions_dbg_info[i])
+                llvm::outs() << i << '\n';
+
+
+        llvm::outs() << functions_count << '\n';
         glob_funcs_dbg = new llvm::GlobalVariable(m,
                 array_type,
                 false,
@@ -498,10 +536,18 @@ namespace extrap {
         calls_to_check += labels;
     }
 
+    void Statistics::empty_function()
+    {
+        empty_functions++;
+    }
+
+
     void Statistics::print()
     {
         llvm::outs() << "Found internal functions: "
             << functions_count << '\n';
+        llvm::outs() << "Skipped functions without loops: "
+            << empty_functions << '\n';
         llvm::outs() << "Instrumented internal functions: "
             << functions_checked << '\n';
         llvm::outs() << "Average # of labels: "

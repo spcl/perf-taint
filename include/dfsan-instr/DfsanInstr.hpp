@@ -22,6 +22,7 @@ class DebugInfo;
 namespace llvm {
     class Function;
     class CallGraph;
+    class LoopInfo;
 }
 
 namespace extrap {
@@ -29,16 +30,19 @@ namespace extrap {
     struct Statistics
     {
         int functions_count;
+        int empty_functions;
         int functions_checked;
         int calls_to_check;
 
         Statistics():
             functions_count(0),
+            empty_functions(0),
             functions_checked(0),
             calls_to_check(0)
         {}
 
         void found_function();
+        void empty_function();
         void label_function(int labels);
         void print();
     };
@@ -129,7 +133,8 @@ namespace extrap {
         void initialize(llvm::Function * main);
         void declareFunctions();
         template<typename FuncIter>
-        void createGlobalStorage(FuncIter begin, FuncIter end);
+        void createGlobalStorage(int functions_count,
+                FuncIter begin, FuncIter end);
         void checkLabel(int function_idx, llvm::BranchInst * br);
         void callCheckLabel(int function_idx, size_t size, llvm::Value * cast);
        
@@ -193,8 +198,10 @@ namespace extrap {
         std::fstream log;
         llvm::Module * m;
         llvm::CallGraph * cgraph;
+        llvm::LoopInfo * linfo;
         FunctionParameters parameters;
         std::unordered_map<llvm::Function *, int> instrumented_functions;
+        int instrumented_functions_counter;
         std::ofstream unknown;
         Statistics stats;
         // TODO: something smarter here
@@ -206,6 +213,8 @@ namespace extrap {
             ModulePass(ID),
             m(nullptr),
             cgraph(nullptr),
+            linfo(nullptr),
+            instrumented_functions_counter(0),
             unknown(std::ofstream("unknown", std::ios::out))
         {
         }
@@ -216,8 +225,9 @@ namespace extrap {
         }
 
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
-        void runOnFunction(llvm::Function & f );
+        bool runOnFunction(llvm::Function & f );
         void modifyFunction(llvm::Function & f, int idx, Instrumenter &);
+        bool analyzeFunction(llvm::Function & f);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
     };
