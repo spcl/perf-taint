@@ -104,8 +104,16 @@ namespace extrap {
 
         runOnFunction(*main);
 
+        for(llvm::Function & f : m)
+        {
+            //for(llvm::Use & use : f.uses())
+            //    llvm::outs() << use << '\n';
+            if(instrumented_functions.find(&f) == instrumented_functions.end())
+               runOnFunction(f); 
+        }
+
         Instrumenter instr(m);
-        instr.createGlobalStorage(instrumented_functions_counter,
+        instr.createGlobalStorage(parent_functions,
                 instrumented_functions.begin(), instrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
@@ -116,30 +124,71 @@ namespace extrap {
                 modifyFunction(*f.first, f.second, instr);
         }
 
+
         stats.print();
 
         return false;
     }
 
-    bool DfsanInstr::analyzeFunction(llvm::Function & f)
+    bool DfsanInstr::handleOpenMP(llvm::Function & f, int override_counter)
+    {
+        bool openmp_call = false;            
+        for(llvm::BasicBlock & bb: f)
+            for(llvm::Instruction & instr : bb)
+                if(llvm::CallInst * call
+                        = llvm::dyn_cast<llvm::CallInst>(&instr)) {
+                    if(call->getCalledFunction()->getName()
+                            == "__kmpc_fork_call") {
+                        llvm::ConstantExpr * cast =
+                            llvm::dyn_cast<llvm::ConstantExpr>(call->getOperand(2));
+                        assert(cast);
+                        llvm::Function * func =
+                            llvm::dyn_cast<llvm::Function>(cast->getOperand(0));
+                        assert(func);
+                        //insert call with the same counter
+                        //don't insert into names vector, that's for the parent function
+                        int counter = override_counter != -1 ?
+                            override_counter : instrumented_functions_counter;
+                        //instrumented_functions.insert(
+                        //        std::make_pair(func, counter)
+                        //    );
+                        openmp_call = true;
+                        //handle additional calls
+                        //OpenMP can split for loop functions into additional
+                        //calls e.g. omp.outlined and omp.outlined._debug
+                        runOnFunction(*func, counter);
+                    }
+                }
+        return openmp_call;
+    }
+
+    bool DfsanInstr::analyzeFunction(llvm::Function & f, int override_counter)
     { 
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        if(!linfo->empty()) {
+        bool has_openmp_calls = handleOpenMP(f, override_counter);
+        // Worth instrumenting
+        if(!linfo->empty() || has_openmp_calls) {
+            int counter = override_counter;
+            if(counter == -1) {
+                counter = instrumented_functions_counter;
+                instrumented_functions_counter++;
+            }
             instrumented_functions.insert(
-                    std::make_pair(&f, instrumented_functions_counter++)
+                    std::make_pair(&f, counter)
                 );
-            llvm::outs() << "has loops: " << instrumented_functions_counter << '\n';
+            // when overriding, only the parent function matters
+            if(override_counter == -1)
+                parent_functions.push_back(&f);
             return true;
         } else {
             instrumented_functions.insert(std::make_pair(&f, -1));
             stats.empty_function();
-            llvm::outs() << "Empty: " << instrumented_functions_counter << '\n';
             return false;
         }
     }
 
-    bool DfsanInstr::runOnFunction(llvm::Function & f)
+    bool DfsanInstr::runOnFunction(llvm::Function & f, int override_counter)
     {
         // ignore declarations
         // TODO: handle instrumentation of unknown functions
@@ -156,28 +205,32 @@ namespace extrap {
             found_params.push_back(param);
         }
 
-        bool is_important = analyzeFunction(f);
+        bool is_important = analyzeFunction(f, override_counter);
         
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
             llvm::Function * called_f = node->getFunction();
             llvm::Value * call = callsite.first;
+            //callsites[called_f]++;
             // For some reason I keep seeing nullptr here
             if(called_f)
                 // it's important if at least one of subfunctions is important
-                is_important |= runOnFunction(*called_f);
+                is_important |= runOnFunction(*called_f, override_counter);
         }
         return is_important;
     }
     
     void DfsanInstr::modifyFunction(llvm::Function & f, int idx, Instrumenter & instr)
     {
+        linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+        assert(linfo);
         int labels = 0;
         for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
         {
             if(llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&*i)) {
                 if(br->isConditional()) {
+                    // is this a part of a loop?
                     // insert the check for labels
                     instr.checkLabel(idx, br);
                     labels++;
@@ -197,10 +250,11 @@ namespace extrap {
         return true;
     }
 
-    template<typename FuncIter>
-    void Instrumenter::createGlobalStorage(int functions_count,
+    template<typename Vector, typename FuncIter>
+    void Instrumenter::createGlobalStorage(const Vector & funcs_names,
             FuncIter begin, FuncIter end)
     {
+        functions_count = funcs_names.size();
         params_count = Parameters::parameters_count(); 
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -246,12 +300,18 @@ namespace extrap {
                 );
         std::vector<llvm::Constant*> function_names(functions_count);
         for(auto it = begin; it != end; ++it) {
-            if((*it).second == -1)
+            int f_idx = (*it).second;
+            if(f_idx == -1)
                 continue;
-            //llvm::outs() << (*it).first->getName() << '\n';
-            llvm::StringRef name = info.getFunctionName( *(*it).first );
+            // another function with the same ID already wrote data
+            if(function_names[f_idx])
+                continue;
+            // Func -> ID is a many-to-one mapping
+            // but only one parent function provides name
+            llvm::Function * func = funcs_names[f_idx];
+            llvm::StringRef name = info.getFunctionName(*func);
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
-            function_names[ (*it).second ] = fname;
+            function_names[f_idx] = fname;
         }
         glob_funcs_names = new llvm::GlobalVariable(m,
                 array_type,
@@ -266,11 +326,12 @@ namespace extrap {
                     functions_count*2
                 );
         std::vector<llvm::Constant*> functions_dbg_info(2*functions_count);
-        for(int i = 0; i < 2*functions_count;++i)
-            functions_dbg_info[i] = nullptr;
         for(auto it = begin; it != end; ++it) {
             int f_idx = (*it).second;
             if(f_idx == -1)
+                continue;
+            // another function with the same ID already wrote data
+            if(functions_dbg_info[2*f_idx])
                 continue;
             auto loc = info.getFunctionLocation(*(*it).first);
             int line = -1, file_idx = -1;
@@ -285,12 +346,8 @@ namespace extrap {
             // file index
             functions_dbg_info[2*f_idx + 1] = builder.getInt32(file_idx);
         }
-        for(int i = 0; i < 2*functions_count;++i)
-            if(!functions_dbg_info[i])
-                llvm::outs() << i << '\n';
 
 
-        llvm::outs() << functions_count << '\n';
         glob_funcs_dbg = new llvm::GlobalVariable(m,
                 array_type,
                 false,
@@ -405,6 +462,12 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_AT_EXIT", func_t);
         at_exit_function = m.getFunction("__dfsw_EXTRAP_AT_EXIT");
         assert(at_exit_function);
+        
+        // void extrap_init()
+        func_t = llvm::FunctionType::get(void_t, {}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_INIT", func_t);
+        init_function = m.getFunction("__dfsw_EXTRAP_INIT");
+        assert(init_function);
     } 
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -431,9 +494,11 @@ namespace extrap {
 
     void Instrumenter::initialize(llvm::Function * main)
     {
-        builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
+        //builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
+        builder.SetInsertPoint( &(*main->getEntryBlock().begin()) );
         llvm::Value * cast_f = builder.CreatePointerCast(at_exit_function, builder.getInt8PtrTy());
         builder.CreateCall(getAtExit(), {cast_f});
+        builder.CreateCall(init_function);
     }
         
     void Instrumenter::annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params)

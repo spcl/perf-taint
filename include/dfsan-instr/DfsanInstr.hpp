@@ -110,6 +110,8 @@ namespace extrap {
         llvm::Function * store_function;
         // __EXTRAP_AT_EXIT()
         llvm::Function * at_exit_function;
+        // __EXTRAP_INIT()
+        llvm::Function * init_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
@@ -132,8 +134,8 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        template<typename FuncIter>
-        void createGlobalStorage(int functions_count,
+        template<typename Vector, typename FuncIter>
+        void createGlobalStorage(const Vector & func_names,
                 FuncIter begin, FuncIter end);
         void checkLabel(int function_idx, llvm::BranchInst * br);
         void callCheckLabel(int function_idx, size_t size, llvm::Value * cast);
@@ -200,7 +202,30 @@ namespace extrap {
         llvm::CallGraph * cgraph;
         llvm::LoopInfo * linfo;
         FunctionParameters parameters;
+
+        struct Function
+        {
+            int idx;
+            llvm::SmallVector<llvm::Value*, 10> callsites;
+
+            Function(int _idx):
+                idx(_idx)
+            {}
+
+            int function_idx()
+            {
+                return idx;
+            }
+
+            void add_callsite(llvm::Value* val)
+            {
+                callsites.push_back(val);
+            }
+
+        };
+
         std::unordered_map<llvm::Function *, int> instrumented_functions;
+        std::vector<llvm::Function *> parent_functions;
         int instrumented_functions_counter;
         std::ofstream unknown;
         Statistics stats;
@@ -225,11 +250,12 @@ namespace extrap {
         }
 
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
-        bool runOnFunction(llvm::Function & f );
+        bool runOnFunction(llvm::Function & f, int override_counter = -1);
         void modifyFunction(llvm::Function & f, int idx, Instrumenter &);
-        bool analyzeFunction(llvm::Function & f);
+        bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
+        bool handleOpenMP(llvm::Function &f, int override_counter = -1);
     };
 
 }
