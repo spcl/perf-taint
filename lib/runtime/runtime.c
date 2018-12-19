@@ -41,7 +41,7 @@ void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
     //if( __EXTRAP_LABELS[0] && __EXTRAP_LABELS[1] && (dfsan_has_label(temp, __EXTRAP_LABELS[0]) || dfsan_has_label(temp, __EXTRAP_LABELS[1])))
     //printf("foundl label: %d %d at %p in %d found %d %d\n", __EXTRAP_LABELS[0] , __EXTRAP_LABELS[1] ,addr, function_idx, dfsan_has_label(temp, __EXTRAP_LABELS[0]), dfsan_has_label(temp, __EXTRAP_LABELS[1]));
     int dependencies = 0;
-    int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT ;
+    int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
     dfsan_label temp = dfsan_read_label(addr, size);
     //printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
@@ -52,7 +52,7 @@ void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
             dependencies += has_label;
         }
     if(dependencies > 1)
-        printf("Multiple dependency %d in function %d\n!", dependencies, function_idx);
+        printf("Multiple dependency %d in function %d!\n", dependencies, function_idx);
 
     //printf("Found: %p %s\n", addr, temp_info->desc); 
 }
@@ -67,4 +67,19 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
     //printf("Set label %d\n", dfsan_read_label(addr, size));
 }
 
+void __dfsw_EXTRAP_INIT()
+{
+    __dfsw_json_initialize();
+}
 
+//void __dfsw_EXTRAP_CHECK_CALLSITE(int function_idx, int callsite_idx,
+//        int arg_idx, int8_t * addr, size_t size)
+//{
+//    dfsan_label temp = dfsan_read_label(addr, size);
+//    bool found_params[__EXTRAP_INSTRUMENTATION_PARAMS_COUNT] = {0};
+//    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+//        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+//            dfound_params[i] =
+//                dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+//    __dfsw_json_callsite(function_idx, callsite_idx, arg_idx, found_params);
+//}
