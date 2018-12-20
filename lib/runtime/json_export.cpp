@@ -13,6 +13,17 @@ json_t * __dfsw_json_get()
     return out;    
 }
 
+void __dfsw_json_init_func(int func_idx)
+{
+    json_t & out = *__dfsw_json_get();
+    json_t function;
+    function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
+    function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];
+    int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx + 1];
+    function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx]; 
+    out["functions"].push_back(function);
+}
+
 void __dfsw_dump_json_output()
 {
     json_t & out = *__dfsw_json_get();
@@ -28,15 +39,19 @@ void __dfsw_dump_json_output()
             params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );       
     }
     out["parameters"] = params;
-   
+
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
         json_t cf_params;
         for(int j = 0; j < vars_count; ++j) {
             if(__EXTRAP_INSTRUMENTATION_RESULTS[i*vars_count + j])
                 cf_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[j]);
         }
-        if(!cf_params.empty())
+        if(!cf_params.empty()) {
+            __dfsw_json_init_func(i);
             out["functions"][i]["control_flow_params"] = cf_params;
+        }
+        //else
+        //   out.erase( out.find("functions") );
     }
     
     std::cout << out.dump(2) << std::endl;
@@ -52,18 +67,18 @@ void __dfsw_json_callsite(int f_idx, int site_idx, int arg_idx, bool * params)
 void __dfsw_json_initialize()
 {
     json_t & out = *__dfsw_json_get();
-    json_t functions; 
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
-        json_t function;
-        function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i];
-        function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*i];
-        int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*i + 1];
-        function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx]; 
+    //json_t functions; 
+    //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
+    //    json_t function;
+    //    function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i];
+    //    function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*i];
+    //    int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*i + 1];
+    //    function["file"] = file_idx;// __EXTRAP_INSTRUMENTATION_FILES[file_idx]; 
 
-        //function["callsites"]
+    //    //function["callsites"]
 
-        functions.push_back(function);
-    }
-    std::cout << functions.dump(2) << std::endl;
-    out["functions"] = functions;
+    //    functions.push_back(function);
+    //}
+    ////std::cout << functions.dump(2) << std::endl;
+    //out["functions"] = functions;
 }
