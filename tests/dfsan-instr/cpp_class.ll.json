@@ -1,0 +1,17 @@
+{
+  "functions": [
+    {
+      "control_flow_params": [
+        "size_x",
+        "size_y"
+      ],
+      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "line": 23,
+      "name": "update_grid"
+    }
+  ],
+  "parameters": [
+    "size_x",
+    "size_y"
+  ]
+}

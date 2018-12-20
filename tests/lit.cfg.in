@@ -2,11 +2,14 @@ import lit.util
 import lit.formats
 
 config.name = 'extrap-extractor'
-config.test_source_root = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'tests/extrap')
+config.source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
+config.test_source_root = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'tests/dfsan-instr')
 # Path to test suite in build directory where tests are executed
-config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
+config.exec_root = '@CMAKE_CURRENT_BINARY_DIR@'
+config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests/dfsan-instr')
 # Help variable used to locate compiled library
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
+config.llvm_dir = '/home/mcopik/projects/clang_llvm/build_dfsan_full/lib'
 config.test_format = lit.formats.ShTest(True)
 config.suffixes = ['.ll']
 
@@ -15,3 +18,38 @@ config.substitutions.append( ('%loadpass', '-load '
     + '/libStaticExtractor.so'
     + ' -extrap-extractor')
     )
+
+config.substitutions.append( ('%dfsan', '-load '
+    + config.lib_dir
+    + '/libDfsanInstrument.so'
+    + ' -extrap-extractor'
+    + ' -dfsan'
+    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
+    )
+)
+
+config.substitutions.append( ('%llcparams',
+    '-relocation-model=pic'
+    + ' -filetype=obj'
+    )
+)
+
+config.substitutions.append( ('%link',
+    '-stdlib=libc++'
+    + ' -fsanitize=dataflow'
+    + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
+    + ' -L%s' % config.llvm_dir
+    + ' -Wl,--start-group,-lc++abi'
+    + ' %s/libdfsan_runtime.a' % config.exec_root
+    )
+)
+
+config.substitutions.append( ('%testdir',
+    config.test_exec_root
+    )
+)
+
+config.substitutions.append( ('%execparams',
+    'DFSAN_OPTIONS=warn_unimplemented=0'
+    )
+)
