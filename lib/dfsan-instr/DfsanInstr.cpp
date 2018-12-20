@@ -10,6 +10,7 @@
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/ModuleSlotTracker.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils.h>
@@ -137,8 +138,8 @@ namespace extrap {
             for(llvm::Instruction & instr : bb)
                 if(llvm::CallInst * call
                         = llvm::dyn_cast<llvm::CallInst>(&instr)) {
-                    if(call->getCalledFunction()->getName()
-                            == "__kmpc_fork_call") {
+                    if(call->getCalledFunction() &&
+                            call->getCalledFunction()->getName() == "__kmpc_fork_call") {
                         llvm::ConstantExpr * cast =
                             llvm::dyn_cast<llvm::ConstantExpr>(call->getOperand(2));
                         assert(cast);
@@ -157,6 +158,14 @@ namespace extrap {
                         //OpenMP can split for loop functions into additional
                         //calls e.g. omp.outlined and omp.outlined._debug
                         runOnFunction(*func, counter);
+                    } else if(!call->getCalledFunction()) {
+                        unknown << "Unknown call: ";
+                        std::string str;
+                        llvm::raw_string_ostream os(str);
+                        os << *call;
+                        os << ' ';
+                        os << *call->getFunctionType();
+                        unknown << os.str() << '\n';
                     }
                 }
         return openmp_call;
