@@ -618,13 +618,13 @@ namespace extrap {
 
     void Statistics::print()
     {
-        llvm::outs() << "Found internal functions: "
+        llvm::errs() << "Found internal functions: "
             << functions_count << '\n';
-        llvm::outs() << "Skipped functions without loops: "
+        llvm::errs() << "Skipped functions without loops: "
             << empty_functions << '\n';
-        llvm::outs() << "Instrumented internal functions: "
+        llvm::errs() << "Instrumented internal functions: "
             << functions_checked << '\n';
-        llvm::outs() << "Average # of labels: "
+        llvm::errs() << "Average # of labels: "
             << double(calls_to_check) / functions_checked << '\n';
     }
 
