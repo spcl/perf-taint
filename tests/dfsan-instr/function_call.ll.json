@@ -11,6 +11,14 @@
     },
     {
       "control_flow_params": [
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_call.cpp",
+      "line": 25,
+      "name": "g"
+    },
+    {
+      "control_flow_params": [
         "x2",
         "global"
       ],
