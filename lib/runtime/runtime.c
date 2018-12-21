@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include <sanitizer/dfsan_interface.h>
 
@@ -10,6 +11,12 @@
 //extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
 //extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
+
+int32_t __dfsw_EXTRAP_VAR_ID()
+{
+    static int32_t id = 0;
+    return id++;
+}
 
 void __dfsw_EXTRAP_AT_EXIT()
 {
@@ -46,13 +53,13 @@ void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
     ////printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-            //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_LABELS[i]));
+            //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
             bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
             __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
             dependencies += has_label;
         }
-    if(dependencies > 1)
-        printf("Multiple dependency %d in function %d!\n", dependencies, function_idx);
+    //if(dependencies > 1)
+    //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
 
     //printf("Found: %p %s\n", addr, temp_info->desc); 
 }
