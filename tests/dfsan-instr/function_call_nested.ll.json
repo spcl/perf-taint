@@ -1,0 +1,47 @@
+{
+  "functions": [
+    {
+      "control_flow_params": [
+        "x1",
+        "x2",
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "line": 17,
+      "name": "f"
+    },
+    {
+      "control_flow_params": [
+        "x1",
+        "x2",
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "line": 9,
+      "name": "h"
+    },
+    {
+      "control_flow_params": [
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "line": 25,
+      "name": "g"
+    },
+    {
+      "control_flow_params": [
+        "x1",
+        "x2",
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "line": 33,
+      "name": "i"
+    }
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

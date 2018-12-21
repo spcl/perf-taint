@@ -1,4 +1,4 @@
-; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 | clang++ %link %s.o -o %t1 | %execparams %t1 10 10 10 | diff -w %s.json -
+; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 | diff -w %s.json -
 
 ; ModuleID = 'tests/dfsan-instr/cpp_class.cpp'
 source_filename = "tests/dfsan-instr/cpp_class.cpp"
