@@ -1,0 +1,25 @@
+{
+  "functions": [
+    {
+      "control_flow_params": [
+        "size_x",
+        "size_y"
+      ],
+      "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
+      "line": 24,
+      "name": "update_grid"
+    },
+    {
+      "control_flow_params": [
+        "size_y"
+      ],
+      "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
+      "line": 52,
+      "name": "update_y"
+    }
+  ],
+  "parameters": [
+    "size_x",
+    "size_y"
+  ]
+}

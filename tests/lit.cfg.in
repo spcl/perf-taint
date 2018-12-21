@@ -12,6 +12,8 @@ config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
 config.llvm_dir = '/home/mcopik/projects/clang_llvm/build_dfsan_full/lib'
 config.test_format = lit.formats.ShTest(True)
 config.suffixes = ['.ll']
+# TODO: make it configurable
+config.llvm_dir2 = '/home/mcopik/projects/clang_llvm/build_dfsan/lib/'
 
 config.substitutions.append( ('%loadpass', '-load '
     + config.lib_dir
@@ -51,5 +53,10 @@ config.substitutions.append( ('%testdir',
 
 config.substitutions.append( ('%execparams',
     'DFSAN_OPTIONS=warn_unimplemented=0'
+    )
+)
+
+config.substitutions.append( ('%omplink',
+    '%s/libiomp5.a' % config.llvm_dir2
     )
 )
