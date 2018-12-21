@@ -224,7 +224,13 @@ namespace extrap {
 
         };
 
-        std::unordered_map<llvm::Function *, int> instrumented_functions;
+        // Insert null value when function is not importan
+        // Important function:
+        // a) has non-const loops
+        // b) has call to OpenMP fork-call
+        // c) has MPI call?
+        //
+        std::unordered_map<llvm::Function *, llvm::Optional<Function>> instrumented_functions;
         std::vector<llvm::Function *> parent_functions;
         int instrumented_functions_counter;
         std::ofstream unknown;
@@ -251,11 +257,13 @@ namespace extrap {
 
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
         bool runOnFunction(llvm::Function & f, int override_counter = -1);
-        void modifyFunction(llvm::Function & f, int idx, Instrumenter &);
+        void modifyFunction(llvm::Function & f, Function & func, Instrumenter &);
         bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
         bool handleOpenMP(llvm::Function &f, int override_counter = -1);
+        void foundFunction(llvm::Function &f, bool important, int counter = -1);
+        void insertCallsite(llvm::Function & f, llvm::Value * val);
     };
 
 }

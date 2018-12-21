@@ -121,8 +121,8 @@ namespace extrap {
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
         for(auto & f : instrumented_functions)
         {
-            if(f.second != -1)
-                modifyFunction(*f.first, f.second, instr);
+            if(f.second)
+                modifyFunction(*f.first, f.second.getValue(), instr);
         }
 
 
@@ -171,6 +171,33 @@ namespace extrap {
         return openmp_call;
     }
 
+    void DfsanInstr::foundFunction(llvm::Function &f, bool important, int counter)
+    {
+        auto it = instrumented_functions.find(&f);
+        assert(it == instrumented_functions.end());
+        if(important) {
+            if(counter == -1) {
+                // when overriding, only the parent function matters
+                // don't insert name in such case
+                parent_functions.push_back(&f);
+                // when not overriding, get the current counter and update
+                counter = instrumented_functions_counter;
+                instrumented_functions_counter++;
+            }
+            instrumented_functions[&f] = llvm::Optional<Function>(counter);
+        } else {
+            instrumented_functions[&f] = llvm::Optional<Function>();
+            stats.empty_function();
+        }
+    }
+
+    void DfsanInstr::insertCallsite(llvm::Function & f, llvm::Value * val)
+    {
+        auto it = instrumented_functions.find(&f);
+        if( (*it).second.hasValue() )
+            (*it).second->add_callsite(val);
+    }
+
     bool DfsanInstr::analyzeFunction(llvm::Function & f, int override_counter)
     { 
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
@@ -178,21 +205,10 @@ namespace extrap {
         bool has_openmp_calls = handleOpenMP(f, override_counter);
         // Worth instrumenting
         if(!linfo->empty() || has_openmp_calls) {
-            int counter = override_counter;
-            if(counter == -1) {
-                counter = instrumented_functions_counter;
-                instrumented_functions_counter++;
-            }
-            instrumented_functions.insert(
-                    std::make_pair(&f, counter)
-                );
-            // when overriding, only the parent function matters
-            if(override_counter == -1)
-                parent_functions.push_back(&f);
+            foundFunction(f, true, override_counter);
             return true;
         } else {
-            instrumented_functions.insert(std::make_pair(&f, -1));
-            stats.empty_function();
+            foundFunction(f, false, override_counter);
             return false;
         }
     }
@@ -202,10 +218,10 @@ namespace extrap {
         // ignore declarations
         // TODO: handle instrumentation of unknown functions
         if(!is_analyzable(*m, f))
-            return true;
+            return false;
         auto it = instrumented_functions.find(&f) ;
         if(it != instrumented_functions.end())
-            return (*it).second != -1;
+            return (*it).second.hasValue();
         stats.found_function();
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
@@ -214,23 +230,27 @@ namespace extrap {
             found_params.push_back(param);
         }
 
-        bool is_important = analyzeFunction(f, override_counter);
-        
+        bool is_important = analyzeFunction(f, override_counter); 
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
             llvm::Function * called_f = node->getFunction();
             llvm::Value * call = callsite.first;
-            //callsites[called_f]++;
             // For some reason I keep seeing nullptr here
-            if(called_f)
+            if(called_f) {
                 // it's important if at least one of subfunctions is important
-                is_important |= runOnFunction(*called_f, override_counter);
+                bool f_important = runOnFunction(*called_f, override_counter);
+                if(f_important) {
+                    insertCallsite(*called_f, call);
+                    is_important = true;
+                }
+            }
         }
         return is_important;
     }
     
-    void DfsanInstr::modifyFunction(llvm::Function & f, int idx, Instrumenter & instr)
+    void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
+            Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
@@ -241,7 +261,7 @@ namespace extrap {
                 if(br->isConditional()) {
                     // is this a part of a loop?
                     // insert the check for labels
-                    instr.checkLabel(idx, br);
+                    instr.checkLabel(func.function_idx(), br);
                     labels++;
                 }
             } 
@@ -309,9 +329,9 @@ namespace extrap {
                 );
         std::vector<llvm::Constant*> function_names(functions_count);
         for(auto it = begin; it != end; ++it) {
-            int f_idx = (*it).second;
-            if(f_idx == -1)
+            if( !(*it).second.hasValue() )
                 continue;
+            int f_idx = (*it).second->function_idx();
             // another function with the same ID already wrote data
             if(function_names[f_idx])
                 continue;
@@ -336,9 +356,9 @@ namespace extrap {
                 );
         std::vector<llvm::Constant*> functions_dbg_info(2*functions_count);
         for(auto it = begin; it != end; ++it) {
-            int f_idx = (*it).second;
-            if(f_idx == -1)
+            if( !(*it).second.hasValue() )
                 continue;
+            int f_idx = (*it).second->function_idx();
             // another function with the same ID already wrote data
             if(functions_dbg_info[2*f_idx])
                 continue;
@@ -614,7 +634,6 @@ namespace extrap {
     {
         empty_functions++;
     }
-
 
     void Statistics::print()
     {
