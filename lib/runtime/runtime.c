@@ -10,6 +10,7 @@
 //extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 //extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
 //extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+//
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
 int32_t __dfsw_EXTRAP_VAR_ID()
@@ -31,6 +32,21 @@ void __dfsw_EXTRAP_AT_EXIT()
     //}
     //fflush(stdout);
     __dfsw_dump_json_output();
+}
+
+void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t operand_idx, int32_t callsite_idx)
+{
+    dfsan_label temp = dfsan_read_label(addr, size);
+    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+            if(dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i])) {
+                int offset = __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[function_idx];
+                int arg_count = __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[function_idx];
+                offset += arg_count * operand_idx;
+                offset += operand_idx;
+                __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[offset] = true;
+            }
+        }
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)

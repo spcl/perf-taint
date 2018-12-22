@@ -48,7 +48,7 @@ void __dfsw_dump_json_output()
         }
         if(!cf_params.empty()) {
             __dfsw_json_init_func(i);
-            out["functions"][i]["control_flow_params"] = cf_params;
+            out["functions"].back()["control_flow_params"] = cf_params;
         }
         //else
         //   out.erase( out.find("functions") );

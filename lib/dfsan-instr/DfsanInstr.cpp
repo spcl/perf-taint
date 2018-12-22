@@ -17,7 +17,9 @@
 
 #include <polly/PolySCEV.h>
 
+#include <algorithm>
 #include <iostream>
+#include <numeric>
 #include <vector>
 #include <string>
 
@@ -121,10 +123,10 @@ namespace extrap {
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
         for(auto & f : instrumented_functions)
         {
-            if(f.second)
+            if(f.second) {
                 modifyFunction(*f.first, f.second.getValue(), instr);
+            }
         }
-
 
         stats.print();
 
@@ -176,6 +178,7 @@ namespace extrap {
         auto it = instrumented_functions.find(&f);
         assert(it == instrumented_functions.end());
         if(important) {
+            bool overriden = true;
             if(counter == -1) {
                 // when overriding, only the parent function matters
                 // don't insert name in such case
@@ -183,8 +186,10 @@ namespace extrap {
                 // when not overriding, get the current counter and update
                 counter = instrumented_functions_counter;
                 instrumented_functions_counter++;
+                overriden = false;
             }
-            instrumented_functions[&f] = llvm::Optional<Function>(counter);
+            instrumented_functions[&f] =
+                llvm::Optional<Function>(Function(counter, overriden));
         } else {
             instrumented_functions[&f] = llvm::Optional<Function>();
             stats.empty_function();
@@ -348,6 +353,25 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
+        
+        // int32_t * functions_sizes
+        array_type = llvm::ArrayType::get(
+                    builder.getInt32Ty(),
+                    functions_count
+                );
+        std::vector<llvm::Constant*> functions_args(functions_count);
+        for(auto it = begin; it != end; ++it) {
+            if( !(*it).second.hasValue() || (*it).second->is_overriden())
+                continue;
+            int f_idx = (*it).second->function_idx();
+            int arg_size = (*it).first->arg_size();
+            functions_args[f_idx] = builder.getInt32(arg_size);
+        }
+        glob_funcs_args = new llvm::GlobalVariable(m,
+                array_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, functions_args),
+                glob_funcs_args_name);
 
         // int * functions_dbg_info
         array_type = llvm::ArrayType::get(
@@ -401,7 +425,7 @@ namespace extrap {
         array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
         std::vector<llvm::Constant*> labels;
         for(int i = 0; i < params_count; ++i)
-            labels.push_back( builder.getInt16(0));
+            labels.push_back(builder.getInt16(0));
         glob_labels = new llvm::GlobalVariable(m,
                 array_type,
                 false,
@@ -412,13 +436,46 @@ namespace extrap {
         // int32_t instrumentation_results[functions * params];
         array_type = llvm::ArrayType::get(builder.getInt32Ty(),
                 params_count * functions_count);
-        std::vector<llvm::Constant*> V;
-        for(int i = 0; i < params_count*functions_count; ++i)
-            V.push_back( builder.getInt32(0));
         glob_result_array = new llvm::GlobalVariable(m,
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, V),
+                llvm::ConstantAggregateZero::get(array_type),
                 glob_result_array_name); 
+
+        // callsite_count * operand_count
+        // last element stores the final size
+        std::vector<int> sizes(functions_count + 1);
+        for(auto it = begin; it != end; ++it) {
+            if( (*it).second.hasValue() && !(*it).second->is_overriden()) {
+                int operands_count = (*it).first->arg_size();
+                int callsites_count = (*it).second->callsites_size();
+                int f_idx = (*it).second->function_idx();
+                sizes[f_idx] = operands_count * callsites_count;
+                //llvm::outs() << (*it).first->getName() << ' ' << operands_count << ' ' << callsites_count << '\n';
+            }
+        }
+        // compute offsets with a prefix sum
+        std::partial_sum(sizes.begin(), sizes.end(), sizes.begin());
+        int total_size = sizes.back();
+        // int8_t callsites_results[total_size];
+        array_type = llvm::ArrayType::get(builder.getInt1Ty(), total_size);
+        glob_callsites_result = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantAggregateZero::get(array_type),
+                glob_callsites_result_name); 
+        // int32_t callsites_offsets[functions_count + 1];
+        // first element is always zero, the last one is an accumulated sum
+        std::vector<llvm::Constant*> offsets(functions_count + 1);
+        std::transform(sizes.begin(), sizes.end(), offsets.begin(),
+            [this](int offset) {
+                return builder.getInt32(offset);
+            }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                functions_count + 1);
+        glob_callsites_offsets = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, offsets),
+                glob_callsites_offsets_name); 
     }
     
     void Instrumenter::checkLabel(int function_idx, llvm::BranchInst * br)

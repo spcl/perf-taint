@@ -77,11 +77,23 @@ namespace extrap {
         llvm::GlobalVariable * glob_funcs_count;
         // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
+        // `functions` ints, storing # of args
+        llvm::GlobalVariable * glob_funcs_args;
         // 2*`functions` integers, line of code and file index, compile time
         llvm::GlobalVariable * glob_funcs_dbg;
         llvm::GlobalVariable * glob_params_count;
         // `params` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_params_names;
+
+        // Callsites
+        // int8* of size operand_count * callsite_count
+        // computed for each function
+        llvm::GlobalVariable * glob_callsites_result;
+        // int32* of size `functions
+        // stores offsets to the array above
+        // necessary because each function has different signature
+        // and different number of callsites
+        llvm::GlobalVariable * glob_callsites_offsets;
         
         // `functions` * `parameters` integers, storing control-flow dependency
         // of a function on each parameter
@@ -97,10 +109,16 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
         static constexpr const char * glob_result_array_name
             = "__EXTRAP_INSTRUMENTATION_RESULTS";
+        static constexpr const char * glob_funcs_args_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_ARGS";
         static constexpr const char * glob_funcs_names_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
         static constexpr const char * glob_funcs_dbg_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_DBG";
+        static constexpr const char * glob_callsites_result_name
+            = "__EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS";
+        static constexpr const char * glob_callsites_offsets_name
+            = "__EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS";
         static constexpr const char * glob_params_names_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
 
@@ -122,9 +140,12 @@ namespace extrap {
             glob_files(nullptr),
             glob_funcs_count(nullptr),
             glob_funcs_names(nullptr),
+            glob_funcs_args(nullptr),
             glob_funcs_dbg(nullptr),
             glob_params_count(nullptr),
             glob_params_names(nullptr),
+            glob_callsites_result(nullptr),
+            glob_callsites_offsets(nullptr),
             glob_result_array(nullptr)
         {
             file_index.import(m, info); 
@@ -206,10 +227,12 @@ namespace extrap {
         struct Function
         {
             int idx;
+            bool overriden;
             llvm::SmallVector<llvm::Value*, 10> callsites;
 
-            Function(int _idx):
-                idx(_idx)
+            Function(int _idx, bool _overriden = false):
+                idx(_idx),
+                overriden(_overriden)
             {}
 
             int function_idx()
@@ -220,6 +243,16 @@ namespace extrap {
             void add_callsite(llvm::Value* val)
             {
                 callsites.push_back(val);
+            }
+
+            size_t callsites_size()
+            {
+                return callsites.size();
+            }
+
+            bool is_overriden()
+            {
+                return overriden;
             }
 
         };
