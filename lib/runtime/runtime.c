@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <sanitizer/dfsan_interface.h>
 
@@ -12,6 +13,15 @@
 //extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
 //
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
+
+dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
+{
+    static dependencies * results = NULL;
+    if(!results) {
+        results = calloc(sizeof(dependencies), __EXTRAP_INSTRUMENTATION_FUNCS_COUNT);
+    }
+    return &results[func_idx];
+}
 
 int32_t __dfsw_EXTRAP_VAR_ID()
 {
@@ -32,21 +42,61 @@ void __dfsw_EXTRAP_AT_EXIT()
     //}
     //fflush(stdout);
     __dfsw_dump_json_output();
+    free(__dfsw_EXTRAP_DEPS_FUNC(0));
 }
 
-void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t operand_idx, int32_t callsite_idx)
+void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t callsite_idx, int32_t arg_idx)
 {
-    dfsan_label temp = dfsan_read_label(addr, size);
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
-        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-            if(dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i])) {
-                int offset = __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[function_idx];
-                int arg_count = __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[function_idx];
-                offset += arg_count * operand_idx;
-                offset += operand_idx;
-                __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[offset] = true;
-            }
-        }
+    //dfsan_label temp = dfsan_read_label(addr, size);
+    //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
+    //    if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+    //        printf("Call %d func at %d site for arg %d label %d result %d\n",
+    //                function_idx, callsite_idx, arg_idx, i, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
+    //        if(dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i])) {
+    //            int offset = __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[function_idx];
+    //            int arg_count = __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[function_idx];
+    //            offset += arg_count * callsite_idx;
+    //            offset += arg_idx;
+    //            __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[offset] |= (1 << i);
+    //        }
+    //    }
+    //}
+}
+
+bool __dfsw_is_power_of_two(uint16_t val)
+{
+    return val && !(val & (val - 1) );
+}
+
+void __dfsw_add_dep(uint16_t val, dependencies * deps)
+{
+    //TODO: more efficient with capacity
+    for(size_t i = 0; i < deps->len; ++i) {
+        if(deps->deps[i] == val)
+            return;
+    }
+    deps->deps = realloc(deps->deps, sizeof(dependencies) * (deps->len + 1));
+    deps->deps[deps->len] = val;
+    deps->len++;
+}
+
+void __dfsw_EXTRAP_CHECK_LABEL2(uint16_t temp, int32_t function_idx)
+{
+    uint16_t deps = 0;
+    int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+    ////printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
+    for(int i = 0; i < 4; ++i) //__EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+       if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+           //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
+           bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+           __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
+           deps |= (has_label << i);
+       }
+    if(deps && !__dfsw_is_power_of_two(deps)) {
+        __dfsw_add_dep(deps, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
+        //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
+    }
+
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
@@ -63,19 +113,23 @@ void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
     //    printf("right union found: %p %d %d \n", addr, dfsan_has_label_with_desc(temp, "problem_size"), dfsan_has_label_with_desc(temp, "ranks"));
     //if( __EXTRAP_LABELS[0] && __EXTRAP_LABELS[1] && (dfsan_has_label(temp, __EXTRAP_LABELS[0]) || dfsan_has_label(temp, __EXTRAP_LABELS[1])))
     //printf("foundl label: %d %d at %p in %d found %d %d\n", __EXTRAP_LABELS[0] , __EXTRAP_LABELS[1] ,addr, function_idx, dfsan_has_label(temp, __EXTRAP_LABELS[0]), dfsan_has_label(temp, __EXTRAP_LABELS[1]));
-    int dependencies = 0;
+    uint16_t deps = 0;
     int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+    if(!addr)
+        return;
     dfsan_label temp = dfsan_read_label(addr, size);
     ////printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
-        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-            //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
-            bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
-            __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
-            dependencies += has_label;
-        }
-    //if(dependencies > 1)
-    //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
+    for(int i = 0; i < 4; ++i) //__EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+       if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+           //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
+           bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+           __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
+           deps |= (has_label << i);
+       }
+    if(deps && !__dfsw_is_power_of_two(deps)) {
+        __dfsw_add_dep(deps, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
+        //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
+    }
 
     //printf("Found: %p %s\n", addr, temp_info->desc); 
 }

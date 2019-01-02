@@ -10,6 +10,13 @@
 #define EXTERN
 #endif
 
+typedef struct _dependencies
+{
+    size_t len;
+    uint16_t * deps;
+} dependencies;
+
+
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FILES[];
@@ -26,5 +33,6 @@ extern int __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[];
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
+EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 
 #endif

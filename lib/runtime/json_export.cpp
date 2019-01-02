@@ -20,8 +20,20 @@ void __dfsw_json_init_func(int func_idx)
     function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
     function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];
     int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx + 1];
-    function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx]; 
+    if(file_idx != -1)
+        function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx]; 
     out["functions"].push_back(function);
+}
+
+void __dfsw_json_write_callsites(json_t & out, int func_idx)
+{
+    json_t callsites;
+
+    //int begin = __EXTRAP_CALLSITES_OFFSET[func_idx];
+    //int end = __EXTRAP_CALLSITES_OFFSET[func_idx];
+    
+
+    out["callsites"] = callsites;
 }
 
 void __dfsw_dump_json_output()
@@ -46,9 +58,18 @@ void __dfsw_dump_json_output()
             if(__EXTRAP_INSTRUMENTATION_RESULTS[i*vars_count + j])
                 cf_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[j]);
         }
+        dependencies *deps = __dfsw_EXTRAP_DEPS_FUNC(i);
+        for(int j = 0; j < deps->len; ++j) {
+            uint16_t val = deps->deps[j];
+            json_t multiples;
+            for(int k = 0; k < 16; ++k)
+                if(val & (1 << k))
+                    multiples.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[k]);
+            cf_params.push_back(multiples);
+        }
         if(!cf_params.empty()) {
             __dfsw_json_init_func(i);
-            out["functions"].back()["control_flow_params"] = cf_params;
+            out["functions"].back()["control_flow_params"] = cf_params; 
         }
         //else
         //   out.erase( out.find("functions") );
