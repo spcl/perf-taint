@@ -271,6 +271,15 @@ namespace extrap {
                 }
             } 
         }
+
+        int idx = 0;
+        for(llvm::Value * callsite : func.callsites) {
+            llvm::Instruction * s = llvm::dyn_cast<llvm::Instruction>(callsite);
+            llvm::CallBase * call = llvm::dyn_cast<llvm::CallBase>(s);
+            assert(call);
+            //instr.checkCall(func.function_idx(), idx++, call);
+        }
+
         stats.label_function(labels);
     }
     
@@ -482,7 +491,10 @@ namespace extrap {
     {
         assert(glob_result_array);
         // insert call before branch
-        InstrumenterVisiter vis{*this, function_idx};
+        InstrumenterVisiter vis(*this,
+            [this, function_idx](uint64_t size, llvm::Value * ptr) {
+                callCheckLabel(function_idx, size, ptr);
+            });
         const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
         assert(inst);
         // TODO: why instvisit is not for const instruction?
@@ -541,6 +553,13 @@ namespace extrap {
                 {int8_ptr, idx_t, idx_t, int8_ptr}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_STORE_LABEL", func_t);
         store_function = m.getFunction("__dfsw_EXTRAP_STORE_LABEL");
+        assert(store_function);
+
+        // void check_arg(int8_t *, int32_t, int32_t, int32_t, int32_t)
+        func_t = llvm::FunctionType::get(void_t,
+                {int8_ptr, idx_t, idx_t, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_CALLSITE", func_t);
+        callsite_function = m.getFunction("__dfsw_EXTRAP_CHECK_CALLSITE");
         assert(store_function);
 
         // void at_exit()
@@ -629,6 +648,37 @@ namespace extrap {
         return llvm::GetElementPtrInst::CreateInBounds(str, llvm::makeArrayRef(indices, 2), "", placement);
     }
         
+    void Instrumenter::checkCall(int function_idx, int callsite_idx,
+            llvm::CallBase * call)
+    {
+        // dom't cache loads because we update args seperately
+        // same load might appear twice
+        // TODO: optimize this to call check with multiple arg ids
+        int arg_idx = 0;
+        InstrumenterVisiter vis(*this,
+            [=, &arg_idx](uint64_t size, llvm::Value * ptr) {
+                callCheckCallArg(function_idx, callsite_idx, arg_idx++, size, ptr);
+            }, false);
+        for(int i = 0; i < call->getNumArgOperands(); ++i) {
+            llvm::Value * arg = call->getArgOperand(i);
+            // constant values (int, fp)
+            if(llvm::isa<llvm::ConstantData>(arg))
+                continue;
+            llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(arg);
+            assert(instr);
+            vis.visit(*instr);
+        }
+    }
+
+    void Instrumenter::callCheckCallArg(int function_idx, int callsite_idx,
+            int arg_idx, uint64_t size, llvm::Value * ptr)
+    {
+        llvm::Value * cast = builder.CreatePointerCast(ptr, builder.getInt8PtrTy());
+        builder.CreateCall(callsite_function, {cast, builder.getInt32(size),
+                builder.getInt32(function_idx), builder.getInt32(callsite_idx),
+                builder.getInt32(arg_idx)}); 
+    }
+
     uint64_t InstrumenterVisiter::size_of(llvm::Value * val)
     {
         llvm::PointerType * ptr = llvm::dyn_cast<llvm::PointerType>(val->getType());
@@ -639,15 +689,24 @@ namespace extrap {
     
     void InstrumenterVisiter::visitLoadInst(llvm::LoadInst & load)
     {
-        if(processed_loads.count(&load))
-            return;
-        processed_loads.insert(&load);
+        if(avoid_duplicates) {
+            if(processed_loads.count(&load))
+                return;
+            processed_loads.insert(&load);
+        }
 
-        // we perform verification close to the original load
-        // branches 
-        instr.setInsertPoint(load);
-        uint64_t size = size_of(load.getPointerOperand());
-        instr.callCheckLabel(function_idx, size, load.getPointerOperand());
+        if(load.getType()->isPointerTy()) {
+            instr.setInsertPoint(*load.getNextNode());
+            uint64_t size = size_of(&load);
+            f(size, &load);
+        } else {
+            // we perform verification close to the original load
+            // branches 
+            instr.setInsertPoint(load);
+            uint64_t size = size_of(load.getPointerOperand());
+            //instr.callCheckLabel(function_idx, size, load.getPointerOperand());
+            f(size, load.getPointerOperand());
+        }
     }
 
     llvm::Instruction * to_instr(llvm::Value * val)

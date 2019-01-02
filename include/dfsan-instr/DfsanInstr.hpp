@@ -126,6 +126,8 @@ namespace extrap {
         llvm::Function * load_function;
         // __EXTRAP_STORE_LABEL(int * addr, param_idx)
         llvm::Function * store_function;
+        // __EXTRAP_CHECK_CALLSITE(int * addr, size, func_idx, arg_idx, site_idx)
+        llvm::Function * callsite_function;
         // __EXTRAP_AT_EXIT()
         llvm::Function * at_exit_function;
         // __EXTRAP_INIT()
@@ -168,6 +170,10 @@ namespace extrap {
         void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
 
+        void checkCall(int function_idx, int callsite_idx, llvm::CallBase *);
+        void callCheckCallArg(int function_idx, int callsite_idx, int arg_idx,
+                uint64_t size, llvm::Value * ptr);
+
         llvm::Function * getAtExit();
     };
     
@@ -189,20 +195,25 @@ namespace extrap {
         bool visitGetElementPtrInst(llvm::GetElementPtrInst &);
         static bool visited(Parameters::id_t);
     };
-    
+
     struct InstrumenterVisiter : public llvm::InstVisitor<InstrumenterVisiter, void>
     {
         llvm::DataLayout * layout;
         Instrumenter & instr;
-        int function_idx;
+        bool avoid_duplicates;
         // avoid duplicates
         llvm::SmallSet<llvm::LoadInst*, 10> processed_loads;
         std::unordered_set<llvm::PHINode*> phis;
+        //TODO: std::function overhead?
+        std::function<void(uint64_t, llvm::Value*)> f;
 
-        InstrumenterVisiter(Instrumenter & _instr, int idx):
+        template<typename F>
+        InstrumenterVisiter(Instrumenter & _instr, F && _f,
+                bool _avoid_duplicates = true):
             layout(new llvm::DataLayout(&_instr.m)),
             instr(_instr),
-            function_idx(idx)
+            f(_f),
+            avoid_duplicates(_avoid_duplicates)
             {}
         ~InstrumenterVisiter()
         {
