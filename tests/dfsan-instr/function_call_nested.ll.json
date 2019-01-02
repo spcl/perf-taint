@@ -32,7 +32,11 @@
       "control_flow_params": [
         "x1",
         "x2",
-        "global"
+        "global",
+        [
+            "x2",
+            "global"
+        ]
       ],
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 33,

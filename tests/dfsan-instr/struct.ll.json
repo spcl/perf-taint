@@ -13,7 +13,11 @@
       "control_flow_params": [
         "params.ranks",
         "params.problem_size",
-        "global_params.ranks"
+        "global_params.ranks",
+        [
+            "params.ranks",
+            "params.problem_size"
+        ]
       ],
       "file": "tests/dfsan-instr/struct.cpp",
       "line": 33,
