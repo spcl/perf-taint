@@ -135,7 +135,7 @@ namespace extrap {
 
     bool DfsanInstr::handleOpenMP(llvm::Function & f, int override_counter)
     {
-        bool openmp_call = false;            
+        bool openmp_call = false;
         for(llvm::BasicBlock & bb: f)
             for(llvm::Instruction & instr : bb)
                 if(llvm::CallInst * call
@@ -235,7 +235,7 @@ namespace extrap {
             found_params.push_back(param);
         }
 
-        bool is_important = analyzeFunction(f, override_counter); 
+        bool is_important = analyzeFunction(f, override_counter);
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
@@ -253,7 +253,7 @@ namespace extrap {
         }
         return is_important;
     }
-    
+
     void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
             Instrumenter & instr)
     {
@@ -266,10 +266,10 @@ namespace extrap {
                 if(br->isConditional()) {
                     // is this a part of a loop?
                     // insert the check for labels
-                    instr.checkLabel(func.function_idx(), br);
+                    instr.checkCF(func.function_idx(), br);
                     labels++;
                 }
-            } 
+            }
         }
 
         int idx = 0;
@@ -282,7 +282,7 @@ namespace extrap {
 
         stats.label_function(labels);
     }
-    
+
     bool DfsanInstr::is_analyzable(llvm::Module & m, llvm::Function & f)
     {
         llvm::Function * in_module = m.getFunction(f.getName());
@@ -298,11 +298,17 @@ namespace extrap {
             FuncIter begin, FuncIter end)
     {
         functions_count = funcs_names.size();
-        params_count = Parameters::parameters_count(); 
+        params_count = Parameters::parameters_count();
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
         // insert into first BB of first function
         builder.SetInsertPoint( &*(m.begin()->begin()) );
+
+        // uint16_t __dfsan__retval_tls;
+        glob_retval_tls = new llvm::GlobalVariable(m, builder.getInt16Ty(),
+                false, llvm::GlobalValue::ExternalWeakLinkage,
+                nullptr, glob_retval_tls_name, nullptr,
+                llvm::GlobalValue::InitialExecTLSModel);
 
         // int32_t functions_count;
         llvm::Type * llvm_int_type = builder.getInt32Ty();
@@ -314,8 +320,8 @@ namespace extrap {
         glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(params_count),
-                glob_params_count_name); 
-        
+                glob_params_count_name);
+
         // char ** file_names
         auto file_it = file_index.begin(), file_end = file_index.end();
         size_t file_count = std::distance(file_it, file_end);
@@ -362,7 +368,7 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
-        
+
         // int32_t * functions_sizes
         array_type = llvm::ArrayType::get(
                     builder.getInt32Ty(),
@@ -470,7 +476,7 @@ namespace extrap {
         glob_callsites_result = new llvm::GlobalVariable(m,
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantAggregateZero::get(array_type),
-                glob_callsites_result_name); 
+                glob_callsites_result_name);
         // int32_t callsites_offsets[functions_count + 1];
         // first element is always zero, the last one is an accumulated sum
         std::vector<llvm::Constant*> offsets(functions_count + 1);
@@ -484,29 +490,82 @@ namespace extrap {
         glob_callsites_offsets = new llvm::GlobalVariable(m,
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, offsets),
-                glob_callsites_offsets_name); 
+                glob_callsites_offsets_name);
     }
-    
-    void Instrumenter::checkLabel(int function_idx, llvm::BranchInst * br)
+
+    void Instrumenter::checkCF(int function_idx, llvm::BranchInst * br)
     {
         assert(glob_result_array);
         // insert call before branch
         InstrumenterVisiter vis(*this,
             [this, function_idx](uint64_t size, llvm::Value * ptr) {
-                callCheckLabel(function_idx, size, ptr);
-            });
+                checkCFLoad(function_idx, size, ptr);
+            },
+            [this, function_idx](llvm::CallBase * ptr) {
+                checkCFRetval(function_idx, ptr);
+            }
+        );
         const llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
         assert(inst);
         // TODO: why instvisit is not for const instruction?
         vis.visit( const_cast<llvm::Instruction*>(inst) );
     }
-    
-    void Instrumenter::callCheckLabel(int function_idx, size_t size, llvm::Value * operand)
+
+    void Instrumenter::checkCFLoad(int function_idx, size_t size, llvm::Value * operand)
     {
         llvm::Value * cast = builder.CreatePointerCast(operand, builder.getInt8PtrTy());
         builder.CreateCall(load_function, {cast, builder.getInt32(size), builder.getInt32(function_idx) });
     }
-    
+
+    void Instrumenter::checkCFRetval(int function_idx, llvm::CallBase * call)
+    {
+        llvm::Value * load_tls = builder.CreateLoad(glob_retval_tls);
+        builder.CreateCall(label_function,
+                {load_tls, builder.getInt32(function_idx)}
+            );
+    }
+
+    void Instrumenter::checkCallSite(int function_idx, int callsite_idx,
+            llvm::CallBase * call)
+    {
+        // dom't cache loads because we update args seperately
+        // same load might appear twice
+        // TODO: optimize this to call check with multiple arg ids
+        int arg_idx = 0;
+        auto load_check =
+            [=, &arg_idx](uint64_t size, llvm::Value * ptr) {
+                checkCallSiteLoad(function_idx, callsite_idx, arg_idx++, size, ptr);
+            };
+        auto label_check =
+            [=, &arg_idx](llvm::CallBase * ptr) {
+                checkCallSiteRetval(function_idx, callsite_idx, arg_idx++, ptr);
+            };
+        InstrumenterVisiter vis(*this, load_check, label_check, false);
+        for(int i = 0; i < call->getNumArgOperands(); ++i) {
+            llvm::Value * arg = call->getArgOperand(i);
+            // constant values (int, fp)
+            if(llvm::isa<llvm::ConstantData>(arg))
+                continue;
+            llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(arg);
+            assert(instr);
+            vis.visit(*instr);
+        }
+    }
+
+    void Instrumenter::checkCallSiteLoad(int function_idx, int callsite_idx,
+            int arg_idx, uint64_t size, llvm::Value * ptr)
+    {
+        llvm::Value * cast = builder.CreatePointerCast(ptr, builder.getInt8PtrTy());
+        builder.CreateCall(callsite_function, {cast, builder.getInt32(size),
+                builder.getInt32(function_idx), builder.getInt32(callsite_idx),
+                builder.getInt32(arg_idx)});
+    }
+
+    void Instrumenter::checkCallSiteRetval(int function_idx, int callsite_idx,
+            int arg_idx, llvm::CallBase * ptr)
+    {
+    }
+
     void Instrumenter::setLabel(Parameters::id_t param, const llvm::Value * val)
     {
         assert(glob_labels);
@@ -515,7 +574,7 @@ namespace extrap {
         assert(inst);
         vis.visit( const_cast<llvm::Instruction*>(inst) );
     }
-    
+
     void Instrumenter::callSetLabel(int param_idx, const char * param_name, size_t size, llvm::Value * operand)
     {
         //TODO: can we embed a const string in code?
@@ -534,19 +593,26 @@ namespace extrap {
                     //llvm::ConstantExpr::getPointerCast(name, builder.getInt8PtrTy())
                 });
     }
-    
+
     void Instrumenter::declareFunctions()
     {
         llvm::Type * void_t = builder.getVoidTy();
         llvm::Type * int8_ptr = builder.getInt8PtrTy();
         llvm::Type * idx_t = builder.getInt32Ty();
 
-        // void check_label(int8_t *, int32_t, int32_t)
+        // void check_load(int8_t *, int32_t, int32_t)
         llvm::FunctionType * func_t = llvm::FunctionType::get(
                 void_t, {int8_ptr, idx_t, idx_t}, false);
-        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
-        load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
+        load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
         assert(load_function);
+
+        // void check_label(uint16_t, int32_t)
+        func_t = llvm::FunctionType::get(
+                void_t, {builder.getInt16Ty(), idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
+        label_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
+        assert(label_function);
 
         // void store_label(int8_t *, int32_t, int32_t, int8_t*)
         func_t = llvm::FunctionType::get(void_t,
@@ -567,13 +633,13 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_AT_EXIT", func_t);
         at_exit_function = m.getFunction("__dfsw_EXTRAP_AT_EXIT");
         assert(at_exit_function);
-        
+
         // void extrap_init()
         func_t = llvm::FunctionType::get(void_t, {}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_INIT", func_t);
         init_function = m.getFunction("__dfsw_EXTRAP_INIT");
         assert(init_function);
-    } 
+    }
 
     // polly lib/CodeGen/PerfMonitor.cpp
     llvm::Function * Instrumenter::getAtExit()
@@ -605,7 +671,7 @@ namespace extrap {
         builder.CreateCall(getAtExit(), {cast_f});
         builder.CreateCall(init_function);
     }
-        
+
     void Instrumenter::annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params)
     {
         assert(glob_labels);
@@ -639,44 +705,13 @@ namespace extrap {
             LabelAnnotator::annotated_params.insert(std::get<1>(params[i]));
         }
     }
-    
+
     llvm::Instruction * Instrumenter::createGlobalStringPtr(const char * name, llvm::Instruction * placement)
     {
         llvm::Value * str = builder.CreateGlobalString(name, "");
         llvm::Value * zero = builder.getInt32(0);
         llvm::Value * indices[] = {zero, zero};
         return llvm::GetElementPtrInst::CreateInBounds(str, llvm::makeArrayRef(indices, 2), "", placement);
-    }
-        
-    void Instrumenter::checkCall(int function_idx, int callsite_idx,
-            llvm::CallBase * call)
-    {
-        // dom't cache loads because we update args seperately
-        // same load might appear twice
-        // TODO: optimize this to call check with multiple arg ids
-        int arg_idx = 0;
-        InstrumenterVisiter vis(*this,
-            [=, &arg_idx](uint64_t size, llvm::Value * ptr) {
-                callCheckCallArg(function_idx, callsite_idx, arg_idx++, size, ptr);
-            }, false);
-        for(int i = 0; i < call->getNumArgOperands(); ++i) {
-            llvm::Value * arg = call->getArgOperand(i);
-            // constant values (int, fp)
-            if(llvm::isa<llvm::ConstantData>(arg))
-                continue;
-            llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(arg);
-            assert(instr);
-            vis.visit(*instr);
-        }
-    }
-
-    void Instrumenter::callCheckCallArg(int function_idx, int callsite_idx,
-            int arg_idx, uint64_t size, llvm::Value * ptr)
-    {
-        llvm::Value * cast = builder.CreatePointerCast(ptr, builder.getInt8PtrTy());
-        builder.CreateCall(callsite_function, {cast, builder.getInt32(size),
-                builder.getInt32(function_idx), builder.getInt32(callsite_idx),
-                builder.getInt32(arg_idx)}); 
     }
 
     uint64_t InstrumenterVisiter::size_of(llvm::Value * val)
@@ -686,7 +721,7 @@ namespace extrap {
         assert(layout);
         return layout->getTypeStoreSize(ptr->getPointerElementType());
     }
-    
+
     void InstrumenterVisiter::visitLoadInst(llvm::LoadInst & load)
     {
         if(avoid_duplicates) {
@@ -698,14 +733,14 @@ namespace extrap {
         if(load.getType()->isPointerTy()) {
             instr.setInsertPoint(*load.getNextNode());
             uint64_t size = size_of(&load);
-            f(size, &load);
+            load_function(size, &load);
         } else {
             // we perform verification close to the original load
             // branches 
             instr.setInsertPoint(load);
             uint64_t size = size_of(load.getPointerOperand());
             //instr.callCheckLabel(function_idx, size, load.getPointerOperand());
-            f(size, load.getPointerOperand());
+            load_function(size, load.getPointerOperand());
         }
     }
 
@@ -726,6 +761,26 @@ namespace extrap {
                 visit(operand);
         }
         phis.erase(&inst);
+    }
+
+    void InstrumenterVisiter::visitCallInst(llvm::CallInst & inst)
+    {
+        processCall(&inst);
+    }
+
+    void InstrumenterVisiter::visitInvokeInst(llvm::InvokeInst & inst)
+    {
+        processCall(&inst);
+    }
+
+    void InstrumenterVisiter::processCall(llvm::CallBase * call)
+    {
+        if(avoid_duplicates) {
+            if(processed_calls.count(call))
+                return;
+            processed_calls.insert(call);
+        }
+        label_function(call);
     }
 
     void InstrumenterVisiter::visitInstruction(llvm::Instruction & inst)

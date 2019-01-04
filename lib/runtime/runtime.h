@@ -16,7 +16,6 @@ typedef struct _dependencies
     uint16_t * deps;
 } dependencies;
 
-
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FILES[];

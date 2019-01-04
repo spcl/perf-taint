@@ -1,0 +1,25 @@
+{
+  "functions": [
+    {
+      "control_flow_params": [
+        "global"
+      ],
+      "file": "tests/dfsan-instr/function_retval.cpp",
+      "line": 47,
+      "name": "h"
+    },
+    {
+      "control_flow_params": [
+        "x1"
+      ],
+      "file": "tests/dfsan-instr/function_retval.cpp",
+      "line": 58,
+      "name": "i"
+    }
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

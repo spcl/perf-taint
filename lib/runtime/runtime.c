@@ -42,7 +42,10 @@ void __dfsw_EXTRAP_AT_EXIT()
     //}
     //fflush(stdout);
     __dfsw_dump_json_output();
-    free(__dfsw_EXTRAP_DEPS_FUNC(0));
+    dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
+    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i)
+        free(deps[i].deps);
+    free(deps);
 }
 
 void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t callsite_idx, int32_t arg_idx)
@@ -80,26 +83,22 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
     deps->len++;
 }
 
-void __dfsw_EXTRAP_CHECK_LABEL2(uint16_t temp, int32_t function_idx)
+void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t function_idx)
 {
     uint16_t deps = 0;
     int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-    ////printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
     for(int i = 0; i < 4; ++i) //__EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-           //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
            bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
            __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
            deps |= (has_label << i);
        }
     if(deps && !__dfsw_is_power_of_two(deps)) {
         __dfsw_add_dep(deps, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
-        //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
     }
-
 }
 
-void __dfsw_EXTRAP_CHECK_LABEL(int8_t * addr, size_t size, int32_t function_idx)
+void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size, int32_t function_idx)
 {
     //const struct dfsan_label_info * temp_info = dfsan_get_label_info(temp);
     //printf("Found: %p %s\n", addr, temp_info->desc); 

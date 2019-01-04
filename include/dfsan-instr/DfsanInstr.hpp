@@ -70,10 +70,14 @@ namespace extrap {
         size_t functions_count;
         size_t params_count;
 
+        // __dfsan_retval_tls - thread local global storing return value
+        // we need to call check_label on return value from function
+        llvm::GlobalVariable * glob_retval_tls;
+
         // `parameters` dfsan labels, dynamically assigned at runtime
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_files;
-        
+
         llvm::GlobalVariable * glob_funcs_count;
         // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
@@ -94,11 +98,13 @@ namespace extrap {
         // necessary because each function has different signature
         // and different number of callsites
         llvm::GlobalVariable * glob_callsites_offsets;
-        
+
         // `functions` * `parameters` integers, storing control-flow dependency
         // of a function on each parameter
         llvm::GlobalVariable * glob_result_array;
 
+        static constexpr const char * glob_retval_tls_name
+            = "__dfsan_retval_tls";
         static constexpr const char * glob_labels_name
             = "__EXTRAP_INSTRUMENTATION_LABELS";
         static constexpr const char * glob_files_name
@@ -122,8 +128,10 @@ namespace extrap {
         static constexpr const char * glob_params_names_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
 
-        // __EXTRAP_CHECK_LABEL(int * addr, function_idx)
+        // __EXTRAP_CHECK_LOAD(int * addr, size_t size, function_idx)
         llvm::Function * load_function;
+        // __EXTRAP_CHECK_LABEL(uint16_t label, function_idx)
+        llvm::Function * label_function;
         // __EXTRAP_STORE_LABEL(int * addr, param_idx)
         llvm::Function * store_function;
         // __EXTRAP_CHECK_CALLSITE(int * addr, size, func_idx, arg_idx, site_idx)
@@ -138,6 +146,7 @@ namespace extrap {
             builder(m.getContext()),
             functions_count(0),
             params_count(0),
+            glob_retval_tls(nullptr),
             glob_labels(nullptr),
             glob_files(nullptr),
             glob_funcs_count(nullptr),
@@ -150,7 +159,7 @@ namespace extrap {
             glob_callsites_offsets(nullptr),
             glob_result_array(nullptr)
         {
-            file_index.import(m, info); 
+            file_index.import(m, info);
             declareFunctions();
         }
 
@@ -160,9 +169,17 @@ namespace extrap {
         template<typename Vector, typename FuncIter>
         void createGlobalStorage(const Vector & func_names,
                 FuncIter begin, FuncIter end);
-        void checkLabel(int function_idx, llvm::BranchInst * br);
-        void callCheckLabel(int function_idx, size_t size, llvm::Value * cast);
-       
+
+        void checkCF(int function_idx, llvm::BranchInst * br);
+        void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);
+        void checkCFRetval(int function_idx, llvm::CallBase * cast);
+
+        void checkCallSite(int function_idx, int callsite_idx, llvm::CallBase *);
+        void checkCallSiteLoad(int function_idx, int callsite_idx, int arg_idx,
+                uint64_t size, llvm::Value * ptr);
+        void checkCallSiteRetval(int function_idx, int callsite_idx,
+                int arg_idx, llvm::CallBase *);
+
         void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params); 
         void setLabel(Parameters::id_t param, const llvm::Value * val);
         void callSetLabel(int param_idx, const char * param_name,
@@ -170,13 +187,10 @@ namespace extrap {
         void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
 
-        void checkCall(int function_idx, int callsite_idx, llvm::CallBase *);
-        void callCheckCallArg(int function_idx, int callsite_idx, int arg_idx,
-                uint64_t size, llvm::Value * ptr);
 
         llvm::Function * getAtExit();
     };
-    
+
     struct LabelAnnotator : public llvm::InstVisitor<LabelAnnotator, bool>
     {
         static std::set<Parameters::id_t> annotated_params;
@@ -204,15 +218,18 @@ namespace extrap {
         // avoid duplicates
         llvm::SmallSet<llvm::LoadInst*, 10> processed_loads;
         std::unordered_set<llvm::PHINode*> phis;
+        llvm::SmallSet<llvm::CallBase*, 10> processed_calls;
         //TODO: std::function overhead?
-        std::function<void(uint64_t, llvm::Value*)> f;
+        std::function<void(uint64_t, llvm::Value*)> load_function;
+        std::function<void(llvm::CallBase *)> label_function;
 
-        template<typename F>
-        InstrumenterVisiter(Instrumenter & _instr, F && _f,
+        template<typename F, typename U>
+        InstrumenterVisiter(Instrumenter & _instr, F && _load, U && _label,
                 bool _avoid_duplicates = true):
             layout(new llvm::DataLayout(&_instr.m)),
             instr(_instr),
-            f(_f),
+            load_function(_load),
+            label_function(_label),
             avoid_duplicates(_avoid_duplicates)
             {}
         ~InstrumenterVisiter()
@@ -222,8 +239,11 @@ namespace extrap {
         void visitLoadInst(llvm::LoadInst &);
         void visitInstruction(llvm::Instruction &);
         void visitPHINode(llvm::PHINode &);
+        void visitCallInst(llvm::CallInst &);
+        void visitInvokeInst(llvm::InvokeInst &);
 
         uint64_t size_of(llvm::Value * val);
+        void processCall(llvm::CallBase * call);
     };
 
     struct DfsanInstr : public llvm::ModulePass
