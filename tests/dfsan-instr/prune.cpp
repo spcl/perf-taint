@@ -64,7 +64,7 @@ int main(int argc, char ** argv)
 
     f_prune(1, 2);
     f_not_prune(1, 2);
-    
+
     f_prune(x1, 2*x1 + x2 - 1);
     f_not_prune(x1, 2*x1 + x2 - 1);
 

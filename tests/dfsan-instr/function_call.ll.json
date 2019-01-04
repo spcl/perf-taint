@@ -21,7 +21,6 @@
     {
       "control_flow_params": [
         "x1",
-        "x2",
         [
             "x1",
             "x2"

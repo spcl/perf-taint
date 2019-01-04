@@ -77,7 +77,7 @@ int main(int argc, char ** argv)
 
     //// called with nothing
     do_sth2(params.tolerance, params.block_size);
-    
+
     // called with all param
     do_sth3(params);
 

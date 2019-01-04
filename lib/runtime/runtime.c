@@ -85,52 +85,41 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t function_idx)
 {
-    uint16_t deps = 0;
+    // First, we track all of found labels.
+    // If there is more then one label, we write down dynamically a tuple.
+    // If there is exactly one label, we write it statically.
+    // Otherwise we don't write any results.
     int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-    for(int i = 0; i < 4; ++i) //__EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
-       if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-           bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
-           __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
-           deps |= (has_label << i);
-       }
-    if(deps && !__dfsw_is_power_of_two(deps)) {
-        __dfsw_add_dep(deps, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
+    uint16_t found_params = 0;
+    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+            bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+            found_params |= (has_label << i);
+            //printf("%d %d %d\n", function_idx, has_label, found_params);
+        }
+    //printf("%d %d \n", function_idx, found_params);
+    // write down only a combination
+    if(found_params && !__dfsw_is_power_of_two(found_params)) {
+        __dfsw_add_dep(found_params, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
+    }
+    // write down a parameter
+    else if(found_params) {
+        for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
+            if(found_params & (1 << i)) {
+                __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] = true;
+                break;
+            }
+        }
+
     }
 }
 
 void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size, int32_t function_idx)
 {
-    //const struct dfsan_label_info * temp_info = dfsan_get_label_info(temp);
-    //printf("Found: %p %s\n", addr, temp_info->desc); 
-    //if(temp_info->desc)
-    //printf("found: %p %d %d \n", addr, dfsan_has_label_with_desc(temp, "problem_size"), dfsan_has_label_with_desc(temp, "ranks"));
-    //temp_info = dfsan_get_label_info(temp_info->l1);
-    //if(temp_info->desc)
-    //printf("left union found: %p %d %d \n", addr, dfsan_has_label_with_desc(temp, "problem_size"), dfsan_has_label_with_desc(temp, "ranks"));
-    //temp_info = dfsan_get_label_info(temp_info->l2);
-    //if(temp_info->desc)
-    //    printf("right union found: %p %d %d \n", addr, dfsan_has_label_with_desc(temp, "problem_size"), dfsan_has_label_with_desc(temp, "ranks"));
-    //if( __EXTRAP_LABELS[0] && __EXTRAP_LABELS[1] && (dfsan_has_label(temp, __EXTRAP_LABELS[0]) || dfsan_has_label(temp, __EXTRAP_LABELS[1])))
-    //printf("foundl label: %d %d at %p in %d found %d %d\n", __EXTRAP_LABELS[0] , __EXTRAP_LABELS[1] ,addr, function_idx, dfsan_has_label(temp, __EXTRAP_LABELS[0]), dfsan_has_label(temp, __EXTRAP_LABELS[1]));
-    uint16_t deps = 0;
-    int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
     if(!addr)
         return;
     dfsan_label temp = dfsan_read_label(addr, size);
-    ////printf("Check label %d %p %d %d\n", function_idx, addr, size,  temp);
-    for(int i = 0; i < 4; ++i) //__EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
-       if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-           //printf("foundl label: %d at %p in %d found %d\n", __EXTRAP_INSTRUMENTATION_LABELS[i], addr, function_idx, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
-           bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
-           __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] |= has_label;
-           deps |= (has_label << i);
-       }
-    if(deps && !__dfsw_is_power_of_two(deps)) {
-        __dfsw_add_dep(deps, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
-        //fprintf(stderr, "Multiple dependency %d in function %d!\n", dependencies, function_idx);
-    }
-
-    //printf("Found: %p %s\n", addr, temp_info->desc); 
+    __dfsw_EXTRAP_CHECK_LABEL(temp, function_idx);
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
