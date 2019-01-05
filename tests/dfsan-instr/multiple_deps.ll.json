@@ -1,0 +1,43 @@
+{
+  "functions": [
+    {
+      "control_flow_params": [
+        [
+          "x1",
+          "x2"
+        ]
+      ],
+      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "line": 32,
+      "name": "f"
+    },
+    {
+      "control_flow_params": [
+        "x1",
+        [
+          "x1",
+          "x2"
+        ]
+      ],
+      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "line": 42,
+      "name": "g"
+    },
+    {
+      "control_flow_params": [
+        [
+          "x1",
+          "x2"
+        ]
+      ],
+      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "line": 52,
+      "name": "h"
+    }
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}
