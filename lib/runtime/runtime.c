@@ -14,6 +14,7 @@
 //
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
+
 dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
 {
     static dependencies * results = NULL;
@@ -42,7 +43,8 @@ void __dfsw_EXTRAP_AT_EXIT()
     //}
     //fflush(stdout);
     __dfsw_dump_json_output();
-    dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
+    //dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
+    dependencies * deps = __EXTRAP_LOOP_DEPENDENCIES;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i)
         free(deps[i].deps);
     free(deps);
@@ -77,19 +79,59 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
     for(size_t i = 0; i < deps->len; ++i) {
         if(deps->deps[i] == val)
             return;
+        // existing val is subset -> replace
+        if( (deps->deps[i] & val) == deps->deps[i]) {
+            deps->deps[i] = val;
+        }
+        // new value is a subset -> ignore
+        if( (deps->deps[i] & val) == val) {
+            return;
+        }
     }
     deps->deps = realloc(deps->deps, sizeof(dependencies) * (deps->len + 1));
     deps->deps[deps->len] = val;
     deps->len++;
 }
 
-void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t function_idx)
+void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,
+        int32_t depth, int32_t function_idx)
 {
     // First, we track all of found labels.
     // If there is more then one label, we write down dynamically a tuple.
     // If there is exactly one label, we write it statically.
     // Otherwise we don't write any results.
-    int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+    //int offset = function_idx*__EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+    //uint16_t found_params = 0;
+    //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+    //    if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+    //        bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+    //        found_params |= (has_label << i);
+    //        //printf("%d %d %d\n", function_idx, has_label, found_params);
+    //    }
+    ////printf("%d %d \n", function_idx, found_params);
+    //// write down only a combination
+    //if(found_params && !__dfsw_is_power_of_two(found_params)) {
+    //    __dfsw_add_dep(found_params, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
+    //}
+    //// write down a parameter
+    //else if(found_params) {
+    //    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
+    //        if(found_params & (1 << i)) {
+    //            __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] = true;
+    //            break;
+    //        }
+    //    }
+    //}
+
+    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
+    //Position of `dependencies` object for this loop is composed from
+    //a) beginning offset of this function
+    //b) sum of depths for all previous loops in this function
+    //c) depth level for this loop
+    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
+    for(int i = 0; i < loop_idx; ++i)
+        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
+    offset += depth;
     uint16_t found_params = 0;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
@@ -97,29 +139,17 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t function_idx)
             found_params |= (has_label << i);
             //printf("%d %d %d\n", function_idx, has_label, found_params);
         }
-    //printf("%d %d \n", function_idx, found_params);
-    // write down only a combination
-    if(found_params && !__dfsw_is_power_of_two(found_params)) {
-        __dfsw_add_dep(found_params, __dfsw_EXTRAP_DEPS_FUNC(function_idx));
-    }
-    // write down a parameter
-    else if(found_params) {
-        for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
-            if(found_params & (1 << i)) {
-                __EXTRAP_INSTRUMENTATION_RESULTS[offset + i] = true;
-                break;
-            }
-        }
-
-    }
+    if(found_params)
+        __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
 }
 
-void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size, int32_t function_idx)
+void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size,
+        int32_t loop_idx, int32_t depth, int32_t func_idx)
 {
     if(!addr)
         return;
     dfsan_label temp = dfsan_read_label(addr, size);
-    __dfsw_EXTRAP_CHECK_LABEL(temp, function_idx);
+    __dfsw_EXTRAP_CHECK_LABEL(temp, loop_idx, depth, func_idx);
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
@@ -134,6 +164,10 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
 
 void __dfsw_EXTRAP_INIT()
 {
+    int deps_count = __EXTRAP_LOOPS_DEPS_OFFSETS[
+                __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
+            ];
+    __EXTRAP_LOOP_DEPENDENCIES = malloc(sizeof(dependencies) * deps_count);
     __dfsw_json_initialize();
 }
 

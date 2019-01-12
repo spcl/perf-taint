@@ -23,6 +23,7 @@ namespace llvm {
     class Function;
     class CallGraph;
     class LoopInfo;
+    class Loop;
 }
 
 namespace extrap {
@@ -45,6 +46,49 @@ namespace extrap {
         void empty_function();
         void label_function(int labels);
         void print();
+    };
+
+    struct Function
+    {
+        int idx;
+        bool overriden;
+        llvm::SmallVector<llvm::Value*, 10> callsites;
+        llvm::SmallVector<int32_t, 10> loop_depths;
+
+        Function(int _idx, bool _overriden = false):
+            idx(_idx),
+            overriden(_overriden)
+        {}
+
+        int function_idx()
+        {
+            return idx;
+        }
+
+        void add_callsite(llvm::Value* val)
+        {
+            callsites.push_back(val);
+        }
+
+        size_t callsites_size()
+        {
+            return callsites.size();
+        }
+
+        bool is_overriden()
+        {
+            return overriden;
+        }
+
+        void add_loop(int depth)
+        {
+            loop_depths.push_back(depth);
+        }
+
+        size_t loop_count()
+        {
+            return loop_depths.size();
+        }
     };
 
     struct FileIndex
@@ -103,6 +147,13 @@ namespace extrap {
         // of a function on each parameter
         llvm::GlobalVariable * glob_result_array;
 
+        // size determined by program properties
+        llvm::GlobalVariable * glob_loops_depths;
+        // `func_count + 1` integers providing direct access to deps results
+        llvm::GlobalValue * glob_deps_offsets;
+        // `func_count + 1` integers providing direct access to depths array
+        llvm::GlobalValue * glob_depths_array_offsets;
+
         static constexpr const char * glob_retval_tls_name
             = "__dfsan_retval_tls";
         static constexpr const char * glob_labels_name
@@ -127,6 +178,12 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS";
         static constexpr const char * glob_params_names_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
+        static constexpr const char * glob_loops_depths_name
+            = "__EXTRAP_LOOPS_DEPTHS_PER_FUNC";
+        static constexpr const char * glob_deps_offsets_name
+            = "__EXTRAP_LOOPS_DEPS_OFFSETS";
+        static constexpr const char * glob_depths_array_offsets_name
+            = "__EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS";
 
         // __EXTRAP_CHECK_LOAD(int * addr, size_t size, function_idx)
         llvm::Function * load_function;
@@ -140,6 +197,11 @@ namespace extrap {
         llvm::Function * at_exit_function;
         // __EXTRAP_INIT()
         llvm::Function * init_function;
+
+        // __EXTRAP_CHECK_LABEL(label, depth, loop_idx, func_idx)
+        llvm::Function * label_loop_function;
+        // __EXTRAP_CHECK_LOAD(addr, size, depth, loop_idx, func_idx)
+        llvm::Function * load_loop_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
@@ -166,13 +228,21 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        template<typename Vector, typename FuncIter>
+        template<typename Vector, typename Vector2, typename FuncIter>
         void createGlobalStorage(const Vector & func_names,
-                FuncIter begin, FuncIter end);
+                FuncIter begin, FuncIter end, Vector2 & loop_depths,
+                Vector2 & loop_counts);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
         void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);
         void checkCFRetval(int function_idx, llvm::CallBase * cast);
+
+        void checkLoop(int loop_idx, int depth, int function_idx,
+                const llvm::BranchInst * br);
+        void checkLoopLoad(int loop_idx, int depth, int function_idx,
+                size_t size, llvm::Value * load_addr);
+        void checkLoopRetval(int loop_idx, int depth, int function_idx,
+                llvm::CallBase * cast);
 
         void checkCallSite(int function_idx, int callsite_idx, llvm::CallBase *);
         void checkCallSiteLoad(int function_idx, int callsite_idx, int arg_idx,
@@ -180,13 +250,12 @@ namespace extrap {
         void checkCallSiteRetval(int function_idx, int callsite_idx,
                 int arg_idx, llvm::CallBase *);
 
-        void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params); 
+        void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params);
         void setLabel(Parameters::id_t param, const llvm::Value * val);
         void callSetLabel(int param_idx, const char * param_name,
                 size_t size, llvm::Value * operand);
         void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
-
 
         llvm::Function * getAtExit();
     };
@@ -255,38 +324,6 @@ namespace extrap {
         llvm::LoopInfo * linfo;
         FunctionParameters parameters;
 
-        struct Function
-        {
-            int idx;
-            bool overriden;
-            llvm::SmallVector<llvm::Value*, 10> callsites;
-
-            Function(int _idx, bool _overriden = false):
-                idx(_idx),
-                overriden(_overriden)
-            {}
-
-            int function_idx()
-            {
-                return idx;
-            }
-
-            void add_callsite(llvm::Value* val)
-            {
-                callsites.push_back(val);
-            }
-
-            size_t callsites_size()
-            {
-                return callsites.size();
-            }
-
-            bool is_overriden()
-            {
-                return overriden;
-            }
-
-        };
 
         // Insert null value when function is not importan
         // Important function:
@@ -295,6 +332,8 @@ namespace extrap {
         // c) has MPI call?
         //
         std::unordered_map<llvm::Function *, llvm::Optional<Function>> instrumented_functions;
+        std::vector<int> loops_depths;
+        std::vector<int> loops_counts;
         std::vector<llvm::Function *> parent_functions;
         int instrumented_functions_counter;
         std::ofstream unknown;
@@ -322,12 +361,15 @@ namespace extrap {
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
         bool runOnFunction(llvm::Function & f, int override_counter = -1);
         void modifyFunction(llvm::Function & f, Function & func, Instrumenter &);
+        int instrumentLoop(Function & func, llvm::Loop & l,
+                int loop_idx, int depth, Instrumenter &);
         bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
         bool handleOpenMP(llvm::Function &f, int override_counter = -1);
         void foundFunction(llvm::Function &f, bool important, int counter = -1);
         void insertCallsite(llvm::Function & f, llvm::Value * val);
+        int analyzeLoop(Function & f, llvm::Loop & l, int depth);
     };
 
 }

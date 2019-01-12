@@ -2,7 +2,9 @@
   "functions": [
     {
       "control_flow_params": [
-        "global"
+        [
+            "global"
+        ]
       ],
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 47,
@@ -10,7 +12,9 @@
     },
     {
       "control_flow_params": [
-        "x1"
+        [
+            "x1"
+        ]
       ],
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 58,

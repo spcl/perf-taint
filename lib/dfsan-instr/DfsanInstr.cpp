@@ -87,7 +87,7 @@ namespace extrap {
 
         // Since neither m.getName() or m.getSourceFileName provides a meaningful name
         // We rely on the user to supply an additional log name.
-       
+
         std::string name = LogDirName.getValue().empty() ?
                            "results" :
                            cppsprintf("%s/results", LogDirName.getValue().c_str());
@@ -112,12 +112,13 @@ namespace extrap {
             //for(llvm::Use & use : f.uses())
             //    llvm::outs() << use << '\n';
             if(instrumented_functions.find(&f) == instrumented_functions.end())
-               runOnFunction(f); 
+               runOnFunction(f);
         }
 
         Instrumenter instr(m);
         instr.createGlobalStorage(parent_functions,
-                instrumented_functions.begin(), instrumented_functions.end());
+                instrumented_functions.begin(), instrumented_functions.end(),
+                loops_depths, loops_counts);
         instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
@@ -203,14 +204,37 @@ namespace extrap {
             (*it).second->add_callsite(val);
     }
 
+    int DfsanInstr::analyzeLoop(Function & f, llvm::Loop & l, int depth)
+    {
+        int loops = 0;
+        auto & subloops = l.getSubLoops();
+        if(subloops.empty()) {
+            //f.add_loop(depth + 1);
+            loops_depths.push_back(depth + 1);
+            loops += 1;
+        }
+        for(llvm::Loop * l : subloops) {
+            loops += analyzeLoop(f, *l, depth + 1);
+        }
+        return loops;
+    }
+
     bool DfsanInstr::analyzeFunction(llvm::Function & f, int override_counter)
-    { 
+    {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
         bool has_openmp_calls = handleOpenMP(f, override_counter);
         // Worth instrumenting
         if(!linfo->empty() || has_openmp_calls) {
             foundFunction(f, true, override_counter);
+
+            Function & func = instrumented_functions[&f].getValue();
+            int loops = 0;
+            for(llvm::Loop * l : *linfo) {
+                loops += analyzeLoop(func, *l,  0);
+            }
+            loops_counts.push_back(loops);
+
             return true;
         } else {
             foundFunction(f, false, override_counter);
@@ -254,23 +278,50 @@ namespace extrap {
         return is_important;
     }
 
+    int DfsanInstr::instrumentLoop(Function & func, llvm::Loop & l,
+            int loop_idx, int depth, Instrumenter & instr)
+    {
+        llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
+        l.getExitingBlocks(exit_blocks);
+        for(llvm::BasicBlock * bb : exit_blocks) {
+            const llvm::Instruction * inst = bb->getTerminator();
+            const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
+            //llvm::outs() << *inst << '\n';
+            assert(br);
+            if(br->isConditional()) {
+                instr.checkLoop(loop_idx, depth, func.function_idx(), br);
+            }
+        }
+        auto & subloops = l.getSubLoops();
+        loop_idx += subloops.empty();
+        for(llvm::Loop * l : subloops) {
+            loop_idx += instrumentLoop(func, *l, loop_idx, depth + 1, instr);
+        }
+        return loop_idx;
+    }
+
     void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
             Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        int labels = 0;
-        for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
-        {
-            if(llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&*i)) {
-                if(br->isConditional()) {
-                    // is this a part of a loop?
-                    // insert the check for labels
-                    instr.checkCF(func.function_idx(), br);
-                    labels++;
-                }
-            }
+
+        int loop_idx = 0;
+        for(llvm::Loop * l : *linfo) {
+            instrumentLoop(func, *l, 0, 0, instr);
         }
+        //int labels = 0;
+        //for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
+        //{
+        //    if(llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&*i)) {
+        //        if(br->isConditional()) {
+        //            // is this a part of a loop?
+        //            // insert the check for labels
+        //            instr.checkCF(func.function_idx(), br);
+        //            labels++;
+        //        }
+        //    }
+        //}
 
         int idx = 0;
         for(llvm::Value * callsite : func.callsites) {
@@ -280,7 +331,7 @@ namespace extrap {
             //instr.checkCall(func.function_idx(), idx++, call);
         }
 
-        stats.label_function(labels);
+        //stats.label_function(labels);
     }
 
     bool DfsanInstr::is_analyzable(llvm::Module & m, llvm::Function & f)
@@ -293,9 +344,10 @@ namespace extrap {
         return true;
     }
 
-    template<typename Vector, typename FuncIter>
+    template<typename Vector, typename Vector2, typename FuncIter>
     void Instrumenter::createGlobalStorage(const Vector & funcs_names,
-            FuncIter begin, FuncIter end)
+            FuncIter begin, FuncIter end, Vector2 & loops_depths,
+            Vector2 & loops_counts)
     {
         functions_count = funcs_names.size();
         params_count = Parameters::parameters_count();
@@ -415,7 +467,6 @@ namespace extrap {
             functions_dbg_info[2*f_idx + 1] = builder.getInt32(file_idx);
         }
 
-
         glob_funcs_dbg = new llvm::GlobalVariable(m,
                 array_type,
                 false,
@@ -454,7 +505,7 @@ namespace extrap {
         glob_result_array = new llvm::GlobalVariable(m,
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantAggregateZero::get(array_type),
-                glob_result_array_name); 
+                glob_result_array_name);
 
         // callsite_count * operand_count
         // last element stores the final size
@@ -491,6 +542,109 @@ namespace extrap {
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, offsets),
                 glob_callsites_offsets_name);
+
+        //int32_t loop_depths
+        std::vector<llvm::Constant*> depths(loops_depths.size());
+        std::transform(loops_depths.begin(), loops_depths.end(), depths.begin(),
+            [this](int depth) {
+                return builder.getInt32(depth);
+            }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                loops_depths.size());
+        glob_loops_depths = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, depths),
+                glob_loops_depths_name);
+
+        //int32_t loops_depths_offsets
+        std::vector<int> depths_offsets(functions_count + 1);
+        std::partial_sum(loops_counts.begin(), loops_counts.end(),
+            depths_offsets.begin() + 1);
+        depths_offsets[0] = 0;
+        std::vector<llvm::Constant*> depths_offsets_ir(functions_count + 1);
+        std::transform(depths_offsets.begin(), depths_offsets.end(),
+                depths_offsets_ir.begin(),
+                [this](int offset) {
+                    return builder.getInt32(offset);
+                });
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                functions_count + 1);
+        glob_depths_array_offsets = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, depths_offsets_ir),
+                glob_depths_array_offsets_name);
+
+        //int32_t deps_offsets
+        // for each function compute the number of `dependencies` objects
+        // corresponds to sum of loop depths
+        std::vector<int> loops_per_func(functions_count);
+        std::vector<int> deps_offsets(functions_count + 1);
+        int cnt = 0;
+        for(int i = 0; i < functions_count; ++i) {
+            int loops = 0;
+            for(int j = 0; j < loops_counts[i]; ++j) {
+                loops += loops_depths[cnt++];
+            }
+            loops_per_func[i] = loops;
+        }
+        std::partial_sum(loops_per_func.begin(), loops_per_func.end(),
+            deps_offsets.begin() + 1);
+        deps_offsets[0] = 0;
+        std::vector<llvm::Constant*> deps(functions_count + 1);
+        std::transform(deps_offsets.begin(), deps_offsets.end(), deps.begin(),
+            [this](int offset) {
+                return builder.getInt32(offset);
+            }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                loops_counts.size() + 1);
+        glob_deps_offsets = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, deps),
+                glob_deps_offsets_name);
+    }
+
+    void Instrumenter::checkLoop(int loop_idx, int depth, int function_idx,
+            const llvm::BranchInst * br)
+    {
+        assert(glob_result_array);
+        // insert call before branch
+        InstrumenterVisiter vis(*this,
+            [this, loop_idx, depth, function_idx](uint64_t size, llvm::Value * ptr) {
+                checkLoopLoad(loop_idx, depth, function_idx, size, ptr);
+            },
+            [this, loop_idx, depth, function_idx](llvm::CallBase * ptr) {
+                checkLoopRetval(loop_idx, depth, function_idx, ptr);
+            }
+        );
+        const llvm::Instruction * inst =
+            llvm::dyn_cast<llvm::Instruction>(br->getCondition());
+        assert(inst);
+        // TODO: why instvisit is not for const instruction?
+        vis.visit( const_cast<llvm::Instruction*>(inst) );
+    }
+
+    void Instrumenter::checkLoopLoad(int loop_idx, int depth, int function_idx,
+            size_t size, llvm::Value * operand)
+    {
+        llvm::Value * cast = builder.CreatePointerCast(operand, builder.getInt8PtrTy());
+        builder.CreateCall(load_loop_function, {
+                cast, builder.getInt32(size),
+                builder.getInt32(loop_idx), builder.getInt32(depth),
+                builder.getInt32(function_idx)
+            });
+    }
+
+    void Instrumenter::checkLoopRetval(int loop_idx, int depth,
+            int function_idx, llvm::CallBase * call)
+    {
+        llvm::Value * load_tls = builder.CreateLoad(glob_retval_tls);
+        builder.CreateCall(label_loop_function, {
+                load_tls, builder.getInt32(loop_idx),
+                builder.getInt32(depth),
+                builder.getInt32(function_idx)
+            });
     }
 
     void Instrumenter::checkCF(int function_idx, llvm::BranchInst * br)
@@ -599,20 +753,21 @@ namespace extrap {
         llvm::Type * void_t = builder.getVoidTy();
         llvm::Type * int8_ptr = builder.getInt8PtrTy();
         llvm::Type * idx_t = builder.getInt32Ty();
+        llvm::FunctionType * func_t = nullptr;
 
-        // void check_load(int8_t *, int32_t, int32_t)
-        llvm::FunctionType * func_t = llvm::FunctionType::get(
-                void_t, {int8_ptr, idx_t, idx_t}, false);
-        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
-        load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
-        assert(load_function);
+        //// void check_load(int8_t *, int32_t, int32_t)
+        //func_t = llvm::FunctionType::get(
+        //        void_t, {int8_ptr, idx_t, idx_t}, false);
+        //m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
+        //load_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
+        //assert(load_function);
 
-        // void check_label(uint16_t, int32_t)
-        func_t = llvm::FunctionType::get(
-                void_t, {builder.getInt16Ty(), idx_t}, false);
-        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
-        label_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
-        assert(label_function);
+        //// void check_label(uint16_t, int32_t)
+        //func_t = llvm::FunctionType::get(
+        //        void_t, {builder.getInt16Ty(), idx_t}, false);
+        //m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
+        //label_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
+        //assert(label_function);
 
         // void store_label(int8_t *, int32_t, int32_t, int8_t*)
         func_t = llvm::FunctionType::get(void_t,
@@ -639,6 +794,18 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_INIT", func_t);
         init_function = m.getFunction("__dfsw_EXTRAP_INIT");
         assert(init_function);
+
+        // void __EXTRAP_CHECK_LABEL(label, depth, loop_idx, func_idx)
+        func_t = llvm::FunctionType::get(void_t,
+                {builder.getInt16Ty(), idx_t, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
+        label_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
+
+        // __EXTRAP_CHECK_LOAD(addr, size, depth, loop_idx, func_idx)
+        func_t = llvm::FunctionType::get(void_t,
+                {int8_ptr, idx_t, idx_t, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
+        load_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
