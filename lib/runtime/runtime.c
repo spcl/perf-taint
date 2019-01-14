@@ -93,6 +93,11 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
     deps->len++;
 }
 
+void __dfsw_EXTRAP_COMMIT_LOOP(int32_t loop_idx,
+        int32_t depth, int32_t function_idx)
+{
+}
+
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,
         int32_t depth, int32_t function_idx)
 {

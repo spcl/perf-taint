@@ -13,16 +13,22 @@ json_t * __dfsw_json_get()
     return out;
 }
 
-void __dfsw_json_init_func(int func_idx)
+void __dfsw_json_init_func(json_t & function, int func_idx)
 {
     json_t & out = *__dfsw_json_get();
-    json_t function;
     function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
     function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];
     int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx + 1];
     if(file_idx != -1)
         function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx];
     out["functions"].push_back(function);
+}
+
+// ignore initialization when accessing ptrs for cleaning
+json_t & __dfsw_json_get(int func_idx, bool init = true)
+{
+    static json_t * funcs = new json_t[__EXTRAP_INSTRUMENTATION_FUNCS_COUNT]();
+    return funcs[func_idx];
 }
 
 void __dfsw_json_write_callsites(json_t & out, int func_idx)
@@ -34,6 +40,61 @@ void __dfsw_json_write_callsites(json_t & out, int func_idx)
 
 
     out["callsites"] = callsites;
+}
+
+bool __dfsw_json_write_loop(int function_idx, int loop_idx, int loop_depth,
+        int deps_offset)
+{
+    std::vector<json_t> params;
+    //printf("Func: %d Dep %d Offset %d\n", i, loop_depth, deps_offset);
+    json_t loop;
+    json_t * cur_level = &loop;
+
+    bool non_empty = false;
+    for(int k = 0; k < loop_depth; ++k) {
+        dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset + k];
+        json_t deps_json;
+        deps_json["level"] = k;
+        bool filled = false;
+        for(int jj = 0; jj < deps->len; ++jj) {
+            json_t dependency;
+            uint16_t val = deps->deps[jj];
+            fprintf(stderr, "Func: %s Loop %d Depth %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], loop_idx, k, val);
+            for(int kk = 0; kk < 16; ++kk)
+                if(val & (1 << kk)) {
+                    dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
+                    filled = true;
+                }
+            if(!dependency.empty())
+                deps_json["params"].push_back(std::move(dependency));
+        }
+        //if(!deps_json["params"].empty()) {
+        std::cout << (*cur_level) << std::endl;
+        if(filled) {
+            if(k != 0) {
+                (*cur_level)["subloop"] = std::move(deps_json);
+                cur_level = &(*cur_level)["subloop"];
+            } else
+                *cur_level = std::move(deps_json);
+            non_empty = true;
+        }
+        std::cout << (*cur_level) << std::endl;
+        //}
+    }
+    if(non_empty) {
+        json_t * func = &__dfsw_json_get(function_idx);
+        (*func)["loops"][std::to_string(loop_idx)].push_back(loop);
+    }
+    return non_empty;
+    //if(filled > 1) {
+    //    cf_params.push_back(std::move(params));
+    //    important_function = true;
+    //    //std::cout << "Add params: " << params << std::endl;
+    //} else if(filled) {
+    //    cf_params.push_back(params[1]);
+    //    important_function = true;
+    //    //std::cout << "Add params: " << params[1] << std::endl;
+    //}
 }
 
 void __dfsw_dump_json_output()
@@ -76,55 +137,24 @@ void __dfsw_dump_json_output()
     //}
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
 
-        json_t cf_params;
+        //json_t cf_params;
         int32_t loops_depths_begin = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[i];
         int32_t loops_depths_end = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[i + 1];
-        int32_t deps_offset = __EXTRAP_LOOPS_DEPS_OFFSETS[i];
         bool important_function = false;
-        //printf("Func: %d Dep %d Dep %d\n", i, loops_depths_begin, loops_depths_end);
+        int32_t deps_offset = __EXTRAP_LOOPS_DEPS_OFFSETS[i];
+        //fprintf(stderr,"Func: %s Dep %d Dep %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i], loops_depths_begin, loops_depths_end);
         for(int j = loops_depths_begin; j < loops_depths_end; ++j) {
 
             bool empty = true;
             int loop_depth = __EXTRAP_LOOPS_DEPTHS_PER_FUNC[j];
-            std::vector<json_t> params;
-            params.push_back("*");
-            int filled = 0;
-            //printf("Func: %d Dep %d Offset %d\n", i, loop_depth, deps_offset);
-            for(int k = 0; k < loop_depth; ++k) {
-                dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset + k];
-                json_t deps_json;
-                for(int j = 0; j < deps->len; ++j) {
-                    json_t dependency;
-                    uint16_t val = deps->deps[j];
-                    //printf("Func: %d Dep %d Value %d\n", i, loop_depth, val);
-                    for(int k = 0; k < 16; ++k)
-                        if(val & (1 << k)) {
-                            dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[k]);
-                        }
-                    if(dependency.size() > 1)
-                        deps_json.push_back(std::move(dependency));
-                    else
-                        deps_json.push_back(dependency[0]);
-                }
-                if(!deps_json.empty()) {
-                    filled++;
-                    params.push_back( std::move(deps_json) );
-                }
-            }
+            int loop_idx = j - loops_depths_begin;
+            important_function |= __dfsw_json_write_loop(i, loop_idx, loop_depth, deps_offset);
             deps_offset += loop_depth;
-            if(filled > 1) {
-                cf_params.push_back(std::move(params));
-                important_function = true;
-            } else if(filled) {
-                cf_params.push_back(params[1]);
-                important_function = true;
-            }
         }
         if(important_function) {
-            __dfsw_json_init_func(i);
-            out["functions"].back()["control_flow_params"] = cf_params;
+            __dfsw_json_init_func(__dfsw_json_get(i), i);
+            //out["functions"].back()["loops"] = cf_params;
         }
-
 
         //dependencies *deps = __dfsw_EXTRAP_DEPS_FUNC(i);
         //for(int j = 0; j < deps->len; ++j) {
@@ -145,10 +175,11 @@ void __dfsw_dump_json_output()
 
     std::cout << out.dump(2) << std::endl;
     delete &out;
+    delete[] &__dfsw_json_get(0);
 }
 
 void __dfsw_json_callsite(int f_idx, int site_idx, int arg_idx, bool * params)
-{ 
+{
     json_t & out = *__dfsw_json_get();
     //out["functions"][f_idx]["callsites"][site_idx]
 }
