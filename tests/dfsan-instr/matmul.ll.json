@@ -1,0 +1,69 @@
+{
+  "functions": [
+    {
+      "file": "tests/dfsan-instr/matmul.c",
+      "line": 17,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "m",
+                "n"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "n",
+                "k"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "create_matrix"
+    },
+    {
+      "file": "tests/dfsan-instr/matmul.c",
+      "line": 31,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "m"
+              ]
+            ],
+            "subloop": {
+              "level": 1,
+              "params": [
+                [
+                  "k"
+                ]
+              ],
+              "subloop": {
+                "level": 2,
+                "params": [
+                  [
+                    "n"
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "name": "mat_mul"
+    }
+  ],
+  "parameters": [
+    "m",
+    "n",
+    "k"
+  ]
+}
