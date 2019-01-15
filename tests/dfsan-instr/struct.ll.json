@@ -1,29 +1,55 @@
 {
   "functions": [
     {
-      "control_flow_params": [
-        [
-            "params.ranks",
-            "params.problem_size"
-        ]
-      ],
+      "dbg_name": "print_params",
       "file": "tests/dfsan-instr/struct.cpp",
       "line": 23,
-      "name": "print_params"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "params.ranks"
+              ],
+              [
+                "params.problem_size"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z12print_paramsP6Params"
     },
     {
-      "control_flow_params": [
-        [
-            [
-                "params.ranks",
-                "params.problem_size"
-            ],
-            "global_params.ranks"
-        ]
-      ],
+      "dbg_name": "do_sth",
       "file": "tests/dfsan-instr/struct.cpp",
       "line": 33,
-      "name": "do_sth"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "params.problem_size"
+              ],
+              [
+                "global_params.ranks"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "params.ranks",
+                "params.problem_size"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z6do_sthii"
     }
   ],
   "parameters": [
@@ -31,5 +57,13 @@
     "params.problem_size",
     "global_params.problem_size",
     "global_params.ranks"
+  ],
+  "unimportant_functions": [
+    {
+      "dbg_name": "do_sth2",
+      "file": "tests/dfsan-instr/struct.cpp",
+      "line": 44,
+      "name": "_Z7do_sth2di"
+    }
   ]
 }

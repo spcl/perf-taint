@@ -1,45 +1,118 @@
 {
   "functions": [
     {
-      "control_flow_params": [
-        "x1",
-        "x2",
-        "global"
-      ],
+      "dbg_name": "f",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 17,
-      "name": "f"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ],
+              [
+                "x1"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ],
+              [
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1fii"
     },
     {
-      "control_flow_params": [
-        "x1",
-        "x2",
-        "global"
-      ],
+      "dbg_name": "h",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 9,
-      "name": "h"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1hi"
     },
     {
-      "control_flow_params": [
-        "global"
-      ],
+      "dbg_name": "g",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 25,
-      "name": "g"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1gi"
     },
     {
-      "control_flow_params": [
-        "x1",
-        "x2",
-        [
-            "x2",
-            "global"
-        ]
-      ],
+      "dbg_name": "i",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 33,
-      "name": "i"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2",
+                "global"
+              ],
+              [
+                "x1"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1iiii"
     }
   ],
   "parameters": [

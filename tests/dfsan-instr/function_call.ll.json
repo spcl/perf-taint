@@ -1,34 +1,70 @@
 {
   "functions": [
     {
-      "control_flow_params": [
-        "x1",
-        "global"
-      ],
+      "dbg_name": "f",
       "file": "tests/dfsan-instr/function_call.cpp",
       "line": 9,
-      "name": "f"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ],
+              [
+                "x1"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1fii"
     },
     {
-      "control_flow_params": [
-        "x2",
-        "global"
-      ],
+      "dbg_name": "h",
       "file": "tests/dfsan-instr/function_call.cpp",
       "line": 17,
-      "name": "h"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1hi"
     },
     {
-      "control_flow_params": [
-        "x1",
-        [
-            "x1",
-            "x2"
-        ]
-      ],
+      "dbg_name": "i",
       "file": "tests/dfsan-instr/function_call.cpp",
       "line": 30,
-      "name": "i"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1iiii"
     }
   ],
   "parameters": [
