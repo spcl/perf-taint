@@ -1,0 +1,117 @@
+{
+  "functions": [
+    {
+      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "line": 9,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "perf_nest_const"
+    },
+    {
+      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "line": 19,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "perf_nest_linear"
+    },
+    {
+      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "line": 29,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloop": {
+              "level": 1,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ],
+            "subloop": {
+              "level": 1,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "name": "perf_nest_quadr"
+    },
+    {
+      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "line": 40,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ],
+            "subloop": {
+              "level": 1,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "name": "perf_nest_multiple_quadr"
+    }
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

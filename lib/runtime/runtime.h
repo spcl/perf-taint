@@ -16,6 +16,7 @@
 typedef struct _dependencies
 {
     size_t len;
+    size_t capacity;
     uint16_t * deps;
 } dependencies;
 
@@ -63,6 +64,9 @@ extern int32_t __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[];
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
+EXTERN void __dfsw_json_write_loop(int function_idx, int loop_idx);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
+EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
+        int32_t function_idx);
 
 #endif

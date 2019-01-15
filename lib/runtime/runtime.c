@@ -15,14 +15,14 @@
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
 
-dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
-{
-    static dependencies * results = NULL;
-    if(!results) {
-        results = calloc(sizeof(dependencies), __EXTRAP_INSTRUMENTATION_FUNCS_COUNT);
-    }
-    return &results[func_idx];
-}
+//dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
+//{
+//    static dependencies * results = NULL;
+//    if(!results) {
+//        results = calloc(sizeof(dependencies), __EXTRAP_INSTRUMENTATION_FUNCS_COUNT);
+//    }
+//    return &results[func_idx];
+//}
 
 int32_t __dfsw_EXTRAP_VAR_ID()
 {
@@ -44,8 +44,11 @@ void __dfsw_EXTRAP_AT_EXIT()
     //fflush(stdout);
     __dfsw_dump_json_output();
     //dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
+    int deps_count = __EXTRAP_LOOPS_DEPS_OFFSETS[
+                __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
+            ];
     dependencies * deps = __EXTRAP_LOOP_DEPENDENCIES;
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i)
+    for(int i = 0; i < deps_count; ++i)
         free(deps[i].deps);
     free(deps);
 }
@@ -88,14 +91,32 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
             return;
         }
     }
-    deps->deps = realloc(deps->deps, sizeof(dependencies) * (deps->len + 1));
+    if(deps->len == deps->capacity) {
+        deps->capacity += 5;
+        deps->deps = realloc(deps->deps, sizeof(dependencies) * deps->capacity);
+    }
     deps->deps[deps->len] = val;
     deps->len++;
 }
 
-void __dfsw_EXTRAP_COMMIT_LOOP(int32_t loop_idx,
-        int32_t depth, int32_t function_idx)
+dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
+        int32_t function_idx)
 {
+    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
+    //Position of `dependencies` object for this loop is composed from
+    //a) beginning offset of this function
+    //b) sum of depths for all previous loops in this function
+    //c) depth level for this loop
+    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
+    for(int i = 0; i < loop_idx; ++i)
+        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
+    offset += depth;
+    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
+}
+
+void __dfsw_EXTRAP_COMMIT_LOOP(int32_t loop_idx, int32_t function_idx)
+{
+    __dfsw_json_write_loop(function_idx, loop_idx);
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,

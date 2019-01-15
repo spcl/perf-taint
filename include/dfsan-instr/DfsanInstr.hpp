@@ -202,6 +202,8 @@ namespace extrap {
         llvm::Function * label_loop_function;
         // __EXTRAP_CHECK_LOAD(addr, size, depth, loop_idx, func_idx)
         llvm::Function * load_loop_function;
+        // __EXTRAP_COMMIT_LOOP(loop_idx, depth, function_idx)
+        llvm::Function * commit_loop_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
@@ -232,6 +234,7 @@ namespace extrap {
         void createGlobalStorage(const Vector & func_names,
                 FuncIter begin, FuncIter end, Vector2 & loop_depths,
                 Vector2 & loop_counts);
+        void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
         void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);

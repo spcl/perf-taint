@@ -308,7 +308,9 @@ namespace extrap {
 
         int loop_idx = 0;
         for(llvm::Loop * l : *linfo) {
-            instrumentLoop(func, *l, 0, 0, instr);
+            int loop_idx_change = instrumentLoop(func, *l, 0, 0, instr);
+            instr.commitLoop(*l, func.function_idx(), loop_idx);
+            loop_idx += loop_idx_change;
         }
         //int labels = 0;
         //for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
@@ -748,6 +750,18 @@ namespace extrap {
                 });
     }
 
+    void Instrumenter::commitLoop(llvm::Loop & l, int func_idx, int loop_idx)
+    {
+        llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
+        l.getExitBlocks(exit_blocks);
+        for(llvm::BasicBlock * bb : exit_blocks) {
+            builder.SetInsertPoint(&bb->front());
+            builder.CreateCall(commit_loop_function,
+                { builder.getInt32(loop_idx), builder.getInt32(func_idx)}
+                );
+        }
+    }
+
     void Instrumenter::declareFunctions()
     {
         llvm::Type * void_t = builder.getVoidTy();
@@ -806,6 +820,13 @@ namespace extrap {
                 {int8_ptr, idx_t, idx_t, idx_t, idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
         load_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
+
+        // __EXTRAP_COMMIT_LOOP(loop_idx, function_idx)
+        func_t = llvm::FunctionType::get(void_t,
+                {idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_COMMIT_LOOP", func_t);
+        commit_loop_function = m.getFunction("__dfsw_EXTRAP_COMMIT_LOOP");
+        assert(commit_loop_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
