@@ -125,6 +125,8 @@ namespace extrap {
         llvm::GlobalVariable * glob_funcs_count;
         // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
+        // `functions` C strings, assigned at compile time
+        llvm::GlobalVariable * glob_funcs_mangled_names;
         // `functions` ints, storing # of args
         llvm::GlobalVariable * glob_funcs_args;
         // 2*`functions` integers, line of code and file index, compile time
@@ -170,6 +172,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_FUNCS_ARGS";
         static constexpr const char * glob_funcs_names_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
+        static constexpr const char * glob_funcs_mangled_names_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES";
         static constexpr const char * glob_funcs_dbg_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_DBG";
         static constexpr const char * glob_callsites_result_name

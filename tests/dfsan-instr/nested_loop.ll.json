@@ -1,8 +1,9 @@
 {
   "functions": [
     {
+      "dbg_name": "perf_nest_const",
       "file": "tests/dfsan-instr/nested_loop.cpp",
-      "line": 9,
+      "line": 18,
       "loops": {
         "0": [
           {
@@ -15,11 +16,12 @@
           }
         ]
       },
-      "name": "perf_nest_const"
+      "name": "_Z15perf_nest_constii"
     },
     {
+      "dbg_name": "perf_nest_linear",
       "file": "tests/dfsan-instr/nested_loop.cpp",
-      "line": 19,
+      "line": 28,
       "loops": {
         "0": [
           {
@@ -40,11 +42,12 @@
           }
         ]
       },
-      "name": "perf_nest_linear"
+      "name": "_Z16perf_nest_linearii"
     },
     {
+      "dbg_name": "perf_nest_quadr",
       "file": "tests/dfsan-instr/nested_loop.cpp",
-      "line": 29,
+      "line": 38,
       "loops": {
         "0": [
           {
@@ -81,11 +84,12 @@
           }
         ]
       },
-      "name": "perf_nest_quadr"
+      "name": "_Z15perf_nest_quadrii"
     },
     {
+      "dbg_name": "perf_nest_multiple_quadr",
       "file": "tests/dfsan-instr/nested_loop.cpp",
-      "line": 40,
+      "line": 49,
       "loops": {
         "0": [
           {
@@ -107,11 +111,19 @@
           }
         ]
       },
-      "name": "perf_nest_multiple_quadr"
+      "name": "_Z24perf_nest_multiple_quadrii"
     }
   ],
   "parameters": [
     "x1",
     "x2"
+  ],
+  "unimportant_functions": [
+    {
+      "dbg_name": "perf_nest_unknown",
+      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "line": 8,
+      "name": "_Z17perf_nest_unknownii"
+    }
   ]
 }

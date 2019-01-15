@@ -397,11 +397,13 @@ namespace extrap {
                 glob_files_name);
 
         // char ** functions_names
+        // char ** functions_mangled_names
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     functions_count
                 );
-        std::vector<llvm::Constant*> function_names(functions_count);
+        std::vector<llvm::Constant*> function_names(functions_count),
+            mangled_function_names(functions_count);
         for(auto it = begin; it != end; ++it) {
             if( !(*it).second.hasValue() )
                 continue;
@@ -414,6 +416,9 @@ namespace extrap {
             llvm::Function * func = funcs_names[f_idx];
             llvm::StringRef name = info.getFunctionName(*func);
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
+            llvm::StringRef mangled_name = func->getName();
+            mangled_function_names[f_idx] =
+                builder.CreateGlobalStringPtr(mangled_name);
             function_names[f_idx] = fname;
         }
         glob_funcs_names = new llvm::GlobalVariable(m,
@@ -422,6 +427,12 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, function_names),
                 glob_funcs_names_name);
+        glob_funcs_mangled_names = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, mangled_function_names),
+                glob_funcs_mangled_names_name);
 
         // int32_t * functions_sizes
         array_type = llvm::ArrayType::get(

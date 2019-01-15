@@ -13,15 +13,19 @@ json_t * __dfsw_json_get()
     return out;
 }
 
-void __dfsw_json_init_func(json_t & function, int func_idx)
+void __dfsw_json_init_func(json_t & function, int func_idx, bool important)
 {
     json_t & out = *__dfsw_json_get();
-    function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
+    function["dbg_name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
+    function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[func_idx];
     function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];
     int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx + 1];
     if(file_idx != -1)
         function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx];
-    out["functions"].push_back(function);
+    if(important)
+        out["functions"].push_back(function);
+    else
+        out["unimportant_functions"].push_back(function);
 }
 
 // ignore initialization when accessing ptrs for cleaning
@@ -189,11 +193,10 @@ void __dfsw_dump_json_output()
         //    important_function |= __dfsw_json_write_loop(i, loop_idx, loop_depth, deps_offset);
         //    deps_offset += loop_depth;
         //}
-        bool important_function = true;
-        if(important_function) {
-            __dfsw_json_init_func(__dfsw_json_get(i), i);
+        json_t & function = __dfsw_json_get(i);
+        bool important_function = !function.empty();
+        __dfsw_json_init_func(function, i, important_function);
             //out["functions"].back()["loops"] = cf_params;
-        }
 
         //dependencies *deps = __dfsw_EXTRAP_DEPS_FUNC(i);
         //for(int j = 0; j < deps->len; ++j) {

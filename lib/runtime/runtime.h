@@ -22,6 +22,7 @@ typedef struct _dependencies
 
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
+extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FILES[];
 extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[];

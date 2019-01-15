@@ -5,6 +5,15 @@
 
 int global = 100;
 
+int perf_nest_unknown(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i)
+        for(int j = 0; j < y; ++j)
+            tmp += i;
+    return tmp;
+}
+
 // perfectly nested - second loop is const
 int perf_nest_const(int x, int y)
 {
@@ -50,9 +59,13 @@ int main(int argc, char ** argv)
 {
     int x1 EXTRAP = atoi(argv[1]);
     int x2 EXTRAP = atoi(argv[2]);
+    int x3 = atoi(argv[3]);
     register_variable(&x1, VARIABLE_NAME(x1));
     register_variable(&x2, VARIABLE_NAME(x2));
 
+    // should never appear
+    perf_nest_unknown(global, 10);
+    perf_nest_unknown(10, x3);
     // should appear just once
     perf_nest_const(x1, x2);
     perf_nest_const(x1, x2);
