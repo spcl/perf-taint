@@ -1,29 +1,53 @@
 {
   "functions": [
     {
-      "control_flow_params": [
-        [
-            "global"
-        ]
-      ],
+      "dbg_name": "h",
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 47,
-      "name": "h"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1hii"
     },
     {
-      "control_flow_params": [
-        [
-            "x1"
-        ]
-      ],
+      "dbg_name": "i",
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 58,
-      "name": "i"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1iP4test"
     }
   ],
   "parameters": [
     "x1",
     "x2",
     "global"
+  ],
+  "unimportant_functions": [
+    {
+      "dbg_name": "f",
+      "file": "tests/dfsan-instr/function_retval.cpp",
+      "line": 36,
+      "name": "_Z1fii"
+    }
   ]
 }

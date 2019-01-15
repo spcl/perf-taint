@@ -2,8 +2,10 @@
   "functions": [
     {
       "control_flow_params": [
-        "params.ranks",
-        "params.problem_size"
+        [
+            "params.ranks",
+            "params.problem_size"
+        ]
       ],
       "file": "tests/dfsan-instr/struct.cpp",
       "line": 23,
@@ -11,11 +13,12 @@
     },
     {
       "control_flow_params": [
-        "params.problem_size",
-        "global_params.ranks",
         [
-            "params.ranks",
-            "params.problem_size"
+            [
+                "params.ranks",
+                "params.problem_size"
+            ],
+            "global_params.ranks"
         ]
       ],
       "file": "tests/dfsan-instr/struct.cpp",

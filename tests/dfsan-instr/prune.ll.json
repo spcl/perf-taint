@@ -1,49 +1,96 @@
 {
   "functions": [
     {
-      "control_flow_params": [
-        "global",
-        "global2",
-        [
-            "x1",
-            "global2"
-        ],
-        [
-            "x1",
-            "x2",
-            "global"
-        ],
-        [
-            "x1",
-            "x2"
-        ]
-      ],
+      "dbg_name": "h",
       "file": "tests/dfsan-instr/prune.cpp",
       "line": 12,
-      "name": "h"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global2"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "global2"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2",
+                "global"
+              ]
+            ]
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z1hi"
     },
     {
-      "control_flow_params": [
-        "global2",
-        [
-            "x1",
-            "x2"
-        ]
-      ],
+      "dbg_name": "g_not_prune",
       "file": "tests/dfsan-instr/prune.cpp",
       "line": 26,
-      "name": "g_not_prune"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z11g_not_prunei"
     },
     {
-      "control_flow_params": [
-        [
-            "x1",
-            "x2"
-        ]
-      ],
+      "dbg_name": "f_not_prune",
       "file": "tests/dfsan-instr/prune.cpp",
       "line": 45,
-      "name": "f_not_prune"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      },
+      "name": "_Z11f_not_pruneii"
     }
   ],
   "parameters": [

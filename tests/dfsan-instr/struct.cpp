@@ -11,7 +11,7 @@
 struct Params
 {
     int ranks EXTRAP;
-    int block_size; 
+    int block_size;
     int problem_size EXTRAP;
     double tolerance;
 };

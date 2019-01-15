@@ -24,30 +24,30 @@ public:
     {
         for(int i = 0; i < x*y;++i)
             data[i] += shift;
-    }    
-   
+    }
+
     // not important  - const loop
     void update_constant(double shift)
     {
         data[0] += 2*shift;
         for(int i = 1; i < 5;++i)
             data[i] += shift;
-    }    
-    
+    }
+
     // not important - data is not influenced by label
     void update_data(double shift)
     {
         data[0] += 2*shift;
         for(int i = data[0]; i < 5;++i)
             data[i] += shift;
-    }    
-    
+    }
+
     // not important - third field z is not labelled
     void update_z(double shift)
     {
         for(int i = 0; i < z;++i)
             data[i] += shift;
-    }    
+    }
 };
 
 int main(int argc, char ** argv)
@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
     g->update_constant(1.5);
     g->update_data(1.5);
     g->update_z(1.5);
-    
+
     delete g;
     return 0;
 }
