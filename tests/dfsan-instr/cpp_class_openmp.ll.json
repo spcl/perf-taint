@@ -1,25 +1,62 @@
 {
-  "functions": [
-    {
-      "control_flow_params": [
-        "size_x",
-        "size_y"
-      ],
+  "functions": {
+    "_ZN4Grid11update_gridEd": {
+      "dbg_name": "update_grid",
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
       "line": 24,
-      "name": "update_grid"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "size_x"
+              ],
+              [
+                "size_y"
+              ]
+            ]
+          }
+        ]
+      }
     },
-    {
-      "control_flow_params": [
-        "size_y"
-      ],
+    "_ZN4Grid8update_yEd": {
+      "dbg_name": "update_y",
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
       "line": 49,
-      "name": "update_y"
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "size_y"
+              ]
+            ]
+          }
+        ]
+      }
     }
-  ],
+  },
   "parameters": [
     "size_x",
     "size_y"
-  ]
+  ],
+  "unimportant_functions": {
+    "_ZN4Grid11update_dataEd": {
+      "dbg_name": "update_data",
+      "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
+      "line": 40
+    },
+    "_ZN4Grid15update_constantEd": {
+      "dbg_name": "update_constant",
+      "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
+      "line": 35
+    },
+    "_ZN4Grid8update_zEd": {
+      "dbg_name": "update_z",
+      "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
+      "line": 57
+    }
+  }
 }

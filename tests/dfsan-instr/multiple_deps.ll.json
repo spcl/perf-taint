@@ -1,6 +1,6 @@
 {
-  "functions": [
-    {
+  "functions": {
+    "_Z1fii": {
       "dbg_name": "f",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "line": 32,
@@ -16,10 +16,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1fii"
+      }
     },
-    {
+    "_Z1gii": {
       "dbg_name": "g",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "line": 42,
@@ -43,10 +42,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1gii"
+      }
     },
-    {
+    "_Z1hP4test": {
       "dbg_name": "h",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "line": 52,
@@ -62,10 +60,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1hP4test"
+      }
     }
-  ],
+  },
   "parameters": [
     "x1",
     "x2",

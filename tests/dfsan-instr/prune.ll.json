@@ -1,6 +1,48 @@
 {
-  "functions": [
-    {
+  "functions": {
+    "_Z11f_not_pruneii": {
+      "dbg_name": "f_not_prune",
+      "file": "tests/dfsan-instr/prune.cpp",
+      "line": 45,
+      "loops": {
+        "0": [
+          {
+            "level": 0
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "_Z11g_not_prunei": {
+      "dbg_name": "g_not_prune",
+      "file": "tests/dfsan-instr/prune.cpp",
+      "line": 26,
+      "loops": {
+        "0": [
+          {
+            "level": 0
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "_Z1hi": {
       "dbg_name": "h",
       "file": "tests/dfsan-instr/prune.cpp",
       "line": 12,
@@ -21,6 +63,9 @@
                 "global"
               ]
             ]
+          },
+          {
+            "level": 0
           },
           {
             "level": 0,
@@ -51,48 +96,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1hi"
-    },
-    {
-      "dbg_name": "g_not_prune",
-      "file": "tests/dfsan-instr/prune.cpp",
-      "line": 26,
-      "loops": {
-        "0": [
-          {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
-              ]
-            ]
-          }
-        ]
-      },
-      "name": "_Z11g_not_prunei"
-    },
-    {
-      "dbg_name": "f_not_prune",
-      "file": "tests/dfsan-instr/prune.cpp",
-      "line": 45,
-      "loops": {
-        "0": [
-          {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
-              ]
-            ]
-          }
-        ]
-      },
-      "name": "_Z11f_not_pruneii"
+      }
     }
-  ],
+  },
   "parameters": [
     "x1",
     "x2",

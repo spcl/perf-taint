@@ -1,6 +1,6 @@
 {
-  "functions": [
-    {
+  "functions": {
+    "_Z1hii": {
       "dbg_name": "h",
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 47,
@@ -15,10 +15,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1hii"
+      }
     },
-    {
+    "_Z1iP4test": {
       "dbg_name": "i",
       "file": "tests/dfsan-instr/function_retval.cpp",
       "line": 58,
@@ -33,21 +32,19 @@
             ]
           }
         ]
-      },
-      "name": "_Z1iP4test"
+      }
     }
-  ],
+  },
   "parameters": [
     "x1",
     "x2",
     "global"
   ],
-  "unimportant_functions": [
-    {
+  "unimportant_functions": {
+    "_Z1fii": {
       "dbg_name": "f",
       "file": "tests/dfsan-instr/function_retval.cpp",
-      "line": 36,
-      "name": "_Z1fii"
+      "line": 36
     }
-  ]
+  }
 }

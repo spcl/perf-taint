@@ -1,6 +1,6 @@
 {
-  "functions": [
-    {
+  "functions": {
+    "_Z1fii": {
       "dbg_name": "f",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 17,
@@ -35,12 +35,31 @@
                 "x2"
               ]
             ]
+          },
+          {
+            "level": 0
           }
         ]
-      },
-      "name": "_Z1fii"
+      }
     },
-    {
+    "_Z1gi": {
+      "dbg_name": "g",
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "line": 25,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "global"
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    "_Z1hi": {
       "dbg_name": "h",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 9,
@@ -53,6 +72,9 @@
                 "x1"
               ]
             ]
+          },
+          {
+            "level": 0
           },
           {
             "level": 0,
@@ -71,28 +93,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1hi"
+      }
     },
-    {
-      "dbg_name": "g",
-      "file": "tests/dfsan-instr/function_call_nested.cpp",
-      "line": 25,
-      "loops": {
-        "0": [
-          {
-            "level": 0,
-            "params": [
-              [
-                "global"
-              ]
-            ]
-          }
-        ]
-      },
-      "name": "_Z1gi"
-    },
-    {
+    "_Z1iiii": {
       "dbg_name": "i",
       "file": "tests/dfsan-instr/function_call_nested.cpp",
       "line": 33,
@@ -111,10 +114,9 @@
             ]
           }
         ]
-      },
-      "name": "_Z1iiii"
+      }
     }
-  ],
+  },
   "parameters": [
     "x1",
     "x2",
