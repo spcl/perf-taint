@@ -103,7 +103,8 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
     int depth = *loop_data;
 
     json_t params = __dfsw_json_write_single_loop(deps++);
-    loop["params"] = params;
+    if(!params.empty())
+        loop["params"] = params;
     loop["level"] = 0;
     int level_size = *loop_structure, next_level_size = 0;
     //loop["nested_loops"] = level_size;
@@ -119,7 +120,7 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
         json_t ** cur_iteration = new json_t*[level_size];
         for(int loop = 0; loop < level_size; ++loop) {
 
-            fprintf(stderr, "Function %d Level %d LevelSize %d Loop %d ParentIdx %d\n", function_idx, level, level_size, loop, parent_idx);
+            //fprintf(stderr, "Function %d Level %d LevelSize %d Loop %d ParentIdx %d\n", function_idx, level, level_size, loop, parent_idx);
             // skip parent when all loops are already processed
             while(loop_idx >= *loop_structure) {
 
