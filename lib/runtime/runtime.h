@@ -49,23 +49,42 @@ dependencies * __EXTRAP_LOOP_DEPENDENCIES;
 // Store offsets to easily access dependencies.
 // Each value points to the place where `dependencies`
 // start for each function in the array __EXTRAP_LOOP_DEPENDENCIES.
-extern int32_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
+//extern int32_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
 
 // Store depths for each loop and each function. Contents of this array
 // are necessary to understand how dependencies array is structured.
 // Example: for a function with three loops X, Y, Z with depths 3, 2, 1:
 // Store 3 2 1
-extern int32_t __EXTRAP_LOOPS_DEPTHS_PER_FUNC[];
+//extern int32_t __EXTRAP_LOOPS_DEPTHS_PER_FUNC[];
+//extern int32_t __EXTRAP_LOOPS_DEPTHS_PER_FUNC[];
+//extern int32_t __EXTRAP_LOOPS_SIZES_PER_FUNC[];
 
 // Store offsets to easily access loop depths.
 // Each value points to the place where depths start for a function
 // in array __EXTRAP_LOOPS_DEPTHS_PER_FUNC
 // It's necessary because each function has an unknown number of entries.
-extern int32_t __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[];
+//extern int32_t __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[];
+//
+//
+extern int32_t __EXTRAP_NUMBER_OF_LOOPS;
+
+// For each function store a triplet of values corresponding to each loop
+// (loop depth, # of entries in loops_data array, # of loops)
+extern int32_t __EXTRAP_LOOPS_SIZES_PER_FUNC[];
+extern int32_t __EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[];
+// For each loop store the corresponding information
+extern int32_t __EXTRAP_LOOPS_STRUCTURE_PER_FUNC[];
+extern int32_t __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[];
+
+extern int16_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
+
+// dependencies array
+// for writing labels, the offset inside loop can be precomputed statically
+// for comitting loop, the offset can be computed from the array loops_sizes
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
-EXTERN void __dfsw_json_write_loop(int function_idx, int loop_idx);
+EXTERN bool __dfsw_json_write_loop(int function_idx, int loop_idx);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
         int32_t function_idx);

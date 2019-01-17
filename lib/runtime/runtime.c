@@ -44,7 +44,7 @@ void __dfsw_EXTRAP_AT_EXIT()
     //fflush(stdout);
     __dfsw_dump_json_output();
     //dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
-    int deps_count = __EXTRAP_LOOPS_DEPS_OFFSETS[
+    int deps_count = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[
                 __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
             ];
     dependencies * deps = __EXTRAP_LOOP_DEPENDENCIES;
@@ -99,28 +99,27 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
     deps->len++;
 }
 
-dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
-        int32_t function_idx)
-{
-    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
-    //Position of `dependencies` object for this loop is composed from
-    //a) beginning offset of this function
-    //b) sum of depths for all previous loops in this function
-    //c) depth level for this loop
-    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
-    for(int i = 0; i < loop_idx; ++i)
-        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
-    offset += depth;
-    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
-}
+//dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
+//        int32_t function_idx)
+//{
+//    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
+//    //Position of `dependencies` object for this loop is composed from
+//    //a) beginning offset of this function
+//    //b) sum of depths for all previous loops in this function
+//    //c) depth level for this loop
+//    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
+//    for(int i = 0; i < loop_idx; ++i)
+//        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
+//    offset += depth;
+//    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
+//}
 
 void __dfsw_EXTRAP_COMMIT_LOOP(int32_t loop_idx, int32_t function_idx)
 {
     __dfsw_json_write_loop(function_idx, loop_idx);
 }
 
-void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,
-        int32_t depth, int32_t function_idx)
+void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t function_idx)
 {
     // First, we track all of found labels.
     // If there is more then one label, we write down dynamically a tuple.
@@ -149,15 +148,16 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,
     //    }
     //}
 
-    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
     //Position of `dependencies` object for this loop is composed from
     //a) beginning offset of this function
     //b) sum of depths for all previous loops in this function
     //c) depth level for this loop
-    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
-    for(int i = 0; i < loop_idx; ++i)
-        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
-    offset += depth;
+    //int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
+    //for(int i = 0; i < loop_idx; ++i)
+    //    offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
+    //offset += depth;
+    int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
+    offset += nested_loop_idx;
     uint16_t found_params = 0;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
@@ -170,12 +170,12 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t loop_idx,
 }
 
 void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size,
-        int32_t loop_idx, int32_t depth, int32_t func_idx)
+        int32_t nested_loop_idx, int32_t func_idx)
 {
     if(!addr)
         return;
     dfsan_label temp = dfsan_read_label(addr, size);
-    __dfsw_EXTRAP_CHECK_LABEL(temp, loop_idx, depth, func_idx);
+    __dfsw_EXTRAP_CHECK_LABEL(temp, nested_loop_idx, func_idx);
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
@@ -190,7 +190,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
 
 void __dfsw_EXTRAP_INIT()
 {
-    int deps_count = __EXTRAP_LOOPS_DEPS_OFFSETS[
+    int deps_count = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[
                 __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
             ];
     __EXTRAP_LOOP_DEPENDENCIES = malloc(sizeof(dependencies) * deps_count);

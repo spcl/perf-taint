@@ -117,8 +117,7 @@ namespace extrap {
 
         Instrumenter instr(m);
         instr.createGlobalStorage(parent_functions,
-                instrumented_functions.begin(), instrumented_functions.end(),
-                loops_depths, loops_counts);
+                instrumented_functions.begin(), instrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
@@ -183,6 +182,7 @@ namespace extrap {
             if(counter == -1) {
                 // when overriding, only the parent function matters
                 // don't insert name in such case
+                llvm::errs() << f.getName() << '\n';
                 parent_functions.push_back(&f);
                 // when not overriding, get the current counter and update
                 counter = instrumented_functions_counter;
@@ -204,19 +204,20 @@ namespace extrap {
             (*it).second->add_callsite(val);
     }
 
-    int DfsanInstr::analyzeLoop(Function & f, llvm::Loop & l, int depth)
+    int DfsanInstr::analyzeLoop(Function & f, llvm::Loop & l,
+            std::vector<std::vector<int>> & data, int depth)
     {
-        int loops = 0;
         auto & subloops = l.getSubLoops();
-        if(subloops.empty()) {
-            //f.add_loop(depth + 1);
-            loops_depths.push_back(depth + 1);
-            loops += 1;
+        if(depth < data.size())
+            data[depth].push_back(subloops.size());
+        else {
+            data.emplace_back(1, subloops.size());
         }
+        int loop_count = subloops.size();
         for(llvm::Loop * l : subloops) {
-            loops += analyzeLoop(f, *l, depth + 1);
+            loop_count += analyzeLoop(f, *l, data, depth + 1);
         }
-        return loops;
+        return loop_count;
     }
 
     bool DfsanInstr::analyzeFunction(llvm::Function & f, int override_counter)
@@ -226,14 +227,24 @@ namespace extrap {
         bool has_openmp_calls = handleOpenMP(f, override_counter);
         // Worth instrumenting
         if(!linfo->empty() || has_openmp_calls) {
-            foundFunction(f, true, override_counter);
 
+            foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
-            int loops = 0;
+
             for(llvm::Loop * l : *linfo) {
-                loops += analyzeLoop(func, *l,  0);
+                std::vector< std::vector<int> > data;
+                // count main loop
+                int loop_count = analyzeLoop(func, *l, data, 0) + 1;
+                int depth = data.size();
+                int structure_size = func.loops_structures.size();
+                for(auto & vec : data)
+                    std::copy(vec.begin(), vec.end(),
+                            std::back_inserter(func.loops_structures));
+                structure_size = func.loops_structures.size() - structure_size;
+                func.loops_sizes.push_back(depth);
+                func.loops_sizes.push_back(structure_size);
+                func.loops_sizes.push_back(loop_count);
             }
-            loops_counts.push_back(loops);
 
             return true;
         } else {
@@ -278,26 +289,35 @@ namespace extrap {
         return is_important;
     }
 
-    int DfsanInstr::instrumentLoop(Function & func, llvm::Loop & l,
-            int loop_idx, int depth, Instrumenter & instr)
+    void DfsanInstr::instrumentLoop(Function & func, llvm::Loop & l,
+            int nested_loop_idx, Instrumenter & instr)
     {
-        llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
-        l.getExitingBlocks(exit_blocks);
-        for(llvm::BasicBlock * bb : exit_blocks) {
-            const llvm::Instruction * inst = bb->getTerminator();
-            const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
-            //llvm::outs() << *inst << '\n';
-            assert(br);
-            if(br->isConditional()) {
-                instr.checkLoop(loop_idx, depth, func.function_idx(), br);
+        typedef std::vector<llvm::Loop*> loops_t;
+        loops_t buf_first{1, &l}, buf_second;
+
+        loops_t * cur_loops = &buf_first, * next_loops = &buf_second;
+
+        while(!cur_loops->empty()) {
+
+            for(llvm::Loop * l : *cur_loops) {
+
+                llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
+                l->getExitingBlocks(exit_blocks);
+                for(llvm::BasicBlock * bb : exit_blocks) {
+                    const llvm::Instruction * inst = bb->getTerminator();
+                    const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
+                    assert(br);
+                    if(br->isConditional()) {
+                        instr.checkLoop(nested_loop_idx, func.function_idx(), br);
+                    }
+                }
+                nested_loop_idx++;
+                auto & subloops = l->getSubLoops();
+                std::copy(subloops.begin(), subloops.end(), std::back_inserter(*next_loops));
             }
+            std::swap(cur_loops, next_loops);
+            next_loops->clear();
         }
-        auto & subloops = l.getSubLoops();
-        loop_idx += subloops.empty();
-        for(llvm::Loop * l : subloops) {
-            loop_idx += instrumentLoop(func, *l, loop_idx, depth + 1, instr);
-        }
-        return loop_idx;
     }
 
     void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
@@ -306,11 +326,12 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
-        int loop_idx = 0;
+        int loop_idx = 0, nested_loop_idx = 0;
         for(llvm::Loop * l : *linfo) {
-            int loop_idx_change = instrumentLoop(func, *l, 0, 0, instr);
+            instrumentLoop(func, *l, nested_loop_idx, instr);
             instr.commitLoop(*l, func.function_idx(), loop_idx);
-            loop_idx += loop_idx_change;
+            nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
+            loop_idx++;
         }
         //int labels = 0;
         //for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
@@ -346,12 +367,14 @@ namespace extrap {
         return true;
     }
 
-    template<typename Vector, typename Vector2, typename FuncIter>
+    template<typename Vector, typename FuncIter>
     void Instrumenter::createGlobalStorage(const Vector & funcs_names,
-            FuncIter begin, FuncIter end, Vector2 & loops_depths,
-            Vector2 & loops_counts)
+            FuncIter begin, FuncIter end)
     {
         functions_count = funcs_names.size();
+        std::vector<Function*> functions(functions_count);
+        for(auto & f : funcs_names)
+            llvm::errs() << "Name: " << f->getName() << '\n';
         params_count = Parameters::parameters_count();
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -445,6 +468,7 @@ namespace extrap {
                 continue;
             int f_idx = (*it).second->function_idx();
             int arg_size = (*it).first->arg_size();
+            functions[f_idx] = &(*it).second.getValue();
             functions_args[f_idx] = builder.getInt32(arg_size);
         }
         glob_funcs_args = new llvm::GlobalVariable(m,
@@ -522,113 +546,201 @@ namespace extrap {
 
         // callsite_count * operand_count
         // last element stores the final size
-        std::vector<int> sizes(functions_count + 1);
-        for(auto it = begin; it != end; ++it) {
-            if( (*it).second.hasValue() && !(*it).second->is_overriden()) {
-                int operands_count = (*it).first->arg_size();
-                int callsites_count = (*it).second->callsites_size();
-                int f_idx = (*it).second->function_idx();
-                sizes[f_idx] = operands_count * callsites_count;
-                //llvm::outs() << (*it).first->getName() << ' ' << operands_count << ' ' << callsites_count << '\n';
-            }
+        //std::vector<int> sizes(functions_count + 1);
+        //for(auto it = begin; it != end; ++it) {
+        //    if( (*it).second.hasValue() && !(*it).second->is_overriden()) {
+        //        int operands_count = (*it).first->arg_size();
+        //        int callsites_count = (*it).second->callsites_size();
+        //        int f_idx = (*it).second->function_idx();
+        //        sizes[f_idx] = operands_count * callsites_count;
+        //        //llvm::outs() << (*it).first->getName() << ' ' << operands_count << ' ' << callsites_count << '\n';
+        //    }
+        //}
+        //// compute offsets with a prefix sum
+        //std::partial_sum(sizes.begin(), sizes.end(), sizes.begin());
+        //int total_size = sizes.back();
+        //// int8_t callsites_results[total_size];
+        //array_type = llvm::ArrayType::get(builder.getInt1Ty(), total_size);
+        //glob_callsites_result = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantAggregateZero::get(array_type),
+        //        glob_callsites_result_name);
+        //// int32_t callsites_offsets[functions_count + 1];
+        //// first element is always zero, the last one is an accumulated sum
+        //std::vector<llvm::Constant*> offsets(functions_count + 1);
+        //std::transform(sizes.begin(), sizes.end(), offsets.begin(),
+        //    [this](int offset) {
+        //        return builder.getInt32(offset);
+        //    }
+        //);
+        //array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+        //        functions_count + 1);
+        //glob_callsites_offsets = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantArray::get(array_type, offsets),
+        //        glob_callsites_offsets_name);
+
+        ////int32_t loop_depths
+        //std::vector<llvm::Constant*> depths(loops_depths.size());
+        //std::transform(loops_depths.begin(), loops_depths.end(), depths.begin(),
+        //    [this](int depth) {
+        //        return builder.getInt32(depth);
+        //    }
+        //);
+        //array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+        //        loops_depths.size());
+        //glob_loops_depths = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantArray::get(array_type, depths),
+        //        glob_loops_depths_name);
+
+        ////int32_t loops_depths_offsets
+        //std::vector<int> depths_offsets(functions_count + 1);
+        //std::partial_sum(loops_counts.begin(), loops_counts.end(),
+        //    depths_offsets.begin() + 1);
+        //depths_offsets[0] = 0;
+        //std::vector<llvm::Constant*> depths_offsets_ir(functions_count + 1);
+        //std::transform(depths_offsets.begin(), depths_offsets.end(),
+        //        depths_offsets_ir.begin(),
+        //        [this](int offset) {
+        //            return builder.getInt32(offset);
+        //        });
+        //array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+        //        functions_count + 1);
+        //glob_depths_array_offsets = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantArray::get(array_type, depths_offsets_ir),
+        //        glob_depths_array_offsets_name);
+
+        ////int32_t deps_offsets
+        //// for each function compute the number of `dependencies` objects
+        //// corresponds to sum of loop depths
+        //std::vector<int> loops_per_func(functions_count);
+        //std::vector<int> deps_offsets(functions_count + 1);
+        //int cnt = 0;
+        //for(int i = 0; i < functions_count; ++i) {
+        //    int loops = 0;
+        //    for(int j = 0; j < loops_counts[i]; ++j) {
+        //        loops += loops_depths[cnt++];
+        //    }
+        //    loops_per_func[i] = loops;
+        //}
+        //std::partial_sum(loops_per_func.begin(), loops_per_func.end(),
+        //    deps_offsets.begin() + 1);
+        //deps_offsets[0] = 0;
+        //std::vector<llvm::Constant*> deps(functions_count + 1);
+        //std::transform(deps_offsets.begin(), deps_offsets.end(), deps.begin(),
+        //    [this](int offset) {
+        //        return builder.getInt32(offset);
+        //    }
+        //);
+        //array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+        //        loops_counts.size() + 1);
+        //glob_deps_offsets = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantArray::get(array_type, deps),
+        //        glob_deps_offsets_name);
+
+        // number of loops in the entire program
+        std::vector<int> loops_structures;
+        std::vector<int> loops_structures_offsets(functions_count + 1);
+        std::vector<int> loops_sizes;
+        std::vector<int> loops_sizes_offsets(functions_count + 1);
+        loops_sizes_offsets[0] = 0;
+        loops_structures_offsets[0] = 0;
+        int number_of_loops = 0;
+        for(Function * f : functions) {
+            std::copy(f->loops_structures.begin(), f->loops_structures.end(),
+                    std::back_inserter(loops_structures));
+            int f_idx = f->function_idx();
+            std::copy(f->loops_sizes.begin(), f->loops_sizes.end(),
+                    std::back_inserter(loops_sizes));
+            loops_sizes_offsets[f_idx + 1] = f->loops_sizes.size();
+            loops_structures_offsets[f_idx + 1] = f->loops_structures.size();
+            int loops = f->loops_sizes.size() / 3;
+            for(int i = 0; i < loops; ++i)
+                number_of_loops += f->loops_sizes[3*i + 2];
         }
-        // compute offsets with a prefix sum
-        std::partial_sum(sizes.begin(), sizes.end(), sizes.begin());
-        int total_size = sizes.back();
-        // int8_t callsites_results[total_size];
-        array_type = llvm::ArrayType::get(builder.getInt1Ty(), total_size);
-        glob_callsites_result = new llvm::GlobalVariable(m,
-                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantAggregateZero::get(array_type),
-                glob_callsites_result_name);
-        // int32_t callsites_offsets[functions_count + 1];
-        // first element is always zero, the last one is an accumulated sum
-        std::vector<llvm::Constant*> offsets(functions_count + 1);
-        std::transform(sizes.begin(), sizes.end(), offsets.begin(),
-            [this](int offset) {
-                return builder.getInt32(offset);
-            }
-        );
-        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
-                functions_count + 1);
-        glob_callsites_offsets = new llvm::GlobalVariable(m,
-                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, offsets),
-                glob_callsites_offsets_name);
 
-        //int32_t loop_depths
-        std::vector<llvm::Constant*> depths(loops_depths.size());
-        std::transform(loops_depths.begin(), loops_depths.end(), depths.begin(),
-            [this](int depth) {
-                return builder.getInt32(depth);
-            }
-        );
-        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
-                loops_depths.size());
-        glob_loops_depths = new llvm::GlobalVariable(m,
-                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, depths),
-                glob_loops_depths_name);
-
-        //int32_t loops_depths_offsets
-        std::vector<int> depths_offsets(functions_count + 1);
-        std::partial_sum(loops_counts.begin(), loops_counts.end(),
-            depths_offsets.begin() + 1);
-        depths_offsets[0] = 0;
-        std::vector<llvm::Constant*> depths_offsets_ir(functions_count + 1);
-        std::transform(depths_offsets.begin(), depths_offsets.end(),
-                depths_offsets_ir.begin(),
+        std::vector<llvm::Constant*> structures(loops_structures.size());
+        std::transform(loops_structures.begin(), loops_structures.end(),
+                structures.begin(),
                 [this](int offset) {
                     return builder.getInt32(offset);
-                });
-        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
-                functions_count + 1);
-        glob_depths_array_offsets = new llvm::GlobalVariable(m,
-                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, depths_offsets_ir),
-                glob_depths_array_offsets_name);
-
-        //int32_t deps_offsets
-        // for each function compute the number of `dependencies` objects
-        // corresponds to sum of loop depths
-        std::vector<int> loops_per_func(functions_count);
-        std::vector<int> deps_offsets(functions_count + 1);
-        int cnt = 0;
-        for(int i = 0; i < functions_count; ++i) {
-            int loops = 0;
-            for(int j = 0; j < loops_counts[i]; ++j) {
-                loops += loops_depths[cnt++];
-            }
-            loops_per_func[i] = loops;
-        }
-        std::partial_sum(loops_per_func.begin(), loops_per_func.end(),
-            deps_offsets.begin() + 1);
-        deps_offsets[0] = 0;
-        std::vector<llvm::Constant*> deps(functions_count + 1);
-        std::transform(deps_offsets.begin(), deps_offsets.end(), deps.begin(),
-            [this](int offset) {
-                return builder.getInt32(offset);
-            }
+                }
         );
         array_type = llvm::ArrayType::get(builder.getInt32Ty(),
-                loops_counts.size() + 1);
-        glob_deps_offsets = new llvm::GlobalVariable(m,
+                loops_structures.size());
+        glob_loops_structures = new llvm::GlobalVariable(m,
                 array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantArray::get(array_type, deps),
-                glob_deps_offsets_name);
+                llvm::ConstantArray::get(array_type, structures),
+                glob_loops_structures_name);
+
+        std::vector<llvm::Constant*> sizes(loops_sizes.size());
+        std::transform(loops_sizes.begin(), loops_sizes.end(),
+                sizes.begin(),
+                [this](int offset) {
+                    return builder.getInt32(offset);
+                }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                loops_sizes.size());
+        glob_loops_sizes = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, sizes),
+                glob_loops_sizes_name);
+
+        std::partial_sum(loops_sizes_offsets.begin(), loops_sizes_offsets.end(),
+            loops_sizes_offsets.begin());
+        std::vector<llvm::Constant*> sizes_llvm(functions_count + 1);
+        std::transform(loops_sizes_offsets.begin(), loops_sizes_offsets.end(),
+                sizes_llvm.begin(),
+                [this](int offset) {
+                    return builder.getInt32(offset);
+                }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                functions_count + 1);
+        glob_loops_sizes_offsets = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, sizes_llvm),
+                glob_loops_sizes_offsets_name);
+
+        std::partial_sum(loops_structures_offsets.begin(), loops_structures_offsets.end(),
+            loops_structures_offsets.begin());
+        std::vector<llvm::Constant*> structs_llvm(functions_count + 1);
+        std::transform(loops_structures_offsets.begin(), loops_structures_offsets.end(),
+                structs_llvm.begin(),
+                [this](int offset) {
+                    return builder.getInt32(offset);
+                }
+        );
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+                functions_count + 1);
+        glob_loops_sizes_offsets = new llvm::GlobalVariable(m,
+                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, structs_llvm),
+                glob_loops_structures_offsets_name);
+
+        glob_loops_number = new llvm::GlobalVariable(m,
+                builder.getInt32Ty(), false, llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(number_of_loops),
+                glob_loops_number_name);
     }
 
-    void Instrumenter::checkLoop(int loop_idx, int depth, int function_idx,
+    void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
             const llvm::BranchInst * br)
     {
         assert(glob_result_array);
         // insert call before branch
         InstrumenterVisiter vis(*this,
-            [this, loop_idx, depth, function_idx](uint64_t size, llvm::Value * ptr) {
-                checkLoopLoad(loop_idx, depth, function_idx, size, ptr);
+            [this, nested_loop_idx, function_idx]
+            (uint64_t size, llvm::Value * ptr) {
+                checkLoopLoad(nested_loop_idx, function_idx, size, ptr);
             },
-            [this, loop_idx, depth, function_idx](llvm::CallBase * ptr) {
-                checkLoopRetval(loop_idx, depth, function_idx, ptr);
+            [this, nested_loop_idx, function_idx]
+            (llvm::CallBase * ptr) {
+                checkLoopRetval(nested_loop_idx, function_idx, ptr);
             }
         );
         const llvm::Instruction * inst =
@@ -638,24 +750,23 @@ namespace extrap {
         vis.visit( const_cast<llvm::Instruction*>(inst) );
     }
 
-    void Instrumenter::checkLoopLoad(int loop_idx, int depth, int function_idx,
+    void Instrumenter::checkLoopLoad(int nested_loop_idx, int function_idx,
             size_t size, llvm::Value * operand)
     {
         llvm::Value * cast = builder.CreatePointerCast(operand, builder.getInt8PtrTy());
         builder.CreateCall(load_loop_function, {
                 cast, builder.getInt32(size),
-                builder.getInt32(loop_idx), builder.getInt32(depth),
+                builder.getInt32(nested_loop_idx),
                 builder.getInt32(function_idx)
             });
     }
 
-    void Instrumenter::checkLoopRetval(int loop_idx, int depth,
+    void Instrumenter::checkLoopRetval(int nested_loop_idx,
             int function_idx, llvm::CallBase * call)
     {
         llvm::Value * load_tls = builder.CreateLoad(glob_retval_tls);
         builder.CreateCall(label_loop_function, {
-                load_tls, builder.getInt32(loop_idx),
-                builder.getInt32(depth),
+                load_tls, builder.getInt32(nested_loop_idx),
                 builder.getInt32(function_idx)
             });
     }
@@ -820,15 +931,15 @@ namespace extrap {
         init_function = m.getFunction("__dfsw_EXTRAP_INIT");
         assert(init_function);
 
-        // void __EXTRAP_CHECK_LABEL(label, depth, loop_idx, func_idx)
+        // void __EXTRAP_CHECK_LABEL(label, loop_idx, func_idx)
         func_t = llvm::FunctionType::get(void_t,
-                {builder.getInt16Ty(), idx_t, idx_t, idx_t}, false);
+                {builder.getInt16Ty(), idx_t, idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
         label_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
 
-        // __EXTRAP_CHECK_LOAD(addr, size, depth, loop_idx, func_idx)
+        // __EXTRAP_CHECK_LOAD(addr, size, loop_idx, func_idx)
         func_t = llvm::FunctionType::get(void_t,
-                {int8_ptr, idx_t, idx_t, idx_t, idx_t}, false);
+                {int8_ptr, idx_t, idx_t, idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
         load_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
 

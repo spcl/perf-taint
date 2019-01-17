@@ -1,0 +1,459 @@
+{
+  "functions": [
+    {
+      "dbg_name": "nest_const",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 10,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1
+              },
+              "1": {
+                "level": 1
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z10nest_constii"
+    },
+    {
+      "dbg_name": "nest_partial",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 22,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ]
+              },
+              "1": {
+                "level": 1
+              },
+              "2": {
+                "level": 1,
+                "params": [
+                  [
+                    "x1",
+                    "x2"
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z12nest_partialii"
+    },
+    {
+      "dbg_name": "double_nest_partial",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 44,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ]
+              },
+              "1": {
+                "level": 1
+              },
+              "2": {
+                "level": 1,
+                "params": [
+                  [
+                    "x1",
+                    "x2"
+                  ]
+                ]
+              }
+            }
+          }
+        ],
+        "1": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1",
+                "x2"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1
+              },
+              "1": {
+                "level": 1,
+                "params": [
+                  [
+                    "x1"
+                  ]
+                ]
+              },
+              "2": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z19double_nest_partialii"
+    },
+    {
+      "dbg_name": "nest_triple",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 82,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ],
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "1": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "1": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z11nest_tripleii"
+    },
+    {
+      "dbg_name": "double_nest_triple",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 105,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ],
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "1": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "2": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ]
+              }
+            }
+          }
+        ],
+        "1": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x2"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ],
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              },
+              "1": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z18double_nest_tripleii"
+    },
+    {
+      "dbg_name": "three_loops",
+      "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "line": 158,
+      "loops": {
+        "0": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ]
+              }
+            }
+          }
+        ],
+        "1": [
+          {
+            "level": 0,
+            "params": [
+              [
+                "x1"
+              ]
+            ],
+            "subloops": {
+              "0": {
+                "level": 1,
+                "params": [
+                  [
+                    "x2"
+                  ]
+                ],
+                "subloops": {
+                  "0": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x1",
+                        "x2"
+                      ]
+                    ]
+                  },
+                  "1": {
+                    "level": 2,
+                    "params": [
+                      [
+                        "x2"
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "2": [
+          {
+            "level": 0,
+            "params": null,
+            "subloops": {
+              "0": {
+                "level": 1,
+                "subloops": {
+                  "0": {
+                    "level": 2
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "name": "_Z11three_loopsii"
+    }
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

@@ -53,7 +53,9 @@ namespace extrap {
         int idx;
         bool overriden;
         llvm::SmallVector<llvm::Value*, 10> callsites;
-        llvm::SmallVector<int32_t, 10> loop_depths;
+        // # of entries = loop_depths.size()
+        std::vector<int> loops_structures;
+        std::vector<int> loops_sizes;
 
         Function(int _idx, bool _overriden = false):
             idx(_idx),
@@ -78,16 +80,6 @@ namespace extrap {
         bool is_overriden()
         {
             return overriden;
-        }
-
-        void add_loop(int depth)
-        {
-            loop_depths.push_back(depth);
-        }
-
-        size_t loop_count()
-        {
-            return loop_depths.size();
         }
     };
 
@@ -138,23 +130,29 @@ namespace extrap {
         // Callsites
         // int8* of size operand_count * callsite_count
         // computed for each function
-        llvm::GlobalVariable * glob_callsites_result;
+        //llvm::GlobalVariable * glob_callsites_result;
         // int32* of size `functions
         // stores offsets to the array above
         // necessary because each function has different signature
         // and different number of callsites
-        llvm::GlobalVariable * glob_callsites_offsets;
+        //llvm::GlobalVariable * glob_callsites_offsets;
 
         // `functions` * `parameters` integers, storing control-flow dependency
         // of a function on each parameter
         llvm::GlobalVariable * glob_result_array;
 
         // size determined by program properties
-        llvm::GlobalVariable * glob_loops_depths;
+        //llvm::GlobalVariable * glob_loops_depths;
         // `func_count + 1` integers providing direct access to deps results
-        llvm::GlobalValue * glob_deps_offsets;
+        //llvm::GlobalValue * glob_deps_offsets;
         // `func_count + 1` integers providing direct access to depths array
-        llvm::GlobalValue * glob_depths_array_offsets;
+        //llvm::GlobalValue * glob_depths_array_offsets;
+        //
+        llvm::GlobalVariable * glob_loops_structures;
+        llvm::GlobalVariable * glob_loops_structures_offsets;
+        llvm::GlobalVariable * glob_loops_sizes;
+        llvm::GlobalVariable * glob_loops_sizes_offsets;
+        llvm::GlobalVariable * glob_loops_number;
 
         static constexpr const char * glob_retval_tls_name
             = "__dfsan_retval_tls";
@@ -188,6 +186,16 @@ namespace extrap {
             = "__EXTRAP_LOOPS_DEPS_OFFSETS";
         static constexpr const char * glob_depths_array_offsets_name
             = "__EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS";
+        static constexpr const char * glob_loops_structures_name
+            = "__EXTRAP_LOOPS_STRUCTURE_PER_FUNC";
+        static constexpr const char * glob_loops_sizes_name
+            = "__EXTRAP_LOOPS_SIZES_PER_FUNC";
+        static constexpr const char * glob_loops_structures_offsets_name
+            = "__EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS";
+        static constexpr const char * glob_loops_sizes_offsets_name
+            = "__EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS";
+        static constexpr const char * glob_loops_number_name
+            = "__EXTRAP_NUMBER_OF_LOOPS";
 
         // __EXTRAP_CHECK_LOAD(int * addr, size_t size, function_idx)
         llvm::Function * load_function;
@@ -223,8 +231,6 @@ namespace extrap {
             glob_funcs_dbg(nullptr),
             glob_params_count(nullptr),
             glob_params_names(nullptr),
-            glob_callsites_result(nullptr),
-            glob_callsites_offsets(nullptr),
             glob_result_array(nullptr)
         {
             file_index.import(m, info);
@@ -234,21 +240,20 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        template<typename Vector, typename Vector2, typename FuncIter>
+        template<typename Vector, typename FuncIter>
         void createGlobalStorage(const Vector & func_names,
-                FuncIter begin, FuncIter end, Vector2 & loop_depths,
-                Vector2 & loop_counts);
+                FuncIter begin, FuncIter end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
         void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);
         void checkCFRetval(int function_idx, llvm::CallBase * cast);
 
-        void checkLoop(int loop_idx, int depth, int function_idx,
+        void checkLoop(int loop_idx, int function_idx,
                 const llvm::BranchInst * br);
-        void checkLoopLoad(int loop_idx, int depth, int function_idx,
+        void checkLoopLoad(int loop_idx, int function_idx,
                 size_t size, llvm::Value * load_addr);
-        void checkLoopRetval(int loop_idx, int depth, int function_idx,
+        void checkLoopRetval(int loop_idx, int function_idx,
                 llvm::CallBase * cast);
 
         void checkCallSite(int function_idx, int callsite_idx, llvm::CallBase *);
@@ -339,8 +344,8 @@ namespace extrap {
         // c) has MPI call?
         //
         std::unordered_map<llvm::Function *, llvm::Optional<Function>> instrumented_functions;
-        std::vector<int> loops_depths;
-        std::vector<int> loops_counts;
+        //std::vector<int> loops_depths;
+        //std::vector<int> loops_counts;
         std::vector<llvm::Function *> parent_functions;
         int instrumented_functions_counter;
         std::ofstream unknown;
@@ -368,15 +373,16 @@ namespace extrap {
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
         bool runOnFunction(llvm::Function & f, int override_counter = -1);
         void modifyFunction(llvm::Function & f, Function & func, Instrumenter &);
-        int instrumentLoop(Function & func, llvm::Loop & l,
-                int loop_idx, int depth, Instrumenter &);
+        void instrumentLoop(Function & func, llvm::Loop & l,
+                int loop_idx, Instrumenter &);
         bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
         bool handleOpenMP(llvm::Function &f, int override_counter = -1);
         void foundFunction(llvm::Function &f, bool important, int counter = -1);
         void insertCallsite(llvm::Function & f, llvm::Value * val);
-        int analyzeLoop(Function & f, llvm::Loop & l, int depth);
+        int analyzeLoop(Function & f, llvm::Loop & l,
+                std::vector<std::vector<int>> & data, int depth);
     };
 
 }
