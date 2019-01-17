@@ -259,17 +259,20 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
 
 bool __dfsw_json_loop_is_important(json_t & loop)
 {
-    if(loop.find("params") != loop.end()) {
-        return true;
-    }
+    bool important = loop.find("params") != loop.end();
     auto subloops_it = loop.find("subloops");
-    if(subloops_it == loop.end())
-        return false;
-    for(auto & loop : *subloops_it) {
-        if(__dfsw_json_loop_is_important(loop))
-            return true;
+    if(subloops_it == loop.end()) {
+        if(!important)
+            return false;
+    } else {
+        for(auto & loop : *subloops_it) {
+            if(__dfsw_json_loop_is_important(loop))
+                return true;
+        }
+        // subloops exist but they are not important
+        loop.erase("subloops");
     }
-    return false;
+    return important;
 }
 
 bool __dfsw_json_is_important(json_t & json)
@@ -278,7 +281,7 @@ bool __dfsw_json_is_important(json_t & json)
     if(loops.empty())
         return false;
     for(auto & loop : loops) {
-        for(auto l : loop)
+        for(auto & l : loop)
             if(__dfsw_json_loop_is_important(l))
                 return true;
     }
