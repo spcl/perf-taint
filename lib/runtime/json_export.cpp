@@ -17,15 +17,16 @@ void __dfsw_json_init_func(json_t & function, int func_idx, bool important)
 {
     json_t & out = *__dfsw_json_get();
     function["dbg_name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
-    function["name"] = __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[func_idx];
+    const char * name = __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[func_idx];
+    //function["name"] = name;
     function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];
     int file_idx = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx + 1];
     if(file_idx != -1)
         function["file"] = __EXTRAP_INSTRUMENTATION_FILES[file_idx];
     if(important)
-        out["functions"].push_back(function);
+        out["functions"][name] = function;
     else
-        out["unimportant_functions"].push_back(function);
+        out["unimportant_functions"][name] = function;
 }
 
 // ignore initialization when accessing ptrs for cleaning
