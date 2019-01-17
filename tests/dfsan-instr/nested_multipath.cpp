@@ -82,18 +82,22 @@ int double_nest_partial(int x, int y)
 int nest_triple(int x, int y)
 {
     int tmp = 0;
+    // x
     for(int i = x; i < global; ++i) {
 
-        // full
+        // y
         for(int j = 0; j < y; ++j) {
+            // x, y
             for(int k = y; k < global; k += x)
                 tmp += k;
         }
 
-        // second level empty, third level full
+        // empty
         for(int j = 0; j < 10; ++j) {
+            // x, y
             for(int k = x; k < global; k += y)
                 tmp += k;
+            // y
             for(int k = 0; k < y; k++)
                 tmp += k;
         }
