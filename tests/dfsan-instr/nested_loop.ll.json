@@ -7,12 +7,17 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -24,38 +29,48 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
                 ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x2"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x1"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
                 ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -69,23 +84,33 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x2"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1
+                }
               }
             }
           }
@@ -99,21 +124,26 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
                 ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -121,6 +151,20 @@
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z17perf_nest_unknownii",
+    "_Z15perf_nest_constii",
+    "_Z16perf_nest_linearii",
+    "_Z15perf_nest_quadrii",
+    "_Z24perf_nest_multiple_quadrii"
+  ],
+  "functions_names": [
+    "perf_nest_unknown",
+    "perf_nest_const",
+    "perf_nest_linear",
+    "perf_nest_quadr",
+    "perf_nest_multiple_quadr"
+  ],
   "parameters": [
     "x1",
     "x2"

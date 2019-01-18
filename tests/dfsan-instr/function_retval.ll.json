@@ -7,12 +7,17 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "global"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -24,17 +29,32 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hii",
+    "_Z1iP4test"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i"
+  ],
   "parameters": [
     "x1",
     "x2",

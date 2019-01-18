@@ -7,15 +7,20 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "global"
-              ],
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ],
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -27,23 +32,38 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "global"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
               ]
-            ]
+            }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
               ]
-            ]
+            }
           },
           {
-            "level": 0
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0
+            }
           }
         ]
       }
@@ -55,18 +75,33 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hi",
+    "_Z1iiii"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i"
+  ],
   "parameters": [
     "x1",
     "x2",

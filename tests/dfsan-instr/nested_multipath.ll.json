@@ -7,12 +7,17 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -24,90 +29,151 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
-                ],
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
-                      ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
                     ]
+                  ],
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
                   }
-                }
-              },
-              "1": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
+                },
+                "1": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
                       ]
-                    ]
-                  },
-                  "1": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x2"
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
                       ]
-                    ]
+                    }
                   }
                 }
               }
             }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1"
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1"
+                        ]
                       ]
-                    ]
+                    }
+                  }
+                },
+                "1": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2
+                    }
                   }
                 }
-              },
-              "1": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1"
-                      ]
+              }
+            }
+          },
+          {
+            "callstacks": [
+              [
+                4
+              ]
+            ],
+            "instance": {
+              "level": 0,
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
                     ]
-                  },
-                  "1": {
-                    "level": 2
+                  ],
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                },
+                "1": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
                   }
                 }
               }
@@ -119,61 +185,71 @@
     "_Z11three_loopsii": {
       "dbg_name": "three_loops",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
-      "line": 158,
+      "line": 165,
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
                 ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
         ],
         "1": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
-                ],
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
-                      ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
                     ]
-                  },
-                  "1": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x2"
+                  ],
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
                       ]
-                    ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
                   }
                 }
               }
@@ -182,13 +258,18 @@
         ],
         "2": [
           {
-            "level": 0,
-            "subloops": {
-              "0": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2
+                    }
                   }
                 }
               }
@@ -204,32 +285,40 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
+              null,
               [
-                "x1"
+                5
               ]
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
                 ]
-              },
-              "1": {
-                "level": 1
-              },
-              "2": {
-                "level": 1,
-                "params": [
-                  [
-                    "x1",
-                    "x2"
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
                   ]
-                ]
+                },
+                "1": {
+                  "level": 1
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -239,124 +328,134 @@
     "_Z18double_nest_tripleii": {
       "dbg_name": "double_nest_triple",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
-      "line": 105,
+      "line": 109,
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
-                ],
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
-                      ]
-                    ]
-                  },
-                  "1": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x2"
-                      ]
-                    ]
-                  }
-                }
-              },
-              "1": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
-                      ]
-                    ]
-                  },
-                  "1": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x2"
-                      ]
-                    ]
-                  }
-                }
-              },
-              "2": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
                 ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ],
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                },
+                "1": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
         ],
         "1": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x2"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
-                ],
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
-                      ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
                     ]
+                  ],
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
                   }
-                }
-              },
-              "1": {
-                "level": 1,
-                "subloops": {
-                  "0": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x1",
-                        "x2"
+                },
+                "1": {
+                  "level": 1,
+                  "subloops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
                       ]
-                    ]
-                  },
-                  "1": {
-                    "level": 2,
-                    "params": [
-                      [
-                        "x2"
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
                       ]
-                    ]
+                    }
                   }
                 }
               }
@@ -372,64 +471,74 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
                 ]
-              },
-              "1": {
-                "level": 1
-              },
-              "2": {
-                "level": 1,
-                "params": [
-                  [
-                    "x1",
-                    "x2"
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
                   ]
-                ]
+                },
+                "1": {
+                  "level": 1
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
         ],
         "1": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
-              ]
+            "callstacks": [
+              null
             ],
-            "subloops": {
-              "0": {
-                "level": 1
-              },
-              "1": {
-                "level": 1,
-                "params": [
-                  [
-                    "x1"
-                  ]
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
                 ]
-              },
-              "2": {
-                "level": 1,
-                "params": [
-                  [
-                    "x2"
+              ],
+              "subloops": {
+                "0": {
+                  "level": 1
+                },
+                "1": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1"
+                    ]
                   ]
-                ]
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
               }
             }
           }
@@ -437,6 +546,22 @@
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z10nest_constii",
+    "_Z12nest_partialii",
+    "_Z19double_nest_partialii",
+    "_Z11nest_tripleii",
+    "_Z18double_nest_tripleii",
+    "_Z11three_loopsii"
+  ],
+  "functions_names": [
+    "nest_const",
+    "nest_partial",
+    "double_nest_partial",
+    "nest_triple",
+    "double_nest_triple",
+    "three_loops"
+  ],
   "parameters": [
     "x1",
     "x2"

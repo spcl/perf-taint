@@ -7,13 +7,18 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -25,21 +30,31 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
               ]
-            ]
+            }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x1"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -51,18 +66,33 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1gii",
+    "_Z1hP4test"
+  ],
+  "functions_names": [
+    "f",
+    "g",
+    "h"
+  ],
   "parameters": [
     "x1",
     "x2",

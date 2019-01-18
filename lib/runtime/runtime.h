@@ -20,6 +20,13 @@ typedef struct _dependencies
     uint16_t * deps;
 } dependencies;
 
+typedef struct _callstack
+{
+    size_t len;
+    size_t capacity;
+    uint16_t * stack;
+} callstack;
+
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];
@@ -32,6 +39,9 @@ extern const char * __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[];
 
 extern bool __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[];
 extern int __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[];
+
+uint16_t * __dfsw_EXTRAP_CALLSTACK();
+extern callstack __EXTRAP_CALLSTACK;
 //int __EXTRAP_INSTRUMENTATION_CALLSITES[] = {0, 1, 0};
 //int __EXTRAP_INSTRUMENTATION_CALLSITES_IDX[2] = {0, 2, 3};
 //

@@ -7,15 +7,20 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "size_x"
-              ],
-              [
-                "size_y"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "size_x"
+                ],
+                [
+                  "size_y"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -27,17 +32,36 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
-              [
-                "size_y"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "size_y"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
     }
   },
+  "functions_mangled_names": [
+    "_ZN4Grid11update_gridEd",
+    "_ZN4Grid15update_constantEd",
+    "_ZN4Grid8update_yEd",
+    "_ZN4Grid11update_dataEd",
+    "_ZN4Grid8update_zEd"
+  ],
+  "functions_names": [
+    "update_grid",
+    "update_constant",
+    "update_y",
+    "update_data",
+    "update_z"
+  ],
   "parameters": [
     "size_x",
     "size_y"

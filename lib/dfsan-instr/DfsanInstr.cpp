@@ -326,6 +326,8 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
+        instr.enterFunction(f, func);
+
         int loop_idx = 0, nested_loop_idx = 0;
         for(llvm::Loop * l : *linfo) {
             instrumentLoop(func, *l, nested_loop_idx, instr);
@@ -949,6 +951,19 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_COMMIT_LOOP", func_t);
         commit_loop_function = m.getFunction("__dfsw_EXTRAP_COMMIT_LOOP");
         assert(commit_loop_function);
+
+        // __dfsw_EXTRAP_PUSH_CALL_FUNCTION(idx)
+        func_t = llvm::FunctionType::get(void_t,
+                {idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_PUSH_CALL_FUNCTION", func_t);
+        push_function = m.getFunction("__dfsw_EXTRAP_PUSH_CALL_FUNCTION");
+        assert(push_function);
+
+        // __dfsw_EXTRAP_POP_CALL_FUNCTION
+        func_t = llvm::FunctionType::get(void_t, {}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION", func_t);
+        pop_function = m.getFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION");
+        assert(pop_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -966,6 +981,15 @@ namespace extrap {
             f = llvm::Function::Create(f_type, linkage, "atexit", m);
         }
         return f;
+    }
+
+    void Instrumenter::enterFunction(llvm::Function & f, Function & func)
+    {
+        builder.SetInsertPoint(&f.front().front());
+        builder.CreateCall(push_function,
+                { builder.getInt32(func.function_idx()) });
+        builder.SetInsertPoint( &f.back().back() );
+        builder.CreateCall(pop_function, {});
     }
 
     void Instrumenter::setInsertPoint(llvm::Instruction & instr)

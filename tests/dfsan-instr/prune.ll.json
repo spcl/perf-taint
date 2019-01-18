@@ -7,16 +7,26 @@
       "loops": {
         "0": [
           {
-            "level": 0
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0
+            }
           },
           {
-            "level": 0,
-            "params": [
-              [
-                "x1",
-                "x2"
+            "callstacks": [
+              null
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
               ]
-            ]
+            }
           }
         ]
       }
@@ -28,16 +38,32 @@
       "loops": {
         "0": [
           {
-            "level": 0
+            "callstacks": [
+              null,
+              [
+                2
+              ]
+            ],
+            "instance": {
+              "level": 0
+            }
           },
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
+              null,
               [
-                "x1",
-                "x2"
+                2
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
           }
         ]
       }
@@ -49,56 +75,120 @@
       "loops": {
         "0": [
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
+              null,
               [
-                "global2"
+                2
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "global2"
+                ]
+              ]
+            }
           },
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
               [
-                "global"
+                1
+              ],
+              [
+                2,
+                1
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
+              ]
+            }
           },
           {
-            "level": 0
+            "callstacks": [
+              null,
+              [
+                2
+              ]
+            ],
+            "instance": {
+              "level": 0
+            }
           },
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
+              null,
               [
-                "x1",
-                "global2"
+                2
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "global2"
+                ]
+              ]
+            }
           },
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
               [
-                "x1",
-                "x2",
-                "global"
+                1
+              ],
+              [
+                2,
+                1
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2",
+                  "global"
+                ]
+              ]
+            }
           },
           {
-            "level": 0,
-            "params": [
+            "callstacks": [
+              null,
               [
-                "x1",
-                "x2"
+                2
               ]
-            ]
+            ],
+            "instance": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
           }
         ]
       }
     }
   },
+  "functions_mangled_names": [
+    "_Z1hi",
+    "_Z11g_not_prunei",
+    "_Z11f_not_pruneii"
+  ],
+  "functions_names": [
+    "h",
+    "g_not_prune",
+    "f_not_prune"
+  ],
   "parameters": [
     "x1",
     "x2",

@@ -217,6 +217,11 @@ namespace extrap {
         // __EXTRAP_COMMIT_LOOP(loop_idx, depth, function_idx)
         llvm::Function * commit_loop_function;
 
+        // __dfsw_EXTRAP_PUSH_CALL_FUNCTION(idx)
+        llvm::Function * push_function;
+        // __dfsw_EXTRAP_POP_CALL_FUNCTION(idx)
+        llvm::Function * pop_function;
+
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
@@ -268,6 +273,7 @@ namespace extrap {
                 size_t size, llvm::Value * operand);
         void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
+        void enterFunction(llvm::Function &, Function &);
 
         llvm::Function * getAtExit();
     };

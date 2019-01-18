@@ -237,13 +237,34 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
         bool found = false;
         for(json_t & prev : prev_loops) {
             //std::cout << prev << '\n';
-            if(prev == loop) {
+            if(prev["instance"] == loop) {
                 found = true;
+                bool callstack_found = false;
+                json_t callstack;
+                for(size_t i = 0; i <  __EXTRAP_CALLSTACK.len - 1; ++i)
+                    callstack.push_back( __EXTRAP_CALLSTACK.stack[i] );
+                for(const json_t & stack : prev["callstacks"]) {
+                    if(stack == callstack) {
+                        callstack_found = true;
+                        break;
+                    }
+                }
+                if(!callstack_found)
+                    prev["callstacks"].push_back( std::move(callstack) );
                 break;
             }
         }
-        if(!found)
-            prev_loops.push_back(loop);
+        if(!found) {
+            // don't write current function
+            json_t callstack;
+            for(size_t i = 0; i <  __EXTRAP_CALLSTACK.len - 1; ++i)
+                callstack.push_back( __EXTRAP_CALLSTACK.stack[i] );
+            json_t instance;
+            instance["callstacks"].push_back(callstack);
+            instance["instance"] = loop;
+            //std::cerr << instance << " " << prev_loops << '\n';
+            prev_loops.push_back(instance);
+        }
     }
     return non_empty;
     //if(filled > 1) {
@@ -282,7 +303,7 @@ bool __dfsw_json_is_important(json_t & json)
         return false;
     for(auto & loop : loops) {
         for(auto & l : loop)
-            if(__dfsw_json_loop_is_important(l))
+            if(__dfsw_json_loop_is_important(l["instance"]))
                 return true;
     }
     return false;
@@ -326,6 +347,7 @@ void __dfsw_dump_json_output()
     //    //else
     //    //   out.erase( out.find("functions") );
     //}
+    json_t functions_names, functions_mangled_names;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
 
         //json_t cf_params;
@@ -346,6 +368,10 @@ void __dfsw_dump_json_output()
         bool important_function = __dfsw_json_is_important(function);
         __dfsw_json_init_func(function, i, important_function);
             //out["functions"].back()["loops"] = cf_params;
+            //
+
+        functions_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
+        functions_mangled_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[i]);
 
         //dependencies *deps = __dfsw_EXTRAP_DEPS_FUNC(i);
         //for(int j = 0; j < deps->len; ++j) {
@@ -363,6 +389,8 @@ void __dfsw_dump_json_output()
         //else
         //   out.erase( out.find("functions") );
     }
+    out["functions_names"] = std::move(functions_names);
+    out["functions_mangled_names"] = std::move(functions_mangled_names);
     std::cout << out.dump(2) << std::endl;
     delete &out;
     delete[] &__dfsw_json_get(0);

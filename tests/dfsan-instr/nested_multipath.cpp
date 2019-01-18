@@ -156,6 +156,9 @@ int double_nest_triple(int x, int y)
 
     }
 
+    // should generate new output with y
+    nest_triple(10, y);
+
     return tmp;
 }
 
@@ -189,6 +192,9 @@ int three_loops(int x, int y)
         for(int j = 0; j < y; ++j)
             tmp += i;
 
+    // should appear aggregated as another callstack
+    nest_partial(x, y);
+
     return tmp;
 }
 
@@ -201,12 +207,12 @@ int main(int argc, char ** argv)
     register_variable(&x2, VARIABLE_NAME(x2));
 
     nest_const(x1, x2);
-    // should appear only once
+    //// should appear only once
     nest_partial(x1, x2);
     nest_partial(x1, x2);
     double_nest_partial(x1, x2);
     nest_triple(x1, x2);
-    // should generate a new output
+    // should generate a new output with x
     nest_triple(x1, x3);
     double_nest_triple(x1, x2);
     three_loops(x1, x2);

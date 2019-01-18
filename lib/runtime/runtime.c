@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sanitizer/dfsan_interface.h>
 
@@ -14,6 +15,35 @@
 //
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
+callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
+
+void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
+{
+    if(__EXTRAP_CALLSTACK.len == __EXTRAP_CALLSTACK.capacity) {
+        __EXTRAP_CALLSTACK.capacity += 5;
+        __EXTRAP_CALLSTACK.stack = realloc(__EXTRAP_CALLSTACK.stack,
+                sizeof(callstack) * __EXTRAP_CALLSTACK.capacity);
+    }
+    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
+}
+
+void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
+{
+    if(__EXTRAP_CALLSTACK.len == 0)
+        abort();
+    __EXTRAP_CALLSTACK.len--;
+}
+
+uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
+{
+    if(!__EXTRAP_CALLSTACK.len)
+        return NULL;
+    size_t callstack_size = sizeof(uint16_t) * (__EXTRAP_CALLSTACK.len);
+    uint16_t * mem = malloc(callstack_size + sizeof(uint16_t));
+    memcpy(mem + 1, __EXTRAP_CALLSTACK.stack, callstack_size);
+    mem[0] = __EXTRAP_CALLSTACK.len;
+    return mem;
+}
 
 //dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
 //{
@@ -51,6 +81,8 @@ void __dfsw_EXTRAP_AT_EXIT()
     for(int i = 0; i < deps_count; ++i)
         free(deps[i].deps);
     free(deps);
+
+    free(__EXTRAP_CALLSTACK.stack);
 }
 
 void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t callsite_idx, int32_t arg_idx)
