@@ -326,7 +326,9 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
-        instr.enterFunction(f, func);
+        // don't add overidden functions to callstack
+        if(!func.is_overriden())
+            instr.enterFunction(f, func);
 
         int loop_idx = 0, nested_loop_idx = 0;
         for(llvm::Loop * l : *linfo) {
