@@ -49,20 +49,10 @@
             ],
             "instance": {
               "level": 0,
-              "params": [
-                [
-                  "m"
-                ]
-              ],
-              "subloops": {
+              "loops": {
                 "0": {
                   "level": 1,
-                  "params": [
-                    [
-                      "k"
-                    ]
-                  ],
-                  "subloops": {
+                  "loops": {
                     "0": {
                       "level": 2,
                       "params": [
@@ -71,9 +61,19 @@
                         ]
                       ]
                     }
-                  }
+                  },
+                  "params": [
+                    [
+                      "k"
+                    ]
+                  ]
                 }
-              }
+              },
+              "params": [
+                [
+                  "m"
+                ]
+              ]
             }
           }
         ]

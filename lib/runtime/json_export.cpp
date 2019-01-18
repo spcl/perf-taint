@@ -138,8 +138,8 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
             if(!params.empty())
                 loop_level["params"] = params;
             //loop_level["nested_loops"] = level_size;
-            (*prev_iteration[parent_idx])["subloops"][std::to_string(loop_idx)] = loop_level;
-            cur_iteration[loop] = &(*prev_iteration[parent_idx])["subloops"][std::to_string(loop_idx)];
+            (*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)] = loop_level;
+            cur_iteration[loop] = &(*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)];
             loop_idx++;
             //int nested_loop = 0;
             //for(; nested_loop < *loop_structure; ++nested_loop) {
@@ -281,7 +281,7 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
 bool __dfsw_json_loop_is_important(json_t & loop)
 {
     bool important = loop.find("params") != loop.end();
-    auto subloops_it = loop.find("subloops");
+    auto subloops_it = loop.find("loops");
     if(subloops_it == loop.end()) {
         if(!important)
             return false;
@@ -291,7 +291,7 @@ bool __dfsw_json_loop_is_important(json_t & loop)
                 return true;
         }
         // subloops exist but they are not important
-        loop.erase("subloops");
+        loop.erase("loops");
     }
     return important;
 }
