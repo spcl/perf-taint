@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0
@@ -16,7 +18,9 @@
           },
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -39,8 +43,12 @@
         "0": [
           {
             "callstacks": [
-              null,
               [
+                4,
+                7
+              ],
+              [
+                4,
                 2
               ]
             ],
@@ -50,8 +58,12 @@
           },
           {
             "callstacks": [
-              null,
               [
+                4,
+                7
+              ],
+              [
+                4,
                 2
               ]
             ],
@@ -76,9 +88,15 @@
         "0": [
           {
             "callstacks": [
-              null,
               [
-                2
+                4,
+                7,
+                6
+              ],
+              [
+                4,
+                2,
+                6
               ]
             ],
             "instance": {
@@ -93,9 +111,12 @@
           {
             "callstacks": [
               [
+                4,
+                7,
                 1
               ],
               [
+                4,
                 2,
                 1
               ]
@@ -111,8 +132,12 @@
           },
           {
             "callstacks": [
-              null,
               [
+                4,
+                7
+              ],
+              [
+                4,
                 2
               ]
             ],
@@ -122,9 +147,15 @@
           },
           {
             "callstacks": [
-              null,
               [
-                2
+                4,
+                7,
+                6
+              ],
+              [
+                4,
+                2,
+                6
               ]
             ],
             "instance": {
@@ -140,9 +171,12 @@
           {
             "callstacks": [
               [
+                4,
+                7,
                 1
               ],
               [
+                4,
                 2,
                 1
               ]
@@ -160,8 +194,12 @@
           },
           {
             "callstacks": [
-              null,
               [
+                4,
+                7
+              ],
+              [
+                4,
                 2
               ]
             ],
@@ -179,15 +217,35 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "h(int)",
+    "g_not_prune(int)",
+    "f_not_prune(int, int)",
+    "void register_variable<int>(int*, char const*)",
+    "main",
+    "void register_variable<double>(double*, char const*)",
+    "g_prune(int)",
+    "f_prune(int, int)"
+  ],
   "functions_mangled_names": [
     "_Z1hi",
     "_Z11g_not_prunei",
-    "_Z11f_not_pruneii"
+    "_Z11f_not_pruneii",
+    "_Z17register_variableIiEvPT_PKc",
+    "main",
+    "_Z17register_variableIdEvPT_PKc",
+    "_Z7g_prunei",
+    "_Z7f_pruneii"
   ],
   "functions_names": [
     "h",
     "g_not_prune",
-    "f_not_prune"
+    "f_not_prune",
+    "register_variable<int>",
+    "main",
+    "register_variable<double>",
+    "g_prune",
+    "f_prune"
   ],
   "parameters": [
     "x1",

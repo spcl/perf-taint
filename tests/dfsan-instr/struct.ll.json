@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -33,7 +35,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -49,7 +53,10 @@
           },
           {
             "callstacks": [
-              null
+              [
+                4,
+                3
+              ]
             ],
             "instance": {
               "level": 0,
@@ -65,15 +72,29 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "print_params(Params*)",
+    "do_sth(int, int)",
+    "do_sth2(double, int)",
+    "do_sth3(Params&)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
   "functions_mangled_names": [
     "_Z12print_paramsP6Params",
     "_Z6do_sthii",
-    "_Z7do_sth2di"
+    "_Z7do_sth2di",
+    "_Z7do_sth3R6Params",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
     "print_params",
     "do_sth",
-    "do_sth2"
+    "do_sth2",
+    "do_sth3",
+    "main",
+    "register_variable<int>"
   ],
   "parameters": [
     "params.ranks",

@@ -22,6 +22,7 @@
 #include <numeric>
 #include <vector>
 #include <string>
+#include <cxxabi.h>
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -105,19 +106,31 @@ namespace extrap {
         llvm::Function * main = m.getFunction("main");
         assert(main);
 
-        runOnFunction(*main);
+        // TODO: why is main treated differently?
+        bool is_important = runOnFunction(*main);
 
         for(llvm::Function & f : m)
         {
             //for(llvm::Use & use : f.uses())
             //    llvm::outs() << use << '\n';
             if(instrumented_functions.find(&f) == instrumented_functions.end())
-               runOnFunction(f);
+                if(!runOnFunction(f)) {
+                    if(is_analyzable(m, f))
+                        notinstrumented_functions.push_back(&f);
+                }
+        }
+
+        // TODO: merge this into a single collection
+        for(auto & t : instrumented_functions) {
+            if(!t.second.hasValue()) {
+                notinstrumented_functions.push_back(t.first);
+            }
         }
 
         Instrumenter instr(m);
         instr.createGlobalStorage(parent_functions,
-                instrumented_functions.begin(), instrumented_functions.end());
+                instrumented_functions.begin(), instrumented_functions.end(),
+                notinstrumented_functions.begin(), notinstrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
@@ -127,6 +140,14 @@ namespace extrap {
                 modifyFunction(*f.first, f.second.getValue(), instr);
             }
         }
+        // TODO: also change that we dependent on this vector. 
+        // we should have all functions - not important, instrumented - in same data structure
+        int idx = parent_functions.size();
+        for(auto * f : notinstrumented_functions) {
+            instr.enterFunction(*f, idx++);
+
+        }
+        // instrument callstack
 
         stats.print();
 
@@ -371,14 +392,33 @@ namespace extrap {
         return true;
     }
 
-    template<typename Vector, typename FuncIter>
+    std::string demangle(llvm::StringRef name)
+    {
+        int status = 0;
+        char * demangled_name =
+            abi::__cxa_demangle(name.data(), 0, 0, &status);
+        std::string str_name;
+        if(status == 0)
+            str_name = demangled_name;
+        else if(status == -2)
+            str_name = name;
+        else
+            assert(false);
+        free( static_cast<void*>(demangled_name) );
+        return str_name;
+    }
+
+    template<typename Vector, typename FuncIter, typename FuncIter2>
     void Instrumenter::createGlobalStorage(const Vector & funcs_names,
-            FuncIter begin, FuncIter end)
+            FuncIter begin, FuncIter end,
+            FuncIter2 not_instr_begin, FuncIter2 not_instr_end)
     {
         functions_count = funcs_names.size();
+        int not_instr_functions_count = std::distance(not_instr_begin,
+                not_instr_end);
         std::vector<Function*> functions(functions_count);
-        for(auto & f : funcs_names)
-            llvm::errs() << "Name: " << f->getName() << '\n';
+        //for(auto & f : funcs_names)
+        //    llvm::errs() << "Name: " << f->getName() << '\n';
         params_count = Parameters::parameters_count();
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -393,10 +433,17 @@ namespace extrap {
 
         // int32_t functions_count;
         llvm::Type * llvm_int_type = builder.getInt32Ty();
-        glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+        glob_instr_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(functions_count),
+                glob_instr_funcs_count_name);
+
+        // int32_t functions_count;
+        glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(functions_count + not_instr_functions_count),
                 glob_funcs_count_name);
+
         // int32_t params_count
         glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
@@ -425,12 +472,14 @@ namespace extrap {
 
         // char ** functions_names
         // char ** functions_mangled_names
+        int database_size = functions_count + not_instr_functions_count;
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
-                    functions_count
+                    database_size
                 );
-        std::vector<llvm::Constant*> function_names(functions_count),
-            mangled_function_names(functions_count);
+        std::vector<llvm::Constant*> function_names(database_size),
+            mangled_function_names(database_size),
+            demangled_function_names(database_size);
         for(auto it = begin; it != end; ++it) {
             if( !(*it).second.hasValue() )
                 continue;
@@ -446,7 +495,22 @@ namespace extrap {
             llvm::StringRef mangled_name = func->getName();
             mangled_function_names[f_idx] =
                 builder.CreateGlobalStringPtr(mangled_name);
+            demangled_function_names[f_idx] = builder.CreateGlobalStringPtr(
+                    demangle(mangled_name));
             function_names[f_idx] = fname;
+        }
+        int idx = functions_count;
+        for(auto it = not_instr_begin; it != not_instr_end; ++it) {
+            llvm::Function * func = *it;
+            llvm::StringRef name = info.getFunctionName(*func);
+            llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
+            llvm::StringRef mangled_name = func->getName();
+            mangled_function_names[idx] =
+                builder.CreateGlobalStringPtr(mangled_name);
+            demangled_function_names[idx] = builder.CreateGlobalStringPtr(
+                    demangle(mangled_name));
+            function_names[idx] = fname;
+            idx++;
         }
         glob_funcs_names = new llvm::GlobalVariable(m,
                 array_type,
@@ -460,6 +524,12 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, mangled_function_names),
                 glob_funcs_mangled_names_name);
+        glob_funcs_demangled_names = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantArray::get(array_type, demangled_function_names),
+                glob_funcs_demangled_names_name);
 
         // int32_t * functions_sizes
         array_type = llvm::ArrayType::get(
@@ -987,9 +1057,14 @@ namespace extrap {
 
     void Instrumenter::enterFunction(llvm::Function & f, Function & func)
     {
+        enterFunction(f, func.function_idx());
+    }
+
+    void Instrumenter::enterFunction(llvm::Function & f, size_t idx)
+    {
         builder.SetInsertPoint(&f.front().front());
         builder.CreateCall(push_function,
-                { builder.getInt32(func.function_idx()) });
+                { builder.getInt32(idx) });
         builder.SetInsertPoint( &f.back().back() );
         builder.CreateCall(pop_function, {});
     }

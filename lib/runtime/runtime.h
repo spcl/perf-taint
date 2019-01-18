@@ -27,11 +27,26 @@ typedef struct _callstack
     uint16_t * stack;
 } callstack;
 
+typedef struct _nested_call {
+    uint16_t nested_loop_idx;
+    uint16_t loop_size_at_level;
+    void ** json_data;
+    size_t len;
+} nested_call;
+
+typedef struct _nested_call_vec {
+    size_t len;
+    size_t capacity;
+    nested_call * data;
+} nested_call_vec;
+
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];
+extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_DEMANGLED_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FILES[];
 extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
+extern int32_t __EXTRAP_FUNCS_COUNT;
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[];
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_DBG[];
 extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
@@ -42,6 +57,11 @@ extern int __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[];
 
 uint16_t * __dfsw_EXTRAP_CALLSTACK();
 extern callstack __EXTRAP_CALLSTACK;
+
+extern nested_call_vec __EXTRAP_NESTED_CALLS;
+void __dfsw_EXTRAP_REGISTER_CALL(uint16_t nested_loop_idx, uint16_t loop_size);
+void __dfsw_EXTRAP_REMOVE_CALLS(size_t len);
+
 //int __EXTRAP_INSTRUMENTATION_CALLSITES[] = {0, 1, 0};
 //int __EXTRAP_INSTRUMENTATION_CALLSITES_IDX[2] = {0, 2, 3};
 //

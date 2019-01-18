@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                2
+              ]
             ],
             "instance": {
               "level": 0,
@@ -22,7 +24,9 @@
           },
           {
             "callstacks": [
-              null
+              [
+                2
+              ]
             ],
             "instance": {
               "level": 0,
@@ -45,7 +49,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                2
+              ]
             ],
             "instance": {
               "level": 0,
@@ -80,13 +86,23 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "register_variable"
+  ],
   "functions_mangled_names": [
     "create_matrix",
-    "mat_mul"
+    "mat_mul",
+    "main",
+    "register_variable"
   ],
   "functions_names": [
     "create_matrix",
-    "mat_mul"
+    "mat_mul",
+    "main",
+    "register_variable"
   ],
   "parameters": [
     "m",

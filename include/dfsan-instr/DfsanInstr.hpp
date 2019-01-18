@@ -114,11 +114,14 @@ namespace extrap {
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_files;
 
+        llvm::GlobalVariable * glob_instr_funcs_count;
         llvm::GlobalVariable * glob_funcs_count;
         // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
         // `functions` C strings, assigned at compile time
         llvm::GlobalVariable * glob_funcs_mangled_names;
+        // `functions` C strings, assigned at compile time
+        llvm::GlobalVariable * glob_funcs_demangled_names;
         // `functions` ints, storing # of args
         llvm::GlobalVariable * glob_funcs_args;
         // 2*`functions` integers, line of code and file index, compile time
@@ -161,6 +164,8 @@ namespace extrap {
         static constexpr const char * glob_files_name
             = "__EXTRAP_INSTRUMENTATION_FILES";
         static constexpr const char * glob_funcs_count_name
+            = "__EXTRAP_FUNCS_COUNT";
+        static constexpr const char * glob_instr_funcs_count_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_params_count_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
@@ -172,6 +177,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_FUNCS_NAMES";
         static constexpr const char * glob_funcs_mangled_names_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES";
+        static constexpr const char * glob_funcs_demangled_names_name
+            = "__EXTRAP_INSTRUMENTATION_FUNCS_DEMANGLED_NAMES";
         static constexpr const char * glob_funcs_dbg_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_DBG";
         static constexpr const char * glob_callsites_result_name
@@ -245,9 +252,10 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        template<typename Vector, typename FuncIter>
+        template<typename Vector, typename FuncIter, typename FuncIter2>
         void createGlobalStorage(const Vector & func_names,
-                FuncIter begin, FuncIter end);
+                FuncIter begin, FuncIter end,
+                FuncIter2 not_instr_begin, FuncIter2 not_instr_end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
@@ -274,6 +282,7 @@ namespace extrap {
         void setInsertPoint(llvm::Instruction & inst);
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
         void enterFunction(llvm::Function &, Function &);
+        void enterFunction(llvm::Function &, size_t idx);
 
         llvm::Function * getAtExit();
     };
@@ -350,6 +359,7 @@ namespace extrap {
         // c) has MPI call?
         //
         std::unordered_map<llvm::Function *, llvm::Optional<Function>> instrumented_functions;
+        std::vector<llvm::Function *> notinstrumented_functions;
         //std::vector<int> loops_depths;
         //std::vector<int> loops_counts;
         std::vector<llvm::Function *> parent_functions;

@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -30,7 +32,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -86,7 +90,9 @@
           },
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -131,6 +137,7 @@
           {
             "callstacks": [
               [
+                6,
                 4
               ]
             ],
@@ -190,7 +197,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -215,7 +224,9 @@
         "1": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -259,7 +270,9 @@
         "2": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -286,8 +299,11 @@
         "0": [
           {
             "callstacks": [
-              null,
               [
+                6
+              ],
+              [
+                6,
                 5
               ]
             ],
@@ -333,7 +349,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -407,7 +425,9 @@
         "1": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -472,7 +492,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -509,7 +531,9 @@
         "1": [
           {
             "callstacks": [
-              null
+              [
+                6
+              ]
             ],
             "instance": {
               "level": 0,
@@ -546,13 +570,25 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "nest_const(int, int)",
+    "nest_partial(int, int)",
+    "double_nest_partial(int, int)",
+    "nest_triple(int, int)",
+    "double_nest_triple(int, int)",
+    "three_loops(int, int)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
   "functions_mangled_names": [
     "_Z10nest_constii",
     "_Z12nest_partialii",
     "_Z19double_nest_partialii",
     "_Z11nest_tripleii",
     "_Z18double_nest_tripleii",
-    "_Z11three_loopsii"
+    "_Z11three_loopsii",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
     "nest_const",
@@ -560,7 +596,9 @@
     "double_nest_partial",
     "nest_triple",
     "double_nest_triple",
-    "three_loops"
+    "three_loops",
+    "main",
+    "register_variable<int>"
   ],
   "parameters": [
     "x1",

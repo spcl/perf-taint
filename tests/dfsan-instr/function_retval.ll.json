@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                5
+              ]
             ],
             "instance": {
               "level": 0,
@@ -30,7 +32,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                5
+              ]
             ],
             "instance": {
               "level": 0,
@@ -45,15 +49,38 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int, int)",
+    "i(test*)",
+    "test::length()",
+    "void register_variable<int>(int*, char const*)",
+    "main",
+    "test::test(int, int)",
+    "g2(int, int)",
+    "g(int, int)"
+  ],
   "functions_mangled_names": [
     "_Z1fii",
     "_Z1hii",
-    "_Z1iP4test"
+    "_Z1iP4test",
+    "_ZN4test6lengthEv",
+    "_Z17register_variableIiEvPT_PKc",
+    "main",
+    "_ZN4testC2Eii",
+    "_Z2g2ii",
+    "_Z1gii"
   ],
   "functions_names": [
     "f",
     "h",
-    "i"
+    "i",
+    "length",
+    "register_variable<int>",
+    "main",
+    "test",
+    "g2",
+    "g"
   ],
   "parameters": [
     "x1",

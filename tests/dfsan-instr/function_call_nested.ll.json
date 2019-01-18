@@ -8,7 +8,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -24,7 +26,9 @@
           },
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -38,6 +42,7 @@
           {
             "callstacks": [
               [
+                4,
                 3
               ]
             ],
@@ -56,6 +61,7 @@
           {
             "callstacks": [
               [
+                4,
                 3
               ]
             ],
@@ -74,7 +80,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -97,6 +105,7 @@
           {
             "callstacks": [
               [
+                4,
                 0
               ]
             ],
@@ -112,10 +121,14 @@
           {
             "callstacks": [
               [
+                4,
                 0
               ],
-              null,
               [
+                4
+              ],
+              [
+                4,
                 3,
                 0
               ]
@@ -127,9 +140,11 @@
           {
             "callstacks": [
               [
+                4,
                 2
               ],
               [
+                4,
                 3
               ]
             ],
@@ -144,8 +159,11 @@
           },
           {
             "callstacks": [
-              null,
               [
+                4
+              ],
+              [
+                4,
                 3,
                 0
               ]
@@ -170,7 +188,9 @@
         "0": [
           {
             "callstacks": [
-              null
+              [
+                4
+              ]
             ],
             "instance": {
               "level": 0,
@@ -189,17 +209,29 @@
       }
     }
   },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int)",
+    "g(int)",
+    "i(int, int, int)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
   "functions_mangled_names": [
     "_Z1fii",
     "_Z1hi",
     "_Z1gi",
-    "_Z1iiii"
+    "_Z1iiii",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
     "f",
     "h",
     "g",
-    "i"
+    "i",
+    "main",
+    "register_variable<int>"
   ],
   "parameters": [
     "x1",

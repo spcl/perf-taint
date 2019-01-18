@@ -200,6 +200,13 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
     return loop;
 }
 
+void __dfsw_json_loop_committed(json_t * loop)
+{
+    if(!__EXTRAP_NESTED_CALLS.len)
+        return;
+    nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len - 1];
+}
+
 bool __dfsw_json_write_loop(int function_idx, int loop_idx)
 {
     std::vector<json_t> params;
@@ -249,8 +256,10 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
                         break;
                     }
                 }
-                if(!callstack_found)
+                __dfsw_json_loop_committed(&prev);
+                if(!callstack_found) {
                     prev["callstacks"].push_back( std::move(callstack) );
+                }
                 break;
             }
         }
@@ -263,6 +272,8 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
             instance["callstacks"].push_back(callstack);
             instance["instance"] = loop;
             //std::cerr << instance << " " << prev_loops << '\n';
+            //
+            __dfsw_json_loop_committed(&instance);
             prev_loops.push_back(instance);
         }
     }
@@ -347,7 +358,7 @@ void __dfsw_dump_json_output()
     //    //else
     //    //   out.erase( out.find("functions") );
     //}
-    json_t functions_names, functions_mangled_names;
+    json_t functions_names, functions_mangled_names, functions_demangled_names;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
 
         //json_t cf_params;
@@ -370,9 +381,6 @@ void __dfsw_dump_json_output()
             //out["functions"].back()["loops"] = cf_params;
             //
 
-        functions_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
-        functions_mangled_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[i]);
-
         //dependencies *deps = __dfsw_EXTRAP_DEPS_FUNC(i);
         //for(int j = 0; j < deps->len; ++j) {
         //    uint16_t val = deps->deps[j];
@@ -389,8 +397,15 @@ void __dfsw_dump_json_output()
         //else
         //   out.erase( out.find("functions") );
     }
+
+    for(int i = 0; i < __EXTRAP_FUNCS_COUNT; ++i) {
+        functions_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
+        functions_mangled_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[i]);
+        functions_demangled_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_DEMANGLED_NAMES[i]);
+    }
     out["functions_names"] = std::move(functions_names);
     out["functions_mangled_names"] = std::move(functions_mangled_names);
+    out["functions_demangled_names"] = std::move(functions_demangled_names);
     std::cout << out.dump(2) << std::endl;
     delete &out;
     delete[] &__dfsw_json_get(0);
