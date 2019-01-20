@@ -142,49 +142,49 @@ std::vector<uint32_t> parse(const json_t & op, const json_t & all_params)
         const json_t ops = op["operands"];
         std::vector<uint32_t> params;
         for(const auto & v : ops) {
-            std::cout << "Process additive arg: " << v << '\n';
+            //std::cout << "Process additive arg: " << v << '\n';
             auto res = parse(v, all_params);
-            std::cout << "Process additive arg: " << v << " results: ";
+            //std::cout << "Process additive arg: " << v << " results: ";
             for(uint32_t val : res) {
-                std::cout << val << ' ';
+                //std::cout << val << ' ';
                 params.push_back(val);
             }
-            std::cout << '\n';
+            //std::cout << '\n';
         }
-        std::cout << "Process additive: " << ops << ' ' << params.size() << '\n';
+        //std::cout << "Process additive: " << ops << ' ' << params.size() << '\n';
         return params;
     } else if(op["dependency"] == "multiplicative") {
         const json_t ops = op["operands"];
         std::vector<uint32_t> params = parse(ops[0], all_params);
-        std::cout << "Process multiplicative arg: " << ops[0]  << " begin: ";
-        for(auto v : params)
-            std::cout << v << ' ';
-        std::cout << '\n';
+        //std::cout << "Process multiplicative arg: " << ops[0]  << " begin: ";
+        //for(auto v : params)
+        //    std::cout << v << ' ';
+        //std::cout << '\n';
         // TODO: remove duplicates
         for(int i = 1; i < ops.size(); ++i) {
            auto res = parse(ops[i], all_params);
            std::vector<uint32_t> new_params;
-            std::cout << "Process multiplicative arg: " << ops[i]  << " results: ";
+            //std::cout << "Process multiplicative arg: " << ops[i]  << " results: ";
             for(int i = 0; i < params.size(); ++i) {
                for(int j = 0; j < res.size(); ++j) {
                     uint32_t result = params[i] | res[j];
-                    std::cout << result << ' ';
+                    //std::cout << result << ' ';
                     new_params.push_back(result);
                }
             }
-            std::cout << '\n';
+            //std::cout << '\n';
             // if there is nothing beneath, don't override old results
             if(res.size() != 0)
                 params = std::move(new_params);
         }
-        std::cout << "Process mul: " << ops << ' ' << params.size() << '\n';
+        //std::cout << "Process mul: " << ops << ' ' << params.size() << '\n';
         return params;
     } else if(op["dependency"] == "unknown") {
         uint32_t res = 0;
-        std::cout << "Process unknown: " << op["operands"] << '\n';
+        //std::cout << "Process unknown: " << op["operands"] << '\n';
         for(const auto & v : op["operands"])
             res |= param_to_int(v, all_params);
-        std::cout << "Process unknown: " << op["operands"] << ' ' << res << '\n';
+        //std::cout << "Process unknown: " << op["operands"] << ' ' << res << '\n';
         return std::vector<uint32_t>{res};
     } else {
         assert(false);
@@ -207,7 +207,7 @@ void get_deps(json_t & loop, const json_t & params)
     {
         for(const auto & op : op_array)
         {
-            std::cout << "Op: " << op << '\n';
+            //std::cout << "Op: " << op << '\n';
             std::vector<uint32_t> results = parse(op, params);
             for(uint32_t v : results)
             {
@@ -251,7 +251,7 @@ json_t convert(json_t & input)
     json_t & functions_output = output["functions"];
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
-        std::cout << "Name: " << it.key() << '\n';
+        //std::cout << "Name: " << it.key() << '\n';
         const json_t & loops = it.value()["loops"];
         // callstack -> list of loops
         std::map<json_t, set_t> aggregated_callstacks;
