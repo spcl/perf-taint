@@ -207,7 +207,7 @@ void __dfsw_json_loop_committed(json_t * loop)
     nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len - 1];
 }
 
-bool __dfsw_json_write_loop(int function_idx, int loop_idx)
+bool __dfsw_json_write_loop(int function_idx)
 {
     std::vector<json_t> params;
     //printf("Func: %d Dep %d Offset %d\n", i, loop_depth, deps_offset);
@@ -217,34 +217,41 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
     int32_t * loop_data = &__EXTRAP_LOOPS_SIZES_PER_FUNC[
         __EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[function_idx]
     ];
+    // three integers for each top-lop
+    int loop_count = (__EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[function_idx + 1 ]
+            - __EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[function_idx]) / 3;
     int deps_offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
     size_t structure_offset =
         __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
-    // Accumulate offsets and skip data related to previous loops
-    for(int i = 0; i < loop_idx; ++i) {
+    int32_t * loop_structure = &__EXTRAP_LOOPS_STRUCTURE_PER_FUNC[
+            structure_offset
+        ];
+    json_t output;
+
+    for(int loop_idx = 0; loop_idx < loop_count; ++loop_idx) {
+
+        int32_t loop_depth = loop_data[0];
         int32_t structure_entries = loop_data[1];
         int32_t number_of_loops = loop_data[2];
-        structure_offset += structure_entries;
-        deps_offset += number_of_loops;
+        //fprintf(stderr, "LoopIdx %d Offset deps %d Offset struct %d\n", loop_idx, deps_offset, structure_offset);
+        //std::cout << __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx] << " " <<  __EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[function_idx] << '\n';
+        dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
+        json_t loop = __dfsw_json_write_loop(function_idx, loop_data, loop_structure, deps);
+        if(!loop.empty()) {
+            output[std::to_string(loop_idx)] = loop;
+        }
+        // finish previous loop
         loop_data += 3;
+        loop_structure += structure_entries;
+        deps_offset += number_of_loops;
     }
-    int32_t loop_depth = loop_data[0];
-    int32_t structure_entries = loop_data[1];
-    //fprintf(stderr, "LoopIdx %d Offset deps %d Offset struct %d\n", loop_idx, deps_offset, structure_offset);
-    int32_t * loop_structure = &__EXTRAP_LOOPS_STRUCTURE_PER_FUNC[
-        structure_offset
-    ];
-    //std::cout << __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx] << " " <<  __EXTRAP_LOOPS_SIZES_PER_FUNC_OFFSETS[function_idx] << '\n';
-    dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
-    json_t loop = __dfsw_json_write_loop(function_idx, loop_data, loop_structure, deps);
-    if(!loop.empty()) {
+
+    if(!output.empty()) {
         json_t * func = &__dfsw_json_get(function_idx);
-        json_t & prev_loops = (*func)["loops"][std::to_string(loop_idx)];
-        //std::cout << dependency << '\n';
+        json_t & prev_loops = (*func)["loops"];
         bool found = false;
         for(json_t & prev : prev_loops) {
-            //std::cout << prev << '\n';
-            if(prev["instance"] == loop) {
+            if(prev["instance"] == output) {
                 found = true;
                 bool callstack_found = false;
                 json_t callstack;
@@ -270,13 +277,19 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
                 callstack.push_back( __EXTRAP_CALLSTACK.stack[i] );
             json_t instance;
             instance["callstacks"].push_back(callstack);
-            instance["instance"] = loop;
-            //std::cerr << instance << " " << prev_loops << '\n';
-            //
+            instance["instance"] = output;
+            ////std::cerr << instance << " " << prev_loops << '\n';
+            ////
+            //std::cout << instance << std::endl;
+            //std::cout << *func << std::endl;
+            //std::cout << function_idx << std::endl;
+            //std::cout << prev_loops << std::endl;
             __dfsw_json_loop_committed(&instance);
             prev_loops.push_back(instance);
         }
     }
+
+
     return non_empty;
     //if(filled > 1) {
     //    cf_params.push_back(std::move(params));
@@ -289,22 +302,38 @@ bool __dfsw_json_write_loop(int function_idx, int loop_idx)
     //}
 }
 
-bool __dfsw_json_loop_is_important(json_t & loop)
+bool __dfsw_json_loop_is_important(json_t & loop_set)
 {
-    bool important = loop.find("params") != loop.end();
-    auto subloops_it = loop.find("loops");
-    if(subloops_it == loop.end()) {
-        if(!important)
-            return false;
-    } else {
-        for(auto & loop : *subloops_it) {
-            if(__dfsw_json_loop_is_important(loop))
-                return true;
+    bool global_important = false;
+    for(auto it = loop_set.begin(), end = loop_set.end(); it != end; ++it) {
+        json_t & loop  = it.value();
+        bool important = loop.find("params") != loop.end();
+        auto subloops_it = loop.find("loops");
+        if(subloops_it == loop.end()) {
+            //it is not important! move to next loop
+            if(!important)
+                continue;
         }
-        // subloops exist but they are not important
-        loop.erase("loops");
+        // visit subloops
+        else {
+            bool subloops_important = __dfsw_json_loop_is_important(*subloops_it);
+            //for(auto & l : *subloops_it) {
+            //    // important subloop.
+            //    // don't leave the function since we want to erase
+            //    // empty subloops elsewhere
+            //    if(__dfsw_json_loop_is_important(l)) {
+            //        subloops_important = true;
+            //        break;
+            //    }
+            //}
+            //// subloops exist but they are not important
+            if(!subloops_important)
+                loop.erase("loops");
+            important |= subloops_important;
+        }
+        global_important |= important;
     }
-    return important;
+    return global_important;
 }
 
 bool __dfsw_json_is_important(json_t & json)
@@ -312,12 +341,20 @@ bool __dfsw_json_is_important(json_t & json)
     json_t & loops = json["loops"];
     if(loops.empty())
         return false;
+    bool important = false;
+    size_t idx = 0;
+    std::vector<size_t> entries_to_remove;
     for(auto & loop : loops) {
-        for(auto & l : loop)
-            if(__dfsw_json_loop_is_important(l["instance"]))
-                return true;
+        // don't leave - important but continue pruning
+        if(__dfsw_json_loop_is_important(loop["instance"]))
+            important = true;
+        else
+            entries_to_remove.push_back(idx);
+        ++idx;
     }
-    return false;
+    for(size_t v : entries_to_remove)
+        loops.erase(v);
+    return important;
 }
 
 void __dfsw_dump_json_output()

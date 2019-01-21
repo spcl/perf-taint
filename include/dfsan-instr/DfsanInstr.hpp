@@ -264,6 +264,7 @@ namespace extrap {
                 FuncIter begin, FuncIter end,
                 FuncIter2 not_instr_begin, FuncIter2 not_instr_end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
+        void commitLoops(llvm::Function &, int function_idx);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
         void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);

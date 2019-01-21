@@ -4,15 +4,15 @@
       "file": "tests/dfsan-instr/nested_loop.cpp",
       "func_idx": 1,
       "line": 18,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -21,22 +21,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z15perf_nest_quadrii": {
       "file": "tests/dfsan-instr/nested_loop.cpp",
       "func_idx": 3,
       "line": 38,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -54,14 +54,16 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -80,22 +82,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z16perf_nest_linearii": {
       "file": "tests/dfsan-instr/nested_loop.cpp",
       "func_idx": 2,
       "line": 28,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -103,20 +105,17 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1
-                }
-              },
               "params": [
                 [
                   "x2"
@@ -124,22 +123,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z24perf_nest_multiple_quadrii": {
       "file": "tests/dfsan-instr/nested_loop.cpp",
       "func_idx": 4,
       "line": 49,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -159,8 +158,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [

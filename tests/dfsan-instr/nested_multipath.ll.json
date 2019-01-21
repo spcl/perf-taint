@@ -4,15 +4,15 @@
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 0,
       "line": 10,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -21,22 +21,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z11nest_tripleii": {
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 3,
       "line": 82,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -87,14 +87,16 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -133,15 +135,17 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                6,
-                4
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -186,22 +190,22 @@
               }
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z11three_loopsii": {
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 5,
       "line": 165,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -218,17 +222,8 @@
                   "x1"
                 ]
               ]
-            }
-          }
-        ],
-        "1": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+            },
+            "1": {
               "level": 0,
               "loops": {
                 "0": {
@@ -264,50 +259,31 @@
                   "x1"
                 ]
               ]
+            },
+            "2": {
+              "level": 0
             }
           }
-        ],
-        "2": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "loops": {
-                    "0": {
-                      "level": 2
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
+        }
+      ]
     },
     "_Z12nest_partialii": {
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 1,
       "line": 22,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ],
-              [
-                6,
-                5
-              ]
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
             ],
-            "instance": {
+            [
+              6,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -338,22 +314,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z18double_nest_tripleii": {
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 4,
       "line": 109,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -419,17 +395,8 @@
                   "x1"
                 ]
               ]
-            }
-          }
-        ],
-        "1": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+            },
+            "1": {
               "level": 0,
               "loops": {
                 "0": {
@@ -481,22 +448,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z19double_nest_partialii": {
       "file": "tests/dfsan-instr/nested_multipath.cpp",
       "func_idx": 2,
       "line": 44,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -525,17 +492,8 @@
                   "x1"
                 ]
               ]
-            }
-          }
-        ],
-        "1": [
-          {
-            "callstacks": [
-              [
-                6
-              ]
-            ],
-            "instance": {
+            },
+            "1": {
               "level": 0,
               "loops": {
                 "0": {
@@ -566,8 +524,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [

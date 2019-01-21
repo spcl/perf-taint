@@ -178,9 +178,9 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 //    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
 //}
 
-void __dfsw_EXTRAP_COMMIT_LOOP(int32_t loop_idx, int32_t function_idx)
+void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx)
 {
-    __dfsw_json_write_loop(function_idx, loop_idx);
+    __dfsw_json_write_loop(function_idx);
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t function_idx)

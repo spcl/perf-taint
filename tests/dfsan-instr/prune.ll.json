@@ -4,25 +4,15 @@
       "file": "tests/dfsan-instr/prune.cpp",
       "func_idx": 2,
       "line": 45,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
-              "level": 0
-            }
-          },
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -32,42 +22,27 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z11g_not_prunei": {
       "file": "tests/dfsan-instr/prune.cpp",
       "func_idx": 1,
       "line": 26,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4,
-                7
-              ],
-              [
-                4,
-                2
-              ]
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4,
+              7
             ],
-            "instance": {
-              "level": 0
-            }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7
-              ],
-              [
-                4,
-                2
-              ]
-            ],
-            "instance": {
+            [
+              4,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -77,29 +52,29 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z1hi": {
       "file": "tests/dfsan-instr/prune.cpp",
       "func_idx": 0,
       "line": 12,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4,
-                7,
-                6
-              ],
-              [
-                4,
-                2,
-                6
-              ]
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4,
+              7,
+              6
             ],
-            "instance": {
+            [
+              4,
+              2,
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -107,21 +82,23 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7,
-                1
-              ],
-              [
-                4,
-                2,
-                1
-              ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              7,
+              1
             ],
-            "instance": {
+            [
+              4,
+              2,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -129,36 +106,23 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7
-              ],
-              [
-                4,
-                2
-              ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              7,
+              6
             ],
-            "instance": {
-              "level": 0
-            }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7,
-                6
-              ],
-              [
-                4,
-                2,
-                6
-              ]
-            ],
-            "instance": {
+            [
+              4,
+              2,
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -167,21 +131,23 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7,
-                1
-              ],
-              [
-                4,
-                2,
-                1
-              ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              7,
+              1
             ],
-            "instance": {
+            [
+              4,
+              2,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -191,19 +157,21 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4,
-                7
-              ],
-              [
-                4,
-                2
-              ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              7
             ],
-            "instance": {
+            [
+              4,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -213,8 +181,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [

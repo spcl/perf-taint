@@ -112,8 +112,6 @@ namespace extrap {
 
         for(llvm::Function & f : m)
         {
-            //for(llvm::Use & use : f.uses())
-            //    llvm::outs() << use << '\n';
             if(instrumented_functions.find(&f) == instrumented_functions.end())
                 runOnFunction(f);
         }
@@ -203,7 +201,6 @@ namespace extrap {
             if(counter == -1) {
                 // when overriding, only the parent function matters
                 // don't insert name in such case
-                //llvm::errs() << f.getName() << '\n';
                 parent_functions.push_back(&f);
                 // when not overriding, get the current counter and update
                 counter = instrumented_functions_counter;
@@ -378,17 +375,11 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
-        // don't add overidden functions to callstack
-        if(!func.is_overriden())
-            instr.enterFunction(f, func);
-
         int loop_idx = 0, nested_loop_idx = 0;
         call_vec_t calls;
-        llvm::errs() << f.getName() << '\n';
         for(llvm::Loop * l : *linfo) {
             calls.clear();
             instrumentLoop(func, *l, nested_loop_idx, calls, instr);
-            instr.commitLoop(*l, func.function_idx(), loop_idx);
 
             size_t calls_count = calls.size();
             for(auto & call: calls) {
@@ -401,6 +392,13 @@ namespace extrap {
             nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             loop_idx++;
         }
+        // Leaving order:
+        // 1) commit loops
+        // 2) pop the function from callstack
+        instr.commitLoops(f, func.function_idx());
+        // don't add overidden functions to callstack
+        if(!func.is_overriden())
+            instr.enterFunction(f, func);
 
         //int labels = 0;
         //for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
@@ -429,7 +427,6 @@ namespace extrap {
     bool DfsanInstr::is_analyzable(llvm::Module & m, llvm::Function & f)
     {
         llvm::Function * in_module = m.getFunction(f.getName());
-        llvm::errs() << "IsAnalyzable: " << f.getName() << " " << (f.isDeclaration() || !in_module) << '\n';
         if(f.isDeclaration() || !in_module) {
             unknown << f.getName().str() << '\n';
             return false;
@@ -461,8 +458,6 @@ namespace extrap {
         int not_instr_functions_count = std::distance(not_instr_begin,
                 not_instr_end);
         std::vector<Function*> functions(functions_count);
-        //for(auto & f : funcs_names)
-        //    llvm::errs() << "Name: " << f->getName() << '\n';
         params_count = Parameters::parameters_count();
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -997,9 +992,17 @@ namespace extrap {
         for(llvm::BasicBlock * bb : exit_blocks) {
             builder.SetInsertPoint(&bb->front());
             builder.CreateCall(commit_loop_function,
-                { builder.getInt32(loop_idx), builder.getInt32(func_idx)}
-                );
+                {builder.getInt32(func_idx)}
+            );
         }
+    }
+
+    void Instrumenter::commitLoops(llvm::Function & f, int func_idx)
+    {
+        builder.SetInsertPoint( &f.back().back() );
+        builder.CreateCall(commit_loop_function,
+            {builder.getInt32(func_idx)}
+        );
     }
 
     void Instrumenter::instrumentLoopCall(llvm::Loop & l, llvm::CallBase * call,
@@ -1102,8 +1105,7 @@ namespace extrap {
         load_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
 
         // __EXTRAP_COMMIT_LOOP(loop_idx, function_idx)
-        func_t = llvm::FunctionType::get(void_t,
-                {idx_t, idx_t}, false);
+        func_t = llvm::FunctionType::get(void_t, {idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_COMMIT_LOOP", func_t);
         commit_loop_function = m.getFunction("__dfsw_EXTRAP_COMMIT_LOOP");
         assert(commit_loop_function);

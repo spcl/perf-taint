@@ -4,15 +4,15 @@
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 0,
       "line": 9,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -24,23 +24,23 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z1hi": {
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 1,
       "line": 17,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4,
-                3
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4,
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -48,14 +48,16 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -63,33 +65,23 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
-              "level": 0
-            }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z1iiii": {
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 2,
       "line": 30,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                4
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -99,8 +91,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [

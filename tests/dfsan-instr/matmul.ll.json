@@ -4,15 +4,15 @@
       "file": "tests/dfsan-instr/matmul.c",
       "func_idx": 0,
       "line": 17,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                2
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -21,14 +21,16 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                2
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -38,22 +40,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "mat_mul": {
       "file": "tests/dfsan-instr/matmul.c",
       "func_idx": 1,
       "line": 31,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                2
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "loops": {
                 "0": {
@@ -82,8 +84,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [

@@ -4,15 +4,15 @@
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "func_idx": 0,
       "line": 32,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                5
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -22,22 +22,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z1gii": {
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "func_idx": 1,
       "line": 42,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                5
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -46,14 +46,16 @@
                 ]
               ]
             }
-          },
-          {
-            "callstacks": [
-              [
-                5
-              ]
-            ],
-            "instance": {
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -62,22 +64,22 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     },
     "_Z1hP4test": {
       "file": "tests/dfsan-instr/multiple_deps.cpp",
       "func_idx": 2,
       "line": 52,
-      "loops": {
-        "0": [
-          {
-            "callstacks": [
-              [
-                5
-              ]
-            ],
-            "instance": {
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -87,8 +89,8 @@
               ]
             }
           }
-        ]
-      }
+        }
+      ]
     }
   },
   "functions_demangled_names": [
