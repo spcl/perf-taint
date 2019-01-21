@@ -60,3 +60,9 @@ config.substitutions.append( ('%omplink',
     '%s/libiomp5.a' % config.llvm_dir2
     )
 )
+
+config.substitutions.append( ('%jsonconvert',
+    config.lib_dir
+    + '/JSONConverter'
+    )
+)

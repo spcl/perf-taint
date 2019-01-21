@@ -38,10 +38,13 @@ json_t convert_loop(const json_t & loop)
     if(subloops != loop.end()) {
         for(auto it = subloops->begin(), end = subloops->end(); it != end; ++it) {
             //std::cout << it.key() << ' ' << it.value() << '\n';
+            //std::cout << "Convert: " << it.value() << '\n';
             additive_layers.push_back( convert_loop(it.value()) );
+            //std::cout << "Converted: " << additive_layers.back() << '\n';
         }
     }
     auto it = loop.find("params");
+    //std::cout << "Properconvert: " << loop << " " << additive_layers.size() << '\n';
     if(it != loop.end()) {
         json_t params = convert_params(*it);
         // no additional dependency
@@ -94,19 +97,20 @@ json_t convert_loop(const json_t & loop)
 }
 
 
-json_t convert_loop_set(set_t & loop_set)
+json_t convert_loop_set(const json_t & loop_set)
 {
     json_t output;
     output["dependency"] = "additive";
     json_t & deps = output["operands"];
-    for(auto & val : loop_set)
+    for(auto it = loop_set.begin(), end = loop_set.end(); it != end; ++it)
     {
         // TODO : change when we get sequence of loops comitted at instance
-        json_t dep;
-        for(auto v : val.second) {
-            dep.push_back(convert_loop(*v));
-        }
-        deps.push_back(dep);
+        //json_t dep;
+        //for(auto v : it.value()) {
+        //dep.push_back(convert_loop(*v));
+        //}
+        //deps.push_back(dep);
+        deps.push_back(convert_loop(it.value()));
     }
 
     return output;
@@ -195,7 +199,7 @@ void get_deps(json_t & out, json_t & loop, const json_t & params)
 {
     // pessimistic implementation - each unknown is multiplication
     // TODO : change when we get sequence of loops comitted at instance
-    json_t & ops = loop["operands"];
+    //json_t & ops = loop["operands"];
     json_t & deps = out["deps"];
     std::set<uint32_t> dependencies;
     json_t & not_found_params = out["not_found_params"];
@@ -203,18 +207,25 @@ void get_deps(json_t & out, json_t & loop, const json_t & params)
     // TODO: nested array, shouldn't be here
     // right now we have have a list of loops and for each one list of instances
     // this should be a list of instances where each one is additive instance
-    for(const auto & op_array : ops)
+    //std::cout << "Op: " << ops << '\n';
+    //for(const auto & op_array : ops)
+    //{
+    //    std::cout << "Op: " << op_array << '\n';
+    //    for(const auto & op : op_array)
+    //    {
+    //        std::vector<uint32_t> results = parse(op, params);
+    //        for(uint32_t v : results)
+    //        {
+    //            aggregation |= v;
+    //            dependencies.insert(v);
+    //        }
+    //    }
+    //}
+    std::vector<uint32_t> loop_data = parse(loop, params);
+    for(uint32_t v : loop_data)
     {
-        for(const auto & op : op_array)
-        {
-            //std::cout << "Op: " << op << '\n';
-            std::vector<uint32_t> results = parse(op, params);
-            for(uint32_t v : results)
-            {
-                aggregation |= v;
-                dependencies.insert(v);
-            }
-        }
+        aggregation |= v;
+        dependencies.insert(v);
     }
     for(int i = 0; i < params.size(); ++i)
         if(!(aggregation & (1 << i)))
@@ -249,41 +260,98 @@ json_t convert(json_t & input)
 
     json_t & functions = input["functions"];
     json_t & functions_output = output["functions"];
+    json_t & params = output["parameters"];
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         //std::cout << "Name: " << it.key() << '\n';
-        const json_t & loops = it.value()["loops"];
+        json_t & loops = it.value()["loops"];
         // callstack -> list of loops
-        std::map<json_t, set_t> aggregated_callstacks;
-        for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
-            std::string loop_idx = it.key();
-            const auto & loop_instances = it.value();
-            for(auto & loop_instance : loop_instances) {
-                const auto & callstacks = loop_instance["callstacks"];
-                for(const auto & callstack : callstacks) {
-                    //std::cout << callstack << '\n';
-                    auto find = aggregated_callstacks.find(callstack);
-                    if(find != aggregated_callstacks.end()) {
-                        (*find).second[loop_idx].push_back(&loop_instance["instance"]);
-                    } else {
-                        aggregated_callstacks[callstack][loop_idx] =
-                            std::vector<const json_t*>{1, &loop_instance["instance"]};
-                    }
-                }
-            }
-        }
+        //std::map<json_t, set_t> aggregated_callstacks;
+        //for(const auto & loop_instances : loops) {
+        ////for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
+        //    //std::string loop_idx = it.key();
+        //    //const auto & loop_instances = it.value();
+        //    for(auto & loop_instance : loop_instances) {
+        //        const auto & callstacks = loop_instance["callstacks"];
+        //        for(const auto & callstack : callstacks) {
+        //            //std::cout << callstack << '\n';
+        //            auto find = aggregated_callstacks.find(callstack);
+        //            if(find != aggregated_callstacks.end()) {
+        //                (*find).second[loop_idx].push_back(&loop_instance["instance"]);
+        //            } else {
+        //                aggregated_callstacks[callstack][loop_idx] =
+        //                    std::vector<const json_t*>{1, &loop_instance["instance"]};
+        //            }
+        //        }
+        //    }
+        //}
 
+        std::map<json_t, std::tuple<json_t, std::vector<uint32_t>> > aggregated_callstacks;
         json_t new_loops;
-        for(auto & callstack : aggregated_callstacks) {
-            json_t instance;
-            instance["callstack"] = callstack.first;
+        for(auto & callstack : loops) {//aggregated_callstacks) {
+            json_t & callstack_data = callstack["callstacks"];
+            json_t converted = convert_loop_set(callstack["instance"]);
+            std::vector<uint32_t> loop_data = parse(converted, params);
+            auto it = aggregated_callstacks.find(callstack_data);
+            if(it != aggregated_callstacks.end()) {
+                std::get<0>((*it).second)["data"].push_back(std::move(converted));
+                for(uint32_t v : loop_data)
+                    std::get<1>((*it).second).push_back(v);
+            } else {
+                json_t instance;
+                instance["callstack"] = callstack_data;
+                instance["data"].push_back(std::move(converted));
+                aggregated_callstacks[callstack_data] =
+                    std::make_tuple(std::move(instance), std::move(loop_data));
+            }
+             //callstack.first;
             //std::cout << "Start data: " << callstack.second << '\n';
-            instance["data"] = convert_loop_set(callstack.second);
-            get_deps(instance, instance["data"], output["parameters"]);
-            new_loops.push_back(std::move(instance));
+            //get_deps(instance, instance["data"], output["parameters"]);
+            //new_loops.push_back(std::move(instance));
         }
 
         json_t function;
+        std::set<uint32_t> dependencies;
+        json_t & deps = function["deps"];
+        json_t & not_found_params = function["not_found_params"];
+        uint32_t aggregation = 0;
+        for(auto & v : aggregated_callstacks) {
+            for(uint32_t v : std::get<1>(v.second))
+            {
+                aggregation |= v;
+                dependencies.insert(v);
+            }
+            new_loops.push_back( std::move(std::get<0>(v.second)) );
+        }
+        for(int i = 0; i < params.size(); ++i)
+            if(!(aggregation & (1 << i)))
+               not_found_params.push_back(params[i]);
+        for(auto v : dependencies)
+        {
+            json_t dependency;
+            for(int i = 0; i < params.size(); ++i)
+                if(v & (1 << i))
+                    dependency.push_back(params[i]);
+            deps.push_back( std::move(dependency) );
+        }
+        // TODO: nested array, shouldn't be here
+        // right now we have have a list of loops and for each one list of instances
+        // this should be a list of instances where each one is additive instance
+        //std::cout << "Op: " << ops << '\n';
+        //for(const auto & op_array : ops)
+        //{
+        //    std::cout << "Op: " << op_array << '\n';
+        //    for(const auto & op : op_array)
+        //    {
+        //        std::vector<uint32_t> results = parse(op, params);
+        //        for(uint32_t v : results)
+        //        {
+        //            aggregation |= v;
+        //            dependencies.insert(v);
+        //        }
+        //    }
+        //}
+
         function["loops"] = std::move(new_loops);
         for(const auto & key : to_copy_local) {
             function[key] = std::move(it.value()[key]);

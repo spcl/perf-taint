@@ -1,4 +1,5 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 | diff -w %s.json -
+; RUN: %jsonconvert %s.json | diff -w %s.processed.json -
 
 ; ModuleID = 'tests/dfsan-instr/multiple_deps.cpp'
 source_filename = "tests/dfsan-instr/multiple_deps.cpp"

@@ -8,7 +8,7 @@
         {
           "callstacks": [
             [
-              8
+              7
             ]
           ],
           "instance": {
@@ -30,12 +30,12 @@
     "_ZN4Grid8update_yEd": {
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
       "func_idx": 2,
-      "line": 52,
+      "line": 49,
       "loops": [
         {
           "callstacks": [
             [
-              8
+              7
             ]
           ],
           "instance": {
@@ -59,9 +59,9 @@
     "Grid::update_data(double)",
     "Grid::update_z(double)",
     "Grid::~Grid()",
-    "Grid::Grid(int, int, int)",
     "void register_variable<int>(int*, char const*)",
-    "main"
+    "main",
+    "Grid::Grid(int, int, int)"
   ],
   "functions_mangled_names": [
     "_ZN4Grid11update_gridEd",
@@ -70,9 +70,9 @@
     "_ZN4Grid11update_dataEd",
     "_ZN4Grid8update_zEd",
     "_ZN4GridD2Ev",
-    "_ZN4GridC2Eiii",
     "_Z17register_variableIiEvPT_PKc",
-    "main"
+    "main",
+    "_ZN4GridC2Eiii"
   ],
   "functions_names": [
     "update_grid",
@@ -81,9 +81,9 @@
     "update_data",
     "update_z",
     "~Grid",
-    "Grid",
     "register_variable<int>",
-    "main"
+    "main",
+    "Grid"
   ],
   "parameters": [
     "size_x",
@@ -93,7 +93,7 @@
     "_ZN4Grid11update_dataEd": {
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
       "func_idx": 3,
-      "line": 40
+      "line": 44
     },
     "_ZN4Grid15update_constantEd": {
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
@@ -103,7 +103,7 @@
     "_ZN4Grid8update_zEd": {
       "file": "tests/dfsan-instr/cpp_class_openmp.cpp",
       "func_idx": 4,
-      "line": 57
+      "line": 60
     }
   }
 }
