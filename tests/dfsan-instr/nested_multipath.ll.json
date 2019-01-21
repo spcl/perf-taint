@@ -1,8 +1,8 @@
 {
   "functions": {
     "_Z10nest_constii": {
-      "dbg_name": "nest_const",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 0,
       "line": 10,
       "loops": {
         "0": [
@@ -25,8 +25,8 @@
       }
     },
     "_Z11nest_tripleii": {
-      "dbg_name": "nest_triple",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 3,
       "line": 82,
       "loops": {
         "0": [
@@ -190,8 +190,8 @@
       }
     },
     "_Z11three_loopsii": {
-      "dbg_name": "three_loops",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 5,
       "line": 165,
       "loops": {
         "0": [
@@ -292,8 +292,8 @@
       }
     },
     "_Z12nest_partialii": {
-      "dbg_name": "nest_partial",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 1,
       "line": 22,
       "loops": {
         "0": [
@@ -342,8 +342,8 @@
       }
     },
     "_Z18double_nest_tripleii": {
-      "dbg_name": "double_nest_triple",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 4,
       "line": 109,
       "loops": {
         "0": [
@@ -485,8 +485,8 @@
       }
     },
     "_Z19double_nest_partialii": {
-      "dbg_name": "double_nest_partial",
       "file": "tests/dfsan-instr/nested_multipath.cpp",
+      "func_idx": 2,
       "line": 44,
       "loops": {
         "0": [

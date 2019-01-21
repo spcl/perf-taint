@@ -55,7 +55,7 @@ static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
                                        llvm::cl::value_desc("filename"));
 
 namespace extrap {
- 
+
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
@@ -107,6 +107,7 @@ namespace extrap {
         assert(main);
 
         // TODO: why is main treated differently?
+        // why is main not inserted?
         bool is_important = runOnFunction(*main);
 
         for(llvm::Function & f : m)
@@ -114,14 +115,13 @@ namespace extrap {
             //for(llvm::Use & use : f.uses())
             //    llvm::outs() << use << '\n';
             if(instrumented_functions.find(&f) == instrumented_functions.end())
-                if(!runOnFunction(f)) {
-                    if(is_analyzable(m, f))
-                        notinstrumented_functions.push_back(&f);
-                }
+                runOnFunction(f);
         }
 
         // TODO: merge this into a single collection
         for(auto & t : instrumented_functions) {
+            // For each unimportant function, add it to a database
+            // for callstack generation
             if(!t.second.hasValue()) {
                 notinstrumented_functions.push_back(t.first);
             }
@@ -203,7 +203,7 @@ namespace extrap {
             if(counter == -1) {
                 // when overriding, only the parent function matters
                 // don't insert name in such case
-                llvm::errs() << f.getName() << '\n';
+                //llvm::errs() << f.getName() << '\n';
                 parent_functions.push_back(&f);
                 // when not overriding, get the current counter and update
                 counter = instrumented_functions_counter;
@@ -213,7 +213,14 @@ namespace extrap {
             instrumented_functions[&f] =
                 llvm::Optional<Function>(Function(counter, overriden));
         } else {
-            instrumented_functions[&f] = llvm::Optional<Function>();
+            // Insert information that function is overriden by a parent
+            if(counter != -1) {
+                instrumented_functions[&f] =
+                    llvm::Optional<Function>(Function(counter, true));
+            }
+            // Insert information that function is processed and unimportant
+            else
+                instrumented_functions[&f] = llvm::Optional<Function>();
             stats.empty_function();
         }
     }
@@ -280,7 +287,7 @@ namespace extrap {
         // TODO: handle instrumentation of unknown functions
         if(!is_analyzable(*m, f))
             return false;
-        auto it = instrumented_functions.find(&f) ;
+        auto it = instrumented_functions.find(&f);
         if(it != instrumented_functions.end())
             return (*it).second.hasValue();
         stats.found_function();
@@ -290,7 +297,6 @@ namespace extrap {
         for(auto & param : parameters.locals) {
             found_params.push_back(param);
         }
-
         bool is_important = analyzeFunction(f, override_counter);
         for(auto & callsite : *f_node)
         {
@@ -311,16 +317,41 @@ namespace extrap {
     }
 
     void DfsanInstr::instrumentLoop(Function & func, llvm::Loop & l,
-            int nested_loop_idx, Instrumenter & instr)
+            int nested_loop_idx, call_vec_t & calls, Instrumenter & instr)
     {
         typedef std::vector<llvm::Loop*> loops_t;
         loops_t buf_first{1, &l}, buf_second;
 
         loops_t * cur_loops = &buf_first, * next_loops = &buf_second;
+        int internal_nested_index = 0;
 
         while(!cur_loops->empty()) {
 
             for(llvm::Loop * l : *cur_loops) {
+
+                llvm::SmallSet<llvm::BasicBlock*, 20> subloops_bb;
+                auto & subloops = l->getSubLoops();
+                for(llvm::Loop * subloop : subloops) {
+                    for(llvm::BasicBlock * bb : subloop->blocks())
+                        subloops_bb.insert(bb);
+                }
+
+                call_vec_t calls_in_this_loop;
+                for(llvm::BasicBlock * bb : l->blocks()) {
+                    // loop basic block that is not a part of subloop
+                    if(!subloops_bb.count(bb)) {
+                        for(llvm::Instruction & inst : *bb) {
+                            // call!
+                            if(llvm::CallBase * call =
+                                    llvm::dyn_cast<llvm::CallBase>(&inst)) {
+                                // TODO: optimize by checking if this call could
+                                // produce any loop - in case we know function
+                                calls.emplace_back(call, internal_nested_index,
+                                        subloops.size());
+                            }
+                        }
+                    }
+                }
 
                 llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
                 l->getExitingBlocks(exit_blocks);
@@ -333,7 +364,7 @@ namespace extrap {
                     }
                 }
                 nested_loop_idx++;
-                auto & subloops = l->getSubLoops();
+                internal_nested_index++;
                 std::copy(subloops.begin(), subloops.end(), std::back_inserter(*next_loops));
             }
             std::swap(cur_loops, next_loops);
@@ -352,12 +383,25 @@ namespace extrap {
             instr.enterFunction(f, func);
 
         int loop_idx = 0, nested_loop_idx = 0;
+        call_vec_t calls;
+        llvm::errs() << f.getName() << '\n';
         for(llvm::Loop * l : *linfo) {
-            instrumentLoop(func, *l, nested_loop_idx, instr);
+            calls.clear();
+            instrumentLoop(func, *l, nested_loop_idx, calls, instr);
             instr.commitLoop(*l, func.function_idx(), loop_idx);
+
+            size_t calls_count = calls.size();
+            for(auto & call: calls) {
+                //register and set current id before each call
+                instr.instrumentLoopCall(*l, std::get<0>(call),
+                        std::get<1>(call), std::get<2>(call));
+            }
+            instr.removeLoopCalls(*l, calls_count);
+
             nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             loop_idx++;
         }
+
         //int labels = 0;
         //for(auto i = llvm::inst_begin(&f), end = llvm::inst_end(&f); i != end; ++i)
         //{
@@ -385,6 +429,7 @@ namespace extrap {
     bool DfsanInstr::is_analyzable(llvm::Module & m, llvm::Function & f)
     {
         llvm::Function * in_module = m.getFunction(f.getName());
+        llvm::errs() << "IsAnalyzable: " << f.getName() << " " << (f.isDeclaration() || !in_module) << '\n';
         if(f.isDeclaration() || !in_module) {
             unknown << f.getName().str() << '\n';
             return false;
@@ -397,8 +442,7 @@ namespace extrap {
         int status = 0;
         char * demangled_name =
             abi::__cxa_demangle(name.data(), 0, 0, &status);
-        std::string str_name;
-        if(status == 0)
+        std::string str_name; if(status == 0)
             str_name = demangled_name;
         else if(status == -2)
             str_name = name;
@@ -958,11 +1002,51 @@ namespace extrap {
         }
     }
 
+    void Instrumenter::instrumentLoopCall(llvm::Loop & l, llvm::CallBase * call,
+            uint16_t nested_loop_idx, uint16_t loop_size)
+    {
+        //llvm::BasicBlock * header = l.getHeader();
+        //assert(header);
+        //std::vector< std::tuple<llvm::Value*, llvm::BasicBlock*> > values;
+        //for(auto it = pred_begin(header), end = pred_end(header); it != end; ++it)
+        //{
+        //    // exclude interna blocks going back to the header
+        //    if( l.contains(*it) )
+        //        continue;
+        //    builder.SetInsertPoint( &(*it)->back() );
+        //    llvm::Value * idx = builder.CreateCall(register_call_function,
+        //            {builder.getInt16(nested_loop_idx), builder.getInt16(loop_size)}
+        //        );
+        //    llvm::errs() << idx << " " << *idx->getType() << " " << *it << '\n';
+        //    values.push_back( std::make_tuple(idx, *it) );
+        //}
+        //builder.SetInsertPoint(call);
+        //llvm::PHINode * phi = builder.CreatePHI(builder.getInt16Ty(),
+        //        values.size());
+        //for(auto & t : values)
+        //    phi->addIncoming( std::get<0>(t), std::get<1>(t) );
+        //builder.CreateCall(current_call_function, {phi});
+    }
+
+    void Instrumenter::removeLoopCalls(llvm::Loop & l, size_t size)
+    {
+        //llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
+        //l.getExitBlocks(exit_blocks);
+        //for(llvm::BasicBlock * bb : exit_blocks) {
+        //    // after loop commit
+        //    builder.SetInsertPoint(&bb->back());
+        //    builder.CreateCall(remove_calls_function,
+        //        { builder.getInt16(size)}
+        //        );
+        //}
+    }
+
     void Instrumenter::declareFunctions()
     {
         llvm::Type * void_t = builder.getVoidTy();
         llvm::Type * int8_ptr = builder.getInt8PtrTy();
         llvm::Type * idx_t = builder.getInt32Ty();
+        llvm::Type * i16_t = builder.getInt16Ty();
         llvm::FunctionType * func_t = nullptr;
 
         //// void check_load(int8_t *, int32_t, int32_t)
@@ -1036,6 +1120,24 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION", func_t);
         pop_function = m.getFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION");
         assert(pop_function);
+
+        // uint16_t __dfsw_EXTRAP_REGISTER_CALL(uint16_t, uint16_t);
+        func_t = llvm::FunctionType::get(i16_t, {i16_t, i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_REGISTER_CALL", func_t);
+        register_call_function = m.getFunction("__dfsw_EXTRAP_REGISTER_CALL");
+        assert(register_call_function);
+
+        // void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t)
+        func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_REMOVE_CALLS", func_t);
+        remove_calls_function = m.getFunction("__dfsw_EXTRAP_REMOVE_CALLS");
+        assert(remove_calls_function);
+
+        // void __dfsw_EXTRAP_CURRENT_CALL(uint16_t)
+        func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CURRENT_CALL", func_t);
+        current_call_function = m.getFunction("__dfsw_EXTRAP_CURRENT_CALL");
+        assert(current_call_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -1205,7 +1307,7 @@ namespace extrap {
     {
         functions_count++;
     }
-    
+
     void Statistics::label_function(int labels)
     {
         functions_checked++;
@@ -1233,7 +1335,7 @@ namespace extrap {
     {
         return index.begin();
     }
-    
+
     FileIndex::iterator FileIndex::end()
     {
         return index.end();
@@ -1249,7 +1351,7 @@ namespace extrap {
             }
         );
     }
-        
+
     int FileIndex::getIdx(llvm::StringRef & name)
     {
         auto it = index.find(name);
@@ -1268,7 +1370,7 @@ namespace extrap {
         instr.callSetLabel(param_idx, "param", 4, load.getPointerOperand());
         return true;
     }
-    
+
     bool LabelAnnotator::visitAllocaInst(llvm::AllocaInst & alloca)
     {
         instr.builder.SetInsertPoint(alloca.getNextNode());
@@ -1278,7 +1380,7 @@ namespace extrap {
         instr.callSetLabel(param_idx, "param", 4, &alloca);
         return true;
     }
-    
+
     bool LabelAnnotator::visitInstruction(llvm::Instruction & inst)
     {
         bool ret = false;
@@ -1287,7 +1389,7 @@ namespace extrap {
                 ret |= visit(inst_new);
         return ret;
     }
-        
+
     bool LabelAnnotator::visitGetElementPtrInst(llvm::GetElementPtrInst & gepinst)
     {
         instr.builder.SetInsertPoint(gepinst.getNextNode());
@@ -1297,7 +1399,7 @@ namespace extrap {
         instr.callSetLabel(param_idx, "param", 4, &gepinst);
         return true;
     }
-    
+
     bool LabelAnnotator::visitBitCastInst(llvm::BitCastInst & cast)
     {
         instr.builder.SetInsertPoint(cast.getNextNode());

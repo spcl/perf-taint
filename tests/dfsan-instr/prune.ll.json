@@ -1,8 +1,8 @@
 {
   "functions": {
     "_Z11f_not_pruneii": {
-      "dbg_name": "f_not_prune",
       "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 2,
       "line": 45,
       "loops": {
         "0": [
@@ -36,8 +36,8 @@
       }
     },
     "_Z11g_not_prunei": {
-      "dbg_name": "g_not_prune",
       "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 1,
       "line": 26,
       "loops": {
         "0": [
@@ -81,8 +81,8 @@
       }
     },
     "_Z1hi": {
-      "dbg_name": "h",
       "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 0,
       "line": 12,
       "loops": {
         "0": [

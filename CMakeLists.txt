@@ -68,6 +68,9 @@ set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_executable(ScorePGenerator lib/ScorePGenerator.cpp)
 set_property(TARGET ScorePGenerator PROPERTY CXX_STANDARD 14)
 
+add_executable(JSONConverter lib/JSONConverter.cpp)
+set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
+
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
 

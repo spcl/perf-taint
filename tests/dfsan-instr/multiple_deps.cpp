@@ -2,8 +2,9 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtrapInstrumenter.hpp"
+//#include "ExtrapInstrumenter.hpp"
 
+#define EXTRAP __attribute__(( annotate("extrap") ))
 int global EXTRAP = 100;
 
 
@@ -58,14 +59,13 @@ int h(test * t)
     return tmp;
 }
 
-
 int main(int argc, char ** argv)
 {
     int x1 EXTRAP = atoi(argv[1]);
     int x2 EXTRAP = atoi(argv[2]);
-    register_variable(&x1, VARIABLE_NAME(x1));
-    register_variable(&x2, VARIABLE_NAME(x2));
-    register_variable(&global, VARIABLE_NAME(global));
+    //register_variable(&x1, VARIABLE_NAME(x1));
+    //register_variable(&x2, VARIABLE_NAME(x2));
+    //register_variable(&global, VARIABLE_NAME(global));
     int y = 2*x1 + 1;
     test t{10, global, y + x2};
 

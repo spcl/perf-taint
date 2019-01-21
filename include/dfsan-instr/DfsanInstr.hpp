@@ -229,6 +229,13 @@ namespace extrap {
         // __dfsw_EXTRAP_POP_CALL_FUNCTION(idx)
         llvm::Function * pop_function;
 
+        // uint16_t __dfsw_EXTRAP_REGISTER_CALL(uint16_t, uint16_t);
+        llvm::Function * register_call_function;
+        // void __dfsw_EXTRAP_REMOVE_CALLS(size_t);
+        llvm::Function * remove_calls_function;
+        // void __dfsw_EXTRAP_CURRENT_CALL(size_t);
+        llvm::Function * current_call_function;
+
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
@@ -283,6 +290,10 @@ namespace extrap {
         llvm::Instruction * createGlobalStringPtr(const char * name, llvm::Instruction * placement);
         void enterFunction(llvm::Function &, Function &);
         void enterFunction(llvm::Function &, size_t idx);
+
+        void instrumentLoopCall(llvm::Loop & l, llvm::CallBase * call,
+                uint16_t nested_loop_idx, uint16_t loop_size);
+        void removeLoopCalls(llvm::Loop & l, size_t size);
 
         llvm::Function * getAtExit();
     };
@@ -389,8 +400,12 @@ namespace extrap {
         void getAnalysisUsage(llvm::AnalysisUsage & AU) const override;
         bool runOnFunction(llvm::Function & f, int override_counter = -1);
         void modifyFunction(llvm::Function & f, Function & func, Instrumenter &);
+
+        typedef std::tuple<llvm::CallBase *, uint16_t, uint16_t> call_t;
+        typedef llvm::SmallVector<call_t, 5> call_vec_t;
         void instrumentLoop(Function & func, llvm::Loop & l,
-                int loop_idx, Instrumenter &);
+                int nested_loop_idx,
+                call_vec_t & calls, Instrumenter &);
         bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);

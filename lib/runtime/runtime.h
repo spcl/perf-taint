@@ -35,7 +35,7 @@ typedef struct _nested_call {
 } nested_call;
 
 typedef struct _nested_call_vec {
-    size_t len;
+    uint16_t len;
     size_t capacity;
     nested_call * data;
 } nested_call_vec;
@@ -59,8 +59,10 @@ uint16_t * __dfsw_EXTRAP_CALLSTACK();
 extern callstack __EXTRAP_CALLSTACK;
 
 extern nested_call_vec __EXTRAP_NESTED_CALLS;
-void __dfsw_EXTRAP_REGISTER_CALL(uint16_t nested_loop_idx, uint16_t loop_size);
-void __dfsw_EXTRAP_REMOVE_CALLS(size_t len);
+extern uint16_t __EXTRAP_CURRENT_CALL;
+uint16_t __dfsw_EXTRAP_REGISTER_CALL(uint16_t nested_loop_idx, uint16_t loop_size);
+void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len);
+void __dfsw_EXTRAP_CURRENT_CALL(uint16_t idx);
 
 //int __EXTRAP_INSTRUMENTATION_CALLSITES[] = {0, 1, 0};
 //int __EXTRAP_INSTRUMENTATION_CALLSITES_IDX[2] = {0, 2, 3};

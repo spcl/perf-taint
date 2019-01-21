@@ -16,7 +16,7 @@ json_t * __dfsw_json_get()
 void __dfsw_json_init_func(json_t & function, int func_idx, bool important)
 {
     json_t & out = *__dfsw_json_get();
-    function["dbg_name"] = __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[func_idx];
+    function["func_idx"] = func_idx;
     const char * name = __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[func_idx];
     //function["name"] = name;
     function["line"] = __EXTRAP_INSTRUMENTATION_FUNCS_DBG[2*func_idx];

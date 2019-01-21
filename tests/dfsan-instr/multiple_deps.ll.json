@@ -1,8 +1,8 @@
 {
   "functions": {
     "_Z1fii": {
-      "dbg_name": "f",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "func_idx": 0,
       "line": 32,
       "loops": {
         "0": [
@@ -26,8 +26,8 @@
       }
     },
     "_Z1gii": {
-      "dbg_name": "g",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "func_idx": 1,
       "line": 42,
       "loops": {
         "0": [
@@ -66,8 +66,8 @@
       }
     },
     "_Z1hP4test": {
-      "dbg_name": "h",
       "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "func_idx": 2,
       "line": 52,
       "loops": {
         "0": [

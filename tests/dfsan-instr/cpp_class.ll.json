@@ -1,8 +1,8 @@
 {
   "functions": {
     "_ZN4Grid11update_gridEd": {
-      "dbg_name": "update_grid",
       "file": "tests/dfsan-instr/cpp_class.cpp",
+      "func_idx": 0,
       "line": 23,
       "loops": {
         "0": [
@@ -64,18 +64,18 @@
   ],
   "unimportant_functions": {
     "_ZN4Grid11update_dataEd": {
-      "dbg_name": "update_data",
       "file": "tests/dfsan-instr/cpp_class.cpp",
+      "func_idx": 2,
       "line": 38
     },
     "_ZN4Grid15update_constantEd": {
-      "dbg_name": "update_constant",
       "file": "tests/dfsan-instr/cpp_class.cpp",
+      "func_idx": 1,
       "line": 30
     },
     "_ZN4Grid8update_zEd": {
-      "dbg_name": "update_z",
       "file": "tests/dfsan-instr/cpp_class.cpp",
+      "func_idx": 3,
       "line": 46
     }
   }

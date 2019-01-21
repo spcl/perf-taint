@@ -1,8 +1,8 @@
 {
   "functions": {
     "_Z1hii": {
-      "dbg_name": "h",
       "file": "tests/dfsan-instr/function_retval.cpp",
+      "func_idx": 1,
       "line": 47,
       "loops": {
         "0": [
@@ -25,8 +25,8 @@
       }
     },
     "_Z1iP4test": {
-      "dbg_name": "i",
       "file": "tests/dfsan-instr/function_retval.cpp",
+      "func_idx": 2,
       "line": 58,
       "loops": {
         "0": [
@@ -89,8 +89,8 @@
   ],
   "unimportant_functions": {
     "_Z1fii": {
-      "dbg_name": "f",
       "file": "tests/dfsan-instr/function_retval.cpp",
+      "func_idx": 0,
       "line": 36
     }
   }

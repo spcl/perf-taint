@@ -1,8 +1,8 @@
 {
   "functions": {
     "create_matrix": {
-      "dbg_name": "create_matrix",
       "file": "tests/dfsan-instr/matmul.c",
+      "func_idx": 0,
       "line": 17,
       "loops": {
         "0": [
@@ -42,8 +42,8 @@
       }
     },
     "mat_mul": {
-      "dbg_name": "mat_mul",
       "file": "tests/dfsan-instr/matmul.c",
+      "func_idx": 1,
       "line": 31,
       "loops": {
         "0": [

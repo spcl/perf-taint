@@ -191,14 +191,14 @@ std::vector<uint32_t> parse(const json_t & op, const json_t & all_params)
     }
 }
 
-void get_deps(json_t & loop, const json_t & params)
+void get_deps(json_t & out, json_t & loop, const json_t & params)
 {
     // pessimistic implementation - each unknown is multiplication
     // TODO : change when we get sequence of loops comitted at instance
     json_t & ops = loop["operands"];
-    json_t & deps = loop["deps"];
+    json_t & deps = out["deps"];
     std::set<uint32_t> dependencies;
-    json_t & not_found_params = loop["not_found_params"];
+    json_t & not_found_params = out["not_found_params"];
     uint32_t aggregation = 0;
     // TODO: nested array, shouldn't be here
     // right now we have have a list of loops and for each one list of instances
@@ -241,7 +241,7 @@ json_t convert(json_t & input)
     std::vector<std::string> to_copy_local{
         "file",
         "line",
-        "dbg_name"
+        "func_idx"
     };
     for(const auto & key : to_copy) {
         output[key] = std::move(input[key]);
@@ -279,7 +279,7 @@ json_t convert(json_t & input)
             instance["callstack"] = callstack.first;
             //std::cout << "Start data: " << callstack.second << '\n';
             instance["data"] = convert_loop_set(callstack.second);
-            get_deps(instance["data"], output["parameters"]);
+            get_deps(instance, instance["data"], output["parameters"]);
             new_loops.push_back(std::move(instance));
         }
 
