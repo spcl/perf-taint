@@ -311,28 +311,28 @@ json_t convert(json_t & input)
         }
 
         json_t function;
-        std::set<uint32_t> dependencies;
-        json_t & deps = function["deps"];
-        json_t & not_found_params = function["not_found_params"];
-        uint32_t aggregation = 0;
         for(auto & v : aggregated_callstacks) {
+            std::set<uint32_t> dependencies;
+            json_t & deps = std::get<0>(v.second)["deps"];
+            json_t & not_found_params = std::get<0>(v.second)["not_found_params"];
+            uint32_t aggregation = 0;
             for(uint32_t v : std::get<1>(v.second))
             {
                 aggregation |= v;
                 dependencies.insert(v);
             }
-            new_loops.push_back( std::move(std::get<0>(v.second)) );
-        }
-        for(int i = 0; i < params.size(); ++i)
-            if(!(aggregation & (1 << i)))
-               not_found_params.push_back(params[i]);
-        for(auto v : dependencies)
-        {
-            json_t dependency;
             for(int i = 0; i < params.size(); ++i)
-                if(v & (1 << i))
-                    dependency.push_back(params[i]);
-            deps.push_back( std::move(dependency) );
+                if(!(aggregation & (1 << i)))
+                   not_found_params.push_back(params[i]);
+            for(auto v : dependencies)
+            {
+                json_t dependency;
+                for(int i = 0; i < params.size(); ++i)
+                    if(v & (1 << i))
+                        dependency.push_back(params[i]);
+                deps.push_back( std::move(dependency) );
+            }
+            new_loops.push_back( std::move(std::get<0>(v.second)) );
         }
         // TODO: nested array, shouldn't be here
         // right now we have have a list of loops and for each one list of instances
