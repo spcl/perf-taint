@@ -4,6 +4,7 @@ include(ExternalProject)
 project(loop_extractor.cpp)
 # dirty hack to remove NDEBUG
 string( REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 #find_package(LLVM REQUIRED CONFIG)
 #add_definitions(${LLVM_DEFINITIONS})
