@@ -28,10 +28,11 @@ typedef struct _callstack
 } callstack;
 
 typedef struct _nested_call {
-    uint16_t nested_loop_idx;
+    int16_t nested_loop_idx;
     uint16_t loop_size_at_level;
     void ** json_data;
     size_t len;
+    size_t capacity;
 } nested_call;
 
 typedef struct _nested_call_vec {
@@ -59,10 +60,11 @@ uint16_t * __dfsw_EXTRAP_CALLSTACK();
 extern callstack __EXTRAP_CALLSTACK;
 
 extern nested_call_vec __EXTRAP_NESTED_CALLS;
-extern uint16_t __EXTRAP_CURRENT_CALL;
-uint16_t __dfsw_EXTRAP_REGISTER_CALL(uint16_t nested_loop_idx, uint16_t loop_size);
+extern int16_t __EXTRAP_CURRENT_CALL;
+uint16_t __dfsw_EXTRAP_REGISTER_CALL(int16_t nested_loop_idx, uint16_t loop_size);
 void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len);
-void __dfsw_EXTRAP_CURRENT_CALL(uint16_t idx);
+void __dfsw_EXTRAP_SET_CURRENT_CALL(int16_t idx);
+EXTERN int16_t __dfsw_EXTRAP_CURRENT_CALL();
 
 //int __EXTRAP_INSTRUMENTATION_CALLSITES[] = {0, 1, 0};
 //int __EXTRAP_INSTRUMENTATION_CALLSITES_IDX[2] = {0, 2, 3};
@@ -116,7 +118,7 @@ extern int16_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
-EXTERN bool __dfsw_json_write_loop(int function_idx);
+EXTERN bool __dfsw_json_write_loop(int function_idx, int calls_count);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
         int32_t function_idx);

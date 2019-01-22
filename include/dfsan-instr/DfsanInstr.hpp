@@ -221,7 +221,7 @@ namespace extrap {
         llvm::Function * label_loop_function;
         // __EXTRAP_CHECK_LOAD(addr, size, depth, loop_idx, func_idx)
         llvm::Function * load_loop_function;
-        // __EXTRAP_COMMIT_LOOP(loop_idx, depth, function_idx)
+        // __EXTRAP_COMMIT_LOOP(loop_idx, function_idx, calls_count)
         llvm::Function * commit_loop_function;
 
         // __dfsw_EXTRAP_PUSH_CALL_FUNCTION(idx)
@@ -233,8 +233,10 @@ namespace extrap {
         llvm::Function * register_call_function;
         // void __dfsw_EXTRAP_REMOVE_CALLS(size_t);
         llvm::Function * remove_calls_function;
-        // void __dfsw_EXTRAP_CURRENT_CALL(size_t);
-        llvm::Function * current_call_function;
+        // void __dfsw_EXTRAP_SET_CURRENT_CALL(int16_t)
+        llvm::Function * set_current_call_function;
+        // int16_t __dfsw_EXTRAP_CURRENT_CALL()
+        llvm::Function * get_current_call_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
@@ -264,7 +266,7 @@ namespace extrap {
                 FuncIter begin, FuncIter end,
                 FuncIter2 not_instr_begin, FuncIter2 not_instr_end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
-        void commitLoops(llvm::Function &, int function_idx);
+        void commitLoops(llvm::Function &, int function_idx, int calls_count);
 
         void checkCF(int function_idx, llvm::BranchInst * br);
         void checkCFLoad(int function_idx, size_t size, llvm::Value * load_addr);
@@ -292,9 +294,10 @@ namespace extrap {
         void enterFunction(llvm::Function &, Function &);
         void enterFunction(llvm::Function &, size_t idx);
 
-        void instrumentLoopCall(llvm::Loop & l, llvm::CallBase * call,
-                uint16_t nested_loop_idx, uint16_t loop_size);
-        void removeLoopCalls(llvm::Loop & l, size_t size);
+        void instrumentLoopCall(llvm::Function &, llvm::CallBase * call,
+                int16_t nested_loop_idx, uint16_t loop_size);
+        void removeLoopCalls(llvm::Function & f, size_t size);
+        void saveCurrentCall(llvm::Function & f);
 
         llvm::Function * getAtExit();
     };
@@ -336,9 +339,9 @@ namespace extrap {
                 bool _avoid_duplicates = true):
             layout(new llvm::DataLayout(&_instr.m)),
             instr(_instr),
+            avoid_duplicates(_avoid_duplicates),
             load_function(_load),
-            label_function(_label),
-            avoid_duplicates(_avoid_duplicates)
+            label_function(_label)
             {}
         ~InstrumenterVisiter()
         {
@@ -402,7 +405,7 @@ namespace extrap {
         bool runOnFunction(llvm::Function & f, int override_counter = -1);
         void modifyFunction(llvm::Function & f, Function & func, Instrumenter &);
 
-        typedef std::tuple<llvm::CallBase *, uint16_t, uint16_t> call_t;
+        typedef std::tuple<llvm::CallBase *, int16_t, uint16_t> call_t;
         typedef llvm::SmallVector<call_t, 5> call_vec_t;
         void instrumentLoop(Function & func, llvm::Loop & l,
                 int nested_loop_idx,

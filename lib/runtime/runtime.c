@@ -17,7 +17,7 @@ extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
 callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
 nested_call_vec __EXTRAP_NESTED_CALLS = {0, 0, NULL};
-uint16_t __EXTRAP_CURRENT_CALL = 0;
+int16_t __EXTRAP_CURRENT_CALL = 0;
 
 void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
 {
@@ -36,6 +36,7 @@ void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
     __EXTRAP_CALLSTACK.len--;
 }
 
+// TODO: is this even necessary?
 uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
 {
     if(!__EXTRAP_CALLSTACK.len)
@@ -47,34 +48,52 @@ uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
     return mem;
 }
 
-uint16_t __dfsw_EXTRAP_REGISTER_CALL(uint16_t nested_loop_idx, uint16_t loop_size)
+// Insert function with a given loop_idx and loop_size into a register
+// Parameters are necessary during loop commit to know where to place loops
+// Return the index in data structure.
+// 
+// Might allocate memory in __EXTRAP_NESTED_CALLS.data
+uint16_t __dfsw_EXTRAP_REGISTER_CALL(int16_t nested_loop_idx, uint16_t loop_size)
 {
     if(__EXTRAP_NESTED_CALLS.len == __EXTRAP_NESTED_CALLS.capacity) {
         __EXTRAP_NESTED_CALLS.capacity += 5;
         __EXTRAP_NESTED_CALLS.data = realloc(__EXTRAP_NESTED_CALLS.data,
                 sizeof(nested_call) * __EXTRAP_NESTED_CALLS.capacity);
     }
-    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len++].nested_loop_idx = nested_loop_idx;
-    // TODO: initialize
-    //__EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len++].loop = nested_loop_idx;
-    //nested_call{nested_loop_idx, loop_size, nullptr, 0};
-    return 0;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].nested_loop_idx = nested_loop_idx;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].loop_size_at_level = loop_size;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].len = 0;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].capacity = 0;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].json_data = NULL;
+#ifdef DEBUG
+    fprintf(stderr, "RegsiterCall Loopidx %d LoopLevel %d ValueIdx %d\n", nested_loop_idx, loop_size, __EXTRAP_NESTED_CALLS.len);
+#endif
+    return __EXTRAP_NESTED_CALLS.len++;
 }
 
+// Remove `len` last entries in the register of calls.
 void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len)
 {
     if(len > __EXTRAP_NESTED_CALLS.len)
         abort();
     __EXTRAP_NESTED_CALLS.len -= len;
     for(int i = 0; i < len; ++i) {
-        //TOOD: verify free - free first json_data array
-        //free(&__EXTRAP_NESTED_CALLS[__EXTRAP_NESTED_CALLS.len+i]);
+        size_t idx = __EXTRAP_NESTED_CALLS.len + i;
+        // Free allocated array of pointers.
+        free(__EXTRAP_NESTED_CALLS.data[idx].json_data);
     }
 }
 
-void __dfsw_EXTRAP_CURRENT_CALL(uint16_t idx)
+// Store the recent 
+void __dfsw_EXTRAP_SET_CURRENT_CALL(int16_t idx)
 {
+    //fprintf(stderr, "CurrentCall %d\n", idx);
     __EXTRAP_CURRENT_CALL = idx;
+}
+
+int16_t __dfsw_EXTRAP_CURRENT_CALL()
+{
+    return __EXTRAP_CURRENT_CALL;
 }
 
 //dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
@@ -178,9 +197,9 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 //    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
 //}
 
-void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx)
+void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx, int calls_count)
 {
-    __dfsw_json_write_loop(function_idx);
+    __dfsw_json_write_loop(function_idx, calls_count);
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t function_idx)
@@ -258,6 +277,7 @@ void __dfsw_EXTRAP_INIT()
                 __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
             ];
     __EXTRAP_LOOP_DEPENDENCIES = malloc(sizeof(dependencies) * deps_count);
+    __EXTRAP_CURRENT_CALL = -1;
     __dfsw_json_initialize();
 }
 

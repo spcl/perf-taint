@@ -341,6 +341,14 @@ namespace extrap {
                             // call!
                             if(llvm::CallBase * call =
                                     llvm::dyn_cast<llvm::CallBase>(&inst)) {
+                                llvm::Function * called_f = call->getCalledFunction();
+                                if(called_f) {
+                                    auto it = instrumented_functions.find(called_f);
+                                    // ignore unimportant functions
+                                    if(it == instrumented_functions.end()
+                                            || !((*it).second.hasValue()))
+                                        continue;
+                                }
                                 // TODO: optimize by checking if this call could
                                 // produce any loop - in case we know function
                                 calls.emplace_back(call, internal_nested_index,
@@ -375,27 +383,63 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
+        std::set<llvm::BasicBlock*> loop_blocks;
         int loop_idx = 0, nested_loop_idx = 0;
         call_vec_t calls;
         for(llvm::Loop * l : *linfo) {
-            calls.clear();
             instrumentLoop(func, *l, nested_loop_idx, calls, instr);
 
-            size_t calls_count = calls.size();
             for(auto & call: calls) {
                 //register and set current id before each call
-                instr.instrumentLoopCall(*l, std::get<0>(call),
-                        std::get<1>(call), std::get<2>(call));
+                //instr.instrumentLoopCall(*l, std::get<0>(call),
+                        //std::get<1>(call), std::get<2>(call));
             }
-            instr.removeLoopCalls(*l, calls_count);
-
+            for(llvm::BasicBlock * bb : l->blocks())
+                loop_blocks.insert(bb);
             nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             loop_idx++;
         }
+
+        // Now find calls outside of the loop
+        for(llvm::BasicBlock & bb : f) {
+            if(loop_blocks.count(&bb))
+               continue;
+            for(llvm::Instruction & instr : bb) {
+                if(llvm::CallBase * call =
+                        llvm::dyn_cast<llvm::CallBase>(&instr)) {
+                    llvm::Function * called_f = call->getCalledFunction();
+                    if(called_f) {
+                        auto it = instrumented_functions.find(called_f);
+                        // ignore unimportant functions
+                        if(it == instrumented_functions.end()
+                                || !((*it).second.hasValue()))
+                            continue;
+
+                    }
+                    // add one more potential loop
+                    calls.emplace_back(call, -1, loop_idx++);
+                }
+            }
+        }
+
+        for(auto & v : calls)
+        {
+            llvm::errs() << f.getName() << ' ' << std::get<0>(v)->getCalledFunction()->getName()
+                << ' ' << std::get<1>(v) << ' ' << std::get<2>(v) << '\n';
+            instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
+                    std::get<2>(v));
+        }
+
         // Leaving order:
-        // 1) commit loops
-        // 2) pop the function from callstack
-        instr.commitLoops(f, func.function_idx());
+        // 1) revert previous registered call
+        // 2) commit loops
+        // 3) remove registered calls
+        // 4) pop the function from callstack
+        if(calls.size())
+            instr.saveCurrentCall(f);
+        instr.commitLoops(f, func.function_idx(), calls.size());
+        if(calls.size())
+            instr.removeLoopCalls(f, calls.size());
         // don't add overidden functions to callstack
         if(!func.is_overriden())
             instr.enterFunction(f, func);
@@ -997,16 +1041,16 @@ namespace extrap {
         }
     }
 
-    void Instrumenter::commitLoops(llvm::Function & f, int func_idx)
+    void Instrumenter::commitLoops(llvm::Function & f, int func_idx, int calls_count)
     {
         builder.SetInsertPoint( &f.back().back() );
         builder.CreateCall(commit_loop_function,
-            {builder.getInt32(func_idx)}
+            {builder.getInt32(func_idx), builder.getInt32(calls_count)}
         );
     }
 
-    void Instrumenter::instrumentLoopCall(llvm::Loop & l, llvm::CallBase * call,
-            uint16_t nested_loop_idx, uint16_t loop_size)
+    void Instrumenter::instrumentLoopCall(llvm::Function & f, llvm::CallBase * call,
+            int16_t nested_loop_idx, uint16_t loop_size)
     {
         //llvm::BasicBlock * header = l.getHeader();
         //assert(header);
@@ -1020,18 +1064,28 @@ namespace extrap {
         //    llvm::Value * idx = builder.CreateCall(register_call_function,
         //            {builder.getInt16(nested_loop_idx), builder.getInt16(loop_size)}
         //        );
-        //    llvm::errs() << idx << " " << *idx->getType() << " " << *it << '\n';
+        //    //llvm::errs() << idx << " " << *idx->getType() << " " << *it << '\n';
         //    values.push_back( std::make_tuple(idx, *it) );
         //}
-        //builder.SetInsertPoint(call);
+        //builder.SetInsertPoint(&call->getParent()->front());
         //llvm::PHINode * phi = builder.CreatePHI(builder.getInt16Ty(),
         //        values.size());
         //for(auto & t : values)
         //    phi->addIncoming( std::get<0>(t), std::get<1>(t) );
         //builder.CreateCall(current_call_function, {phi});
+        // on function enter
+        // idx = register_call(loop_idx, loop_size);
+        builder.SetInsertPoint(&f.front().front());
+        llvm::Value * idx = builder.CreateCall(register_call_function,
+                {builder.getInt16(nested_loop_idx), builder.getInt16(loop_size)}
+            );
+        // just before the call
+        // set_current_register(idx)
+        builder.SetInsertPoint(call);
+        builder.CreateCall(set_current_call_function, {idx});
     }
 
-    void Instrumenter::removeLoopCalls(llvm::Loop & l, size_t size)
+    void Instrumenter::removeLoopCalls(llvm::Function & f, size_t size)
     {
         //llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
         //l.getExitBlocks(exit_blocks);
@@ -1042,6 +1096,18 @@ namespace extrap {
         //        { builder.getInt16(size)}
         //        );
         //}
+        builder.SetInsertPoint(&f.back().back());
+        builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
+    }
+
+    void Instrumenter::saveCurrentCall(llvm::Function & f)
+    {
+        builder.SetInsertPoint(&f.front().front());
+        llvm::Value * last_val = builder.CreateCall(
+                get_current_call_function,
+                {});
+        builder.SetInsertPoint(&f.back().back());
+        builder.CreateCall(set_current_call_function, {last_val});
     }
 
     void Instrumenter::declareFunctions()
@@ -1104,8 +1170,8 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LOAD", func_t);
         load_loop_function = m.getFunction("__dfsw_EXTRAP_CHECK_LOAD");
 
-        // __EXTRAP_COMMIT_LOOP(loop_idx, function_idx)
-        func_t = llvm::FunctionType::get(void_t, {idx_t}, false);
+        // __EXTRAP_COMMIT_LOOP(loop_idx, function_idx, calls_count)
+        func_t = llvm::FunctionType::get(void_t, {idx_t, idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_COMMIT_LOOP", func_t);
         commit_loop_function = m.getFunction("__dfsw_EXTRAP_COMMIT_LOOP");
         assert(commit_loop_function);
@@ -1135,11 +1201,17 @@ namespace extrap {
         remove_calls_function = m.getFunction("__dfsw_EXTRAP_REMOVE_CALLS");
         assert(remove_calls_function);
 
-        // void __dfsw_EXTRAP_CURRENT_CALL(uint16_t)
+        // void __dfsw_EXTRAP_SET_CURRENT_CALL(int16_t)
         func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_SET_CURRENT_CALL", func_t);
+        set_current_call_function = m.getFunction("__dfsw_EXTRAP_SET_CURRENT_CALL");
+        assert(set_current_call_function);
+
+        // int16_t __dfsw_EXTRAP_CURRENT_CALL()
+        func_t = llvm::FunctionType::get(i16_t, {}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CURRENT_CALL", func_t);
-        current_call_function = m.getFunction("__dfsw_EXTRAP_CURRENT_CALL");
-        assert(current_call_function);
+        get_current_call_function = m.getFunction("__dfsw_EXTRAP_CURRENT_CALL");
+        assert(get_current_call_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
