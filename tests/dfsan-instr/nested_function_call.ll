@@ -1,3 +1,5 @@
+; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 | diff -w %s.json -
+
 ; ModuleID = 'tests/dfsan-instr/nested_function_call.cpp'
 source_filename = "tests/dfsan-instr/nested_function_call.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

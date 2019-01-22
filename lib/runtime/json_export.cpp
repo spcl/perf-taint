@@ -79,6 +79,49 @@ void __dfsw_json_write_callsites(json_t & out, int func_idx)
 //}
 //
 
+// This function is usually called with a single loop instance.
+// Such calles emerge during loop write and the input is an array of loop instances
+// from a nested function call.
+//
+// However, the nested lookup for subloops can provide a list of multipath loops.//
+// Furthermore, an array might appear even lower since callpath f-g->h
+// will create in f a JSON with two JSON merged and arrays inside.
+//
+// TODO: this won't be necessary after replacing JSON -> array of integers
+// and a proper aggregation that replaces an array
+void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth);
+
+void __dfsw_json_update_loop_level(json_t & loops, int depth)
+{
+    loops["level"] = loops["level"].get<int>() + depth;
+    auto subloops = loops.find("loops");
+    if(subloops != loops.end())
+        __dfsw_json_update_loop_level_subloop(*subloops, depth);
+}
+
+void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
+{
+    //[ loop, ... ])
+    if(loops.is_array()) {
+        for(auto & loop : loops)
+            __dfsw_json_update_loop_level(loop, depth);
+    } else {
+        for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
+            //{ loop_idx: [ loop, ... ])
+            if(it.value().is_array()) {
+                __dfsw_json_update_loop_level_subloop(it.value(), depth);
+            }
+            //{ loop_idx: { loop }
+            else {
+                it.value()["level"] = it.value()["level"].get<int>() + depth;
+                auto subloops = it.value().find("loops");
+                if(subloops != it.value().end())
+                    __dfsw_json_update_loop_level_subloop(*subloops, depth);
+            }
+        }
+    }
+}
+
 json_t __dfsw_json_write_single_loop(dependencies * deps)
 {
     json_t params;
@@ -153,8 +196,10 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
 #endif
                     for(size_t i = 0; i < begin->len; ++i) {
                         json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                        for(auto it = data->begin(), end = data->end(); it != end; ++it)
+                        for(auto it = data->begin(), end = data->end(); it != end; ++it) {
                             loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                            __dfsw_json_update_loop_level(loop_level["loops"][std::to_string(begin->loop_size_at_level)].back(), level + 1);
+                        }
                     }
                         //(*prev_iteration[parent_idx])["loops"][std::to_string(begin->loop_size_at_level)].push_back(*static_cast<json_t*>(begin->json_data[i]));
                     begin++;
@@ -302,8 +347,10 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                     fprintf(stderr, "Read Function %d Idx %d Len %d data_ptr %p Wrte at pos %d\n", function_idx, nested_loop_idx, begin->len, begin->json_data[i], loop_idx_shift);
 #endif
                     json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                    for(auto it = data->begin(), end = data->end(); it != end; ++it)
+                    for(auto it = data->begin(), end = data->end(); it != end; ++it) {
                         loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                        __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
+                    }
                 }
                 //for(size_t i = 0; i < begin->len; ++i)
                 //    output[std::to_string(begin->loop_size_at_level)]
@@ -328,7 +375,9 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         nested_loop_idx++;
     }
 
-    // Add loops outside
+    // Add loops that don't appear inside any loop.
+    // Their nested_loop_idx is -1.
+    // No need to update loop levels - they start from 0.
     if(begin != end) {
         int loop_idx_shift = begin->loop_size_at_level;
         while(begin != end && begin->nested_loop_idx == -1) {
