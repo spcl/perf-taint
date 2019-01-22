@@ -1,0 +1,112 @@
+
+#include <cstdlib>
+
+#include "ExtraPInstrumenter.hpp"
+
+int global = 12;
+
+int f(int x)
+{
+    int tmp = 0;
+    for(int i = 0; i < x; ++i)
+        tmp += i;
+    return tmp;
+}
+
+int g(int x)
+{
+    int tmp = 0;
+    for(int i = 0; i < x; ++i)
+        tmp += f(x);
+    return tmp;
+}
+
+// simply adds a third loop level
+int single_nest(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i)
+        for(int j = 0; j < y; ++j)
+            tmp += f(i);
+    return tmp;
+}
+
+// effectively create a 4d loop
+// g should appear as 2d loop
+// and f should appear as 1d loop
+int double_nest(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i)
+        for(int j = y; j < global; ++j)
+            tmp += g(j);
+    return tmp;
+}
+
+//// function call outside of loop
+//// add as a multipath
+int double_nest_outside(int x, int y)
+{
+    int tmp = g(x);
+    for(int i = x; i < global; ++i)
+        for(int j = 0; j < y; ++j)
+            tmp += i;
+    return tmp;
+}
+
+// add two loops as multipath and two calls in the same function (diff func)
+int multipath_nest(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i) {
+        tmp += g(x);
+        for(int j = 0; j < y; ++j)
+            tmp += i;
+        tmp += f(y);
+    }
+    return tmp;
+}
+
+// create two instances - one where g is called with param and one without
+int multipath_nest(int x, int y, int z)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i) {
+        tmp += g(z);
+        for(int j = 0; j < y; ++j)
+            tmp += i;
+    }
+    return tmp;
+}
+
+// aggregate two loops
+int aggregate_nest(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i) {
+        int val = i == x ? x : x + y;
+        tmp += g(val);
+        for(int j = 0; j < y; ++j)
+            tmp += i;
+    }
+    return tmp;
+}
+
+int main(int argc, char ** argv)
+{
+    int x1 EXTRAP = atoi(argv[1]);
+    int x2 EXTRAP = atoi(argv[2]);
+    int x3 = atoi(argv[3]);
+    register_variable(&x1, VARIABLE_NAME(x1));
+    register_variable(&x2, VARIABLE_NAME(x2));
+
+    single_nest(x1, x2);
+    double_nest(x1, x2);
+    double_nest_outside(x1, x2);
+    multipath_nest(x1, x2);
+    multipath_nest(x1, x2, x1 + x2);
+    multipath_nest(x1, x2, x3);
+    aggregate_nest(x1, x2);
+
+    return 0;
+}

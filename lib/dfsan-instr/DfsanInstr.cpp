@@ -334,6 +334,7 @@ namespace extrap {
                 }
 
                 call_vec_t calls_in_this_loop;
+                int calls_count = 0;
                 for(llvm::BasicBlock * bb : l->blocks()) {
                     // loop basic block that is not a part of subloop
                     if(!subloops_bb.count(bb)) {
@@ -352,7 +353,7 @@ namespace extrap {
                                 // TODO: optimize by checking if this call could
                                 // produce any loop - in case we know function
                                 calls.emplace_back(call, internal_nested_index,
-                                        subloops.size());
+                                        subloops.size() + calls_count++);
                             }
                         }
                     }

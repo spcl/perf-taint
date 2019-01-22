@@ -154,7 +154,8 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
                     for(size_t i = 0; i < begin->len; ++i) {
                         json_t * data = static_cast<json_t*>(begin->json_data[i]);
                         for(auto it = data->begin(), end = data->end(); it != end; ++it)
-                            loop_level["loops"][std::to_string(loop_idx_shift++)].push_back(it.value());                    }
+                            loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                    }
                         //(*prev_iteration[parent_idx])["loops"][std::to_string(begin->loop_size_at_level)].push_back(*static_cast<json_t*>(begin->json_data[i]));
                     begin++;
                 }
@@ -302,7 +303,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
 #endif
                     json_t * data = static_cast<json_t*>(begin->json_data[i]);
                     for(auto it = data->begin(), end = data->end(); it != end; ++it)
-                        loop_copied[std::to_string(loop_idx_shift++)].push_back(it.value());
+                        loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
                 }
                 //for(size_t i = 0; i < begin->len; ++i)
                 //    output[std::to_string(begin->loop_size_at_level)]
@@ -316,7 +317,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         //std::cerr << loop << '\n';
         for(auto it = loop_copied.begin(), end = loop_copied.end(); it != end; ++it)
             loop["loops"][it.key()] = std::move(it.value());
-        std::cerr << loop << std::endl;
+        //std::cerr << loop << std::endl;
         if(!loop.empty()) {
             output[std::to_string(loop_idx)] = loop;
         }
@@ -327,10 +328,16 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         nested_loop_idx++;
     }
 
+    // Add loops outside
     if(begin != end) {
-        for(; begin != end; ++begin) {
-
-
+        int loop_idx_shift = begin->loop_size_at_level;
+        while(begin != end && begin->nested_loop_idx == -1) {
+            for(size_t i = 0; i < begin->len; ++i) {
+                json_t * data = static_cast<json_t*>(begin->json_data[i]);
+                for(auto it = data->begin(), end = data->end(); it != end; ++it)
+                    output[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+            }
+            begin++;
         }
     }
 
