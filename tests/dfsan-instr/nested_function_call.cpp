@@ -92,6 +92,21 @@ int aggregate_nest(int x, int y)
     return tmp;
 }
 
+int unimportant_function(int x)
+{
+    return 2 * f(x);
+}
+
+int call_unimportant_function(int x, int y)
+{
+    int tmp = 0;
+    for(int i = x; i < global; ++i) {
+        tmp += i;
+    }
+    tmp += unimportant_function(x + y);
+    return tmp;
+}
+
 int main(int argc, char ** argv)
 {
     int x1 EXTRAP = atoi(argv[1]);
@@ -107,6 +122,7 @@ int main(int argc, char ** argv)
     multipath_nest(x1, x2, x1 + x2);
     multipath_nest(x1, x2, x3);
     aggregate_nest(x1, x2);
+    call_unimportant_function(x1, x2);
 
     return 0;
 }

@@ -93,10 +93,13 @@ void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth);
 
 void __dfsw_json_update_loop_level(json_t & loops, int depth)
 {
-    loops["level"] = loops["level"].get<int>() + depth;
-    auto subloops = loops.find("loops");
-    if(subloops != loops.end())
-        __dfsw_json_update_loop_level_subloop(*subloops, depth);
+    std::cerr << "UPDATE: " << loops << '\n';
+    for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
+        it.value()["level"] = it.value()["level"].get<int>() + depth;
+        auto subloops = it.value().find("loops");
+        if(subloops != it.value().end())
+            __dfsw_json_update_loop_level_subloop(*subloops, depth);
+    }
 }
 
 void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
@@ -196,10 +199,13 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
 #endif
                     for(size_t i = 0; i < begin->len; ++i) {
                         json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                        for(auto it = data->begin(), end = data->end(); it != end; ++it) {
-                            loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                        //for(auto it = data->begin(), end = data->end(); it != end; ++it) {
+                        //std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
+                        if(!data->empty()) {
+                            loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(*data);
                             __dfsw_json_update_loop_level(loop_level["loops"][std::to_string(begin->loop_size_at_level)].back(), level + 1);
                         }
+                        //}
                     }
                         //(*prev_iteration[parent_idx])["loops"][std::to_string(begin->loop_size_at_level)].push_back(*static_cast<json_t*>(begin->json_data[i]));
                     begin++;
@@ -347,10 +353,13 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                     fprintf(stderr, "Read Function %d Idx %d Len %d data_ptr %p Wrte at pos %d\n", function_idx, nested_loop_idx, begin->len, begin->json_data[i], loop_idx_shift);
 #endif
                     json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                    for(auto it = data->begin(), end = data->end(); it != end; ++it) {
-                        loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
-                        __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
-                    }
+                    loop_copied[std::to_string(begin->loop_size_at_level)].push_back(*data);
+                    __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
+                    //for(auto it = data->begin(), end = data->end(); it != end; ++it) {
+                    //    std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
+                    //    loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                    //    __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
+                    //}
                 }
                 //for(size_t i = 0; i < begin->len; ++i)
                 //    output[std::to_string(begin->loop_size_at_level)]
@@ -383,8 +392,11 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         while(begin != end && begin->nested_loop_idx == -1) {
             for(size_t i = 0; i < begin->len; ++i) {
                 json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                for(auto it = data->begin(), end = data->end(); it != end; ++it)
-                    output[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                for(auto it = data->begin(), end = data->end(); it != end; ++it) {
+                    //std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
+                    //output[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                }
+                output[std::to_string(begin->loop_size_at_level)].push_back(*data);
             }
             begin++;
         }
@@ -494,11 +506,10 @@ bool __dfsw_json_loop_is_important(json_t & loop_set)
         bool important = false;
         // TODO: temporary fix to handle the case where subloops is an array
         // it can only happen when multiple JSONs are written in a nested function call
-        //std::cerr << loop.is_array() << " " << loop << '\n';
         if(loop.is_array()) {
             for(auto & v : loop) {
                 //std::cerr << v << '\n';
-                important |= __dfsw_is_important(v);
+                important |= __dfsw_json_loop_is_important(v);//__dfsw_is_important(v);
             }
         } else {
             important |= __dfsw_is_important(loop);
@@ -519,7 +530,7 @@ bool __dfsw_json_is_important(json_t & json)
     for(auto & loop : loops) {
         // don't leave - important but continue pruning
         if(__dfsw_json_loop_is_important(loop["instance"]))
-            important = true;
+          important = true;
         else
             entries_to_remove.push_back(idx);
         ++idx;

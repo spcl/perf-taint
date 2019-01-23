@@ -385,6 +385,8 @@ namespace extrap {
         // first traversal of functions cannot 
         std::vector< std::tuple<const llvm::Value*, Parameters::id_t>> found_params;
 
+        std::unordered_map<llvm::Function*, bool> calls_important;
+
         //Statistics stats;
         DfsanInstr():
             ModulePass(ID),
@@ -410,6 +412,8 @@ namespace extrap {
         void instrumentLoop(Function & func, llvm::Loop & l,
                 int nested_loop_idx,
                 call_vec_t & calls, Instrumenter &);
+        bool callsImportantFunction(llvm::CallBase * call);
+        bool callsImportantFunction(llvm::Function *);
         bool analyzeFunction(llvm::Function & f, int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);

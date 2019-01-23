@@ -313,6 +313,49 @@ namespace extrap {
         return is_important;
     }
 
+
+    bool DfsanInstr::callsImportantFunction(llvm::Function * called_f)
+    {
+        auto it = calls_important.find(called_f);
+        if(it != calls_important.end())
+            return (*it).second;
+        llvm::CallGraphNode * f_node = (*cgraph)[called_f];
+        assert(f_node);
+        auto func_it = instrumented_functions.find(called_f);
+        // ignore unimportant functions
+        if(func_it != instrumented_functions.end()
+                && (*func_it).second.hasValue())
+        {
+            calls_important[called_f] = true;
+            return true;
+        }
+
+        bool important = false;
+        for(auto & callsite : *f_node)
+        {
+            llvm::CallGraphNode * node = callsite.second;
+            llvm::Function * called_f = node->getFunction();
+            important |= called_f ?
+                callsImportantFunction(called_f) :
+                true;
+            if(important)
+                break;
+        }
+        calls_important[called_f] = important;
+        return important;
+    }
+
+    bool DfsanInstr::callsImportantFunction(llvm::CallBase * base)
+    {
+        llvm::Function * called_f = base->getCalledFunction();
+        if(called_f)
+            return callsImportantFunction(called_f);
+        // unknown function - most likely a call/invoke of a pointer
+        // overapproximation, assume yes - 
+        else
+            return true;
+    }
+
     void DfsanInstr::instrumentLoop(Function & func, llvm::Loop & l,
             int nested_loop_idx, call_vec_t & calls, Instrumenter & instr)
     {
@@ -342,18 +385,11 @@ namespace extrap {
                             // call!
                             if(llvm::CallBase * call =
                                     llvm::dyn_cast<llvm::CallBase>(&inst)) {
-                                llvm::Function * called_f = call->getCalledFunction();
-                                if(called_f) {
-                                    auto it = instrumented_functions.find(called_f);
-                                    // ignore unimportant functions
-                                    if(it == instrumented_functions.end()
-                                            || !((*it).second.hasValue()))
-                                        continue;
-                                }
-                                // TODO: optimize by checking if this call could
-                                // produce any loop - in case we know function
-                                calls.emplace_back(call, internal_nested_index,
-                                        subloops.size() + calls_count++);
+                                if(callsImportantFunction(call))
+                                    // TODO: optimize by checking if this call could
+                                    // produce any loop - in case we know function
+                                    calls.emplace_back(call, internal_nested_index,
+                                            subloops.size() + calls_count++);
                             }
                         }
                     }
@@ -408,17 +444,9 @@ namespace extrap {
             for(llvm::Instruction & instr : bb) {
                 if(llvm::CallBase * call =
                         llvm::dyn_cast<llvm::CallBase>(&instr)) {
-                    llvm::Function * called_f = call->getCalledFunction();
-                    if(called_f) {
-                        auto it = instrumented_functions.find(called_f);
-                        // ignore unimportant functions
-                        if(it == instrumented_functions.end()
-                                || !((*it).second.hasValue()))
-                            continue;
-
-                    }
                     // add one more potential loop
-                    calls.emplace_back(call, -1, loop_idx++);
+                    if(callsImportantFunction(call))
+                        calls.emplace_back(call, -1, loop_idx++);
                 }
             }
         }
