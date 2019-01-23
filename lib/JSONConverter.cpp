@@ -30,7 +30,6 @@ json_t convert_params(const json_t & params)
 json_t convert_loop(const json_t & loop)
 {
     std::vector<json_t> layers;
-    json_t output;
 
     json_t current;
     std::vector<json_t> additive_layers;
@@ -65,7 +64,11 @@ json_t convert_loop(const json_t & loop)
         // no params? skip this, return an additive over subloops
         if(additive_layers.size() == 1) {
             return additive_layers[0];
-        } else {
+        }
+        //else if(additive_layers.size() == 0) {
+        //    return json_t();
+        //}
+        else {
             json_t additive;
             additive["dependency"] = "additive";
             additive["operands"] = std::move(additive_layers);
@@ -110,7 +113,12 @@ json_t convert_loop_set(const json_t & loop_set)
         //dep.push_back(convert_loop(*v));
         //}
         //deps.push_back(dep);
-        deps.push_back(convert_loop(it.value()));
+        json_t converted = convert_loop(it.value());
+        std::cerr << converted << ' ' << converted["operands"] << '\n';
+        if(converted["operands"].size() != 0) {
+        std::cerr << converted << '\n';
+            deps.push_back( std::move(converted) );
+        }
     }
 
     return output;
