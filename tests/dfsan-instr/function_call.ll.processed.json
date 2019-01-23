@@ -1,0 +1,173 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/dfsan-instr/function_call.cpp",
+      "func_idx": 0,
+      "line": 9,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global",
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1hi": {
+      "file": "tests/dfsan-instr/function_call.cpp",
+      "func_idx": 1,
+      "line": 17,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "global"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1iiii": {
+      "file": "tests/dfsan-instr/function_call.cpp",
+      "func_idx": 2,
+      "line": 30,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "global"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int)",
+    "i(int, int, int)",
+    "g(int)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hi",
+    "_Z1iiii",
+    "_Z1gi",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i",
+    "g",
+    "main",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

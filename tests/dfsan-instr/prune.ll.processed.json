@@ -1,0 +1,269 @@
+{
+  "functions": {
+    "_Z11f_not_pruneii": {
+      "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 2,
+      "line": 45,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "global",
+            "global2"
+          ]
+        }
+      ]
+    },
+    "_Z11g_not_prunei": {
+      "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 1,
+      "line": 26,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4,
+              7
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "global",
+            "global2"
+          ]
+        }
+      ]
+    },
+    "_Z1hi": {
+      "file": "tests/dfsan-instr/prune.cpp",
+      "func_idx": 0,
+      "line": 12,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4,
+              7
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "global",
+            "global2"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              7,
+              1
+            ],
+            [
+              4,
+              2,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2",
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ],
+            [
+              "x1",
+              "x2",
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "global2"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              7,
+              6
+            ],
+            [
+              4,
+              2,
+              6
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "global2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global2"
+            ],
+            [
+              "x1",
+              "global2"
+            ]
+          ],
+          "not_found_params": [
+            "x2",
+            "global"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "h(int)",
+    "g_not_prune(int)",
+    "f_not_prune(int, int)",
+    "void register_variable<int>(int*, char const*)",
+    "main",
+    "void register_variable<double>(double*, char const*)",
+    "g_prune(int)",
+    "f_prune(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1hi",
+    "_Z11g_not_prunei",
+    "_Z11f_not_pruneii",
+    "_Z17register_variableIiEvPT_PKc",
+    "main",
+    "_Z17register_variableIdEvPT_PKc",
+    "_Z7g_prunei",
+    "_Z7f_pruneii"
+  ],
+  "functions_names": [
+    "h",
+    "g_not_prune",
+    "f_not_prune",
+    "register_variable<int>",
+    "main",
+    "register_variable<double>",
+    "g_prune",
+    "f_prune"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global",
+    "global2"
+  ]
+}

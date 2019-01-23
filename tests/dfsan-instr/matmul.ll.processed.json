@@ -1,0 +1,145 @@
+{
+  "functions": {
+    "create_matrix": {
+      "file": "tests/dfsan-instr/matmul.c",
+      "func_idx": 0,
+      "line": 17,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "m",
+                    "n"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "n",
+                    "k"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "m",
+              "n"
+            ],
+            [
+              "n",
+              "k"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "mat_mul": {
+      "file": "tests/dfsan-instr/matmul.c",
+      "func_idx": 1,
+      "line": 31,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "m"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "k"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "n"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "m",
+              "n",
+              "k"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "register_variable"
+  ],
+  "functions_mangled_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "register_variable"
+  ],
+  "functions_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "register_variable"
+  ],
+  "parameters": [
+    "m",
+    "n",
+    "k"
+  ]
+}

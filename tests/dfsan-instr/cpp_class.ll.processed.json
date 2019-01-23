@@ -1,0 +1,73 @@
+{
+  "functions": {
+    "_ZN4Grid11update_gridEd": {
+      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "func_idx": 0,
+      "line": 23,
+      "loops": [
+        {
+          "callstack": [
+            [
+              6
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "size_x",
+                    "size_y"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "size_x",
+              "size_y"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "Grid::update_grid(double)",
+    "Grid::update_constant(double)",
+    "Grid::update_data(double)",
+    "Grid::update_z(double)",
+    "Grid::~Grid()",
+    "void register_variable<int>(int*, char const*)",
+    "main",
+    "Grid::Grid(int, int, int)"
+  ],
+  "functions_mangled_names": [
+    "_ZN4Grid11update_gridEd",
+    "_ZN4Grid15update_constantEd",
+    "_ZN4Grid11update_dataEd",
+    "_ZN4Grid8update_zEd",
+    "_ZN4GridD2Ev",
+    "_Z17register_variableIiEvPT_PKc",
+    "main",
+    "_ZN4GridC2Eiii"
+  ],
+  "functions_names": [
+    "update_grid",
+    "update_constant",
+    "update_data",
+    "update_z",
+    "~Grid",
+    "register_variable<int>",
+    "main",
+    "Grid"
+  ],
+  "parameters": [
+    "size_x",
+    "size_y"
+  ]
+}

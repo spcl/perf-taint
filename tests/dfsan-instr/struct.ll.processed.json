@@ -1,0 +1,142 @@
+{
+  "functions": {
+    "_Z12print_paramsP6Params": {
+      "file": "tests/dfsan-instr/struct.cpp",
+      "func_idx": 0,
+      "line": 23,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.ranks",
+                    "params.problem_size"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "params.ranks",
+              "params.problem_size"
+            ]
+          ],
+          "not_found_params": [
+            "global_params.problem_size",
+            "global_params.ranks"
+          ]
+        }
+      ]
+    },
+    "_Z6do_sthii": {
+      "file": "tests/dfsan-instr/struct.cpp",
+      "func_idx": 1,
+      "line": 33,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.problem_size",
+                    "global_params.ranks"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "params.problem_size",
+              "global_params.ranks"
+            ]
+          ],
+          "not_found_params": [
+            "params.ranks",
+            "global_params.problem_size"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.ranks",
+                    "params.problem_size"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "params.ranks",
+              "params.problem_size"
+            ]
+          ],
+          "not_found_params": [
+            "global_params.problem_size",
+            "global_params.ranks"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "print_params(Params*)",
+    "do_sth(int, int)",
+    "do_sth2(double, int)",
+    "do_sth3(Params&)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z12print_paramsP6Params",
+    "_Z6do_sthii",
+    "_Z7do_sth2di",
+    "_Z7do_sth3R6Params",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "print_params",
+    "do_sth",
+    "do_sth2",
+    "do_sth3",
+    "main",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "params.ranks",
+    "params.problem_size",
+    "global_params.problem_size",
+    "global_params.ranks"
+  ]
+}

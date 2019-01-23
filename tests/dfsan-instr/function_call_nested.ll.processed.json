@@ -1,0 +1,291 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "func_idx": 0,
+      "line": 17,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global",
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x2"
+            ],
+            [
+              "x1",
+              "global"
+            ]
+          ],
+          "not_found_params": null
+        },
+        {
+          "callstack": [
+            [
+              4,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x2",
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1"
+          ]
+        }
+      ]
+    },
+    "_Z1gi": {
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "func_idx": 2,
+      "line": 25,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1hi": {
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "func_idx": 1,
+      "line": 9,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ],
+            [
+              4,
+              3,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x2"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "global"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ]
+          ],
+          "not_found_params": [
+            "x2",
+            "global"
+          ]
+        },
+        {
+          "callstack": [
+            [
+              4,
+              2
+            ],
+            [
+              4,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1iiii": {
+      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "func_idx": 3,
+      "line": 33,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2",
+                    "global",
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2",
+              "global"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int)",
+    "g(int)",
+    "i(int, int, int)",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hi",
+    "_Z1gi",
+    "_Z1iiii",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "g",
+    "i",
+    "main",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "functions": {
+    "_Z1hii": {
+      "file": "tests/dfsan-instr/function_retval.cpp",
+      "func_idx": 1,
+      "line": 47,
+      "loops": [
+        {
+          "callstack": [
+            [
+              5
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1iP4test": {
+      "file": "tests/dfsan-instr/function_retval.cpp",
+      "func_idx": 2,
+      "line": 58,
+      "loops": [
+        {
+          "callstack": [
+            [
+              5
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ]
+          ],
+          "not_found_params": [
+            "x2",
+            "global"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int, int)",
+    "i(test*)",
+    "test::length()",
+    "void register_variable<int>(int*, char const*)",
+    "main",
+    "test::test(int, int)",
+    "g2(int, int)",
+    "g(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hii",
+    "_Z1iP4test",
+    "_ZN4test6lengthEv",
+    "_Z17register_variableIiEvPT_PKc",
+    "main",
+    "_ZN4testC2Eii",
+    "_Z2g2ii",
+    "_Z1gii"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i",
+    "length",
+    "register_variable<int>",
+    "main",
+    "test",
+    "g2",
+    "g"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}
