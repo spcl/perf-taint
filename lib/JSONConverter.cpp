@@ -114,14 +114,12 @@ json_t convert_loop_set(const json_t & loop_set)
         //}
         //deps.push_back(dep);
         json_t converted = convert_loop(it.value());
-        std::cerr << converted << ' ' << converted["operands"] << '\n';
         if(converted["operands"].size() != 0) {
-        std::cerr << converted << '\n';
             deps.push_back( std::move(converted) );
         }
     }
 
-    return output;
+    return deps.size() != 0 ? output : json_t{};
 }
 
 uint32_t param_to_int(const json_t & op, const json_t & params)
@@ -299,6 +297,8 @@ json_t convert(json_t & input)
         for(auto & callstack : loops) {//aggregated_callstacks) {
             json_t & callstack_data = callstack["callstacks"];
             json_t converted = convert_loop_set(callstack["instance"]);
+            if(converted.empty())
+                continue;
             std::vector<uint32_t> loop_data = parse(converted, params);
             auto it = aggregated_callstacks.find(callstack_data);
             if(it != aggregated_callstacks.end()) {
