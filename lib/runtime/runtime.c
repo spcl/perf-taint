@@ -24,29 +24,31 @@ void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
     if(__EXTRAP_CALLSTACK.len == __EXTRAP_CALLSTACK.capacity) {
         __EXTRAP_CALLSTACK.capacity += 5;
         __EXTRAP_CALLSTACK.stack = realloc(__EXTRAP_CALLSTACK.stack,
-                sizeof(callstack) * __EXTRAP_CALLSTACK.capacity);
+                sizeof(uint16_t) * __EXTRAP_CALLSTACK.capacity);
     }
     __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
 }
 
 void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
 {
-    if(__EXTRAP_CALLSTACK.len == 0)
+    if(__EXTRAP_CALLSTACK.len == 0) {
+        fprintf(stderr, "Callstack below zero!\n");
         abort();
+    }
     __EXTRAP_CALLSTACK.len--;
 }
 
 // TODO: is this even necessary?
-uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
-{
-    if(!__EXTRAP_CALLSTACK.len)
-        return NULL;
-    size_t callstack_size = sizeof(uint16_t) * (__EXTRAP_CALLSTACK.len);
-    uint16_t * mem = malloc(callstack_size + sizeof(uint16_t));
-    memcpy(mem + 1, __EXTRAP_CALLSTACK.stack, callstack_size);
-    mem[0] = __EXTRAP_CALLSTACK.len;
-    return mem;
-}
+//uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
+//{
+//    if(!__EXTRAP_CALLSTACK.len)
+//        return NULL;
+//    size_t callstack_size = sizeof(uint16_t) * (__EXTRAP_CALLSTACK.len);
+//    uint16_t * mem = malloc(callstack_size + sizeof(uint16_t));
+//    memcpy(mem + 1, __EXTRAP_CALLSTACK.stack, callstack_size);
+//    mem[0] = __EXTRAP_CALLSTACK.len;
+//    return mem;
+//}
 
 // Insert function with a given loop_idx and loop_size into a register
 // Parameters are necessary during loop commit to know where to place loops
