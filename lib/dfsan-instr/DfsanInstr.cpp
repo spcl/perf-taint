@@ -34,6 +34,11 @@ static llvm::cl::opt<std::string> LogDirName("extrap-extractor-out-dir",
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
+static llvm::cl::opt<std::string> OutputFileName("extrap-extractor-out-name",
+                                       llvm::cl::desc("Specify name for output file."),
+                                       llvm::cl::init(""),
+                                       llvm::cl::value_desc("filename"));
+
 static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
                                        llvm::cl::init(true),
@@ -316,6 +321,12 @@ namespace extrap {
 
     bool DfsanInstr::callsImportantFunction(llvm::Function * called_f)
     {
+        if(!called_f)
+            return true;
+        // Don't instrument functions without definition
+        // We can't track them anyway.
+        if(called_f->isDeclaration())
+            return false;
         auto it = calls_important.find(called_f);
         if(it != calls_important.end())
             return (*it).second;
@@ -420,55 +431,60 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
-        std::set<llvm::BasicBlock*> loop_blocks;
-        int loop_idx = 0, nested_loop_idx = 0;
-        call_vec_t calls;
-        for(llvm::Loop * l : *linfo) {
-            instrumentLoop(func, *l, nested_loop_idx, calls, instr);
+        llvm::errs() << f.getName() << " " << func.is_overriden() << '\n';
+        if(!func.is_overriden()){
+            std::set<llvm::BasicBlock*> loop_blocks;
+            int loop_idx = 0, nested_loop_idx = 0;
+            call_vec_t calls;
+            for(llvm::Loop * l : *linfo) {
+                instrumentLoop(func, *l, nested_loop_idx, calls, instr);
 
-            for(auto & call: calls) {
-                //register and set current id before each call
-                //instr.instrumentLoopCall(*l, std::get<0>(call),
-                        //std::get<1>(call), std::get<2>(call));
+                for(auto & call: calls) {
+                    //register and set current id before each call
+                    //instr.instrumentLoopCall(*l, std::get<0>(call),
+                            //std::get<1>(call), std::get<2>(call));
+                }
+                for(llvm::BasicBlock * bb : l->blocks())
+                    loop_blocks.insert(bb);
+                nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
+                loop_idx++;
             }
-            for(llvm::BasicBlock * bb : l->blocks())
-                loop_blocks.insert(bb);
-            nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
-            loop_idx++;
-        }
 
-        // Now find calls outside of the loop
-        for(llvm::BasicBlock & bb : f) {
-            if(loop_blocks.count(&bb))
-               continue;
-            for(llvm::Instruction & instr : bb) {
-                if(llvm::CallBase * call =
-                        llvm::dyn_cast<llvm::CallBase>(&instr)) {
-                    // add one more potential loop
-                    if(callsImportantFunction(call))
-                        calls.emplace_back(call, -1, loop_idx++);
+            // Now find calls outside of the loop
+            for(llvm::BasicBlock & bb : f) {
+                if(loop_blocks.count(&bb))
+                   continue;
+                for(llvm::Instruction & instr : bb) {
+                    if(llvm::CallBase * call =
+                            llvm::dyn_cast<llvm::CallBase>(&instr)) {
+                        // add one more potential loop
+                        if(callsImportantFunction(call))
+                            calls.emplace_back(call, -1, loop_idx++);
+                    }
                 }
             }
-        }
 
-        for(auto & v : calls)
-        {
-            llvm::errs() << f.getName() << ' ' << std::get<0>(v)->getCalledFunction()->getName()
-                << ' ' << std::get<1>(v) << ' ' << std::get<2>(v) << '\n';
-            instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
-                    std::get<2>(v));
-        }
+            for(auto & v : calls)
+            {
+                //llvm::errs() << f.getName() << ' ' << std::get<0>(v)->getCalledFunction()->getName()
+                //    << ' ' << std::get<1>(v) << ' ' << std::get<2>(v) << '\n';
+                instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
+                        std::get<2>(v));
+            }
 
-        // Leaving order:
-        // 1) revert previous registered call
-        // 2) commit loops
-        // 3) remove registered calls
-        // 4) pop the function from callstack
-        if(calls.size())
-            instr.saveCurrentCall(f);
-        instr.commitLoops(f, func.function_idx(), calls.size());
-        if(calls.size())
-            instr.removeLoopCalls(f, calls.size());
+            // Leaving order:
+            // 1) revert previous registered call
+            // 2) commit loops
+            // 3) remove registered calls
+            // 4) pop the function from callstack
+            if(calls.size())
+                instr.saveCurrentCall(f);
+            instr.commitLoops(f, func.function_idx(), calls.size());
+            if(calls.size())
+                instr.removeLoopCalls(f, calls.size());
+        } else {
+            instr.commitLoops(f, func.function_idx(), 0);
+        }
         // don't add overidden functions to callstack
         if(!func.is_overriden())
             instr.enterFunction(f, func);
@@ -561,6 +577,13 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(params_count),
                 glob_params_count_name);
+
+        // char * output_filename
+        glob_params_count = new llvm::GlobalVariable(m,
+                builder.getInt8PtrTy(), false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.CreateGlobalStringPtr(OutputFileName.getValue()),
+                glob_output_filename_name);
 
         // char ** file_names
         auto file_it = file_index.begin(), file_end = file_index.end();
@@ -1241,6 +1264,12 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_CURRENT_CALL", func_t);
         get_current_call_function = m.getFunction("__dfsw_EXTRAP_CURRENT_CALL");
         assert(get_current_call_function);
+
+        // void __dfsw_EXTRAP_INIT_MPI
+        func_t = llvm::FunctionType::get(void_t, {}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_INIT_MPI", func_t);
+        init_mpi_function = m.getFunction("__dfsw_EXTRAP_INIT_MPI");
+        assert(init_mpi_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -1286,6 +1315,23 @@ namespace extrap {
         llvm::Value * cast_f = builder.CreatePointerCast(at_exit_function, builder.getInt8PtrTy());
         builder.CreateCall(getAtExit(), {cast_f});
         builder.CreateCall(init_function);
+
+        // TODO: make it work outside of main
+        for(llvm::BasicBlock & bb : *main) {
+            for(llvm::Instruction & instr : bb) {
+                if(llvm::CallBase * call =
+                        llvm::dyn_cast<llvm::CallBase>(&instr)) {
+                    if(llvm::Function * f = call->getCalledFunction()) {
+                        llvm::StringRef name = f->getName();
+                        llvm::errs() << *call << ' ' << name << '\n';
+                        if(name == "MPI_Init") {
+                            builder.SetInsertPoint(instr.getNextNode());
+                            builder.CreateCall(init_mpi_function);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Instrumenter::annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params)

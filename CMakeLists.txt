@@ -11,6 +11,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 #include_directories(${LLVM_INCLUDE_DIRS})
 #link_directories(${LLVM_LIBRARY_DIRS})
 
+find_package(MPI REQUIRED)
+include_directories(${MPI_C_INCLUDE_PATH})
+SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
+
 find_package(Polly REQUIRED CONFIG)
 add_definitions(${Polly_DEFINITIONS})
 message(${Polly_DEFINITIONS})
@@ -60,8 +64,9 @@ target_link_libraries(DfsanInstrument LLVMPolly)
 # Split into two targets so C++ JSON code is not instrumented
 add_library(json_export STATIC lib/runtime/json_export.cpp)
 add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
+target_link_libraries(dfsan_runtime ${MPI_C_LIBRARIES})
 set_target_properties(dfsan_runtime PROPERTIES
-    COMPILE_FLAGS "-fsanitize=dataflow -fsanitize-blacklist=/home/mcopik/projects/clang_llvm/install_release/lib/clang/8.0.0/share/dfsan_abilist.txt -g -stdlib=libc++ -I/home/mcopik/projects/clang_llvm/build_dfsan_full/include/c++/v1"
+    COMPILE_FLAGS "-fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt -g -stdlib=libc++ -I/home/mcopik/projects/clang_llvm/build_dfsan_full/include/c++/v1"
 )
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)

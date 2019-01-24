@@ -113,6 +113,7 @@ namespace extrap {
         // `parameters` dfsan labels, dynamically assigned at runtime
         llvm::GlobalVariable * glob_labels;
         llvm::GlobalVariable * glob_files;
+        llvm::GlobalVariable * glob_output_filename;
 
         llvm::GlobalVariable * glob_instr_funcs_count;
         llvm::GlobalVariable * glob_funcs_count;
@@ -163,6 +164,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_LABELS";
         static constexpr const char * glob_files_name
             = "__EXTRAP_INSTRUMENTATION_FILES";
+        static constexpr const char * glob_output_filename_name
+            = "__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME";
         static constexpr const char * glob_funcs_count_name
             = "__EXTRAP_FUNCS_COUNT";
         static constexpr const char * glob_instr_funcs_count_name
@@ -237,6 +240,9 @@ namespace extrap {
         llvm::Function * set_current_call_function;
         // int16_t __dfsw_EXTRAP_CURRENT_CALL()
         llvm::Function * get_current_call_function;
+
+        // void __dfsw_EXTRAP_INIT_MPI
+        llvm::Function * init_mpi_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),

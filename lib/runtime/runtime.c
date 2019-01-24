@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
+#include <mpi.h>
 
 #include <sanitizer/dfsan_interface.h>
 
@@ -18,6 +21,17 @@ extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
 nested_call_vec __EXTRAP_NESTED_CALLS = {0, 0, NULL};
 int16_t __EXTRAP_CURRENT_CALL = 0;
+int __EXTRAP_INSTRUMENTATION_MPI_RANK = -1;
+
+void __dfsw_EXTRAP_INIT_MPI()
+{
+    int flag;
+    MPI_Initialized(&flag);
+    assert(flag);
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    __EXTRAP_INSTRUMENTATION_MPI_RANK = rank;
+}
 
 void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
 {
@@ -29,7 +43,7 @@ void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
     __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
 }
 
-void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
+void __dfsw_EXTRAP_POP_CALL_FUNCTION()
 {
     if(__EXTRAP_CALLSTACK.len == 0) {
         fprintf(stderr, "Callstack below zero!\n");
