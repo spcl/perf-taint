@@ -9,6 +9,7 @@ config.exec_root = '@CMAKE_CURRENT_BINARY_DIR@'
 config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests/dfsan-instr')
 # Help variable used to locate compiled library
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
+config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
 config.llvm_dir = '/home/mcopik/projects/clang_llvm/build_dfsan_full/lib'
 config.test_format = lit.formats.ShTest(True)
 config.suffixes = ['.ll']
@@ -42,6 +43,7 @@ config.substitutions.append( ('%link',
     + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
     + ' -L%s' % config.llvm_dir
     + ' -Wl,--start-group,-lc++abi'
+    + ' %s' % config.mpi_link_flags
     + ' %s/libdfsan_runtime.a' % config.exec_root
     )
 )

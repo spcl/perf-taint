@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include "ExtrapInstrumenter.hpp"
+//#include "ExtrapInstrumenter.hpp"
 
 class Grid
 {
@@ -12,7 +12,7 @@ public:
         x(_x),
         y(_y),
         z(_z),
-        data(new double[x*y])
+        data(new double[x*y]())
         {}
     ~Grid()
     {

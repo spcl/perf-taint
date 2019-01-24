@@ -13,6 +13,56 @@
           ],
           "instance": {
             "0": {
+              "level": 0
+            },
+            "1": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "global2"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "2": [
+              {
+                "0": {
+                  "level": 0
+                },
+                "2": [
+                  {
+                    "0": {
+                      "level": 0,
+                      "params": [
+                        [
+                          "global"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            ],
+            "3": [
+              {
+                "0": {
+                  "level": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -20,7 +70,60 @@
                   "x2"
                 ]
               ]
-            }
+            },
+            "1": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1",
+                      "global2"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "2": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                },
+                "2": [
+                  {
+                    "0": {
+                      "level": 0,
+                      "params": [
+                        [
+                          "x1",
+                          "x2",
+                          "global"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            ],
+            "3": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -43,6 +146,35 @@
           ],
           "instance": {
             "0": {
+              "level": 0
+            },
+            "2": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "global"
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              7
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
               "level": 0,
               "params": [
                 [
@@ -50,7 +182,21 @@
                   "x2"
                 ]
               ]
-            }
+            },
+            "2": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1",
+                      "x2",
+                      "global"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -65,12 +211,12 @@
             [
               4,
               7,
-              6
+              5
             ],
             [
               4,
               2,
-              6
+              5
             ]
           ],
           "instance": {
@@ -113,12 +259,12 @@
             [
               4,
               7,
-              6
+              5
             ],
             [
               4,
               2,
-              6
+              5
             ]
           ],
           "instance": {
@@ -191,8 +337,8 @@
     "f_not_prune(int, int)",
     "void register_variable<int>(int*, char const*)",
     "main",
-    "void register_variable<double>(double*, char const*)",
     "g_prune(int)",
+    "void register_variable<double>(double*, char const*)",
     "f_prune(int, int)"
   ],
   "functions_mangled_names": [
@@ -201,8 +347,8 @@
     "_Z11f_not_pruneii",
     "_Z17register_variableIiEvPT_PKc",
     "main",
-    "_Z17register_variableIdEvPT_PKc",
     "_Z7g_prunei",
+    "_Z17register_variableIdEvPT_PKc",
     "_Z7f_pruneii"
   ],
   "functions_names": [
@@ -211,8 +357,8 @@
     "f_not_prune",
     "register_variable<int>",
     "main",
-    "register_variable<double>",
     "g_prune",
+    "register_variable<double>",
     "f_prune"
   ],
   "parameters": [

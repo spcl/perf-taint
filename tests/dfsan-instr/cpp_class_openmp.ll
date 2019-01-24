@@ -1,5 +1,6 @@
-; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %omplink %t1 -o %t2 && OMP_NUM_THREADS=1 %execparams %t2 10 10 10 | diff -w %s.json -
-; RUN: %jsonconvert %s.json | diff -w %s.processed.json -
+;; : opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %omplink %t1 -o %t2 && OMP_NUM_THREADS=1 %execparams %t2 10 10 10 | diff -w %s.json -
+;; : %jsonconvert %s.json | diff -w %s.processed.json -
+
 ; ModuleID = 'tests/dfsan-instr/cpp_class_openmp.cpp'
 source_filename = "tests/dfsan-instr/cpp_class_openmp.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

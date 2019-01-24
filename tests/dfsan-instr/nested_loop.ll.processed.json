@@ -8,7 +8,7 @@
         {
           "callstack": [
             [
-              6
+              5
             ]
           ],
           "data": [
@@ -43,7 +43,7 @@
         {
           "callstack": [
             [
-              6
+              5
             ]
           ],
           "data": [
@@ -120,7 +120,7 @@
         {
           "callstack": [
             [
-              6
+              5
             ]
           ],
           "data": [
@@ -167,7 +167,7 @@
         {
           "callstack": [
             [
-              6
+              5
             ]
           ],
           "data": [
@@ -217,8 +217,8 @@
     "perf_nest_linear(int, int)",
     "perf_nest_quadr(int, int)",
     "perf_nest_multiple_quadr(int, int)",
-    "void register_variable<int>(int*, char const*)",
-    "main"
+    "main",
+    "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
     "_Z17perf_nest_unknownii",
@@ -226,8 +226,8 @@
     "_Z16perf_nest_linearii",
     "_Z15perf_nest_quadrii",
     "_Z24perf_nest_multiple_quadrii",
-    "_Z17register_variableIiEvPT_PKc",
-    "main"
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
     "perf_nest_unknown",
@@ -235,8 +235,8 @@
     "perf_nest_linear",
     "perf_nest_quadr",
     "perf_nest_multiple_quadr",
-    "register_variable<int>",
-    "main"
+    "main",
+    "register_variable<int>"
   ],
   "parameters": [
     "x1",
