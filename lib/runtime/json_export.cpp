@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <tuple>
 
 #include <nlohmann/json.hpp>
@@ -7,7 +8,7 @@
 
 typedef nlohmann::json json_t;
 
-#define DEBUG
+//#define DEBUG
 
 json_t * __dfsw_json_get()
 {
@@ -93,23 +94,34 @@ void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth);
 
 void __dfsw_json_update_loop_level(json_t & loops, int depth)
 {
-    std::cerr << "UPDATE: " << loops << '\n';
+    //std::cerr << "UPDATE: " << loops << '\n';
     for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
-        it.value()["level"] = it.value()["level"].get<int>() + depth;
-        auto subloops = it.value().find("loops");
-        if(subloops != it.value().end())
-            __dfsw_json_update_loop_level_subloop(*subloops, depth);
+        //std::cerr << "UPDATEX " << it.value() << '\n';
+        if(it.value().is_array()) {
+            //std::cerr << "UPDATEX ARRAY " << it.value() << '\n';
+            for(auto & loop : it.value())
+                __dfsw_json_update_loop_level(loop, depth);
+        } else {
+            //std::cerr << "UPDATEX LEVEL BEFORE " << loops << '\n';
+            it.value()["level"] = it.value()["level"].get<int>() + depth;
+            //std::cerr << "UPDATEX LEVEL AFTER " << loops << '\n';
+            auto subloops = it.value().find("loops");
+            if(subloops != it.value().end())
+                __dfsw_json_update_loop_level_subloop(*subloops, depth);
+        }
     }
 }
 
 void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
 {
     //[ loop, ... ])
+    //std::cerr << "UPDATE: " << loops << '\n';
     if(loops.is_array()) {
         for(auto & loop : loops)
             __dfsw_json_update_loop_level(loop, depth);
     } else {
         for(auto it = loops.begin(), end = loops.end(); it != end; ++it) {
+            //std::cerr << "UPDATE LOOP: " << it.value() << '\n';
             //{ loop_idx: [ loop, ... ])
             if(it.value().is_array()) {
                 __dfsw_json_update_loop_level_subloop(it.value(), depth);
@@ -323,7 +335,9 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             fprintf(stderr, "Function %d Idx %zu LoopIdx %d Len %zu Size %d\n", function_idx, i, (begin + i)->nested_loop_idx, (begin + i)->len, (begin + i)->loop_size_at_level);
 #endif
     }
-    fprintf(stderr, "Function %d CallsCount %d LoopCount %d Begin %p End %p\n", function_idx, calls_count, loop_count, begin, end);
+#ifdef DEBUG
+    fprintf(stderr, "Function %d CallsCount %d LoopCount %d DepsOffset %d Begin %p End %p\n", function_idx, calls_count, loop_count, deps_offset, begin, end);
+#endif
     for(int loop_idx = 0; loop_idx < loop_count; ++loop_idx) {
 
         int32_t structure_entries = loop_data[1];
@@ -507,7 +521,6 @@ bool __dfsw_json_loop_is_important(json_t & loop_set)
         } else {
             important |= __dfsw_is_important(loop);
         }
-        std::cerr << "IMPORTANT " << important << '\n';
         global_important |= important;
     }
     return global_important;
@@ -620,7 +633,25 @@ void __dfsw_dump_json_output()
     out["functions_names"] = std::move(functions_names);
     out["functions_mangled_names"] = std::move(functions_mangled_names);
     out["functions_demangled_names"] = std::move(functions_demangled_names);
-    std::cout << out.dump(2) << std::endl;
+    if(strcmp(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME, "")) {
+        if(__EXTRAP_INSTRUMENTATION_MPI_RANK != -1) {
+            std::ofstream file(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME
+                    + std::string("_")
+                    + std::to_string(__EXTRAP_INSTRUMENTATION_MPI_RANK)
+                    + ".json",
+                    std::ofstream::out);
+            file << out.dump(2) << std::endl;
+            file.close();
+        } else {
+            std::ofstream file(
+                __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME + std::string(".json"),
+                std::ofstream::out
+                );
+            file << out.dump(2) << std::endl;
+            file.close();
+        }
+    } else
+        std::cout << out.dump(2) << std::endl;
     delete &out;
     delete[] &__dfsw_json_get(0);
 }
