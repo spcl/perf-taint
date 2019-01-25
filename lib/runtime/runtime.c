@@ -124,6 +124,7 @@ int16_t __dfsw_EXTRAP_CURRENT_CALL()
 int32_t __dfsw_EXTRAP_VAR_ID()
 {
     static int32_t id = 0;
+    __EXTRAP_INSTRUMENTATION_PARAMS_COUNT++;
     return id++;
 }
 
@@ -258,6 +259,7 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t f
     int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
     offset += nested_loop_idx;
     uint16_t found_params = 0;
+    // We iterate only to # of currently known parameters
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
             bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);

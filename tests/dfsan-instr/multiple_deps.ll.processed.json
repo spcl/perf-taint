@@ -8,7 +8,7 @@
         {
           "callstack": [
             [
-              6
+              3
             ]
           ],
           "data": [
@@ -45,7 +45,7 @@
         {
           "callstack": [
             [
-              6
+              3
             ]
           ],
           "data": [
@@ -96,7 +96,7 @@
         {
           "callstack": [
             [
-              6
+              3
             ]
           ],
           "data": [
@@ -130,31 +130,31 @@
     "f(int, int)",
     "g(int, int)",
     "h(test*)",
-    "test::length()",
-    "void register_variable<int>(int*, char const*)",
-    "mul(int, int)",
     "main",
-    "test::test(int, int, int)"
+    "void register_variable<int>(int*, char const*)",
+    "test::test(int, int, int)",
+    "mul(int, int)",
+    "test::length()"
   ],
   "functions_mangled_names": [
     "_Z1fii",
     "_Z1gii",
     "_Z1hP4test",
-    "_ZN4test6lengthEv",
-    "_Z17register_variableIiEvPT_PKc",
-    "_Z3mulii",
     "main",
-    "_ZN4testC2Eiii"
+    "_Z17register_variableIiEvPT_PKc",
+    "_ZN4testC2Eiii",
+    "_Z3mulii",
+    "_ZN4test6lengthEv"
   ],
   "functions_names": [
     "f",
     "g",
     "h",
-    "length",
-    "register_variable<int>",
-    "mul",
     "main",
-    "test"
+    "register_variable<int>",
+    "test",
+    "mul",
+    "length"
   ],
   "parameters": [
     "x1",

@@ -39,6 +39,11 @@ static llvm::cl::opt<std::string> OutputFileName("extrap-extractor-out-name",
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
+static llvm::cl::opt<std::string> FunctionDatabase("extrap-extractor-func-database",
+                                       llvm::cl::desc("Input database with functions."),
+                                       llvm::cl::init(""),
+                                       llvm::cl::value_desc("filename"));
+
 static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
                                        llvm::cl::init(true),
@@ -114,7 +119,6 @@ namespace extrap {
         // TODO: why is main treated differently?
         // why is main not inserted?
         bool is_important = runOnFunction(*main);
-
         for(llvm::Function & f : m)
         {
             if(instrumented_functions.find(&f) == instrumented_functions.end())
@@ -126,7 +130,7 @@ namespace extrap {
             // For each unimportant function, add it to a database
             // for callstack generation
             if(!t.second.hasValue()) {
-                notinstrumented_functions.push_back(t.first);
+                //notinstrumented_functions.push_back(t.first);
             }
         }
 
@@ -199,6 +203,7 @@ namespace extrap {
 
     void DfsanInstr::foundFunction(llvm::Function &f, bool important, int counter)
     {
+        llvm::errs() << " Found function: " << f.getName() << ' ' << instrumented_functions_counter << '\n';
         auto it = instrumented_functions.find(&f);
         assert(it == instrumented_functions.end());
         if(important) {
@@ -221,8 +226,10 @@ namespace extrap {
                     llvm::Optional<Function>(Function(counter, true));
             }
             // Insert information that function is processed and unimportant
-            else
+            else {
                 instrumented_functions[&f] = llvm::Optional<Function>();
+                notinstrumented_functions.push_back(&f);
+            }
             stats.empty_function();
         }
     }
@@ -575,8 +582,13 @@ namespace extrap {
         // int32_t params_count
         glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
-                builder.getInt32(params_count),
+                builder.getInt32(0),
                 glob_params_count_name);
+
+        glob_params_max_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(params_count),
+                glob_params_max_count_name);
 
         // char * output_filename
         glob_params_count = new llvm::GlobalVariable(m,
@@ -746,12 +758,12 @@ namespace extrap {
                 glob_labels_name);
 
         // int32_t instrumentation_results[functions * params];
-        array_type = llvm::ArrayType::get(builder.getInt32Ty(),
-                params_count * functions_count);
-        glob_result_array = new llvm::GlobalVariable(m,
-                array_type, false, llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantAggregateZero::get(array_type),
-                glob_result_array_name);
+        //array_type = llvm::ArrayType::get(builder.getInt32Ty(),
+        //        params_count * functions_count);
+        //glob_result_array = new llvm::GlobalVariable(m,
+        //        array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+        //        llvm::ConstantAggregateZero::get(array_type),
+        //        glob_result_array_name);
 
         // callsite_count * operand_count
         // last element stores the final size
@@ -940,7 +952,6 @@ namespace extrap {
     void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
             const llvm::BranchInst * br)
     {
-        assert(glob_result_array);
         // insert call before branch
         InstrumenterVisiter vis(*this,
             [this, nested_loop_idx, function_idx]
@@ -982,7 +993,6 @@ namespace extrap {
 
     void Instrumenter::checkCF(int function_idx, llvm::BranchInst * br)
     {
-        assert(glob_result_array);
         // insert call before branch
         InstrumenterVisiter vis(*this,
             [this, function_idx](uint64_t size, llvm::Value * ptr) {

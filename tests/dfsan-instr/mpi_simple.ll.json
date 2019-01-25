@@ -1,0 +1,61 @@
+{
+  "functions": {
+    "_Z1fPdm": {
+      "file": "tests/dfsan-instr/mpi_simple.cpp",
+      "func_idx": 0,
+      "line": 9,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "size",
+                  "ranks"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(double*, unsigned long)",
+    "h_nested(double*, unsigned long)",
+    "main",
+    "void register_variable<int>(int*, char const*)",
+    "h(double*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fPdm",
+    "_Z8h_nestedPdm",
+    "main",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z1hPd"
+  ],
+  "functions_names": [
+    "f",
+    "h_nested",
+    "main",
+    "register_variable<int>",
+    "h"
+  ],
+  "parameters": [
+    "size",
+    "ranks"
+  ],
+  "unimportant_functions": {
+    "_Z8h_nestedPdm": {
+      "file": "tests/dfsan-instr/mpi_simple.cpp",
+      "func_idx": 1,
+      "line": 24
+    }
+  }
+}

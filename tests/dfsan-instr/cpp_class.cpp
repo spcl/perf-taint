@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-//#include "ExtrapInstrumenter.hpp"
+#include "ExtraPInstrumenter.hpp"
 
 class Grid
 {
@@ -50,8 +50,6 @@ public:
     }
 };
 
-#define EXTRAP
-
 int main(int argc, char ** argv)
 {
     int size_x EXTRAP = atoi(argv[1]);
@@ -59,8 +57,8 @@ int main(int argc, char ** argv)
     int size_z EXTRAP = atoi(argv[3]);
 
     Grid * g;
-    //register_variable(&size_x, VARIABLE_NAME(size_x));
-    //register_variable(&size_y, VARIABLE_NAME(size_y));
+    register_variable(&size_x, VARIABLE_NAME(size_x));
+    register_variable(&size_y, VARIABLE_NAME(size_y));
     // verify that labels are propagated to class fields
     g = new Grid(size_x, size_y, size_z);
 

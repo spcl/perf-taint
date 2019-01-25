@@ -28,6 +28,27 @@ namespace llvm {
 
 namespace extrap {
 
+    using json_t = nlohmann::json;
+
+    struct FunctionDatabase
+    {
+        struct DataBaseEntry
+        {
+            json_t loops_data;
+        };
+
+        struct ImplicitParameter
+        {
+            std::string name;
+            int param_idx;
+        };
+
+        std::unordered_map<std::string, DataBaseEntry> functions;
+        llvm::SmallVector<ImplicitParameter, 5> implicit_parameters;
+
+        FunctionDatabase(const json_t &, int params_count);
+    };
+
     struct Statistics
     {
         int functions_count;
@@ -128,6 +149,7 @@ namespace extrap {
         // 2*`functions` integers, line of code and file index, compile time
         llvm::GlobalVariable * glob_funcs_dbg;
         llvm::GlobalVariable * glob_params_count;
+        llvm::GlobalVariable * glob_params_max_count;
         // `params` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_params_names;
 
@@ -172,6 +194,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_params_count_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
+        static constexpr const char * glob_params_max_count_name
+            = "__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT";
         static constexpr const char * glob_result_array_name
             = "__EXTRAP_INSTRUMENTATION_RESULTS";
         static constexpr const char * glob_funcs_args_name

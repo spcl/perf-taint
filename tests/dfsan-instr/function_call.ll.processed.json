@@ -3,12 +3,12 @@
     "_Z1fii": {
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 0,
-      "line": 9,
+      "line": 8,
       "loops": [
         {
           "callstack": [
             [
-              4
+              3
             ]
           ],
           "data": [
@@ -40,12 +40,12 @@
     "_Z1hi": {
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 1,
-      "line": 17,
+      "line": 16,
       "loops": [
         {
           "callstack": [
             [
-              4
+              3
             ]
           ],
           "data": [
@@ -74,8 +74,8 @@
         {
           "callstack": [
             [
-              4,
-              3
+              3,
+              5
             ]
           ],
           "data": [
@@ -106,12 +106,12 @@
     "_Z1iiii": {
       "file": "tests/dfsan-instr/function_call.cpp",
       "func_idx": 2,
-      "line": 30,
+      "line": 29,
       "loops": [
         {
           "callstack": [
             [
-              4
+              3
             ]
           ],
           "data": [
@@ -145,25 +145,25 @@
     "f(int, int)",
     "h(int)",
     "i(int, int, int)",
-    "g(int)",
     "main",
-    "void register_variable<int>(int*, char const*)"
+    "void register_variable<int>(int*, char const*)",
+    "g(int)"
   ],
   "functions_mangled_names": [
     "_Z1fii",
     "_Z1hi",
     "_Z1iiii",
-    "_Z1gi",
     "main",
-    "_Z17register_variableIiEvPT_PKc"
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z1gi"
   ],
   "functions_names": [
     "f",
     "h",
     "i",
-    "g",
     "main",
-    "register_variable<int>"
+    "register_variable<int>",
+    "g"
   ],
   "parameters": [
     "x1",
