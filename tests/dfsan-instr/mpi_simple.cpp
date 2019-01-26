@@ -14,6 +14,15 @@ void f(double * b, size_t size)
     }
 }
 
+double h_multiple_loops(double * data, size_t size)
+{
+    for(int i = 0; i < size; ++i)
+        data[i]++;
+    double acc_rcv = data[0];
+    MPI_Reduce(data, &acc_rcv, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    return acc_rcv;
+}
+
 double h(double * data)
 {
     double acc_rcv = data[0];
@@ -43,7 +52,8 @@ int main(int argc, char ** argv)
     int start = size * rank_id;
     double * data = (double*) calloc(size, sizeof(double));
     f(data, size);
-    double acc_rcv = h(data);
+    double acc_rcv = h_multiple_loops(data, size);
+    h_nested(data, size);
     if(rank_id == 0)
         printf("%f\n", acc_rcv);
     free(data);

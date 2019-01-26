@@ -58,66 +58,117 @@ define dso_local void @_Z1fPdm(double*, i64) #0 !dbg !109 {
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
 
 ; Function Attrs: noinline optnone uwtable
-define dso_local double @_Z1hPd(double*) #2 !dbg !128 {
-  %2 = alloca double*, align 8
-  %3 = alloca double, align 8
-  store double* %0, double** %2, align 8
-  call void @llvm.dbg.declare(metadata double** %2, metadata !131, metadata !DIExpression()), !dbg !132
-  call void @llvm.dbg.declare(metadata double* %3, metadata !133, metadata !DIExpression()), !dbg !134
-  %4 = load double*, double** %2, align 8, !dbg !135
-  %5 = getelementptr inbounds double, double* %4, i64 0, !dbg !135
-  %6 = load double, double* %5, align 8, !dbg !135
-  store double %6, double* %3, align 8, !dbg !134
-  %7 = load double*, double** %2, align 8, !dbg !136
-  %8 = bitcast double* %7 to i8*, !dbg !136
-  %9 = bitcast double* %3 to i8*, !dbg !137
-  %10 = call i32 @MPI_Reduce(i8* %8, i8* %9, i32 1, %struct.ompi_datatype_t* bitcast (%struct.ompi_predefined_datatype_t* @ompi_mpi_double to %struct.ompi_datatype_t*), %struct.ompi_op_t* bitcast (%struct.ompi_predefined_op_t* @ompi_mpi_op_sum to %struct.ompi_op_t*), i32 0, %struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*)), !dbg !138
-  %11 = load double, double* %3, align 8, !dbg !139
-  ret double %11, !dbg !140
+define dso_local double @_Z16h_multiple_loopsPdm(double*, i64) #2 !dbg !128 {
+  %3 = alloca double*, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i32, align 4
+  %6 = alloca double, align 8
+  store double* %0, double** %3, align 8
+  call void @llvm.dbg.declare(metadata double** %3, metadata !131, metadata !DIExpression()), !dbg !132
+  store i64 %1, i64* %4, align 8
+  call void @llvm.dbg.declare(metadata i64* %4, metadata !133, metadata !DIExpression()), !dbg !134
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !135, metadata !DIExpression()), !dbg !137
+  store i32 0, i32* %5, align 4, !dbg !137
+  br label %7, !dbg !138
+
+; <label>:7:                                      ; preds = %19, %2
+  %8 = load i32, i32* %5, align 4, !dbg !139
+  %9 = sext i32 %8 to i64, !dbg !139
+  %10 = load i64, i64* %4, align 8, !dbg !141
+  %11 = icmp ult i64 %9, %10, !dbg !142
+  br i1 %11, label %12, label %22, !dbg !143
+
+; <label>:12:                                     ; preds = %7
+  %13 = load double*, double** %3, align 8, !dbg !144
+  %14 = load i32, i32* %5, align 4, !dbg !145
+  %15 = sext i32 %14 to i64, !dbg !144
+  %16 = getelementptr inbounds double, double* %13, i64 %15, !dbg !144
+  %17 = load double, double* %16, align 8, !dbg !146
+  %18 = fadd double %17, 1.000000e+00, !dbg !146
+  store double %18, double* %16, align 8, !dbg !146
+  br label %19, !dbg !144
+
+; <label>:19:                                     ; preds = %12
+  %20 = load i32, i32* %5, align 4, !dbg !147
+  %21 = add nsw i32 %20, 1, !dbg !147
+  store i32 %21, i32* %5, align 4, !dbg !147
+  br label %7, !dbg !148, !llvm.loop !149
+
+; <label>:22:                                     ; preds = %7
+  call void @llvm.dbg.declare(metadata double* %6, metadata !151, metadata !DIExpression()), !dbg !152
+  %23 = load double*, double** %3, align 8, !dbg !153
+  %24 = getelementptr inbounds double, double* %23, i64 0, !dbg !153
+  %25 = load double, double* %24, align 8, !dbg !153
+  store double %25, double* %6, align 8, !dbg !152
+  %26 = load double*, double** %3, align 8, !dbg !154
+  %27 = bitcast double* %26 to i8*, !dbg !154
+  %28 = bitcast double* %6 to i8*, !dbg !155
+  %29 = call i32 @MPI_Reduce(i8* %27, i8* %28, i32 1, %struct.ompi_datatype_t* bitcast (%struct.ompi_predefined_datatype_t* @ompi_mpi_double to %struct.ompi_datatype_t*), %struct.ompi_op_t* bitcast (%struct.ompi_predefined_op_t* @ompi_mpi_op_sum to %struct.ompi_op_t*), i32 0, %struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*)), !dbg !156
+  %30 = load double, double* %6, align 8, !dbg !157
+  ret double %30, !dbg !158
 }
 
 declare dso_local i32 @MPI_Reduce(i8*, i8*, i32, %struct.ompi_datatype_t*, %struct.ompi_op_t*, i32, %struct.ompi_communicator_t*) #3
 
 ; Function Attrs: noinline optnone uwtable
-define dso_local void @_Z8h_nestedPdm(double*, i64) #2 !dbg !141 {
+define dso_local double @_Z1hPd(double*) #2 !dbg !159 {
+  %2 = alloca double*, align 8
+  %3 = alloca double, align 8
+  store double* %0, double** %2, align 8
+  call void @llvm.dbg.declare(metadata double** %2, metadata !162, metadata !DIExpression()), !dbg !163
+  call void @llvm.dbg.declare(metadata double* %3, metadata !164, metadata !DIExpression()), !dbg !165
+  %4 = load double*, double** %2, align 8, !dbg !166
+  %5 = getelementptr inbounds double, double* %4, i64 0, !dbg !166
+  %6 = load double, double* %5, align 8, !dbg !166
+  store double %6, double* %3, align 8, !dbg !165
+  %7 = load double*, double** %2, align 8, !dbg !167
+  %8 = bitcast double* %7 to i8*, !dbg !167
+  %9 = bitcast double* %3 to i8*, !dbg !168
+  %10 = call i32 @MPI_Reduce(i8* %8, i8* %9, i32 1, %struct.ompi_datatype_t* bitcast (%struct.ompi_predefined_datatype_t* @ompi_mpi_double to %struct.ompi_datatype_t*), %struct.ompi_op_t* bitcast (%struct.ompi_predefined_op_t* @ompi_mpi_op_sum to %struct.ompi_op_t*), i32 0, %struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*)), !dbg !169
+  %11 = load double, double* %3, align 8, !dbg !170
+  ret double %11, !dbg !171
+}
+
+; Function Attrs: noinline optnone uwtable
+define dso_local void @_Z8h_nestedPdm(double*, i64) #2 !dbg !172 {
   %3 = alloca double*, align 8
   %4 = alloca i64, align 8
   %5 = alloca i32, align 4
   store double* %0, double** %3, align 8
-  call void @llvm.dbg.declare(metadata double** %3, metadata !142, metadata !DIExpression()), !dbg !143
+  call void @llvm.dbg.declare(metadata double** %3, metadata !173, metadata !DIExpression()), !dbg !174
   store i64 %1, i64* %4, align 8
-  call void @llvm.dbg.declare(metadata i64* %4, metadata !144, metadata !DIExpression()), !dbg !145
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !146, metadata !DIExpression()), !dbg !148
-  store i32 0, i32* %5, align 4, !dbg !148
-  br label %6, !dbg !149
+  call void @llvm.dbg.declare(metadata i64* %4, metadata !175, metadata !DIExpression()), !dbg !176
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !177, metadata !DIExpression()), !dbg !179
+  store i32 0, i32* %5, align 4, !dbg !179
+  br label %6, !dbg !180
 
 ; <label>:6:                                      ; preds = %17, %2
-  %7 = load i32, i32* %5, align 4, !dbg !150
-  %8 = sext i32 %7 to i64, !dbg !150
-  %9 = load i64, i64* %4, align 8, !dbg !152
-  %10 = icmp ult i64 %8, %9, !dbg !153
-  br i1 %10, label %11, label %20, !dbg !154
+  %7 = load i32, i32* %5, align 4, !dbg !181
+  %8 = sext i32 %7 to i64, !dbg !181
+  %9 = load i64, i64* %4, align 8, !dbg !183
+  %10 = icmp ult i64 %8, %9, !dbg !184
+  br i1 %10, label %11, label %20, !dbg !185
 
 ; <label>:11:                                     ; preds = %6
-  %12 = load double*, double** %3, align 8, !dbg !155
-  %13 = load i32, i32* %5, align 4, !dbg !157
-  %14 = sext i32 %13 to i64, !dbg !155
-  %15 = getelementptr inbounds double, double* %12, i64 %14, !dbg !155
-  %16 = call double @_Z1hPd(double* %15), !dbg !158
-  br label %17, !dbg !159
+  %12 = load double*, double** %3, align 8, !dbg !186
+  %13 = load i32, i32* %5, align 4, !dbg !188
+  %14 = sext i32 %13 to i64, !dbg !186
+  %15 = getelementptr inbounds double, double* %12, i64 %14, !dbg !186
+  %16 = call double @_Z1hPd(double* %15), !dbg !189
+  br label %17, !dbg !190
 
 ; <label>:17:                                     ; preds = %11
-  %18 = load i32, i32* %5, align 4, !dbg !160
-  %19 = add nsw i32 %18, 1, !dbg !160
-  store i32 %19, i32* %5, align 4, !dbg !160
-  br label %6, !dbg !161, !llvm.loop !162
+  %18 = load i32, i32* %5, align 4, !dbg !191
+  %19 = add nsw i32 %18, 1, !dbg !191
+  store i32 %19, i32* %5, align 4, !dbg !191
+  br label %6, !dbg !192, !llvm.loop !193
 
 ; <label>:20:                                     ; preds = %6
-  ret void, !dbg !164
+  ret void, !dbg !195
 }
 
 ; Function Attrs: noinline norecurse optnone uwtable
-define dso_local i32 @main(i32, i8**) #4 !dbg !165 {
+define dso_local i32 @main(i32, i8**) #4 !dbg !196 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   %5 = alloca i8**, align 8
@@ -129,65 +180,71 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !165 {
   %11 = alloca double, align 8
   store i32 0, i32* %3, align 4
   store i32 %0, i32* %4, align 4
-  call void @llvm.dbg.declare(metadata i32* %4, metadata !171, metadata !DIExpression()), !dbg !172
+  call void @llvm.dbg.declare(metadata i32* %4, metadata !202, metadata !DIExpression()), !dbg !203
   store i8** %1, i8*** %5, align 8
-  call void @llvm.dbg.declare(metadata i8*** %5, metadata !173, metadata !DIExpression()), !dbg !174
-  %12 = call i32 @MPI_Init(i32* %4, i8*** %5), !dbg !175
-  call void @llvm.dbg.declare(metadata i32* %6, metadata !176, metadata !DIExpression()), !dbg !177
-  %13 = bitcast i32* %6 to i8*, !dbg !178
-  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 34), !dbg !178
-  %14 = load i8**, i8*** %5, align 8, !dbg !179
-  %15 = getelementptr inbounds i8*, i8** %14, i64 1, !dbg !179
-  %16 = load i8*, i8** %15, align 8, !dbg !179
-  %17 = call i32 @atoi(i8* %16) #8, !dbg !180
-  store i32 %17, i32* %6, align 4, !dbg !177
-  call void @_Z17register_variableIiEvPT_PKc(i32* %6, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.2, i32 0, i32 0)), !dbg !181
-  call void @llvm.dbg.declare(metadata i32* %7, metadata !182, metadata !DIExpression()), !dbg !183
-  %18 = bitcast i32* %7 to i8*, !dbg !184
-  call void @llvm.var.annotation(i8* %18, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 36), !dbg !184
-  store i32 1, i32* %7, align 4, !dbg !183
-  call void @llvm.dbg.declare(metadata i32* %8, metadata !185, metadata !DIExpression()), !dbg !186
-  %19 = call i32 @MPI_Comm_size(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %7), !dbg !187
-  %20 = call i32 @MPI_Comm_rank(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %8), !dbg !188
-  call void @_Z17register_variableIiEvPT_PKc(i32* %7, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.3, i32 0, i32 0)), !dbg !189
-  %21 = load i32, i32* %7, align 4, !dbg !190
-  %22 = load i32, i32* %6, align 4, !dbg !191
-  %23 = sdiv i32 %22, %21, !dbg !191
-  store i32 %23, i32* %6, align 4, !dbg !191
-  call void @llvm.dbg.declare(metadata i32* %9, metadata !192, metadata !DIExpression()), !dbg !193
-  %24 = load i32, i32* %6, align 4, !dbg !194
-  %25 = load i32, i32* %8, align 4, !dbg !195
-  %26 = mul nsw i32 %24, %25, !dbg !196
-  store i32 %26, i32* %9, align 4, !dbg !193
-  call void @llvm.dbg.declare(metadata double** %10, metadata !197, metadata !DIExpression()), !dbg !198
-  %27 = load i32, i32* %6, align 4, !dbg !199
-  %28 = sext i32 %27 to i64, !dbg !199
-  %29 = call noalias i8* @calloc(i64 %28, i64 8) #5, !dbg !200
-  %30 = bitcast i8* %29 to double*, !dbg !201
-  store double* %30, double** %10, align 8, !dbg !198
-  %31 = load double*, double** %10, align 8, !dbg !202
-  %32 = load i32, i32* %6, align 4, !dbg !203
-  %33 = sext i32 %32 to i64, !dbg !203
-  call void @_Z1fPdm(double* %31, i64 %33), !dbg !204
-  call void @llvm.dbg.declare(metadata double* %11, metadata !205, metadata !DIExpression()), !dbg !206
-  %34 = load double*, double** %10, align 8, !dbg !207
-  %35 = call double @_Z1hPd(double* %34), !dbg !208
-  store double %35, double* %11, align 8, !dbg !206
-  %36 = load i32, i32* %8, align 4, !dbg !209
-  %37 = icmp eq i32 %36, 0, !dbg !211
-  br i1 %37, label %38, label %41, !dbg !212
+  call void @llvm.dbg.declare(metadata i8*** %5, metadata !204, metadata !DIExpression()), !dbg !205
+  %12 = call i32 @MPI_Init(i32* %4, i8*** %5), !dbg !206
+  call void @llvm.dbg.declare(metadata i32* %6, metadata !207, metadata !DIExpression()), !dbg !208
+  %13 = bitcast i32* %6 to i8*, !dbg !209
+  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 43), !dbg !209
+  %14 = load i8**, i8*** %5, align 8, !dbg !210
+  %15 = getelementptr inbounds i8*, i8** %14, i64 1, !dbg !210
+  %16 = load i8*, i8** %15, align 8, !dbg !210
+  %17 = call i32 @atoi(i8* %16) #8, !dbg !211
+  store i32 %17, i32* %6, align 4, !dbg !208
+  call void @_Z17register_variableIiEvPT_PKc(i32* %6, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.2, i32 0, i32 0)), !dbg !212
+  call void @llvm.dbg.declare(metadata i32* %7, metadata !213, metadata !DIExpression()), !dbg !214
+  %18 = bitcast i32* %7 to i8*, !dbg !215
+  call void @llvm.var.annotation(i8* %18, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 45), !dbg !215
+  store i32 1, i32* %7, align 4, !dbg !214
+  call void @llvm.dbg.declare(metadata i32* %8, metadata !216, metadata !DIExpression()), !dbg !217
+  %19 = call i32 @MPI_Comm_size(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %7), !dbg !218
+  %20 = call i32 @MPI_Comm_rank(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %8), !dbg !219
+  call void @_Z17register_variableIiEvPT_PKc(i32* %7, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.3, i32 0, i32 0)), !dbg !220
+  %21 = load i32, i32* %7, align 4, !dbg !221
+  %22 = load i32, i32* %6, align 4, !dbg !222
+  %23 = sdiv i32 %22, %21, !dbg !222
+  store i32 %23, i32* %6, align 4, !dbg !222
+  call void @llvm.dbg.declare(metadata i32* %9, metadata !223, metadata !DIExpression()), !dbg !224
+  %24 = load i32, i32* %6, align 4, !dbg !225
+  %25 = load i32, i32* %8, align 4, !dbg !226
+  %26 = mul nsw i32 %24, %25, !dbg !227
+  store i32 %26, i32* %9, align 4, !dbg !224
+  call void @llvm.dbg.declare(metadata double** %10, metadata !228, metadata !DIExpression()), !dbg !229
+  %27 = load i32, i32* %6, align 4, !dbg !230
+  %28 = sext i32 %27 to i64, !dbg !230
+  %29 = call noalias i8* @calloc(i64 %28, i64 8) #5, !dbg !231
+  %30 = bitcast i8* %29 to double*, !dbg !232
+  store double* %30, double** %10, align 8, !dbg !229
+  %31 = load double*, double** %10, align 8, !dbg !233
+  %32 = load i32, i32* %6, align 4, !dbg !234
+  %33 = sext i32 %32 to i64, !dbg !234
+  call void @_Z1fPdm(double* %31, i64 %33), !dbg !235
+  call void @llvm.dbg.declare(metadata double* %11, metadata !236, metadata !DIExpression()), !dbg !237
+  %34 = load double*, double** %10, align 8, !dbg !238
+  %35 = load i32, i32* %6, align 4, !dbg !239
+  %36 = sext i32 %35 to i64, !dbg !239
+  %37 = call double @_Z16h_multiple_loopsPdm(double* %34, i64 %36), !dbg !240
+  store double %37, double* %11, align 8, !dbg !237
+  %38 = load double*, double** %10, align 8, !dbg !241
+  %39 = load i32, i32* %6, align 4, !dbg !242
+  %40 = sext i32 %39 to i64, !dbg !242
+  call void @_Z8h_nestedPdm(double* %38, i64 %40), !dbg !243
+  %41 = load i32, i32* %8, align 4, !dbg !244
+  %42 = icmp eq i32 %41, 0, !dbg !246
+  br i1 %42, label %43, label %46, !dbg !247
 
-; <label>:38:                                     ; preds = %2
-  %39 = load double, double* %11, align 8, !dbg !213
-  %40 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.4, i32 0, i32 0), double %39), !dbg !214
-  br label %41, !dbg !214
+; <label>:43:                                     ; preds = %2
+  %44 = load double, double* %11, align 8, !dbg !248
+  %45 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.4, i32 0, i32 0), double %44), !dbg !249
+  br label %46, !dbg !249
 
-; <label>:41:                                     ; preds = %38, %2
-  %42 = load double*, double** %10, align 8, !dbg !215
-  %43 = bitcast double* %42 to i8*, !dbg !215
-  call void @free(i8* %43) #5, !dbg !216
-  %44 = call i32 @MPI_Finalize(), !dbg !217
-  ret i32 0, !dbg !218
+; <label>:46:                                     ; preds = %43, %2
+  %47 = load double*, double** %10, align 8, !dbg !250
+  %48 = bitcast double* %47 to i8*, !dbg !250
+  call void @free(i8* %48) #5, !dbg !251
+  %49 = call i32 @MPI_Finalize(), !dbg !252
+  ret i32 0, !dbg !253
 }
 
 declare dso_local i32 @MPI_Init(i32*, i8***) #3
@@ -199,25 +256,25 @@ declare void @llvm.var.annotation(i8*, i8*, i8*, i32) #5
 declare dso_local i32 @atoi(i8*) #6
 
 ; Function Attrs: noinline optnone uwtable
-define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #2 comdat !dbg !219 {
+define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #2 comdat !dbg !254 {
   %3 = alloca i32*, align 8
   %4 = alloca i8*, align 8
   %5 = alloca i32, align 4
   store i32* %0, i32** %3, align 8
-  call void @llvm.dbg.declare(metadata i32** %3, metadata !228, metadata !DIExpression()), !dbg !229
+  call void @llvm.dbg.declare(metadata i32** %3, metadata !263, metadata !DIExpression()), !dbg !264
   store i8* %1, i8** %4, align 8
-  call void @llvm.dbg.declare(metadata i8** %4, metadata !230, metadata !DIExpression()), !dbg !231
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !232, metadata !DIExpression()), !dbg !233
-  %6 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !234
-  store i32 %6, i32* %5, align 4, !dbg !233
-  %7 = load i32*, i32** %3, align 8, !dbg !235
-  %8 = bitcast i32* %7 to i8*, !dbg !236
-  %9 = load i32, i32* %5, align 4, !dbg !237
-  %10 = add nsw i32 %9, 1, !dbg !237
-  store i32 %10, i32* %5, align 4, !dbg !237
-  %11 = load i8*, i8** %4, align 8, !dbg !238
-  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %8, i32 4, i32 %9, i8* %11), !dbg !239
-  ret void, !dbg !240
+  call void @llvm.dbg.declare(metadata i8** %4, metadata !265, metadata !DIExpression()), !dbg !266
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !267, metadata !DIExpression()), !dbg !268
+  %6 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !269
+  store i32 %6, i32* %5, align 4, !dbg !268
+  %7 = load i32*, i32** %3, align 8, !dbg !270
+  %8 = bitcast i32* %7 to i8*, !dbg !271
+  %9 = load i32, i32* %5, align 4, !dbg !272
+  %10 = add nsw i32 %9, 1, !dbg !272
+  store i32 %10, i32* %5, align 4, !dbg !272
+  %11 = load i8*, i8** %4, align 8, !dbg !273
+  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %8, i32 4, i32 %9, i8* %11), !dbg !274
+  ret void, !dbg !275
 }
 
 declare dso_local i32 @MPI_Comm_size(%struct.ompi_communicator_t*, i32*) #3
@@ -380,116 +437,151 @@ attributes #8 = { nounwind readonly }
 !125 = distinct !{!125, !118, !126}
 !126 = !DILocation(line: 14, column: 5, scope: !109)
 !127 = !DILocation(line: 15, column: 1, scope: !109)
-!128 = distinct !DISubprogram(name: "h", linkageName: "_Z1hPd", scope: !1, file: !1, line: 17, type: !129, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!128 = distinct !DISubprogram(name: "h_multiple_loops", linkageName: "_Z16h_multiple_loopsPdm", scope: !1, file: !1, line: 17, type: !129, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
 !129 = !DISubroutineType(types: !130)
-!130 = !{!16, !15}
+!130 = !{!16, !15, !112}
 !131 = !DILocalVariable(name: "data", arg: 1, scope: !128, file: !1, line: 17, type: !15)
-!132 = !DILocation(line: 17, column: 19, scope: !128)
-!133 = !DILocalVariable(name: "acc_rcv", scope: !128, file: !1, line: 19, type: !16)
-!134 = !DILocation(line: 19, column: 12, scope: !128)
-!135 = !DILocation(line: 19, column: 22, scope: !128)
-!136 = !DILocation(line: 20, column: 16, scope: !128)
-!137 = !DILocation(line: 20, column: 22, scope: !128)
-!138 = !DILocation(line: 20, column: 5, scope: !128)
-!139 = !DILocation(line: 21, column: 12, scope: !128)
-!140 = !DILocation(line: 21, column: 5, scope: !128)
-!141 = distinct !DISubprogram(name: "h_nested", linkageName: "_Z8h_nestedPdm", scope: !1, file: !1, line: 24, type: !110, scopeLine: 25, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
-!142 = !DILocalVariable(name: "data", arg: 1, scope: !141, file: !1, line: 24, type: !15)
-!143 = !DILocation(line: 24, column: 24, scope: !141)
-!144 = !DILocalVariable(name: "size", arg: 2, scope: !141, file: !1, line: 24, type: !112)
-!145 = !DILocation(line: 24, column: 37, scope: !141)
-!146 = !DILocalVariable(name: "i", scope: !147, file: !1, line: 26, type: !40)
-!147 = distinct !DILexicalBlock(scope: !141, file: !1, line: 26, column: 5)
-!148 = !DILocation(line: 26, column: 13, scope: !147)
-!149 = !DILocation(line: 26, column: 9, scope: !147)
-!150 = !DILocation(line: 26, column: 20, scope: !151)
-!151 = distinct !DILexicalBlock(scope: !147, file: !1, line: 26, column: 5)
-!152 = !DILocation(line: 26, column: 24, scope: !151)
-!153 = !DILocation(line: 26, column: 22, scope: !151)
-!154 = !DILocation(line: 26, column: 5, scope: !147)
-!155 = !DILocation(line: 27, column: 12, scope: !156)
-!156 = distinct !DILexicalBlock(scope: !151, file: !1, line: 26, column: 35)
-!157 = !DILocation(line: 27, column: 17, scope: !156)
-!158 = !DILocation(line: 27, column: 9, scope: !156)
-!159 = !DILocation(line: 28, column: 5, scope: !156)
-!160 = !DILocation(line: 26, column: 30, scope: !151)
-!161 = !DILocation(line: 26, column: 5, scope: !151)
-!162 = distinct !{!162, !154, !163}
-!163 = !DILocation(line: 28, column: 5, scope: !147)
-!164 = !DILocation(line: 29, column: 1, scope: !141)
-!165 = distinct !DISubprogram(name: "main", scope: !1, file: !1, line: 31, type: !166, scopeLine: 32, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
-!166 = !DISubroutineType(types: !167)
-!167 = !{!40, !40, !168}
-!168 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !169, size: 64)
-!169 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !170, size: 64)
-!170 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-!171 = !DILocalVariable(name: "argc", arg: 1, scope: !165, file: !1, line: 31, type: !40)
-!172 = !DILocation(line: 31, column: 14, scope: !165)
-!173 = !DILocalVariable(name: "argv", arg: 2, scope: !165, file: !1, line: 31, type: !168)
-!174 = !DILocation(line: 31, column: 28, scope: !165)
-!175 = !DILocation(line: 33, column: 5, scope: !165)
-!176 = !DILocalVariable(name: "size", scope: !165, file: !1, line: 34, type: !40)
-!177 = !DILocation(line: 34, column: 9, scope: !165)
-!178 = !DILocation(line: 34, column: 5, scope: !165)
-!179 = !DILocation(line: 34, column: 28, scope: !165)
-!180 = !DILocation(line: 34, column: 23, scope: !165)
-!181 = !DILocation(line: 35, column: 5, scope: !165)
-!182 = !DILocalVariable(name: "ranks", scope: !165, file: !1, line: 36, type: !40)
-!183 = !DILocation(line: 36, column: 9, scope: !165)
-!184 = !DILocation(line: 36, column: 5, scope: !165)
-!185 = !DILocalVariable(name: "rank_id", scope: !165, file: !1, line: 36, type: !40)
-!186 = !DILocation(line: 36, column: 27, scope: !165)
-!187 = !DILocation(line: 37, column: 5, scope: !165)
-!188 = !DILocation(line: 38, column: 5, scope: !165)
-!189 = !DILocation(line: 40, column: 5, scope: !165)
-!190 = !DILocation(line: 42, column: 13, scope: !165)
-!191 = !DILocation(line: 42, column: 10, scope: !165)
-!192 = !DILocalVariable(name: "start", scope: !165, file: !1, line: 43, type: !40)
-!193 = !DILocation(line: 43, column: 9, scope: !165)
-!194 = !DILocation(line: 43, column: 17, scope: !165)
-!195 = !DILocation(line: 43, column: 24, scope: !165)
-!196 = !DILocation(line: 43, column: 22, scope: !165)
-!197 = !DILocalVariable(name: "data", scope: !165, file: !1, line: 44, type: !15)
-!198 = !DILocation(line: 44, column: 14, scope: !165)
-!199 = !DILocation(line: 44, column: 38, scope: !165)
-!200 = !DILocation(line: 44, column: 31, scope: !165)
-!201 = !DILocation(line: 44, column: 21, scope: !165)
-!202 = !DILocation(line: 45, column: 7, scope: !165)
-!203 = !DILocation(line: 45, column: 13, scope: !165)
-!204 = !DILocation(line: 45, column: 5, scope: !165)
-!205 = !DILocalVariable(name: "acc_rcv", scope: !165, file: !1, line: 46, type: !16)
-!206 = !DILocation(line: 46, column: 12, scope: !165)
-!207 = !DILocation(line: 46, column: 24, scope: !165)
-!208 = !DILocation(line: 46, column: 22, scope: !165)
-!209 = !DILocation(line: 47, column: 8, scope: !210)
-!210 = distinct !DILexicalBlock(scope: !165, file: !1, line: 47, column: 8)
-!211 = !DILocation(line: 47, column: 16, scope: !210)
-!212 = !DILocation(line: 47, column: 8, scope: !165)
-!213 = !DILocation(line: 48, column: 24, scope: !210)
-!214 = !DILocation(line: 48, column: 9, scope: !210)
-!215 = !DILocation(line: 49, column: 10, scope: !165)
-!216 = !DILocation(line: 49, column: 5, scope: !165)
-!217 = !DILocation(line: 50, column: 5, scope: !165)
-!218 = !DILocation(line: 51, column: 5, scope: !165)
-!219 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !220, file: !220, line: 14, type: !221, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, templateParams: !226, retainedNodes: !2)
-!220 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!221 = !DISubroutineType(types: !222)
-!222 = !{null, !223, !224}
-!223 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !40, size: 64)
-!224 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !225, size: 64)
-!225 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !170)
-!226 = !{!227}
-!227 = !DITemplateTypeParameter(name: "T", type: !40)
-!228 = !DILocalVariable(name: "ptr", arg: 1, scope: !219, file: !220, line: 14, type: !223)
-!229 = !DILocation(line: 14, column: 28, scope: !219)
-!230 = !DILocalVariable(name: "name", arg: 2, scope: !219, file: !220, line: 14, type: !224)
-!231 = !DILocation(line: 14, column: 46, scope: !219)
-!232 = !DILocalVariable(name: "param_id", scope: !219, file: !220, line: 16, type: !38)
-!233 = !DILocation(line: 16, column: 13, scope: !219)
-!234 = !DILocation(line: 16, column: 24, scope: !219)
-!235 = !DILocation(line: 17, column: 57, scope: !219)
-!236 = !DILocation(line: 17, column: 31, scope: !219)
-!237 = !DILocation(line: 18, column: 21, scope: !219)
-!238 = !DILocation(line: 18, column: 25, scope: !219)
-!239 = !DILocation(line: 17, column: 5, scope: !219)
-!240 = !DILocation(line: 19, column: 1, scope: !219)
+!132 = !DILocation(line: 17, column: 34, scope: !128)
+!133 = !DILocalVariable(name: "size", arg: 2, scope: !128, file: !1, line: 17, type: !112)
+!134 = !DILocation(line: 17, column: 47, scope: !128)
+!135 = !DILocalVariable(name: "i", scope: !136, file: !1, line: 19, type: !40)
+!136 = distinct !DILexicalBlock(scope: !128, file: !1, line: 19, column: 5)
+!137 = !DILocation(line: 19, column: 13, scope: !136)
+!138 = !DILocation(line: 19, column: 9, scope: !136)
+!139 = !DILocation(line: 19, column: 20, scope: !140)
+!140 = distinct !DILexicalBlock(scope: !136, file: !1, line: 19, column: 5)
+!141 = !DILocation(line: 19, column: 24, scope: !140)
+!142 = !DILocation(line: 19, column: 22, scope: !140)
+!143 = !DILocation(line: 19, column: 5, scope: !136)
+!144 = !DILocation(line: 20, column: 9, scope: !140)
+!145 = !DILocation(line: 20, column: 14, scope: !140)
+!146 = !DILocation(line: 20, column: 16, scope: !140)
+!147 = !DILocation(line: 19, column: 30, scope: !140)
+!148 = !DILocation(line: 19, column: 5, scope: !140)
+!149 = distinct !{!149, !143, !150}
+!150 = !DILocation(line: 20, column: 16, scope: !136)
+!151 = !DILocalVariable(name: "acc_rcv", scope: !128, file: !1, line: 21, type: !16)
+!152 = !DILocation(line: 21, column: 12, scope: !128)
+!153 = !DILocation(line: 21, column: 22, scope: !128)
+!154 = !DILocation(line: 22, column: 16, scope: !128)
+!155 = !DILocation(line: 22, column: 22, scope: !128)
+!156 = !DILocation(line: 22, column: 5, scope: !128)
+!157 = !DILocation(line: 23, column: 12, scope: !128)
+!158 = !DILocation(line: 23, column: 5, scope: !128)
+!159 = distinct !DISubprogram(name: "h", linkageName: "_Z1hPd", scope: !1, file: !1, line: 26, type: !160, scopeLine: 27, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!160 = !DISubroutineType(types: !161)
+!161 = !{!16, !15}
+!162 = !DILocalVariable(name: "data", arg: 1, scope: !159, file: !1, line: 26, type: !15)
+!163 = !DILocation(line: 26, column: 19, scope: !159)
+!164 = !DILocalVariable(name: "acc_rcv", scope: !159, file: !1, line: 28, type: !16)
+!165 = !DILocation(line: 28, column: 12, scope: !159)
+!166 = !DILocation(line: 28, column: 22, scope: !159)
+!167 = !DILocation(line: 29, column: 16, scope: !159)
+!168 = !DILocation(line: 29, column: 22, scope: !159)
+!169 = !DILocation(line: 29, column: 5, scope: !159)
+!170 = !DILocation(line: 30, column: 12, scope: !159)
+!171 = !DILocation(line: 30, column: 5, scope: !159)
+!172 = distinct !DISubprogram(name: "h_nested", linkageName: "_Z8h_nestedPdm", scope: !1, file: !1, line: 33, type: !110, scopeLine: 34, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!173 = !DILocalVariable(name: "data", arg: 1, scope: !172, file: !1, line: 33, type: !15)
+!174 = !DILocation(line: 33, column: 24, scope: !172)
+!175 = !DILocalVariable(name: "size", arg: 2, scope: !172, file: !1, line: 33, type: !112)
+!176 = !DILocation(line: 33, column: 37, scope: !172)
+!177 = !DILocalVariable(name: "i", scope: !178, file: !1, line: 35, type: !40)
+!178 = distinct !DILexicalBlock(scope: !172, file: !1, line: 35, column: 5)
+!179 = !DILocation(line: 35, column: 13, scope: !178)
+!180 = !DILocation(line: 35, column: 9, scope: !178)
+!181 = !DILocation(line: 35, column: 20, scope: !182)
+!182 = distinct !DILexicalBlock(scope: !178, file: !1, line: 35, column: 5)
+!183 = !DILocation(line: 35, column: 24, scope: !182)
+!184 = !DILocation(line: 35, column: 22, scope: !182)
+!185 = !DILocation(line: 35, column: 5, scope: !178)
+!186 = !DILocation(line: 36, column: 12, scope: !187)
+!187 = distinct !DILexicalBlock(scope: !182, file: !1, line: 35, column: 35)
+!188 = !DILocation(line: 36, column: 17, scope: !187)
+!189 = !DILocation(line: 36, column: 9, scope: !187)
+!190 = !DILocation(line: 37, column: 5, scope: !187)
+!191 = !DILocation(line: 35, column: 30, scope: !182)
+!192 = !DILocation(line: 35, column: 5, scope: !182)
+!193 = distinct !{!193, !185, !194}
+!194 = !DILocation(line: 37, column: 5, scope: !178)
+!195 = !DILocation(line: 38, column: 1, scope: !172)
+!196 = distinct !DISubprogram(name: "main", scope: !1, file: !1, line: 40, type: !197, scopeLine: 41, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!197 = !DISubroutineType(types: !198)
+!198 = !{!40, !40, !199}
+!199 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !200, size: 64)
+!200 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !201, size: 64)
+!201 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
+!202 = !DILocalVariable(name: "argc", arg: 1, scope: !196, file: !1, line: 40, type: !40)
+!203 = !DILocation(line: 40, column: 14, scope: !196)
+!204 = !DILocalVariable(name: "argv", arg: 2, scope: !196, file: !1, line: 40, type: !199)
+!205 = !DILocation(line: 40, column: 28, scope: !196)
+!206 = !DILocation(line: 42, column: 5, scope: !196)
+!207 = !DILocalVariable(name: "size", scope: !196, file: !1, line: 43, type: !40)
+!208 = !DILocation(line: 43, column: 9, scope: !196)
+!209 = !DILocation(line: 43, column: 5, scope: !196)
+!210 = !DILocation(line: 43, column: 28, scope: !196)
+!211 = !DILocation(line: 43, column: 23, scope: !196)
+!212 = !DILocation(line: 44, column: 5, scope: !196)
+!213 = !DILocalVariable(name: "ranks", scope: !196, file: !1, line: 45, type: !40)
+!214 = !DILocation(line: 45, column: 9, scope: !196)
+!215 = !DILocation(line: 45, column: 5, scope: !196)
+!216 = !DILocalVariable(name: "rank_id", scope: !196, file: !1, line: 45, type: !40)
+!217 = !DILocation(line: 45, column: 27, scope: !196)
+!218 = !DILocation(line: 46, column: 5, scope: !196)
+!219 = !DILocation(line: 47, column: 5, scope: !196)
+!220 = !DILocation(line: 49, column: 5, scope: !196)
+!221 = !DILocation(line: 51, column: 13, scope: !196)
+!222 = !DILocation(line: 51, column: 10, scope: !196)
+!223 = !DILocalVariable(name: "start", scope: !196, file: !1, line: 52, type: !40)
+!224 = !DILocation(line: 52, column: 9, scope: !196)
+!225 = !DILocation(line: 52, column: 17, scope: !196)
+!226 = !DILocation(line: 52, column: 24, scope: !196)
+!227 = !DILocation(line: 52, column: 22, scope: !196)
+!228 = !DILocalVariable(name: "data", scope: !196, file: !1, line: 53, type: !15)
+!229 = !DILocation(line: 53, column: 14, scope: !196)
+!230 = !DILocation(line: 53, column: 38, scope: !196)
+!231 = !DILocation(line: 53, column: 31, scope: !196)
+!232 = !DILocation(line: 53, column: 21, scope: !196)
+!233 = !DILocation(line: 54, column: 7, scope: !196)
+!234 = !DILocation(line: 54, column: 13, scope: !196)
+!235 = !DILocation(line: 54, column: 5, scope: !196)
+!236 = !DILocalVariable(name: "acc_rcv", scope: !196, file: !1, line: 55, type: !16)
+!237 = !DILocation(line: 55, column: 12, scope: !196)
+!238 = !DILocation(line: 55, column: 39, scope: !196)
+!239 = !DILocation(line: 55, column: 45, scope: !196)
+!240 = !DILocation(line: 55, column: 22, scope: !196)
+!241 = !DILocation(line: 56, column: 14, scope: !196)
+!242 = !DILocation(line: 56, column: 20, scope: !196)
+!243 = !DILocation(line: 56, column: 5, scope: !196)
+!244 = !DILocation(line: 57, column: 8, scope: !245)
+!245 = distinct !DILexicalBlock(scope: !196, file: !1, line: 57, column: 8)
+!246 = !DILocation(line: 57, column: 16, scope: !245)
+!247 = !DILocation(line: 57, column: 8, scope: !196)
+!248 = !DILocation(line: 58, column: 24, scope: !245)
+!249 = !DILocation(line: 58, column: 9, scope: !245)
+!250 = !DILocation(line: 59, column: 10, scope: !196)
+!251 = !DILocation(line: 59, column: 5, scope: !196)
+!252 = !DILocation(line: 60, column: 5, scope: !196)
+!253 = !DILocation(line: 61, column: 5, scope: !196)
+!254 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !255, file: !255, line: 14, type: !256, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, templateParams: !261, retainedNodes: !2)
+!255 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!256 = !DISubroutineType(types: !257)
+!257 = !{null, !258, !259}
+!258 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !40, size: 64)
+!259 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !260, size: 64)
+!260 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !201)
+!261 = !{!262}
+!262 = !DITemplateTypeParameter(name: "T", type: !40)
+!263 = !DILocalVariable(name: "ptr", arg: 1, scope: !254, file: !255, line: 14, type: !258)
+!264 = !DILocation(line: 14, column: 28, scope: !254)
+!265 = !DILocalVariable(name: "name", arg: 2, scope: !254, file: !255, line: 14, type: !259)
+!266 = !DILocation(line: 14, column: 46, scope: !254)
+!267 = !DILocalVariable(name: "param_id", scope: !254, file: !255, line: 16, type: !38)
+!268 = !DILocation(line: 16, column: 13, scope: !254)
+!269 = !DILocation(line: 16, column: 24, scope: !254)
+!270 = !DILocation(line: 17, column: 57, scope: !254)
+!271 = !DILocation(line: 17, column: 31, scope: !254)
+!272 = !DILocation(line: 18, column: 21, scope: !254)
+!273 = !DILocation(line: 18, column: 25, scope: !254)
+!274 = !DILocation(line: 17, column: 5, scope: !254)
+!275 = !DILocation(line: 19, column: 1, scope: !254)
