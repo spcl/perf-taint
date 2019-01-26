@@ -84,7 +84,6 @@
   ],
   "parameters": [
     "x1",
-    "x2",
     "global"
   ],
   "unimportant_functions": {
@@ -93,5 +92,8 @@
       "func_idx": 0,
       "line": 36
     }
-  }
+  },
+  "unused_parameters": [
+    "x2"
+  ]
 }

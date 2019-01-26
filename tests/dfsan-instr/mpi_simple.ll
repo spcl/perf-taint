@@ -1,4 +1,4 @@
-; RUN: opt %dfsan -extrap-extractor-out-name=%s -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 10 10 10 && diff -w %s.json %s_0.json && diff -w %s.json %s_1.json
+; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 10 10 10 && diff -w %s.json %t4_0.json && diff -w %s.json %t4_1.json
 
 ; ModuleID = 'tests/dfsan-instr/mpi_simple.cpp'
 source_filename = "tests/dfsan-instr/mpi_simple.cpp"

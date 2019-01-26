@@ -30,8 +30,7 @@
             ]
           ],
           "not_found_params": [
-            "x1",
-            "x2"
+            "x1"
           ]
         }
       ]
@@ -66,7 +65,6 @@
             ]
           ],
           "not_found_params": [
-            "x2",
             "global"
           ]
         }
@@ -108,7 +106,9 @@
   ],
   "parameters": [
     "x1",
-    "x2",
     "global"
+  ],
+  "unused_parameters": [
+    "x2"
   ]
 }

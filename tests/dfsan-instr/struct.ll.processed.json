@@ -32,7 +32,6 @@
             ]
           ],
           "not_found_params": [
-            "global_params.problem_size",
             "global_params.ranks"
           ]
         }
@@ -70,8 +69,7 @@
             ]
           ],
           "not_found_params": [
-            "params.ranks",
-            "global_params.problem_size"
+            "params.ranks"
           ]
         },
         {
@@ -102,7 +100,6 @@
             ]
           ],
           "not_found_params": [
-            "global_params.problem_size",
             "global_params.ranks"
           ]
         }
@@ -136,7 +133,9 @@
   "parameters": [
     "params.ranks",
     "params.problem_size",
-    "global_params.problem_size",
     "global_params.ranks"
+  ],
+  "unused_parameters": [
+    "global_params.problem_size"
   ]
 }

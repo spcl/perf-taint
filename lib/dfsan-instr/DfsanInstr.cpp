@@ -22,6 +22,7 @@
 #include <numeric>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <cxxabi.h>
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
@@ -39,7 +40,7 @@ static llvm::cl::opt<std::string> OutputFileName("extrap-extractor-out-name",
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
-static llvm::cl::opt<std::string> FunctionDatabase("extrap-extractor-func-database",
+static llvm::cl::opt<std::string> FunctionDatabaseName("extrap-extractor-func-database",
                                        llvm::cl::desc("Input database with functions."),
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
@@ -67,6 +68,71 @@ static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
 namespace extrap {
 
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
+
+    size_t FunctionDatabase::parameters_count() const
+    {
+        return implicit_parameters.size();
+    }
+
+    const std::string & FunctionDatabase::parameter_name(size_t idx) const
+    {
+        return implicit_parameters[idx].name;
+    }
+
+    void FunctionDatabase::read(std::ifstream & input)
+    {
+        json_t json;
+        json << input;
+
+        int param_idx = 0;
+        for(auto & param : json["params"]) {
+            implicit_parameters.emplace_back(param.get<std::string>(), param_idx++);
+        }
+
+        json_t & functions = json["functions"];
+        for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
+            DataBaseEntry entry{it.value()["loops"]};
+            this->functions[it.key()] = std::move(entry);
+        }
+    }
+
+    bool FunctionDatabase::contains(llvm::Function * f)
+    {
+        return functions.find(f->getName()) != functions.end();
+    }
+
+    void FunctionDatabase::processLoop(llvm::Function * f, vec_t & loop_data)
+    {
+        auto it = functions.find(f->getName());
+        assert(it != functions.end());
+        //auto & subloops = l.getSubLoops();
+        //if(depth < data.size())
+        //    data[depth].push_back(subloops.size());
+        //else {
+        //    data.emplace_back(1, subloops.size());
+        //}
+        //int loop_count = subloops.size();
+        //for(llvm::Loop * l : subloops) {
+        //    loop_count += analyzeLoop(f, *l, data, depth + 1);
+        //}
+    }
+
+    void Function::addImplicitLoop(llvm::Value * val, vec_t & loop_data)
+    {
+        //int depth = loop_data.size();
+        //int loop_count = 0;
+        //int structure_size = loops_structures.size();
+        //for(auto & vec : loop_data) {
+        //    loop_count += vec.size();
+        //    std::copy(vec.begin(), vec.end(),
+        //            std::back_inserter(loops_structures));
+        //}
+        //structure_size = loops_structures.size() - structure_size;
+        //loops_sizes.push_back(depth);
+        //loops_sizes.push_back(structure_size);
+        //loops_sizes.push_back(loop_count);
+        implicit_loops.emplace_back(val, loops_sizes.size() - 1);
+    }
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
@@ -112,10 +178,15 @@ namespace extrap {
                     Parameters::process_param(var->getName(), var);
                 });
 
+        if(!FunctionDatabaseName.getValue().empty()) {
+            std::ifstream file(FunctionDatabaseName.getValue(), std::ios_base::in);
+            database.read(file);
+            file.close();
+        }
+
         this->m = &m;
         llvm::Function * main = m.getFunction("main");
         assert(main);
-
         // TODO: why is main treated differently?
         // why is main not inserted?
         bool is_important = runOnFunction(*main);
@@ -135,7 +206,7 @@ namespace extrap {
         }
 
         Instrumenter instr(m);
-        instr.createGlobalStorage(parent_functions,
+        instr.createGlobalStorage(parent_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
                 notinstrumented_functions.begin(), notinstrumented_functions.end());
         instr.initialize(main);
@@ -257,17 +328,34 @@ namespace extrap {
         return loop_count;
     }
 
-    bool DfsanInstr::analyzeFunction(llvm::Function & f, int override_counter)
+    bool DfsanInstr::analyzeFunction(llvm::Function & f,
+            llvm::CallGraphNode * cg_node, int override_counter)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
+        // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
+
+        llvm::SmallVector< std::tuple<llvm::Function*, llvm::Value*>, 5> library_calls;
+        bool has_important_call = false;
+        for(auto & callsite : *cg_node)
+        {
+            llvm::CallGraphNode * node = callsite.second;
+            llvm::Function * called_f = node->getFunction();
+            llvm::Value * call = callsite.first;
+            if(called_f && database.contains(called_f)) {
+               has_important_call = true;
+               library_calls.emplace_back(called_f, call);
+            }
+        }
+
         // Worth instrumenting
-        if(!linfo->empty() || has_openmp_calls) {
+        if(!linfo->empty() || has_openmp_calls || has_important_call) {
 
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
 
+            // TODO: refactor for general loop interface
             for(llvm::Loop * l : *linfo) {
                 std::vector< std::vector<int> > data;
                 // count main loop
@@ -281,6 +369,12 @@ namespace extrap {
                 func.loops_sizes.push_back(depth);
                 func.loops_sizes.push_back(structure_size);
                 func.loops_sizes.push_back(loop_count);
+            }
+
+            for(auto t : library_calls) {
+                std::vector< std::vector<int> > data;
+                database.processLoop(std::get<0>(t), data);
+                func.addImplicitLoop(std::get<1>(t), data);
             }
 
             return true;
@@ -306,7 +400,7 @@ namespace extrap {
         for(auto & param : parameters.locals) {
             found_params.push_back(param);
         }
-        bool is_important = analyzeFunction(f, override_counter);
+        bool is_important = analyzeFunction(f, f_node, override_counter);
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
@@ -547,6 +641,7 @@ namespace extrap {
 
     template<typename Vector, typename FuncIter, typename FuncIter2>
     void Instrumenter::createGlobalStorage(const Vector & funcs_names,
+            const FunctionDatabase & database,
             FuncIter begin, FuncIter end,
             FuncIter2 not_instr_begin, FuncIter2 not_instr_end)
     {
@@ -580,10 +675,11 @@ namespace extrap {
                 glob_funcs_count_name);
 
         // int32_t params_count
-        glob_params_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+        glob_implicit_params_count = new llvm::GlobalVariable(m,
+                llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
-                builder.getInt32(0),
-                glob_params_count_name);
+                builder.getInt32(database.parameters_count()),
+                glob_implicit_params_count_name);
 
         glob_params_max_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
@@ -591,7 +687,7 @@ namespace extrap {
                 glob_params_max_count_name);
 
         // char * output_filename
-        glob_params_count = new llvm::GlobalVariable(m,
+        glob_output_filename = new llvm::GlobalVariable(m,
                 builder.getInt8PtrTy(), false,
                 llvm::GlobalValue::WeakAnyLinkage,
                 builder.CreateGlobalStringPtr(OutputFileName.getValue()),
@@ -734,16 +830,32 @@ namespace extrap {
 
         // char ** params_names
         // filled during execution
+        size_t full_params_count = params_count + database.parameters_count();
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
-                    params_count
-                );
+                    full_params_count);
+        std::vector<llvm::Constant*> params_names(full_params_count);
+        for(int i = 0; i < params_count; ++i)
+            params_names[i] = llvm::ConstantPointerNull::get(builder.getInt8PtrTy());
+        for(int i = 0; i < database.parameters_count(); ++i)
+            params_names[i + params_count] =
+                builder.CreateGlobalStringPtr(database.parameter_name(i));
         glob_params_names = new llvm::GlobalVariable(m,
                 array_type,
                 false,
                 llvm::GlobalValue::WeakAnyLinkage,
-                llvm::ConstantAggregateZero::get(array_type),
+                llvm::ConstantArray::get(array_type, params_names),
                 glob_params_names_name);
+
+        array_type = llvm::ArrayType::get(
+                    builder.getInt1Ty(),
+                    full_params_count);
+        glob_params_used = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantAggregateZero::get(array_type),
+                glob_params_used_name);
 
         // int16_t instrumentation_labels[] = {0..}
         array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);

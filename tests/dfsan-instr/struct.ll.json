@@ -101,7 +101,6 @@
   "parameters": [
     "params.ranks",
     "params.problem_size",
-    "global_params.problem_size",
     "global_params.ranks"
   ],
   "unimportant_functions": {
@@ -110,5 +109,8 @@
       "func_idx": 2,
       "line": 44
     }
-  }
+  },
+  "unused_parameters": [
+    "global_params.problem_size"
+  ]
 }

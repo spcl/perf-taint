@@ -144,8 +144,16 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
         json_t dependency;
         uint16_t val = deps->deps[jj];
         //fprintf(stderr, "Func: %s Level %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, loop, val);
-        for(int kk = 0; kk < 16; ++kk)
+        for(int kk = 0; kk < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++kk)
             if(val & (1 << kk)) {
+                __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
+                dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
+                //filled = true;
+            }
+        int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+        for(int kk = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; kk < vars_count; ++kk)
+            if(val & (1 << kk)) {
+                __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //filled = true;
             }
@@ -551,17 +559,6 @@ void __dfsw_dump_json_output()
 {
     json_t & out = *__dfsw_json_get();
     int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-    json_t params;
-    for(int i = 0; i < vars_count; ++i) {
-        // Fix for an old problem where legacy code detected params through
-        // annotations and the new code registered params at runtime through
-        // a call to store_label. Thus, it is possible that in case
-        // of a mismatch we have more storage than we actually use.
-        // Ensure that a name was written!
-        if(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i])
-            params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
-    }
-    out["parameters"] = params;
 
     //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
     //    json_t cf_params;
@@ -624,6 +621,33 @@ void __dfsw_dump_json_output()
         //else
         //   out.erase( out.find("functions") );
     }
+
+    json_t params, unused_params;
+    for(int i = 0; i < vars_count; ++i) {
+        // Fix for an old problem where legacy code detected params through
+        // annotations and the new code registered params at runtime through
+        // a call to store_label. Thus, it is possible that in case
+        // of a mismatch we have more storage than we actually use.
+        // Ensure that a name was written!
+        if(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i]) {
+            if(__EXTRAP_INSTRUMENTATION_PARAMS_USED[i])
+                params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+            else
+                unused_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+        }
+
+    }
+    vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT
+        + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+    for(int i = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; i < vars_count; ++i) {
+        if(__EXTRAP_INSTRUMENTATION_PARAMS_USED[i])
+            params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+        else
+            unused_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+    }
+    out["parameters"] = params;
+    if(!unused_params.empty())
+        out["unused_parameters"] = unused_params;
 
     for(int i = 0; i < __EXTRAP_FUNCS_COUNT; ++i) {
         functions_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);

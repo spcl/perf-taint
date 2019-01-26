@@ -22,6 +22,7 @@ class DebugInfo;
 namespace llvm {
     class Function;
     class CallGraph;
+    class CallGraphNode;
     class LoopInfo;
     class Loop;
 }
@@ -30,8 +31,12 @@ namespace extrap {
 
     using json_t = nlohmann::json;
 
+    struct Instrumenter;
+
     struct FunctionDatabase
     {
+        llvm::GlobalVariable * glob_indices;
+
         struct DataBaseEntry
         {
             json_t loops_data;
@@ -41,12 +46,21 @@ namespace extrap {
         {
             std::string name;
             int param_idx;
+
+            // TODO: 50 shades of c++
+            ImplicitParameter(const std::string & _name, int _param_idx):
+                name(_name), param_idx(_param_idx) {}
         };
 
         std::unordered_map<std::string, DataBaseEntry> functions;
         llvm::SmallVector<ImplicitParameter, 5> implicit_parameters;
 
-        FunctionDatabase(const json_t &, int params_count);
+        void read(std::ifstream &);
+        bool contains(llvm::Function * f);
+        typedef std::vector< std::vector<int> > vec_t;
+        void processLoop(llvm::Function * f, vec_t &);
+        size_t parameters_count() const;
+        const std::string & parameter_name(size_t idx) const;
     };
 
     struct Statistics
@@ -77,6 +91,8 @@ namespace extrap {
         // # of entries = loop_depths.size()
         std::vector<int> loops_structures;
         std::vector<int> loops_sizes;
+        std::vector<std::tuple<llvm::Value*, int>> implicit_loops;
+        typedef std::vector< std::vector<int> > vec_t;
 
         Function(int _idx, bool _overriden = false):
             idx(_idx),
@@ -102,6 +118,8 @@ namespace extrap {
         {
             return overriden;
         }
+
+        void addImplicitLoop(llvm::Value * call, vec_t & loop);
     };
 
     struct FileIndex
@@ -148,10 +166,11 @@ namespace extrap {
         llvm::GlobalVariable * glob_funcs_args;
         // 2*`functions` integers, line of code and file index, compile time
         llvm::GlobalVariable * glob_funcs_dbg;
-        llvm::GlobalVariable * glob_params_count;
+        llvm::GlobalVariable * glob_implicit_params_count;
         llvm::GlobalVariable * glob_params_max_count;
         // `params` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_params_names;
+        llvm::GlobalVariable * glob_params_used;
 
         // Callsites
         // int8* of size operand_count * callsite_count
@@ -192,8 +211,8 @@ namespace extrap {
             = "__EXTRAP_FUNCS_COUNT";
         static constexpr const char * glob_instr_funcs_count_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
-        static constexpr const char * glob_params_count_name
-            = "__EXTRAP_INSTRUMENTATION_PARAMS_COUNT";
+        static constexpr const char * glob_implicit_params_count_name
+            = "__EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT";
         static constexpr const char * glob_params_max_count_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT";
         static constexpr const char * glob_result_array_name
@@ -214,6 +233,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS";
         static constexpr const char * glob_params_names_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
+        static constexpr const char * glob_params_used_name
+            = "__EXTRAP_INSTRUMENTATION_PARAMS_USED";
         static constexpr const char * glob_loops_depths_name
             = "__EXTRAP_LOOPS_DEPTHS_PER_FUNC";
         static constexpr const char * glob_deps_offsets_name
@@ -280,7 +301,7 @@ namespace extrap {
             glob_funcs_names(nullptr),
             glob_funcs_args(nullptr),
             glob_funcs_dbg(nullptr),
-            glob_params_count(nullptr),
+            glob_implicit_params_count(nullptr),
             glob_params_names(nullptr),
             glob_result_array(nullptr)
         {
@@ -293,6 +314,7 @@ namespace extrap {
         void declareFunctions();
         template<typename Vector, typename FuncIter, typename FuncIter2>
         void createGlobalStorage(const Vector & func_names,
+                const FunctionDatabase & database,
                 FuncIter begin, FuncIter end,
                 FuncIter2 not_instr_begin, FuncIter2 not_instr_end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
@@ -395,6 +417,7 @@ namespace extrap {
         llvm::CallGraph * cgraph;
         llvm::LoopInfo * linfo;
         FunctionParameters parameters;
+        FunctionDatabase database;
 
 
         // Insert null value when function is not importan
@@ -444,7 +467,8 @@ namespace extrap {
                 call_vec_t & calls, Instrumenter &);
         bool callsImportantFunction(llvm::CallBase * call);
         bool callsImportantFunction(llvm::Function *);
-        bool analyzeFunction(llvm::Function & f, int override_counter = -1);
+        bool analyzeFunction(llvm::Function & f, llvm::CallGraphNode * cg_node,
+                int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
         bool handleOpenMP(llvm::Function &f, int override_counter = -1);

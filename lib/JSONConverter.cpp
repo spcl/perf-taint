@@ -253,7 +253,8 @@ json_t convert(json_t & input)
         "functions_demangled_names",
         "functions_mangled_names",
         "functions_names",
-        "parameters"
+        "parameters",
+        "unused_parameters"
     };
     std::vector<std::string> to_copy_local{
         "file",
@@ -261,7 +262,8 @@ json_t convert(json_t & input)
         "func_idx"
     };
     for(const auto & key : to_copy) {
-        output[key] = std::move(input[key]);
+        if(!input[key].empty())
+            output[key] = std::move(input[key]);
     }
 
     json_t & functions = input["functions"];

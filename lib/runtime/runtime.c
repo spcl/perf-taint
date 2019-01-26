@@ -22,6 +22,7 @@ callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
 nested_call_vec __EXTRAP_NESTED_CALLS = {0, 0, NULL};
 int16_t __EXTRAP_CURRENT_CALL = 0;
 int __EXTRAP_INSTRUMENTATION_MPI_RANK = -1;
+int __EXTRAP_INSTRUMENTATION_PARAMS_COUNT = 0;
 
 void __dfsw_EXTRAP_INIT_MPI()
 {
@@ -297,6 +298,15 @@ void __dfsw_EXTRAP_INIT()
     __EXTRAP_LOOP_DEPENDENCIES = malloc(sizeof(dependencies) * deps_count);
     __EXTRAP_CURRENT_CALL = -1;
     __dfsw_json_initialize();
+}
+
+void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t function_idx,
+        uint16_t nested_loop_idx, uint16_t implicit_label_idx)
+{
+    int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
+    offset += nested_loop_idx;
+    uint16_t found_params = (1 << (__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT + implicit_label_idx));
+    __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
 }
 
 //void __dfsw_EXTRAP_CHECK_CALLSITE(int function_idx, int callsite_idx,

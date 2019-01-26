@@ -125,7 +125,9 @@
   ],
   "parameters": [
     "x1",
-    "x2",
+    "x2"
+  ],
+  "unused_parameters": [
     "global"
   ]
 }
