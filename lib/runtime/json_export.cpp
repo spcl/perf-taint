@@ -150,8 +150,8 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //filled = true;
             }
-        int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-        for(int kk = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; kk < vars_count; ++kk)
+        int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+        for(int kk = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; kk < vars_count; ++kk)
             if(val & (1 << kk)) {
                 __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
@@ -183,7 +183,6 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
     json_t ** prev_iteration = new json_t*[1]();
     prev_iteration[0] = &loop;
     for(int level = 1; level < depth; ++level) {
-
 
         //int loop = 0;
         // number of loops on this level
@@ -384,8 +383,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         }
         dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
         json_t loop = __dfsw_json_write_loop(function_idx, loop_data,
-                loop_structure, deps, nested_loop_idx, begin, end);
-        //std::cerr << loop << '\n';
+               loop_structure, deps, nested_loop_idx, begin, end);
         for(auto it = loop_copied.begin(), end = loop_copied.end(); it != end; ++it)
             loop["loops"][it.key()] = std::move(it.value());
         //std::cerr << loop << std::endl;
