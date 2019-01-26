@@ -295,7 +295,7 @@ void __dfsw_EXTRAP_INIT()
     int deps_count = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[
                 __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
             ];
-    __EXTRAP_LOOP_DEPENDENCIES = malloc(sizeof(dependencies) * deps_count);
+    __EXTRAP_LOOP_DEPENDENCIES = calloc(deps_count, sizeof(dependencies));
     __EXTRAP_CURRENT_CALL = -1;
     __dfsw_json_initialize();
 }
