@@ -19,13 +19,23 @@ config.llvm_dir2 = '/home/mcopik/projects/clang_llvm/build_dfsan/lib/'
 config.substitutions.append( ('%loadpass', '-load '
     + config.lib_dir
     + '/libStaticExtractor.so'
-    + ' -extrap-extractor')
-    )
+    + ' -extrap-extractor'
+    ))
 
 config.substitutions.append( ('%dfsan', '-load '
     + config.lib_dir
     + '/libDfsanInstrument.so'
     + ' -extrap-extractor'
+    + ' -dfsan'
+    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
+    )
+)
+
+config.substitutions.append( ('%mpidfsan', '-load '
+    + config.lib_dir
+    + '/libDfsanInstrument.so'
+    + ' -extrap-extractor'
+    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
     + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
     )
