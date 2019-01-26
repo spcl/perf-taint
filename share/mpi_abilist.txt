@@ -1,0 +1,59 @@
+{
+  "functions" : {
+    "MPI_Reduce" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ],
+        "loops" : {
+         "0" :  {
+              "level" : 1,
+              "params" : [
+                "n"
+              ]
+            }
+        }
+      },
+      "params" : {
+        "n" : {
+          "type" : "arg",
+          "pos" : 2
+        }
+      }
+    },
+    "MPI_Allreduce" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ],
+        "loops" : {
+         "0" :  {
+              "level" : 1,
+              "params" : [
+                "n"
+              ]
+            }
+        }
+      },
+      "params" : {
+        "n" : {
+          "type" : "arg",
+          "pos" : 2
+        }
+      }
+    },
+    "MPI_Barrier" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    }
+  },
+  "params": [
+    "p"
+  ]
+}

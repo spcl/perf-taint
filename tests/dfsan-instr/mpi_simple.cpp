@@ -56,6 +56,7 @@ int main(int argc, char ** argv)
     h_nested(data, size);
     if(rank_id == 0)
         printf("%f\n", acc_rcv);
+    MPI_Barrier(MPI_COMM_WORLD);
     free(data);
     MPI_Finalize();
     return 0;
