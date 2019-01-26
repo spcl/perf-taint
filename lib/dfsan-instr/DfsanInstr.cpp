@@ -24,6 +24,7 @@
 #include <string>
 #include <fstream>
 #include <cxxabi.h>
+#include <cstdio>
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -101,10 +102,37 @@ namespace extrap {
         return functions.find(f->getName()) != functions.end();
     }
 
-    void FunctionDatabase::processLoop(llvm::Function * f, vec_t & loop_data)
+    void FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,
+            Function & func, vec_t & loop_data)
     {
         auto it = functions.find(f->getName());
         assert(it != functions.end());
+        json_t & loops_data = (*it).second.loops_data;
+        //TODO: put this into structure to avoid going multiple times through a JSON
+        json_t * cur = &loops_data;
+        llvm::Instruction * call_i = llvm::dyn_cast<llvm::Instruction>(call);
+        assert(call_i);
+        while(cur) {
+            //TODO: multiple params
+            for(auto & v : (*cur)["params"]) {
+                std::string param_name = v.get<std::string>();
+                auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
+                        [&](const auto & v) { return v.name == param_name; });
+                // TODO: here implement non-implicit params
+                if(it != implicit_parameters.end()) {
+                    func.implicit_loops.emplace_back(call_i, (*it).param_idx);
+                }
+            }
+            auto subloop = cur->find("loops");
+            if(subloop != cur->end()) {
+                loop_data.emplace_back(1, (*subloop).size());
+                // TODO: multiple loops
+                cur = &(*subloop).front();
+            } else {
+                loop_data.emplace_back(1, 0);
+                cur = nullptr;
+            }
+        }
         //auto & subloops = l.getSubLoops();
         //if(depth < data.size())
         //    data[depth].push_back(subloops.size());
@@ -115,23 +143,24 @@ namespace extrap {
         //for(llvm::Loop * l : subloops) {
         //    loop_count += analyzeLoop(f, *l, data, depth + 1);
         //}
+        // TODO: support multipath loops
+        int depth = loop_data.size();
+        int loop_count = 0;
+        int structure_size = func.loops_structures.size();
+        for(auto & vec : loop_data) {
+            loop_count += vec.size();
+            std::copy(vec.begin(), vec.end(),
+                    std::back_inserter(func.loops_structures));
+        }
+        structure_size = func.loops_structures.size() - structure_size;
+        func.loops_sizes.push_back(depth);
+        func.loops_sizes.push_back(structure_size);
+        func.loops_sizes.push_back(loop_count);
+        // obtain nested_loop_idx
     }
 
     void Function::addImplicitLoop(llvm::Value * val, vec_t & loop_data)
     {
-        //int depth = loop_data.size();
-        //int loop_count = 0;
-        //int structure_size = loops_structures.size();
-        //for(auto & vec : loop_data) {
-        //    loop_count += vec.size();
-        //    std::copy(vec.begin(), vec.end(),
-        //            std::back_inserter(loops_structures));
-        //}
-        //structure_size = loops_structures.size() - structure_size;
-        //loops_sizes.push_back(depth);
-        //loops_sizes.push_back(structure_size);
-        //loops_sizes.push_back(loop_count);
-        implicit_loops.emplace_back(val, loops_sizes.size() - 1);
     }
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
@@ -373,8 +402,8 @@ namespace extrap {
 
             for(auto t : library_calls) {
                 std::vector< std::vector<int> > data;
-                database.processLoop(std::get<0>(t), data);
-                func.addImplicitLoop(std::get<1>(t), data);
+                database.processLoop(std::get<0>(t), std::get<1>(t), func, data);
+                //func.addImplicitLoop(std::get<1>(t), data);
             }
 
             return true;
@@ -551,6 +580,17 @@ namespace extrap {
                 loop_idx++;
             }
 
+            for(auto implicit_call : func.implicit_loops) {
+
+                // TODO: nested calls as well
+                // TODO: more parameters
+                instr.callImplicitLoop(std::get<0>(implicit_call),
+                        func.function_idx(), nested_loop_idx,
+                        std::get<1>(implicit_call));
+                loop_idx++;
+                nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
+            }
+
             // Now find calls outside of the loop
             for(llvm::BasicBlock & bb : f) {
                 if(loop_blocks.count(&bb))
@@ -572,6 +612,8 @@ namespace extrap {
                 instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
                         std::get<2>(v));
             }
+
+            // Handle implicit calls
 
             // Leaving order:
             // 1) revert previous registered call
@@ -637,6 +679,16 @@ namespace extrap {
             assert(false);
         free( static_cast<void*>(demangled_name) );
         return str_name;
+    }
+
+    void Instrumenter::callImplicitLoop(llvm::Instruction * instr, int func_idx,
+            int nested_loop_idx, int param_idx)
+    {
+        builder.SetInsertPoint(instr);
+        builder.CreateCall(mark_implicit_label,
+                {builder.getInt16(func_idx),
+                builder.getInt16(nested_loop_idx),
+                builder.getInt16(param_idx)});
     }
 
     template<typename Vector, typename FuncIter, typename FuncIter2>
@@ -1392,6 +1444,12 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_INIT_MPI", func_t);
         init_mpi_function = m.getFunction("__dfsw_EXTRAP_INIT_MPI");
         assert(init_mpi_function);
+
+        // void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t, uint16_t, uint16_t)
+        func_t = llvm::FunctionType::get(void_t, {i16_t, i16_t, i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_MARK_IMPLICIT_LABEL", func_t);
+        mark_implicit_label = m.getFunction("__dfsw_EXTRAP_MARK_IMPLICIT_LABEL");
+        assert(mark_implicit_label);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp

@@ -31,7 +31,7 @@ namespace extrap {
 
     using json_t = nlohmann::json;
 
-    struct Instrumenter;
+    struct Function;
 
     struct FunctionDatabase
     {
@@ -58,7 +58,7 @@ namespace extrap {
         void read(std::ifstream &);
         bool contains(llvm::Function * f);
         typedef std::vector< std::vector<int> > vec_t;
-        void processLoop(llvm::Function * f, vec_t &);
+        void processLoop(llvm::Function * f, llvm::Value *, Function &, vec_t &);
         size_t parameters_count() const;
         const std::string & parameter_name(size_t idx) const;
     };
@@ -91,7 +91,8 @@ namespace extrap {
         // # of entries = loop_depths.size()
         std::vector<int> loops_structures;
         std::vector<int> loops_sizes;
-        std::vector<std::tuple<llvm::Value*, int>> implicit_loops;
+        // call + index of parameter
+        std::vector<std::tuple<llvm::Instruction*, int>> implicit_loops;
         typedef std::vector< std::vector<int> > vec_t;
 
         Function(int _idx, bool _overriden = false):
@@ -289,6 +290,9 @@ namespace extrap {
         // void __dfsw_EXTRAP_INIT_MPI
         llvm::Function * init_mpi_function;
 
+        // void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t, uint16_t, uint16_t)
+        llvm::Function * mark_implicit_label;
+
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
@@ -351,6 +355,8 @@ namespace extrap {
         void removeLoopCalls(llvm::Function & f, size_t size);
         void saveCurrentCall(llvm::Function & f);
 
+        void callImplicitLoop(llvm::Instruction *, int func_idx, int nested_loop_idx,
+                int param_idx);
         llvm::Function * getAtExit();
     };
 
