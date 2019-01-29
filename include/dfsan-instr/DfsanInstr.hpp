@@ -172,6 +172,7 @@ namespace extrap {
         // `params` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_params_names;
         llvm::GlobalVariable * glob_params_used;
+        llvm::GlobalVariable * glob_params_redirect;
 
         // Callsites
         // int8* of size operand_count * callsite_count
@@ -236,6 +237,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_PARAMS_NAMES";
         static constexpr const char * glob_params_used_name
             = "__EXTRAP_INSTRUMENTATION_PARAMS_USED";
+        static constexpr const char * glob_params_redirect_name
+            = "__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT";
         static constexpr const char * glob_loops_depths_name
             = "__EXTRAP_LOOPS_DEPTHS_PER_FUNC";
         static constexpr const char * glob_deps_offsets_name
@@ -445,6 +448,8 @@ namespace extrap {
         std::vector< std::tuple<const llvm::Value*, Parameters::id_t>> found_params;
 
         std::unordered_map<llvm::Function*, bool> calls_important;
+
+        std::set<llvm::Function*> calling_important_functions;
 
         //Statistics stats;
         DfsanInstr():
