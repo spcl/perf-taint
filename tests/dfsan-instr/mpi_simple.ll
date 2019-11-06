@@ -1,5 +1,4 @@
 ; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 10 10 10 && diff -w %s.json %t4_0.json && diff -w %s.json %t4_1.json
-
 ; ModuleID = 'tests/dfsan-instr/mpi_simple.cpp'
 source_filename = "tests/dfsan-instr/mpi_simple.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -240,11 +239,12 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !196 {
   br label %46, !dbg !249
 
 ; <label>:46:                                     ; preds = %43, %2
-  %47 = load double*, double** %10, align 8, !dbg !250
-  %48 = bitcast double* %47 to i8*, !dbg !250
-  call void @free(i8* %48) #5, !dbg !251
-  %49 = call i32 @MPI_Finalize(), !dbg !252
-  ret i32 0, !dbg !253
+  %47 = call i32 @MPI_Barrier(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*)), !dbg !250
+  %48 = load double*, double** %10, align 8, !dbg !251
+  %49 = bitcast double* %48 to i8*, !dbg !251
+  call void @free(i8* %49) #5, !dbg !252
+  %50 = call i32 @MPI_Finalize(), !dbg !253
+  ret i32 0, !dbg !254
 }
 
 declare dso_local i32 @MPI_Init(i32*, i8***) #3
@@ -256,25 +256,25 @@ declare void @llvm.var.annotation(i8*, i8*, i8*, i32) #5
 declare dso_local i32 @atoi(i8*) #6
 
 ; Function Attrs: noinline optnone uwtable
-define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #2 comdat !dbg !254 {
+define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #2 comdat !dbg !255 {
   %3 = alloca i32*, align 8
   %4 = alloca i8*, align 8
   %5 = alloca i32, align 4
   store i32* %0, i32** %3, align 8
-  call void @llvm.dbg.declare(metadata i32** %3, metadata !263, metadata !DIExpression()), !dbg !264
+  call void @llvm.dbg.declare(metadata i32** %3, metadata !264, metadata !DIExpression()), !dbg !265
   store i8* %1, i8** %4, align 8
-  call void @llvm.dbg.declare(metadata i8** %4, metadata !265, metadata !DIExpression()), !dbg !266
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !267, metadata !DIExpression()), !dbg !268
-  %6 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !269
-  store i32 %6, i32* %5, align 4, !dbg !268
-  %7 = load i32*, i32** %3, align 8, !dbg !270
-  %8 = bitcast i32* %7 to i8*, !dbg !271
-  %9 = load i32, i32* %5, align 4, !dbg !272
-  %10 = add nsw i32 %9, 1, !dbg !272
-  store i32 %10, i32* %5, align 4, !dbg !272
-  %11 = load i8*, i8** %4, align 8, !dbg !273
-  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %8, i32 4, i32 %9, i8* %11), !dbg !274
-  ret void, !dbg !275
+  call void @llvm.dbg.declare(metadata i8** %4, metadata !266, metadata !DIExpression()), !dbg !267
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !268, metadata !DIExpression()), !dbg !269
+  %6 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !270
+  store i32 %6, i32* %5, align 4, !dbg !269
+  %7 = load i32*, i32** %3, align 8, !dbg !271
+  %8 = bitcast i32* %7 to i8*, !dbg !272
+  %9 = load i32, i32* %5, align 4, !dbg !273
+  %10 = add nsw i32 %9, 1, !dbg !273
+  store i32 %10, i32* %5, align 4, !dbg !273
+  %11 = load i8*, i8** %4, align 8, !dbg !274
+  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %8, i32 4, i32 %9, i8* %11), !dbg !275
+  ret void, !dbg !276
 }
 
 declare dso_local i32 @MPI_Comm_size(%struct.ompi_communicator_t*, i32*) #3
@@ -285,6 +285,8 @@ declare dso_local i32 @MPI_Comm_rank(%struct.ompi_communicator_t*, i32*) #3
 declare dso_local noalias i8* @calloc(i64, i64) #7
 
 declare dso_local i32 @printf(i8*, ...) #3
+
+declare dso_local i32 @MPI_Barrier(%struct.ompi_communicator_t*) #3
 
 ; Function Attrs: nounwind
 declare dso_local void @free(i8*) #7
@@ -559,29 +561,30 @@ attributes #8 = { nounwind readonly }
 !247 = !DILocation(line: 57, column: 8, scope: !196)
 !248 = !DILocation(line: 58, column: 24, scope: !245)
 !249 = !DILocation(line: 58, column: 9, scope: !245)
-!250 = !DILocation(line: 59, column: 10, scope: !196)
-!251 = !DILocation(line: 59, column: 5, scope: !196)
+!250 = !DILocation(line: 59, column: 5, scope: !196)
+!251 = !DILocation(line: 60, column: 10, scope: !196)
 !252 = !DILocation(line: 60, column: 5, scope: !196)
 !253 = !DILocation(line: 61, column: 5, scope: !196)
-!254 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !255, file: !255, line: 14, type: !256, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, templateParams: !261, retainedNodes: !2)
-!255 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
-!256 = !DISubroutineType(types: !257)
-!257 = !{null, !258, !259}
-!258 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !40, size: 64)
-!259 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !260, size: 64)
-!260 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !201)
-!261 = !{!262}
-!262 = !DITemplateTypeParameter(name: "T", type: !40)
-!263 = !DILocalVariable(name: "ptr", arg: 1, scope: !254, file: !255, line: 14, type: !258)
-!264 = !DILocation(line: 14, column: 28, scope: !254)
-!265 = !DILocalVariable(name: "name", arg: 2, scope: !254, file: !255, line: 14, type: !259)
-!266 = !DILocation(line: 14, column: 46, scope: !254)
-!267 = !DILocalVariable(name: "param_id", scope: !254, file: !255, line: 16, type: !38)
-!268 = !DILocation(line: 16, column: 13, scope: !254)
-!269 = !DILocation(line: 16, column: 24, scope: !254)
-!270 = !DILocation(line: 17, column: 57, scope: !254)
-!271 = !DILocation(line: 17, column: 31, scope: !254)
-!272 = !DILocation(line: 18, column: 21, scope: !254)
-!273 = !DILocation(line: 18, column: 25, scope: !254)
-!274 = !DILocation(line: 17, column: 5, scope: !254)
-!275 = !DILocation(line: 19, column: 1, scope: !254)
+!254 = !DILocation(line: 62, column: 5, scope: !196)
+!255 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !256, file: !256, line: 14, type: !257, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, templateParams: !262, retainedNodes: !2)
+!256 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/llvm_pass/extrap-tool")
+!257 = !DISubroutineType(types: !258)
+!258 = !{null, !259, !260}
+!259 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !40, size: 64)
+!260 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !261, size: 64)
+!261 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !201)
+!262 = !{!263}
+!263 = !DITemplateTypeParameter(name: "T", type: !40)
+!264 = !DILocalVariable(name: "ptr", arg: 1, scope: !255, file: !256, line: 14, type: !259)
+!265 = !DILocation(line: 14, column: 28, scope: !255)
+!266 = !DILocalVariable(name: "name", arg: 2, scope: !255, file: !256, line: 14, type: !260)
+!267 = !DILocation(line: 14, column: 46, scope: !255)
+!268 = !DILocalVariable(name: "param_id", scope: !255, file: !256, line: 16, type: !38)
+!269 = !DILocation(line: 16, column: 13, scope: !255)
+!270 = !DILocation(line: 16, column: 24, scope: !255)
+!271 = !DILocation(line: 17, column: 57, scope: !255)
+!272 = !DILocation(line: 17, column: 31, scope: !255)
+!273 = !DILocation(line: 18, column: 21, scope: !255)
+!274 = !DILocation(line: 18, column: 25, scope: !255)
+!275 = !DILocation(line: 17, column: 5, scope: !255)
+!276 = !DILocation(line: 19, column: 1, scope: !255)

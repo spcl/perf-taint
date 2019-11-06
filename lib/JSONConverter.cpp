@@ -8,6 +8,7 @@ typedef nlohmann::json json_t;
 
 // loop_idx -> loop
 typedef std::map<std::string, std::vector<const json_t*>> set_t;
+json_t convert_loop_set(const json_t & loop_set);
 
 json_t convert_params(const json_t & params)
 {
@@ -33,46 +34,66 @@ json_t convert_loop(const json_t & loop)
 
     json_t current;
     std::vector<json_t> additive_layers;
-    auto subloops = loop.find("loops");
-    if(subloops != loop.end()) {
-        for(auto it = subloops->begin(), end = subloops->end(); it != end; ++it) {
-            //std::cout << it.key() << ' ' << it.value() << '\n';
-            //std::cout << "Convert: " << it.value() << '\n';
-            additive_layers.push_back( convert_loop(it.value()) );
-            //std::cout << "Converted: " << additive_layers.back() << '\n';
+    //std::cerr << loop.dump(2) << '\n';
+
+    //array of jsons coming from nested calls
+    if(loop.is_array()) {
+        for(const auto & single_loop : loop) {
+            json_t j = convert_loop_set(single_loop);
+            if(!j.empty())
+                additive_layers.push_back(j);
         }
-    }
-    auto it = loop.find("params");
-    //std::cout << "Properconvert: " << loop << " " << additive_layers.size() << '\n';
-    if(it != loop.end()) {
-        json_t params = convert_params(*it);
-        // no additional dependency
-        if(additive_layers.size() == 0) {
-            return params;
-        }
-        else {
-            json_t additive;
-            additive["dependency"] = "additive";
+        json_t additive;
+        additive["dependency"] = "additive";
+        if(additive_layers.size() != 0) {
             additive["operands"] = std::move(additive_layers);
-            json_t result;
-            result["dependency"] = "multiplicative";
-            result["operands"].push_back(params);
-            result["operands"].push_back(additive);
-            return result;
+        } else {
+            additive["operands"] = json_t{};
         }
+        return additive;
     } else {
-        // no params? skip this, return an additive over subloops
-        if(additive_layers.size() == 1) {
-            return additive_layers[0];
+
+        auto subloops = loop.find("loops");
+        if(subloops != loop.end()) {
+            for(auto it = subloops->begin(), end = subloops->end(); it != end; ++it) {
+                //std::cout << it.key() << ' ' << it.value() << '\n';
+                //std::cout << "Convert: " << it.value() << '\n';
+                additive_layers.push_back( convert_loop(it.value()) );
+                //std::cout << "Converted: " << additive_layers.back() << '\n';
+            }
         }
-        //else if(additive_layers.size() == 0) {
-        //    return json_t();
-        //}
-        else {
-            json_t additive;
-            additive["dependency"] = "additive";
-            additive["operands"] = std::move(additive_layers);
-            return additive;
+        auto it = loop.find("params");
+        //std::cout << "Properconvert: " << loop << " " << additive_layers.size() << '\n';
+        if(it != loop.end()) {
+            json_t params = convert_params(*it);
+            // no additional dependency
+            if(additive_layers.size() == 0) {
+                return params;
+            }
+            else {
+                json_t additive;
+                additive["dependency"] = "additive";
+                additive["operands"] = std::move(additive_layers);
+                json_t result;
+                result["dependency"] = "multiplicative";
+                result["operands"].push_back(params);
+                result["operands"].push_back(additive);
+                return result;
+            }
+        } else {
+            // no params? skip this, return an additive over subloops
+            if(additive_layers.size() == 1) {
+                return additive_layers[0];
+            }
+            //else if(additive_layers.size() == 0) {
+            //    return json_t();
+            //}
+            else {
+                json_t additive;
+                additive["dependency"] = "additive";
+                additive["operands"] = std::move(additive_layers);
+                return additive;
+            }
         }
     }
 
@@ -114,6 +135,7 @@ json_t convert_loop_set(const json_t & loop_set)
         //}
         //deps.push_back(dep);
         json_t converted = convert_loop(it.value());
+        //std::cerr << converted << "\n\n";
         if(converted["operands"].size() != 0) {
             deps.push_back( std::move(converted) );
         }
@@ -146,6 +168,7 @@ std::vector<uint32_t> parse(const json_t & op, const json_t & all_params)
     //    std::cout << "Process param: " << op << ' ' << param_to_int(op, all_params) << '\n';
     //    return std::vector<uint32_t>(1, param_to_int(op, all_params));
     //} else
+    //std::cerr << op << '\n';
     if(op.is_array()) {
         return parse(op[0], all_params);
     } else if(op["dependency"] == "additive") {
@@ -266,11 +289,27 @@ json_t convert(json_t & input)
             output[key] = std::move(input[key]);
     }
 
+
+    std::ofstream of("filter", std::ios_base::out);
+    of << "SCOREP_REGION_NAMES_BEGIN\n";
+    for(const auto & name : output["functions_names"]) {
+        of << "INCLUDE *" << name.get<std::string>() << "*\n";
+    }
+    of << "SCOREP_REGION_NAMES_END\n";
+    of.close();
+
     json_t & functions = input["functions"];
+    json_t & unimportant_functions = input["unimportant_functions"];
     json_t & functions_output = output["functions"];
     json_t & params = output["parameters"];
+    std::vector<std::string> important_functions(functions.size() + unimportant_functions.size());
+    of.open("filter_important", std::ios_base::out);
+    of << "SCOREP_REGION_NAMES_BEGIN\n";
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
+        int idx = it.value()["func_idx"].get<int>();
+        std::cerr << it.key() << ' ' << it.value()["func_idx"].get<int>() << '\n';
+        of << "INCLUDE *" << output["functions_names"][idx].get<std::string>() << "*\n";
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
         // callstack -> list of loops
@@ -368,6 +407,8 @@ json_t convert(json_t & input)
         }
         functions_output[it.key()] = std::move(function);
     }
+    of << "SCOREP_REGION_NAMES_END\n";
+    of.close();
 
     return output;
 }

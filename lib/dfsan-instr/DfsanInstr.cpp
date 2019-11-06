@@ -126,6 +126,14 @@ namespace extrap {
                 cur = nullptr;
             }
         }
+        //llvm::errs() << "Insert for function " << f->getName() << '\n';
+        //llvm::errs() << "Depth " << loop_data.size() << '\n';
+        //for(int i = 0; i < loop_data.size(); ++i) {
+        //    llvm::errs() << "Level " << i;
+        //    for(int j = 0; j < loop_data[i].size(); ++j)
+        //        llvm::errs() << loop_data[i][j];
+        //    llvm::errs() << '\n';
+        //}
         //auto & subloops = l.getSubLoops();
         //if(depth < data.size())
         //    data[depth].push_back(subloops.size());
@@ -294,7 +302,6 @@ namespace extrap {
 
     void DfsanInstr::foundFunction(llvm::Function &f, bool important, int counter)
     {
-        llvm::errs() << " Found function: " << f.getName() << ' ' << instrumented_functions_counter << '\n';
         auto it = instrumented_functions.find(&f);
         assert(it == instrumented_functions.end());
         if(important) {
@@ -446,8 +453,10 @@ namespace extrap {
             return true;
         // Don't instrument functions without definition
         // We can't track them anyway.
-        if(called_f->isDeclaration())
+        if(called_f->isDeclaration()) {
+            calls_important[called_f] = false;
             return false;
+        }
         auto it = calls_important.find(called_f);
         if(it != calls_important.end())
             return (*it).second;
@@ -466,9 +475,13 @@ namespace extrap {
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
-            llvm::Function * called_f = node->getFunction();
-            important |= called_f ?
-                callsImportantFunction(called_f) :
+            llvm::Function * new_called_f = node->getFunction();
+            // write down this function to detect recursive calls
+            // if it happens, it's important
+            // TODO: probelms in recursive functions
+            calls_important[called_f] = true;
+            important |= new_called_f ?
+                callsImportantFunction(new_called_f) :
                 true;
             if(important)
                 break;
@@ -531,10 +544,15 @@ namespace extrap {
                 l->getExitingBlocks(exit_blocks);
                 for(llvm::BasicBlock * bb : exit_blocks) {
                     const llvm::Instruction * inst = bb->getTerminator();
+                    //llvm::errs() << *inst << '\n';
                     const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
-                    assert(br);
-                    if(br->isConditional()) {
+                    if(br && br->isConditional()) {
                         instr.checkLoop(nested_loop_idx, func.function_idx(), br);
+                    } else {
+                        // TODO: fix this -> a general handling
+                        //const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst);
+                        //assert(invoke);
+                        llvm::errs() << "Unknown branch: " << *inst << '\n';
                     }
                 }
                 nested_loop_idx++;
@@ -552,7 +570,6 @@ namespace extrap {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
 
-        llvm::errs() << f.getName() << " " << func.is_overriden() << '\n';
         if(!func.is_overriden()){
             std::set<llvm::BasicBlock*> loop_blocks;
             int loop_idx = 0, nested_loop_idx = 0;
@@ -899,6 +916,16 @@ namespace extrap {
                 llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantAggregateZero::get(array_type),
                 glob_params_used_name);
+
+        array_type = llvm::ArrayType::get(
+                    builder.getInt16Ty(),
+                    database.parameters_count());
+        glob_params_redirect = new llvm::GlobalVariable(m,
+                array_type,
+                false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                llvm::ConstantAggregateZero::get(array_type),
+                glob_params_redirect_name);
 
         // int16_t instrumentation_labels[] = {0..}
         array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
@@ -1494,8 +1521,7 @@ namespace extrap {
                         llvm::dyn_cast<llvm::CallBase>(&instr)) {
                     if(llvm::Function * f = call->getCalledFunction()) {
                         llvm::StringRef name = f->getName();
-                        llvm::errs() << *call << ' ' << name << '\n';
-                        if(name == "MPI_Init") {
+                        if(name == "MPI_Init" || name == "MPI_Init_thread") {
                             builder.SetInsertPoint(instr.getNextNode());
                             builder.CreateCall(init_mpi_function);
                         }
