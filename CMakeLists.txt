@@ -3,22 +3,23 @@ include(ExternalProject)
 
 project(loop_extractor.cpp)
 # dirty hack to remove NDEBUG
-string( REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
-#find_package(LLVM REQUIRED CONFIG)
-#add_definitions(${LLVM_DEFINITIONS})
-#include_directories(${LLVM_INCLUDE_DIRS})
-#link_directories(${LLVM_LIBRARY_DIRS})
+find_package(LLVM REQUIRED CONFIG)
+add_definitions(${LLVM_DEFINITIONS})
+include_directories(${LLVM_INCLUDE_DIRS})
+link_directories(${LLVM_LIBRARY_DIRS})
 
 find_package(MPI REQUIRED)
 include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
-find_package(Polly REQUIRED CONFIG)
-add_definitions(${Polly_DEFINITIONS})
-message(${Polly_DEFINITIONS})
-include_directories(${Polly_INCLUDE_DIRS})
+# No need for Polly anymore
+#find_package(Polly REQUIRED CONFIG)
+#add_definitions(${Polly_DEFINITIONS})
+#message(${Polly_DEFINITIONS})
+#include_directories(${Polly_INCLUDE_DIRS})
 #link_directories(${Polly_LIBRARY_DIRS})
 
 include_directories(include)
@@ -41,15 +42,16 @@ endif()
 include_directories(${JSONCPP_INCLUDE_DIRS})
 
 
-file(GLOB StaticExtractor
-    "lib/static-extractor/*.cpp"
-)
-add_library(StaticExtractor MODULE ${StaticExtractor} lib/ParameterFinder.cpp)
-set_property(TARGET StaticExtractor PROPERTY CXX_STANDARD 14)
-set_target_properties(StaticExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
-set_target_properties(StaticExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
-add_dependencies(StaticExtractor jsoncpp)
-target_link_libraries(StaticExtractor LLVMPolly)
+# Not needed anymore..
+#file(GLOB StaticExtractor
+#    "lib/static-extractor/*.cpp"
+#)
+#add_library(StaticExtractor MODULE ${StaticExtractor} lib/ParameterFinder.cpp)
+#set_property(TARGET StaticExtractor PROPERTY CXX_STANDARD 14)
+#set_target_properties(StaticExtractor PROPERTIES COMPILE_FLAGS "-fno-rtti")
+#set_target_properties(StaticExtractor PROPERTIES POSITION_INDEPENDENT_CODE On)
+#add_dependencies(StaticExtractor jsoncpp)
+#target_link_libraries(StaticExtractor LLVMPolly)
 
 file(GLOB DfsanInstrument
     "lib/dfsan-instr/*.cpp"
@@ -59,7 +61,7 @@ set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
 set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
 add_dependencies(DfsanInstrument jsoncpp)
-target_link_libraries(DfsanInstrument LLVMPolly)
+#target_link_libraries(DfsanInstrument LLVMPolly)
 
 # Split into two targets so C++ JSON code is not instrumented
 add_library(json_export STATIC lib/runtime/json_export.cpp)
@@ -70,12 +72,16 @@ set_target_properties(dfsan_runtime PROPERTIES
 )
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_dependencies(json_export jsoncpp)
+add_dependencies(dfsan_runtime jsoncpp)
 
 add_executable(ScorePGenerator lib/ScorePGenerator.cpp)
 set_property(TARGET ScorePGenerator PROPERTY CXX_STANDARD 14)
+add_dependencies(ScorePGenerator jsoncpp)
 
 add_executable(JSONConverter lib/JSONConverter.cpp)
 set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
+add_dependencies(JSONConverter jsoncpp)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
