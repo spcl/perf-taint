@@ -25,12 +25,54 @@ fun:MPI_Irecv=uninstrumented
 fun:MPI_Irecv=discard
 fun:MPI_Wtime=uninstrumented
 fun:MPI_Wtime=discard
+fun:MPI_Scan=uninstrumented
+fun:MPI_Scan=discard
 fun:MPI_Allreduce=uninstrumented
 fun:MPI_Allreduce=discard
+fun:MPI_Allgather=uninstrumented
+fun:MPI_Allgather=discard
+fun:MPI_Alltoall=uninstrumented
+fun:MPI_Alltoall=discard
 fun:MPI_Barrier=uninstrumented
 fun:MPI_Barrier=discard
 fun:MPI_Waitall=uninstrumented
 fun:MPI_Waitall=discard
+fun:MPI_Testany=uninstrumented
+fun:MPI_Testany=discard
+fun:MPI_Bcast=uninstrumented
+fun:MPI_Bcast=discard
+fun:MPI_Send=uninstrumented
+fun:MPI_Send=discard
+fun:MPI_Recv=uninstrumented
+fun:MPI_Recv=discard
+fun:MPI_Attr_get=uninstrumented
+fun:MPI_Attr_get=discard
+fun:MPI_Error_string=uninstrumented
+fun:MPI_Error_string=discard
+fun:MPI_Comm_dup=uninstrumented
+fun:MPI_Comm_dup=discard
+fun:MPI_Comm_free=uninstrumented
+fun:MPI_Comm_free=discard
+fun:MPI_Errhandler_create=uninstrumented
+fun:MPI_Errhandler_create=discard
+fun:MPI_Errhandler_set=uninstrumented
+fun:MPI_Errhandler_set=discard
+
+fun:MPI_Type_*=uninstrumented
+fun:MPI_Type_*=discard
+fun:MPI_Win_*=uninstrumented
+fun:MPI_Win_*=discard
+fun:MPI_Op_*=uninstrumented
+fun:MPI_Op_*=discard
+fun:MPI_Init_thread=uninstrumented
+fun:MPI_Init_thread=discard
+fun:MPI_Alloc_mem=uninstrumented
+fun:MPI_Alloc_mem=discard
+fun:MPI_Get=uninstrumented
+fun:MPI_Get=discard
+
+fun:MPI_Comm_split=uninstrumented
+fun:MPI_Comm_split=discard
 
 ###############################################################################
 # DFSan interface functions
@@ -221,6 +263,7 @@ fun:symlink=discard
 fun:syscall=discard
 fun:unlink=discard
 fun:uselocale=discard
+fun:gethostname=discard
 
 # Functions that produce output does not depend on the input (need to zero the
 # shadow manually).
@@ -2257,7 +2300,7 @@ fun:gethostbyname_r=uninstrumented
 fun:gethostent=uninstrumented
 fun:gethostent_r=uninstrumented
 fun:gethostid=uninstrumented
-fun:gethostname=uninstrumented
+#fun:gethostname=uninstrumented
 fun:getifaddrs=uninstrumented
 fun:getipv4sourcefilter=uninstrumented
 fun:getitimer=uninstrumented

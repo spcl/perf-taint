@@ -51,6 +51,70 @@
           "p"
         ]
       }
+    },
+    "MPI_Scan" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Allgather" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Alltoall" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Wait" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Bcast" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Send" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Recv" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
+    },
+    "MPI_Waitall" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p"
+        ]
+      }
     }
   },
   "params": [
