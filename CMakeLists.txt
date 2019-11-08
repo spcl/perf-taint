@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 include(ExternalProject)
 
+
 project(loop_extractor.cpp)
 # dirty hack to remove NDEBUG
 string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
@@ -14,6 +15,23 @@ link_directories(${LLVM_LIBRARY_DIRS})
 find_package(MPI REQUIRED)
 include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
+
+set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
+set(LIBOMP_PATH "" CACHE STRING "Path to libiomp5.a installation")
+
+if( LIBCXX_PATH STREQUAL "")
+  # TODO: Check for existence of static libraries
+  message(SEND_ERROR "Please provide the path to dataflow-instrumented libcxx and libcxxabi")
+else()
+  set(CMAKE_LIBCXX_PATH "${LIBCXX_PATH}/lib/")
+endif()
+
+if( LIBOMP_PATH STREQUAL "")
+  # TODO: Check for existence of static libraries
+  message(SEND_ERROR "Please provide the path to dataflow-instrumented OpenMP.")
+else()
+  set(CMAKE_LIBOMP "${LIBOMP_PATH}/lib/libiomp5.a")
+endif()
 
 # No need for Polly anymore
 #find_package(Polly REQUIRED CONFIG)
@@ -68,7 +86,9 @@ add_library(json_export STATIC lib/runtime/json_export.cpp)
 add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
 target_link_libraries(dfsan_runtime ${MPI_C_LIBRARIES})
 set_target_properties(dfsan_runtime PROPERTIES
-    COMPILE_FLAGS "-fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt -g -stdlib=libc++ -I/home/mcopik/projects/clang_llvm/build_dfsan_full/include/c++/v1"
+    COMPILE_FLAGS "-fsanitize=dataflow\
+      -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt\
+      -g -stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1"
 )
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
