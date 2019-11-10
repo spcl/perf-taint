@@ -18,6 +18,7 @@ SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
 set(LIBOMP_PATH "" CACHE STRING "Path to libiomp5.a installation")
+set(JSONCPP_PATH "" CACHE STRING "Path to installation of nlohmann_json")
 
 if( LIBCXX_PATH STREQUAL "")
   # TODO: Check for existence of static libraries
@@ -33,6 +34,10 @@ else()
   set(CMAKE_LIBOMP "${LIBOMP_PATH}/lib/libiomp5.a")
 endif()
 
+if( NOT JSONCPP_PATH STREQUAL "")
+  set(nlohmann_json_DIR "${JSONCPP_PATH}/lib/cmake/nlohmann_json")
+endif()
+
 # No need for Polly anymore
 #find_package(Polly REQUIRED CONFIG)
 #add_definitions(${Polly_DEFINITIONS})
@@ -45,19 +50,20 @@ include_directories(include)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 
 # JsonCPP
-find_package(Jsoncpp QUIET)
-if(NOT Jsoncpp_FOUND)
-  ExternalProject_Add(jsoncpp
+find_package(nlohmann_json) #QUIET)
+if(NOT nlohmann_json_FOUND)
+  message(INFO "Downloading and building nlohmann_json dependency")
+  ExternalProject_Add(nlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    CMAKE_ARGS -DJSON_BuildTests=Off -DJSON_MultipleHeaders=ON -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/jsoncpp/jsoncpp
-    PREFIX ${EXTERNAL_INSTALL_LOCATION}/jsoncpp/build
+    CMAKE_ARGS -DJSON_BuildTests=Off -DJSON_MultipleHeaders=ON -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install
+    PREFIX ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/build
     UPDATE_DISCONNECTED 1
     BUILD_ALWAYS 1
-    INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}/jsoncpp/jsoncpp
+    INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install
   )
-  set(JSONCPP_INCLUDE_DIRS ${EXTERNAL_INSTALL_LOCATION}/jsoncpp/jsoncpp/include)
+  set(JSONCPP_INCLUDE_DIRS ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install/include)
+  #TODO: how to get target here?
 endif()
-include_directories(${JSONCPP_INCLUDE_DIRS})
 
 
 # Not needed anymore..
@@ -78,30 +84,37 @@ add_library(DfsanInstrument MODULE ${DfsanInstrument} lib/ParameterFinder.cpp)
 set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
 set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
-add_dependencies(DfsanInstrument jsoncpp)
+target_link_libraries(DfsanInstrument PRIVATE nlohmann_json::nlohmann_json)
+#add_dependencies(DfsanInstrument nlohmann_json)
 #target_link_libraries(DfsanInstrument LLVMPolly)
 
 # Split into two targets so C++ JSON code is not instrumented
 add_library(json_export STATIC lib/runtime/json_export.cpp)
 add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
-target_link_libraries(dfsan_runtime ${MPI_C_LIBRARIES})
+target_link_libraries(dfsan_runtime PRIVATE ${MPI_C_LIBRARIES})
+target_link_libraries(dfsan_runtime PRIVATE nlohmann_json::nlohmann_json)
 set_target_properties(dfsan_runtime PROPERTIES
-    COMPILE_FLAGS "-fsanitize=dataflow\
-      -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt\
-      -g -stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1"
+  COMPILE_FLAGS "-stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
 )
+add_dependencies(dfsan_runtime nlohmann_json)
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+set_target_properties(json_export PROPERTIES
+  COMPILE_FLAGS "-stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
+)
+add_dependencies(json_export nlohmann_json)
+target_link_libraries(json_export PRIVATE nlohmann_json::nlohmann_json)
 set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
-add_dependencies(json_export jsoncpp)
-add_dependencies(dfsan_runtime jsoncpp)
 
 add_executable(ScorePGenerator lib/ScorePGenerator.cpp)
 set_property(TARGET ScorePGenerator PROPERTY CXX_STANDARD 14)
-add_dependencies(ScorePGenerator jsoncpp)
+add_dependencies(ScorePGenerator nlohmann_json)
+target_link_libraries(ScorePGenerator PRIVATE nlohmann_json::nlohmann_json)
 
 add_executable(JSONConverter lib/JSONConverter.cpp)
 set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
-add_dependencies(JSONConverter jsoncpp)
+add_dependencies(JSONConverter nlohmann_json)
+target_link_libraries(JSONConverter PRIVATE nlohmann_json::nlohmann_json)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 
