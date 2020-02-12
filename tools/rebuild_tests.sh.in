@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CLANG=@CMAKE_CXX_COMPILER@
+INCLUDE_PATH="-I@CMAKE_CURRENT_SOURCE_DIR@/include/"
+OMP_INCLUDE_PATH="-I@OpenMP_C_INCLUDE_DIRS@"
+TESTS_DIR=@CMAKE_CURRENT_SOURCE_DIR@/tests/dfsan-instr
+# Process list of MPI include paths, seperated by semicolon.
+export IFS=";"
+MPI_INCLUDE_PATHS="@MPI_C_INCLUDE_PATH@"
+MPI_INCLUDE=()
+for path in ${MPI_INCLUDE_PATHS}; do
+  if [[ ! -z $path ]]; then
+    MPI_INCLUDE+=("-I${path}")
+  fi
+done
+
+pushd ${TESTS_DIR} > /dev/null
+for f in *.cpp; do
+  test_name="${f%.*}.ll"
+  #echo "${CLANG} "${INCLUDE_PATH}" "${MPI_INCLUDE}" -fopenmp -O2 -mllvm -disable-llvm-optzns -S -emit-llvm $f > ${test_name}"
+  ${CLANG} "${INCLUDE_PATH}" "${OMP_INCLUDE_PATH}" "${MPI_INCLUDE[@]}" -fopenmp -g -O2 -mllvm -disable-llvm-optzns -S -emit-llvm $f > ${test_name}
+done
+popd > /dev/null

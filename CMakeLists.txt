@@ -17,7 +17,7 @@ include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
-set(LIBOMP_PATH "" CACHE STRING "Path to libiomp5.a installation")
+set(OMP_PATH "" CACHE STRING "Path to OpenMP installation")
 set(JSONCPP_PATH "" CACHE STRING "Path to installation of nlohmann_json")
 
 if( LIBCXX_PATH STREQUAL "")
@@ -27,11 +27,12 @@ else()
   set(CMAKE_LIBCXX_PATH "${LIBCXX_PATH}/lib/")
 endif()
 
-if( LIBOMP_PATH STREQUAL "")
-  # TODO: Check for existence of static libraries
+if( OMP_PATH STREQUAL "")
   message(SEND_ERROR "Please provide the path to dataflow-instrumented OpenMP.")
 else()
-  set(CMAKE_LIBOMP "${LIBOMP_PATH}/lib/libiomp5.a")
+  # TODO: Check for existence of static libraries
+  set(OpenMP_C_INCLUDE_DIRS "${OMP_PATH}/include")
+  set(OpenMP_C_LIBRARIES "${OMP_PATH}/lib/libiomp5.a")
 endif()
 
 if( NOT JSONCPP_PATH STREQUAL "")
@@ -77,6 +78,7 @@ endif()
 #add_dependencies(StaticExtractor jsoncpp)
 #target_link_libraries(StaticExtractor LLVMPolly)
 
+# DfsanInstrument - link to JSON, build C++14, PIC and no RTTI
 file(GLOB DfsanInstrument
     "lib/dfsan-instr/*.cpp"
 )
@@ -85,8 +87,6 @@ set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
 set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
 target_link_libraries(DfsanInstrument PRIVATE nlohmann_json::nlohmann_json)
-#add_dependencies(DfsanInstrument nlohmann_json)
-#target_link_libraries(DfsanInstrument LLVMPolly)
 
 # Split into two targets so C++ JSON code is not instrumented
 add_library(json_export STATIC lib/runtime/json_export.cpp)
@@ -117,5 +117,6 @@ add_dependencies(JSONConverter nlohmann_json)
 target_link_libraries(JSONConverter PRIVATE nlohmann_json::nlohmann_json)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
+configure_file(tools/rebuild_tests.sh.in tools/rebuild_tests.sh @ONLY)
 
 
