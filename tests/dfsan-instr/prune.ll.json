@@ -137,7 +137,7 @@
           "callstacks": [
             [
               3,
-              6
+              7
             ],
             [
               3,
@@ -166,7 +166,7 @@
           "callstacks": [
             [
               3,
-              6
+              7
             ],
             [
               3,
@@ -210,13 +210,13 @@
           "callstacks": [
             [
               3,
-              6,
-              7
+              7,
+              8
             ],
             [
               3,
               2,
-              7
+              8
             ]
           ],
           "instance": {
@@ -234,7 +234,7 @@
           "callstacks": [
             [
               3,
-              6,
+              7,
               1
             ],
             [
@@ -258,13 +258,13 @@
           "callstacks": [
             [
               3,
-              6,
-              7
+              7,
+              8
             ],
             [
               3,
               2,
-              7
+              8
             ]
           ],
           "instance": {
@@ -283,7 +283,7 @@
           "callstacks": [
             [
               3,
-              6,
+              7,
               1
             ],
             [
@@ -309,7 +309,7 @@
           "callstacks": [
             [
               3,
-              6
+              7
             ],
             [
               3,
@@ -336,6 +336,7 @@
     "g_not_prune(int)",
     "f_not_prune(int, int)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)",
     "void register_variable<double>(double*, char const*)",
     "f_prune(int, int)",
@@ -346,6 +347,7 @@
     "_Z11g_not_prunei",
     "_Z11f_not_pruneii",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc",
     "_Z17register_variableIdEvPT_PKc",
     "_Z7f_pruneii",
@@ -356,6 +358,7 @@
     "g_not_prune",
     "f_not_prune",
     "main",
+    "atoi",
     "register_variable<int>",
     "register_variable<double>",
     "f_prune",

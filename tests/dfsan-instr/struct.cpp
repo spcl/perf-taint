@@ -4,7 +4,7 @@
 #include <random>
 #include <iostream>
 
-#include "ExtrapInstrumenter.hpp"
+#include "ExtraPInstrumenter.hpp"
 
 #define BLOCK_SIZE 64
 

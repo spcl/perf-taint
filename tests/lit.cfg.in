@@ -11,7 +11,7 @@ config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests/dfsan-
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
 config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
 config.libcxx_path = '@CMAKE_LIBCXX_PATH@'
-config.libomp = '@CMAKE_LIBOMP@'
+config.libomp = '@OpenMP_C_LIBRARIES@'
 config.suffixes = ['.ll']
 config.test_format = lit.formats.ShTest(True)
 # TODO: make it configurable

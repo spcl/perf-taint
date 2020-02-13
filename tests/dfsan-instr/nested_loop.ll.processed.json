@@ -218,6 +218,7 @@
     "perf_nest_quadr(int, int)",
     "perf_nest_multiple_quadr(int, int)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
@@ -227,6 +228,7 @@
     "_Z15perf_nest_quadrii",
     "_Z24perf_nest_multiple_quadrii",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
@@ -236,6 +238,7 @@
     "perf_nest_quadr",
     "perf_nest_multiple_quadr",
     "main",
+    "atoi",
     "register_variable<int>"
   ],
   "parameters": [
