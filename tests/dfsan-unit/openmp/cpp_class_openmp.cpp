@@ -3,7 +3,7 @@
 
 #include <omp.h>
 
-#include "ExtrapInstrumenter.hpp"
+#include "ExtraPInstrumenter.hpp"
 
 class Grid
 {
