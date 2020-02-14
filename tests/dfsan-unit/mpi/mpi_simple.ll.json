@@ -2,13 +2,13 @@
   "functions": {
     "_Z16h_multiple_loopsPdm": {
       "file": "tests/dfsan-instr/mpi_simple.cpp",
-      "func_idx": 1,
+      "func_idx": 2,
       "line": 17,
       "loops": [
         {
           "callstacks": [
             [
-              4
+              0
             ]
           ],
           "instance": {
@@ -35,13 +35,13 @@
     },
     "_Z1fPdm": {
       "file": "tests/dfsan-instr/mpi_simple.cpp",
-      "func_idx": 0,
+      "func_idx": 1,
       "line": 9,
       "loops": [
         {
           "callstacks": [
             [
-              4
+              0
             ]
           ],
           "instance": {
@@ -60,14 +60,14 @@
     },
     "_Z1hPd": {
       "file": "tests/dfsan-instr/mpi_simple.cpp",
-      "func_idx": 3,
+      "func_idx": 4,
       "line": 26,
       "loops": [
         {
           "callstacks": [
             [
-              4,
-              2
+              0,
+              3
             ]
           ],
           "instance": {
@@ -85,13 +85,13 @@
     },
     "_Z8h_nestedPdm": {
       "file": "tests/dfsan-instr/mpi_simple.cpp",
-      "func_idx": 2,
+      "func_idx": 3,
       "line": 33,
       "loops": [
         {
           "callstacks": [
             [
-              4
+              0
             ]
           ],
           "instance": {
@@ -121,30 +121,116 @@
           }
         }
       ]
+    },
+    "main": {
+      "file": "tests/dfsan-instr/mpi_simple.cpp",
+      "func_idx": 0,
+      "line": 40,
+      "loops": [
+        {
+          "callstacks": [
+            null
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "size",
+                      "ranks"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "2": [
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "size",
+                      "ranks"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "p"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "3": [
+              {
+                "0": {
+                  "level": 0,
+                  "loops": {
+                    "0": [
+                      {
+                        "0": {
+                          "level": 1,
+                          "params": [
+                            [
+                              "p"
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "params": [
+                    [
+                      "size",
+                      "ranks"
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   "functions_demangled_names": [
+    "main",
     "f(double*, unsigned long)",
     "h_multiple_loops(double*, unsigned long)",
     "h_nested(double*, unsigned long)",
     "h(double*)",
-    "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
+    "main",
     "_Z1fPdm",
     "_Z16h_multiple_loopsPdm",
     "_Z8h_nestedPdm",
     "_Z1hPd",
-    "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
+    "main",
     "f",
     "h_multiple_loops",
     "h_nested",
     "h",
-    "main",
+    "atoi",
     "register_variable<int>"
   ],
   "parameters": [
