@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+#TODO: add out file option
+INPUT=$@
+
+CLANG="@CMAKE_C_COMPILER@"
+CXXLANG="@CMAKE_CXX_COMPILER@"
+SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
+BUILD_DIR="@CMAKE_CURRENT_BINARY_DIR@"
+LIBCXX_PATH="@CMAKE_LIBCXX_PATH@"
+MPI_LINK_FLAG="@CMAKE_MPI_LINK_FLAGS@"
+
+IR_FILES=()
+OBJECT_FILES=()
+for f in "${INPUT[@]}"; do
+  ir_file_name="${f%.*}.dfsan.bc"
+  object_file_name="${f%.*}.dfsan.o"
+  opt -load ${BUILD_DIR}/libDfsanInstrument.so\
+      -extrap-extractor\
+      -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
+      -extrap-extractor-out-name=tmp_file\
+      -dfsan\
+      -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+      < ${f}\
+      > ${ir_file_name}
+  echo "Taint instrumentation of ${f}, processed IR file ${ir_file_name}"
+  IR_FILES+=(${ir_file_name})
+  OBJECT_FILES+=(${object_file_name})
+done
+${CXXLANG} -c -fPIC -x ir ${IR_FILES[@]}
+# TODO: remove link against libc++abi
+${CXXLANG} ${OBJECT_FILES[@]}\
+  -stdlib=libc++\
+  -fsanitize=dataflow\
+  -fsanitize-blacklist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+  -L${LIBCXX_PATH}\
+  -Wl,--start-group,-lc++abi\
+  -L${BUILD_DIR}\
+  -ldfsan_runtime\
+  ${MPI_LINK_FLAG}\
+  -o out.exe
