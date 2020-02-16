@@ -118,5 +118,6 @@ target_link_libraries(JSONConverter PRIVATE nlohmann_json::nlohmann_json)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 configure_file(tools/rebuild_tests.sh.in tools/rebuild_tests.sh @ONLY)
+configure_file(bin/perf-taint.in bin/perf-taint @ONLY)
 
 
