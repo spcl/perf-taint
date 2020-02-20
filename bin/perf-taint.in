@@ -45,6 +45,10 @@ ${CXXLANG} ${OBJECT_FILES[@]}\
   ${MPI_LINK_FLAG}\
   -o out.exe
 
+for ir_file in "${IR_FILES[@]}"; do
+  rm ${ir_file}
+done
+
 for obj_file in "${OBJECT_FILES[@]}"; do
   rm ${obj_file}
 done
