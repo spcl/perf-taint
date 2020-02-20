@@ -99,18 +99,21 @@
     "create_matrix",
     "mat_mul",
     "main",
+    "atoi",
     "register_variable"
   ],
   "functions_mangled_names": [
     "create_matrix",
     "mat_mul",
     "main",
+    "atoi",
     "register_variable"
   ],
   "functions_names": [
     "create_matrix",
     "mat_mul",
     "main",
+    "atoi",
     "register_variable"
   ],
   "parameters": [

@@ -1,0 +1,1 @@
+; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %t1 -o %t2 %link && %execparams %t2 50 30 40 | diff -w %s.json -

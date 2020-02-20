@@ -56,7 +56,7 @@
           "callstacks": [
             [
               3,
-              5
+              7
             ]
           ],
           "instance": {
@@ -79,6 +79,8 @@
     "do_sth(int, int)",
     "do_sth2(double, int)",
     "main",
+    "atoi",
+    "atof",
     "void register_variable<int>(int*, char const*)",
     "do_sth3(Params&)"
   ],
@@ -87,6 +89,8 @@
     "_Z6do_sthii",
     "_Z7do_sth2di",
     "main",
+    "atoi",
+    "atof",
     "_Z17register_variableIiEvPT_PKc",
     "_Z7do_sth3R6Params"
   ],
@@ -95,6 +99,8 @@
     "do_sth",
     "do_sth2",
     "main",
+    "atoi",
+    "atof",
     "register_variable<int>",
     "do_sth3"
   ],

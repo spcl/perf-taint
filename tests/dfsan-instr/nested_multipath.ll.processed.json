@@ -652,6 +652,7 @@
     "double_nest_triple(int, int)",
     "three_loops(int, int)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
@@ -662,6 +663,7 @@
     "_Z18double_nest_tripleii",
     "_Z11three_loopsii",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
@@ -672,6 +674,7 @@
     "double_nest_triple",
     "three_loops",
     "main",
+    "atoi",
     "register_variable<int>"
   ],
   "parameters": [

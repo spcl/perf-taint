@@ -102,12 +102,6 @@ fun:dfsan_set_write_callback=custom
 
 fun:__atomic*=uninstrumented
 fun:__atomic*=functional
-fun:_ZSt9terminatev=uninstrumented
-fun:_ZSt9terminatev=discard
-fun:__cxa_begin_catch=uninstrumented
-fun:__cxa_begin_catch=discard
-fun:__gxx_personality_v0=uninstrumented
-;fun:__gxx_personality_v0=discard
 
 # openmp
 
@@ -3861,12 +3855,6 @@ fun:ypprot_err=uninstrumented
 
 fun:__atomic*=uninstrumented
 fun:__atomic*=functional
-fun:_ZSt9terminatev=uninstrumented
-fun:_ZSt9terminatev=discard
-fun:__cxa_begin_catch=uninstrumented
-fun:__cxa_begin_catch=discard
-fun:__gxx_personality_v0=uninstrumented
-fun:__gxx_personality_v0=discard
 
 # openmp
 

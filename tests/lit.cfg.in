@@ -10,11 +10,11 @@ config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests/dfsan-
 # Help variable used to locate compiled library
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
 config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
-config.llvm_dir = '/home/mcopik/projects/clang_llvm/build_dfsan_full/lib'
-config.test_format = lit.formats.ShTest(True)
+config.libcxx_path = '@CMAKE_LIBCXX_PATH@'
+config.libomp = '@OpenMP_C_LIBRARIES@'
 config.suffixes = ['.ll']
+config.test_format = lit.formats.ShTest(True)
 # TODO: make it configurable
-config.llvm_dir2 = '/home/mcopik/projects/clang_llvm/build_dfsan/lib/'
 
 config.substitutions.append( ('%loadpass', '-load '
     + config.lib_dir
@@ -51,7 +51,7 @@ config.substitutions.append( ('%link',
     '-stdlib=libc++'
     + ' -fsanitize=dataflow'
     + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
-    + ' -L%s' % config.llvm_dir
+    + ' -L%s' % config.libcxx_path
     + ' -Wl,--start-group,-lc++abi'
     + ' %s' % config.mpi_link_flags
     + ' %s/libdfsan_runtime.a' % config.exec_root
@@ -69,7 +69,7 @@ config.substitutions.append( ('%execparams',
 )
 
 config.substitutions.append( ('%omplink',
-    '%s/libiomp5.a' % config.llvm_dir2
+    '%s' % config.libomp
     )
 )
 

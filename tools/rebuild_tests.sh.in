@@ -1,0 +1,43 @@
+#!/bin/bash
+
+CLANG=@CMAKE_C_COMPILER@
+CXXLANG=@CMAKE_CXX_COMPILER@
+INCLUDE_PATH="-I@CMAKE_CURRENT_SOURCE_DIR@/include/"
+CXX_INCLUDE_PATH="-I@LIBCXX_PATH@/include/c++/v1"
+OMP_INCLUDE_PATH="-I@OpenMP_C_INCLUDE_DIRS@"
+# Process list of MPI include paths, seperated by semicolon.
+export IFS=";"
+MPI_INCLUDE_PATHS="@MPI_C_INCLUDE_PATH@"
+MPI_INCLUDE=()
+for path in ${MPI_INCLUDE_PATHS}; do
+  if [[ ! -z $path ]]; then
+    MPI_INCLUDE+=("-I${path}")
+  fi
+done
+
+pushd @CMAKE_CURRENT_SOURCE_DIR@ > /dev/null
+for f in tests/dfsan-instr/*.cpp; do
+  test_name="${f%.*}.ll"
+  instr_name="${test_name}.instructions"
+
+  # Generate LLVM IR file.
+  ${CXXLANG} "${INCLUDE_PATH}" "${OMP_INCLUDE_PATH}" "${MPI_INCLUDE[@]}" "${CXX_INCLUDE_PATH}" -stdlib=libc++ -fopenmp=libiomp5 -g -O2 -mllvm -disable-llvm-optzns -S -emit-llvm $f -o ${test_name}
+
+  # Append instructions to the beginning of the file.
+  echo "$(cat ${instr_name})
+$(cat ${test_name})" > ${test_name}
+done
+
+for f in tests/dfsan-instr/*.c; do
+  test_name="${f%.*}.ll"
+  instr_name="${test_name}.instructions"
+
+  # Generate LLVM IR file.
+  ${CLANG} "${INCLUDE_PATH}" "${OMP_INCLUDE_PATH}" "${MPI_INCLUDE[@]}" -fopenmp=libiomp5 -g -O2 -mllvm -disable-llvm-optzns -S -emit-llvm $f -o ${test_name}
+
+  # Append instructions to the beginning of the file.
+  echo "$(cat ${instr_name})
+$(cat ${test_name})" > ${test_name}
+done
+
+popd > /dev/null

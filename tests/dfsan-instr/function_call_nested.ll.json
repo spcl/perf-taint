@@ -289,6 +289,7 @@
     "g(int)",
     "i(int, int, int)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
@@ -297,6 +298,7 @@
     "_Z1gi",
     "_Z1iiii",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
@@ -305,6 +307,7 @@
     "g",
     "i",
     "main",
+    "atoi",
     "register_variable<int>"
   ],
   "parameters": [

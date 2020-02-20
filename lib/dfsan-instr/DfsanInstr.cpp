@@ -15,8 +15,6 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils.h>
 
-#include <polly/PolySCEV.h>
-
 #include <algorithm>
 #include <iostream>
 #include <numeric>
@@ -48,11 +46,6 @@ static llvm::cl::opt<std::string> FunctionDatabaseName("extrap-extractor-func-da
 
 static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
-                                       llvm::cl::init(true),
-                                       llvm::cl::value_desc("boolean flag"));
-
-static llvm::cl::opt<bool> EnablePollySCEV("extrap-extractor-polly-scev",
-                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
                                        llvm::cl::init(true),
                                        llvm::cl::value_desc("boolean flag"));
 
@@ -181,8 +174,6 @@ namespace extrap {
         AU.addRequired<llvm::LoopInfoWrapperPass>();
         if(EnableSCEV)
             AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
-        if(EnablePollySCEV)
-            AU.addRequired<polly::PolySCEV>();
         // Pass does not modify the input information
         AU.addRequired<llvm::CallGraphWrapperPass>();
         AU.setPreservesAll();

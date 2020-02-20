@@ -42,6 +42,7 @@
     "Grid::update_data(double)",
     "Grid::update_z(double)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)",
     "Grid::Grid(int, int, int)",
     "Grid::~Grid()"
@@ -52,6 +53,7 @@
     "_ZN4Grid11update_dataEd",
     "_ZN4Grid8update_zEd",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc",
     "_ZN4GridC2Eiii",
     "_ZN4GridD2Ev"
@@ -62,6 +64,7 @@
     "update_data",
     "update_z",
     "main",
+    "atoi",
     "register_variable<int>",
     "Grid",
     "~Grid"
