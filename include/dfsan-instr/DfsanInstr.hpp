@@ -92,7 +92,7 @@ namespace extrap {
         std::vector<int> loops_structures;
         std::vector<int> loops_sizes;
         // call + index of parameter
-        std::vector<std::tuple<llvm::Instruction*, int>> implicit_loops;
+        std::vector<std::tuple<llvm::Instruction*, std::string, int>> implicit_loops;
         typedef std::vector< std::vector<int> > vec_t;
 
         Function(int _idx, bool _overriden = false):
@@ -157,6 +157,7 @@ namespace extrap {
 
         llvm::GlobalVariable * glob_instr_funcs_count;
         llvm::GlobalVariable * glob_funcs_count;
+        llvm::GlobalVariable * glob_implicit_funcs_count;
         // `functions` C strings, assigned at compile time 
         llvm::GlobalVariable * glob_funcs_names;
         // `functions` C strings, assigned at compile time
@@ -211,6 +212,8 @@ namespace extrap {
             = "__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME";
         static constexpr const char * glob_funcs_count_name
             = "__EXTRAP_FUNCS_COUNT";
+        static constexpr const char * glob_implicit_funcs_count_name
+            = "__EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT";
         static constexpr const char * glob_instr_funcs_count_name
             = "__EXTRAP_INSTRUMENTATION_FUNCS_COUNT";
         static constexpr const char * glob_implicit_params_count_name
@@ -295,6 +298,7 @@ namespace extrap {
 
         // void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t, uint16_t, uint16_t)
         llvm::Function * mark_implicit_label;
+        llvm::Function * call_implicit_function;
 
         Instrumenter(llvm::Module & _m):
             m(_m),
@@ -319,10 +323,11 @@ namespace extrap {
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
         void declareFunctions();
-        template<typename Vector, typename FuncIter, typename FuncIter2>
+        template<typename Vector, typename FuncIter, typename FuncIter2, typename FuncIter3>
         void createGlobalStorage(const Vector & func_names,
                 const FunctionDatabase & database,
                 FuncIter begin, FuncIter end,
+                FuncIter3 implicit_begin, FuncIter3 implicit_end,
                 FuncIter2 not_instr_begin, FuncIter2 not_instr_end);
         void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
         void commitLoops(llvm::Function &, int function_idx, int calls_count);
@@ -332,7 +337,7 @@ namespace extrap {
         void checkCFRetval(int function_idx, llvm::CallBase * cast);
 
         void checkLoop(int loop_idx, int function_idx,
-                const llvm::BranchInst * br);
+                const llvm::Instruction * inst);
         void checkLoopLoad(int loop_idx, int function_idx,
                 size_t size, llvm::Value * load_addr);
         void checkLoopRetval(int loop_idx, int function_idx,
@@ -358,8 +363,10 @@ namespace extrap {
         void removeLoopCalls(llvm::Function & f, size_t size);
         void saveCurrentCall(llvm::Function & f);
 
-        void callImplicitLoop(llvm::Instruction *, int func_idx, int nested_loop_idx,
-                int param_idx);
+        void callImplicitLoop(llvm::Instruction *, int func_idx, int called_func_idx,
+                int nested_loop_idx, int param_idx);
+        void callImplicitFunction(int func_idx);
+        void findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns);
         llvm::Function * getAtExit();
     };
 
@@ -437,6 +444,7 @@ namespace extrap {
         //
         std::unordered_map<llvm::Function *, llvm::Optional<Function>> instrumented_functions;
         std::vector<llvm::Function *> notinstrumented_functions;
+        std::unordered_map<std::string, int> implicit_functions;
         //std::vector<int> loops_depths;
         //std::vector<int> loops_counts;
         std::vector<llvm::Function *> parent_functions;
@@ -449,7 +457,7 @@ namespace extrap {
 
         std::unordered_map<llvm::Function*, bool> calls_important;
 
-        std::set<llvm::Function*> calling_important_functions;
+        std::set<llvm::Function*> recursive_functions;
 
         //Statistics stats;
         DfsanInstr():
@@ -477,7 +485,7 @@ namespace extrap {
                 int nested_loop_idx,
                 call_vec_t & calls, Instrumenter &);
         bool callsImportantFunction(llvm::CallBase * call);
-        bool callsImportantFunction(llvm::Function *);
+        bool callsImportantFunction(llvm::Function *, std::set<llvm::Function*> & recursive_calls);
         bool analyzeFunction(llvm::Function & f, llvm::CallGraphNode * cg_node,
                 int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;

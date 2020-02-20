@@ -289,6 +289,12 @@ json_t convert(json_t & input)
             output[key] = std::move(input[key]);
     }
 
+    //int i = 0;
+    //for(; i < output["functions_names"].size(); ++i) {
+    //    if(output["functions_names"][i] == "update_h")
+    //        std::cerr << i << '\n';
+
+    //}
 
     std::ofstream of("filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
@@ -305,6 +311,12 @@ json_t convert(json_t & input)
     std::vector<std::string> important_functions(functions.size() + unimportant_functions.size());
     of.open("filter_important", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
+    std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " importatn functions" << '\n';
+    int functions_count = functions.size();
+    std::set<int> important_indices{1, 0};
+    for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
+        important_indices.insert( (it.value()["func_idx"].get<int>()));
+    }
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
@@ -337,6 +349,19 @@ json_t convert(json_t & input)
         json_t new_loops;
         for(auto & callstack : loops) {//aggregated_callstacks) {
             json_t & callstack_data = callstack["callstacks"];
+
+            json_t converted_callstacks;
+            for(auto value : callstack_data) {
+                json_t new_callstack;
+                for(auto v : value) {
+                    // push update_u
+                    if(important_indices.count(v.get<int>()) || v.get<int>() == 403)
+                        new_callstack.push_back(v);
+                }
+                converted_callstacks.push_back(new_callstack);
+            }
+            callstack_data = std::move(converted_callstacks);
+
             json_t converted = convert_loop_set(callstack["instance"]);
             if(converted.empty())
                 continue;
