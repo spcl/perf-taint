@@ -7,12 +7,12 @@ jobs:
    steps:
      - checkout
      - run:
-       name: Install dependencies
-       command: 'apt-get update && apt-get install -y cmake libopenmpi-dev git'
+        name: Install dependencies
+        command: 'apt-get update && apt-get install -y cmake libopenmpi-dev git'
      - run:
-       name: Install libstdc++
-       command: 'apt-get install -y libstdc++-7-dev'
+        name: Install libstdc++
+        command: 'apt-get install -y libstdc++-7-dev'
      - run:
-       name: Run CMake configuration
-       command: 'cmake -Bbuild -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/'
+        name: Run CMake configuration
+        command: 'cmake -Bbuild -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/'
 
