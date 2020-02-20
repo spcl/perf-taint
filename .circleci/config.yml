@@ -8,7 +8,7 @@ jobs:
      - checkout
      - run:
         name: Install dependencies
-        command: 'apt-get update && apt-get install --no-install-recommends -y cmake libopenmpi-dev git'
+        command: 'apt-get update && apt-get install --no-install-recommends -y ninja-build cmake libopenmpi-dev git'
      - run:
         name: Install libstdc++
         command: 'apt-get install --no-install-recommends -y libstdc++-7-dev'
@@ -17,7 +17,7 @@ jobs:
         command: 'apt-get install --no-install-recommends -y python3-setuptools python3-pip && pip3 install lit'
      - run:
         name: Run CMake configuration
-        command: 'cmake -B build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ .'
+        command: 'cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ .'
      - run:
         name: Run CMake build
         command: 'cmake --build build'
