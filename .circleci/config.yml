@@ -23,5 +23,5 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
-        command: 'lit build/tests'
+        command: 'lit -v build/tests'
 
