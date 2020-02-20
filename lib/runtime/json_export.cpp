@@ -576,9 +576,8 @@ bool __dfsw_json_is_important(json_t & json)
         // don't leave - important but continue pruning
         if(__dfsw_json_loop_is_important(loop["instance"]))
             important = true;
-        // TODO: this is causing problems sometimes
-        //else
-            //entries_to_remove.push_back(idx);
+        else
+            entries_to_remove.push_back(idx);
         ++idx;
     }
     for(size_t v : entries_to_remove)
