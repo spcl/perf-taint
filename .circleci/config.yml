@@ -6,6 +6,13 @@ jobs:
      - image: mcopik/clang-dfsan:dfsan-9.0
    steps:
      - checkout
-     - run: echo "A first hello"
-     - run: sleep 25
+     - run:
+       name: Install dependencies
+       command: 'apt-get update && apt-get install -y cmake libopenmpi-dev git'
+     - run:
+       name: Install libstdc++
+       command: 'apt-get install -y libstdc++-7-dev'
+     - run:
+       name: Run CMake configuration
+       command: 'cmake -Bbuild -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/'
 
