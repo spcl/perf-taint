@@ -64,6 +64,8 @@ target_link_libraries(DfsanInstrument LLVMPolly)
 # Split into two targets so C++ JSON code is not instrumented
 add_library(json_export STATIC lib/runtime/json_export.cpp)
 add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
+add_dependencies(dfsan_runtime jsoncpp)
+add_dependencies(json_export jsoncpp)
 target_link_libraries(dfsan_runtime ${MPI_C_LIBRARIES})
 set_target_properties(dfsan_runtime PROPERTIES
     COMPILE_FLAGS "-fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt -g -stdlib=libc++ -I/home/mcopik/projects/clang_llvm/build_dfsan_full/include/c++/v1"

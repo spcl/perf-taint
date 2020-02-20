@@ -47,6 +47,7 @@ extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_DEMANGLED_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FILES[];
 extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
+extern int32_t __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT;
 extern int32_t __EXTRAP_FUNCS_COUNT;
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[];
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_DBG[];
@@ -63,6 +64,7 @@ extern int32_t __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
 // Names of all parameters - first max_count, then implicit
 extern const char * __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[];
 extern bool  __EXTRAP_INSTRUMENTATION_PARAMS_USED[];
+extern int16_t __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[];
 
 extern const char * __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME;
 
@@ -92,7 +94,7 @@ EXTERN int16_t __dfsw_EXTRAP_CURRENT_CALL();
 // and functions begin, use static offsets array.
 //
 // Allocated dynamically by __dfsw_EXTRAP_INIT()
-dependencies * __EXTRAP_LOOP_DEPENDENCIES;
+extern dependencies * __EXTRAP_LOOP_DEPENDENCIES;
 
 // Store offsets to easily access dependencies.
 // Each value points to the place where `dependencies`
@@ -132,6 +134,7 @@ extern int16_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
+EXTERN void __dfsw_implicit_call(int);
 EXTERN bool __dfsw_json_write_loop(int function_idx, int calls_count);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,

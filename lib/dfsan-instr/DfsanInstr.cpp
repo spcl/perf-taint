@@ -112,6 +112,9 @@ namespace extrap {
         json_t * cur = &loops_data;
         llvm::Instruction * call_i = llvm::dyn_cast<llvm::Instruction>(call);
         assert(call_i);
+        llvm::CallBase * base = llvm::dyn_cast<llvm::CallBase>(call_i);
+        assert(base);
+        std::string name = base->getCalledFunction()->getName();
         while(cur) {
             //TODO: multiple params
             for(auto & v : (*cur)["params"]) {
@@ -120,7 +123,7 @@ namespace extrap {
                         [&](const auto & v) { return v.name == param_name; });
                 // TODO: here implement non-implicit params
                 if(it != implicit_parameters.end()) {
-                    func.implicit_loops.emplace_back(call_i, (*it).param_idx);
+                    func.implicit_loops.emplace_back(call_i, name, (*it).param_idx);
                 }
             }
             auto subloop = cur->find("loops");
@@ -237,14 +240,22 @@ namespace extrap {
         for(auto & t : instrumented_functions) {
             // For each unimportant function, add it to a database
             // for callstack generation
-            if(!t.second.hasValue()) {
+            if(t.second.hasValue()) {
                 //notinstrumented_functions.push_back(t.first);
+                Function & f = t.second.getValue();
+                for(auto t : f.implicit_loops) {
+                    auto it = implicit_functions.find(std::get<1>(t));
+                    if(it == implicit_functions.end()) {
+                        implicit_functions[std::get<1>(t)] = instrumented_functions_counter++;
+                    }
+                }
             }
         }
 
         Instrumenter instr(m);
         instr.createGlobalStorage(parent_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
+                implicit_functions.begin(), implicit_functions.end(),
                 notinstrumented_functions.begin(), notinstrumented_functions.end());
         instr.initialize(main);
         //instr.annotateParams(found_params);
@@ -257,10 +268,11 @@ namespace extrap {
         }
         // TODO: also change that we dependent on this vector. 
         // we should have all functions - not important, instrumented - in same data structure
-        int idx = parent_functions.size();
+        // TODO: why the hell is it parent_functions? 
+        //int idx = parent_functions.size();
+        int idx = instrumented_functions_counter;
         for(auto * f : notinstrumented_functions) {
             instr.enterFunction(*f, idx++);
-
         }
         // instrument callstack
 
@@ -456,7 +468,8 @@ namespace extrap {
     }
 
 
-    bool DfsanInstr::callsImportantFunction(llvm::Function * called_f)
+    bool DfsanInstr::callsImportantFunction(llvm::Function * called_f,
+            std::set<llvm::Function*> & recursive_calls)
     {
         if(!called_f)
             return true;
@@ -466,17 +479,23 @@ namespace extrap {
             calls_important[called_f] = false;
             return false;
         }
+        // Is it a recursive call? Then don't instrument.
+        //if(recursive_calls.count(called_f)) {
+        //    calls_important[called_f] = false;
+        //    recursive_functions.insert(called_f);
+        //    return false;
+        //}
         auto it = calls_important.find(called_f);
         if(it != calls_important.end())
             return (*it).second;
         llvm::CallGraphNode * f_node = (*cgraph)[called_f];
         assert(f_node);
         auto func_it = instrumented_functions.find(called_f);
-        // ignore unimportant functions
+        // the function itself is already known to be important
         if(func_it != instrumented_functions.end()
                 && (*func_it).second.hasValue())
         {
-            calls_important[called_f] = true;
+            //calls_important[called_f] = true;
             return true;
         }
 
@@ -488,10 +507,12 @@ namespace extrap {
             // write down this function to detect recursive calls
             // if it happens, it's important
             // TODO: probelms in recursive functions
-            calls_important[called_f] = true;
+            //calls_important[called_f] = true;
+            recursive_calls.insert(new_called_f);
             important |= new_called_f ?
-                callsImportantFunction(new_called_f) :
+                callsImportantFunction(new_called_f, recursive_calls) :
                 true;
+            recursive_calls.erase(recursive_calls.find(new_called_f));
             if(important)
                 break;
         }
@@ -501,9 +522,10 @@ namespace extrap {
 
     bool DfsanInstr::callsImportantFunction(llvm::CallBase * base)
     {
+        std::set<llvm::Function*> recursive_calls;
         llvm::Function * called_f = base->getCalledFunction();
         if(called_f)
-            return callsImportantFunction(called_f);
+            return callsImportantFunction(called_f, recursive_calls);
         // unknown function - most likely a call/invoke of a pointer
         // overapproximation, assume yes - 
         else
@@ -539,11 +561,12 @@ namespace extrap {
                             // call!
                             if(llvm::CallBase * call =
                                     llvm::dyn_cast<llvm::CallBase>(&inst)) {
-                                if(callsImportantFunction(call))
-                                    // TODO: optimize by checking if this call could
-                                    // produce any loop - in case we know function
-                                    calls.emplace_back(call, internal_nested_index,
-                                            subloops.size() + calls_count++);
+                                if(callsImportantFunction(call)) {
+                                        // TODO: optimize by checking if this call could
+                                        // produce any loop - in case we know function
+                                        calls.emplace_back(call, internal_nested_index,
+                                                subloops.size() + calls_count++);
+                                }
                             }
                         }
                     }
@@ -556,11 +579,19 @@ namespace extrap {
                     //llvm::errs() << *inst << '\n';
                     const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
                     if(br && br->isConditional()) {
-                        instr.checkLoop(nested_loop_idx, func.function_idx(), br);
-                    } else {
-                        // TODO: fix this -> a general handling
+                        const llvm::Instruction * inst =
+                            llvm::dyn_cast<llvm::Instruction>(br->getCondition());
+                        assert(inst);
+                        instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
+                    } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
+                        const llvm::Instruction * inst =
+                            llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
+                        assert(inst);
+                        instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
+                    } else if(const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst)) {
+                        // ignore the exception control flow outside of the loop
                         //const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst);
-                        //assert(invoke);
+                    } else {
                         llvm::errs() << "Unknown branch: " << *inst << '\n';
                     }
                 }
@@ -602,8 +633,10 @@ namespace extrap {
                 // TODO: nested calls as well
                 // TODO: more parameters
                 instr.callImplicitLoop(std::get<0>(implicit_call),
-                        func.function_idx(), nested_loop_idx,
-                        std::get<1>(implicit_call));
+                        func.function_idx(),
+                        implicit_functions.at(std::get<1>(implicit_call)),
+                        nested_loop_idx,
+                        std::get<2>(implicit_call));
                 loop_idx++;
                 nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             }
@@ -699,22 +732,27 @@ namespace extrap {
     }
 
     void Instrumenter::callImplicitLoop(llvm::Instruction * instr, int func_idx,
-            int nested_loop_idx, int param_idx)
+            int called_func_idx, int nested_loop_idx, int param_idx)
     {
         builder.SetInsertPoint(instr);
         builder.CreateCall(mark_implicit_label,
                 {builder.getInt16(func_idx),
                 builder.getInt16(nested_loop_idx),
                 builder.getInt16(param_idx)});
+        builder.CreateCall(call_implicit_function,
+                {builder.getInt16(called_func_idx)});
     }
 
-    template<typename Vector, typename FuncIter, typename FuncIter2>
+    template<typename Vector, typename FuncIter, typename FuncIter2, typename FuncIter3>
     void Instrumenter::createGlobalStorage(const Vector & funcs_names,
             const FunctionDatabase & database,
             FuncIter begin, FuncIter end,
+            FuncIter3 implicit_begin, FuncIter3 implicit_end,
             FuncIter2 not_instr_begin, FuncIter2 not_instr_end)
     {
         functions_count = funcs_names.size();
+        int implicit_functions_count = std::distance(implicit_begin,
+                implicit_end);
         int not_instr_functions_count = std::distance(not_instr_begin,
                 not_instr_end);
         std::vector<Function*> functions(functions_count);
@@ -738,9 +776,16 @@ namespace extrap {
                 glob_instr_funcs_count_name);
 
         // int32_t functions_count;
+        llvm_int_type = builder.getInt32Ty();
+        glob_implicit_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
+                llvm::GlobalValue::WeakAnyLinkage,
+                builder.getInt32(implicit_functions_count),
+                glob_implicit_funcs_count_name);
+
+        // int32_t functions_count;
         glob_funcs_count = new llvm::GlobalVariable(m, llvm_int_type, false,
                 llvm::GlobalValue::WeakAnyLinkage,
-                builder.getInt32(functions_count + not_instr_functions_count),
+                builder.getInt32(functions_count + implicit_functions_count + not_instr_functions_count),
                 glob_funcs_count_name);
 
         // int32_t params_count
@@ -784,7 +829,7 @@ namespace extrap {
 
         // char ** functions_names
         // char ** functions_mangled_names
-        int database_size = functions_count + not_instr_functions_count;
+        int database_size = functions_count + implicit_functions_count + not_instr_functions_count;
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     database_size
@@ -811,7 +856,16 @@ namespace extrap {
                     demangle(mangled_name));
             function_names[f_idx] = fname;
         }
-        int idx = functions_count;
+        for(auto it = implicit_begin; it != implicit_end; ++it) {
+            int f_idx = (*it).second;
+
+            llvm::StringRef name = (*it).first;
+            llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
+            mangled_function_names[f_idx] = fname;
+            demangled_function_names[f_idx] = fname;
+            function_names[f_idx] = fname;
+        }
+        int idx = functions_count + implicit_functions_count;
         for(auto it = not_instr_begin; it != not_instr_end; ++it) {
             llvm::Function * func = *it;
             llvm::StringRef name = info.getFunctionName(*func);
@@ -900,6 +954,7 @@ namespace extrap {
         // char ** params_names
         // filled during execution
         size_t full_params_count = params_count + database.parameters_count();
+        std::cerr << full_params_count << '\n';
         array_type = llvm::ArrayType::get(
                     builder.getInt8PtrTy(),
                     full_params_count);
@@ -913,6 +968,7 @@ namespace extrap {
                 array_type,
                 false,
                 llvm::GlobalValue::WeakAnyLinkage,
+                //llvm::GlobalValue::WeakAnyLinkage,
                 llvm::ConstantArray::get(array_type, params_names),
                 glob_params_names_name);
 
@@ -1141,7 +1197,7 @@ namespace extrap {
     }
 
     void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
-            const llvm::BranchInst * br)
+            const llvm::Instruction * inst)
     {
         // insert call before branch
         InstrumenterVisiter vis(*this,
@@ -1154,9 +1210,6 @@ namespace extrap {
                 checkLoopRetval(nested_loop_idx, function_idx, ptr);
             }
         );
-        const llvm::Instruction * inst =
-            llvm::dyn_cast<llvm::Instruction>(br->getCondition());
-        assert(inst);
         // TODO: why instvisit is not for const instruction?
         vis.visit( const_cast<llvm::Instruction*>(inst) );
     }
@@ -1296,10 +1349,14 @@ namespace extrap {
 
     void Instrumenter::commitLoops(llvm::Function & f, int func_idx, int calls_count)
     {
-        builder.SetInsertPoint( &f.back().back() );
-        builder.CreateCall(commit_loop_function,
-            {builder.getInt32(func_idx), builder.getInt32(calls_count)}
-        );
+        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+        findTerminator(f, returns);
+        for(llvm::ReturnInst * ret : returns) {
+            builder.SetInsertPoint(ret);
+            builder.CreateCall(commit_loop_function,
+                {builder.getInt32(func_idx), builder.getInt32(calls_count)}
+            );
+        }
     }
 
     void Instrumenter::instrumentLoopCall(llvm::Function & f, llvm::CallBase * call,
@@ -1349,8 +1406,26 @@ namespace extrap {
         //        { builder.getInt16(size)}
         //        );
         //}
-        builder.SetInsertPoint(&f.back().back());
-        builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
+        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+        findTerminator(f, returns);
+        for(llvm::ReturnInst * ret : returns) {
+            builder.SetInsertPoint(ret);
+            builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
+        }
+    }
+
+    void Instrumenter::findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns)
+    {
+        bool found_unreachable = false;
+        for(llvm::BasicBlock & bb : f) {
+            llvm::Instruction * instr = bb.getTerminator();
+            if(llvm::ReturnInst * ret = llvm::dyn_cast<llvm::ReturnInst>(instr)) {
+                returns.push_back(ret);
+            } else if(llvm::UnreachableInst * unreachable = llvm::dyn_cast<llvm::UnreachableInst>(instr))
+                found_unreachable = true;
+        }
+        // TODO: more generic solution where there are unreachable blocks
+        assert(found_unreachable || returns.size());
     }
 
     void Instrumenter::saveCurrentCall(llvm::Function & f)
@@ -1359,8 +1434,12 @@ namespace extrap {
         llvm::Value * last_val = builder.CreateCall(
                 get_current_call_function,
                 {});
-        builder.SetInsertPoint(&f.back().back());
-        builder.CreateCall(set_current_call_function, {last_val});
+        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+        findTerminator(f, returns);
+        for(llvm::ReturnInst * ret : returns) {
+            builder.SetInsertPoint(ret);
+            builder.CreateCall(set_current_call_function, {last_val});
+        }
     }
 
     void Instrumenter::declareFunctions()
@@ -1431,13 +1510,13 @@ namespace extrap {
 
         // __dfsw_EXTRAP_PUSH_CALL_FUNCTION(idx)
         func_t = llvm::FunctionType::get(void_t,
-                {idx_t}, false);
+                {i16_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_PUSH_CALL_FUNCTION", func_t);
         push_function = m.getFunction("__dfsw_EXTRAP_PUSH_CALL_FUNCTION");
         assert(push_function);
 
         // __dfsw_EXTRAP_POP_CALL_FUNCTION
-        func_t = llvm::FunctionType::get(void_t, {}, false);
+        func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION", func_t);
         pop_function = m.getFunction("__dfsw_EXTRAP_POP_CALL_FUNCTION");
         assert(pop_function);
@@ -1477,6 +1556,12 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_MARK_IMPLICIT_LABEL", func_t);
         mark_implicit_label = m.getFunction("__dfsw_EXTRAP_MARK_IMPLICIT_LABEL");
         assert(mark_implicit_label);
+
+        // void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t)
+        func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION", func_t);
+        call_implicit_function = m.getFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION");
+        assert(call_implicit_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -1505,9 +1590,13 @@ namespace extrap {
     {
         builder.SetInsertPoint(&f.front().front());
         builder.CreateCall(push_function,
-                { builder.getInt32(idx) });
-        builder.SetInsertPoint( &f.back().back() );
-        builder.CreateCall(pop_function, {});
+                { builder.getInt16(idx) });
+        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+        findTerminator(f, returns);
+        for(llvm::ReturnInst * ret : returns) {
+            builder.SetInsertPoint(ret);
+            builder.CreateCall(pop_function, {builder.getInt16(idx)});
+        }
     }
 
     void Instrumenter::setInsertPoint(llvm::Instruction & instr)
