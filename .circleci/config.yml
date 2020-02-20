@@ -5,16 +5,20 @@ jobs:
    docker:
      - image: mcopik/clang-dfsan:dfsan-9.0
    steps:
-     - checkout
      - run:
         name: Install dependencies
-        command: 'apt-get update && apt-get install --no-install-recommends -y ninja-build cmake libopenmpi-dev git'
+        command: 'apt-get update && apt-get install --no-install-recommends -y\
+                  ninja-build cmake libopenmpi-dev openmpi-bin git ssh'
      - run:
         name: Install libstdc++
         command: 'apt-get install --no-install-recommends -y libstdc++-7-dev'
      - run:
         name: Install llvm-lit
         command: 'apt-get install --no-install-recommends -y python3-setuptools python3-pip && pip3 install lit'
+     - run:
+        name: Configure users
+        command: 'adduser --disabled-password --gecos "" docker_user && su - docker_user'
+     - checkout
      - run:
         name: Run CMake configuration
         command: 'mkdir build && cd build && cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ ..'
