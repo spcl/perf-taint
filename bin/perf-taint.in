@@ -1,6 +1,24 @@
 #!/bin/bash
-#
-#TODO: add out file option
+
+usage() { echo "Usage: $0 [-t <string>] [-o <string>] ir_files" 1>&2; exit 1; }
+
+tmp_file=""
+out_file="out.exe"
+while getopts "h:t:o:" arg; do
+  case $arg in
+    h)
+      echo "usage"
+      ;;
+    t)
+			tmp_file=${OPTARG}
+      ;;
+		o)
+			out_file=${OPTARG}
+			;;
+  esac
+done
+shift $((OPTIND - 1))
+
 INPUT=$@
 
 CLANG="@CMAKE_C_COMPILER@"
@@ -15,14 +33,24 @@ OBJECT_FILES=()
 for f in "${INPUT[@]}"; do
   ir_file_name="${f%.*}.dfsan.bc"
   object_file_name="${f%.*}.dfsan.o"
-  opt -load ${BUILD_DIR}/libDfsanInstrument.so\
-      -extrap-extractor\
-      -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
-      -extrap-extractor-out-name=tmp_file\
-      -dfsan\
-      -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
-      < ${f}\
-      > ${ir_file_name}
+  if [[ -n "${tmp_file}" ]]; then
+    opt -load ${BUILD_DIR}/libDfsanInstrument.so\
+        -extrap-extractor\
+        -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
+        -extrap-extractor-out-name=${tmp_file}\
+        -dfsan\
+        -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+        < ${f}\
+        > ${ir_file_name}
+  else
+    opt -load ${BUILD_DIR}/libDfsanInstrument.so\
+        -extrap-extractor\
+        -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
+        -dfsan\
+        -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+        < ${f}\
+        > ${ir_file_name}
+  fi
   echo "Taint instrumentation of ${f}, processed IR file ${ir_file_name}"
   IR_FILES+=(${ir_file_name})
   OBJECT_FILES+=(${object_file_name})
@@ -43,7 +71,8 @@ ${CXXLANG} ${OBJECT_FILES[@]}\
   -L${BUILD_DIR}\
   -ldfsan_runtime\
   ${MPI_LINK_FLAG}\
-  -o out.exe
+  -o ${out_file}
+echo "Generated ${out_file}"
 
 for ir_file in "${IR_FILES[@]}"; do
   rm ${ir_file}
