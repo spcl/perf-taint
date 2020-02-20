@@ -1,5 +1,51 @@
 {
   "functions": {
+    "MPI_Barrier": {
+      "func_idx": 6,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                "p"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "func_idx": 5,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                "p"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "_Z16h_multiple_loopsPdm": {
       "file": "tests/dfsan-instr/mpi_simple.cpp",
       "func_idx": 2,
@@ -212,6 +258,8 @@
     "h_multiple_loops(double*, unsigned long)",
     "h_nested(double*, unsigned long)",
     "h(double*)",
+    "MPI_Reduce",
+    "MPI_Barrier",
     "atoi",
     "void register_variable<int>(int*, char const*)"
   ],
@@ -221,6 +269,8 @@
     "_Z16h_multiple_loopsPdm",
     "_Z8h_nestedPdm",
     "_Z1hPd",
+    "MPI_Reduce",
+    "MPI_Barrier",
     "atoi",
     "_Z17register_variableIiEvPT_PKc"
   ],
@@ -230,12 +280,13 @@
     "h_multiple_loops",
     "h_nested",
     "h",
+    "MPI_Reduce",
+    "MPI_Barrier",
     "atoi",
     "register_variable<int>"
   ],
   "parameters": [
     "size",
-    "ranks",
-    "p"
+    "ranks"
   ]
 }
