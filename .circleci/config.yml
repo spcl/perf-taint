@@ -34,6 +34,6 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
-        command: 'alias lit="python3 .local/lib/python3.6/site-packages/lit/main.py"
-                  && lit -v build/tests'
+        command: 'lit="python3 .local/lib/python3.6/site-packages/lit/main.py"
+                  lit -v build/tests'
 
