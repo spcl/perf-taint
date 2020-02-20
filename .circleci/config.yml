@@ -20,7 +20,7 @@ jobs:
         command: 'mkdir build && cd build && cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ ..'
      - run:
         name: Run CMake build
-        command: 'cmake --build build'
+        command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
         command: 'lit build/tests'
