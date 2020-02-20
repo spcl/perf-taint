@@ -33,5 +33,5 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
-        command: 'pip3 install lit && lit -v build/tests'
+        command: 'pip3 install wheel lit && lit -v build/tests'
 
