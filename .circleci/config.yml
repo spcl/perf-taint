@@ -18,8 +18,7 @@ jobs:
         name: Install llvm-lit
         command: 'sudo apt-get install --no-install-recommends -y
                   python3-setuptools python3-pip && pip3 install wheel &&
-                  pip3 install lit &&
-                  alias lit="python3 .local/lib/python3.6/site-packages/lit/main.py"'
+                  pip3 install lit'
      - checkout
      - run:
         name: Run CMake configuration
@@ -35,5 +34,6 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
-        command: 'lit -v build/tests'
+        command: 'alias lit="python3 .local/lib/python3.6/site-packages/lit/main.py"
+                  && lit -v build/tests'
 
