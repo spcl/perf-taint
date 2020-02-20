@@ -14,5 +14,5 @@ jobs:
         command: 'apt-get install -y libstdc++-7-dev'
      - run:
         name: Run CMake configuration
-        command: 'cmake -Bbuild -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/'
+        command: 'cmake -Bbuild -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ .'
 
