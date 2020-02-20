@@ -4,8 +4,8 @@ jobs:
  build:
    docker:
      - image: mcopik/clang-dfsan:9.0
-     steps:
-       - checkout
-       - run: echo "A first hello"
-       - run: sleep 25
+   steps:
+     - checkout
+     - run: echo "A first hello"
+     - run: sleep 25
 
