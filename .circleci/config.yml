@@ -17,7 +17,7 @@ jobs:
      - run:
         name: Install llvm-lit
         command: 'sudo apt-get install --no-install-recommends -y
-                  python3-setuptools python3-pip && pip3 install lit'
+                  python3-setuptools python3-pip'
      - checkout
      - run:
         name: Run CMake configuration
@@ -33,5 +33,5 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run tests
-        command: 'lit -v build/tests'
+        command: 'pip3 install lit && lit -v build/tests'
 
