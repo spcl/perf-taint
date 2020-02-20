@@ -28,8 +28,11 @@ else()
 endif()
 
 if( OMP_PATH STREQUAL "")
-  message(SEND_ERROR "Please provide the path to dataflow-instrumented OpenMP.")
+  message(STATUS "No path to dataflow-instrumented OpenMP.")
+  set(PERF_TAINT_WITH_OMP FALSE)
 else()
+  set(PERF_TAINT_WITH_OMP TRUE)
+  add_definitions(-DPERF_TAINT_WITH_OMP)
   # TODO: Check for existence of static libraries
   set(OpenMP_C_INCLUDE_DIRS "${OMP_PATH}/include")
   set(OpenMP_C_LIBRARIES "${OMP_PATH}/lib/libiomp5.a")
@@ -53,7 +56,7 @@ set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 # JsonCPP
 find_package(nlohmann_json) #QUIET)
 if(NOT nlohmann_json_FOUND)
-  message(INFO "Downloading and building nlohmann_json dependency")
+  message(STATUS "Downloading and building nlohmann_json dependency")
   ExternalProject_Add(nlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     CMAKE_ARGS -DJSON_BuildTests=Off -DJSON_MultipleHeaders=ON -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install

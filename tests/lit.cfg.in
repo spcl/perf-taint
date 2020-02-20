@@ -11,7 +11,11 @@ config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
 config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
 config.libcxx_path = '@CMAKE_LIBCXX_PATH@'
-config.libomp = '@OpenMP_C_LIBRARIES@'
+config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
+if config.with_omp:
+  config.libomp = '@OpenMP_C_LIBRARIES@'
+else:
+  config.excludes = ['openmp']
 config.suffixes = ['.ll']
 config.test_format = lit.formats.ShTest(True)
 # TODO: make it configurable
@@ -68,10 +72,13 @@ config.substitutions.append( ('%execparams',
     )
 )
 
-config.substitutions.append( ('%omplink',
-    '%s' % config.libomp
-    )
-)
+if config.with_omp:
+  config.substitutions.append( ('%omplink',
+      '%s' % config.libomp
+      )
+  )
+else:
+  config.substitutions.append(('%omplink',''))
 
 config.substitutions.append( ('%jsonconvert',
     config.lib_dir
