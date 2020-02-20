@@ -17,7 +17,7 @@ jobs:
         command: 'apt-get install --no-install-recommends -y python3-setuptools python3-pip && pip3 install lit'
      - run:
         name: Run CMake configuration
-        command: 'cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ .'
+        command: 'mkdir build && cd build && cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm/ .'
      - run:
         name: Run CMake build
         command: 'cmake --build build'
