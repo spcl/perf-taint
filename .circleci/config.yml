@@ -18,7 +18,8 @@ jobs:
         name: Install llvm-lit
         command: 'sudo apt-get install --no-install-recommends -y
                   python3-setuptools python3-pip && pip3 install wheel &&
-                  pip3 install lit'
+                  pip3 install lit &&
+                  alias lit="python3 .local/lib/python3.6/site-packages/lit/main.py"'
      - checkout
      - run:
         name: Run CMake configuration
