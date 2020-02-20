@@ -27,7 +27,12 @@ for f in "${INPUT[@]}"; do
   IR_FILES+=(${ir_file_name})
   OBJECT_FILES+=(${object_file_name})
 done
-${CXXLANG} -c -fPIC -x ir ${IR_FILES[@]}
+
+for ir_file in "${IR_FILES[@]}"; do
+  object_file_name="${ir_file%.*}.o"
+  ${CXXLANG} -c -fPIC -x ir ${ir_file} -o ${object_file_name}
+done
+
 # TODO: remove link against libc++abi
 ${CXXLANG} ${OBJECT_FILES[@]}\
   -stdlib=libc++\
@@ -39,3 +44,7 @@ ${CXXLANG} ${OBJECT_FILES[@]}\
   -ldfsan_runtime\
   ${MPI_LINK_FLAG}\
   -o out.exe
+
+for obj_file in "${OBJECT_FILES[@]}"; do
+  rm ${obj_file}
+done
