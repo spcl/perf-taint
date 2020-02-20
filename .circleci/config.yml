@@ -8,8 +8,9 @@ jobs:
    steps:
      - run:
         name: Install dependencies
-        command: 'sudo apt-get update && apt-get install --no-install-recommends
-                  -y ninja-build cmake libopenmpi-dev openmpi-bin git ssh'
+        command: 'sudo apt-get update && sudo apt-get install
+                  --no-install-recommends -y ninja-build cmake libopenmpi-dev
+                  openmpi-bin git ssh'
      - run:
         name: Install libstdc++
         command: 'sudo apt-get install --no-install-recommends -y libstdc++-7-dev'
