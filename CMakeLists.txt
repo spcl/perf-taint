@@ -14,6 +14,7 @@ link_directories(${LLVM_LIBRARY_DIRS})
 
 find_package(MPI REQUIRED)
 include_directories(${MPI_C_INCLUDE_PATH})
+SET(CMAKE_MPI_INCLUDE_PATH ${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
@@ -24,7 +25,7 @@ if( LIBCXX_PATH STREQUAL "")
   # TODO: Check for existence of static libraries
   message(SEND_ERROR "Please provide the path to dataflow-instrumented libcxx and libcxxabi")
 else()
-  set(CMAKE_LIBCXX_PATH "${LIBCXX_PATH}/lib/")
+  set(CMAKE_LIBCXX_PATH "${LIBCXX_PATH}")
 endif()
 
 if( OMP_PATH STREQUAL "")
@@ -102,13 +103,13 @@ add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.c
 target_link_libraries(dfsan_runtime PRIVATE ${MPI_C_LIBRARIES})
 #target_link_libraries(dfsan_runtime PRIVATE nlohmann_json::nlohmann_json)
 set_target_properties(dfsan_runtime PROPERTIES
-  COMPILE_FLAGS "-stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
+  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
 )
 add_dependencies(dfsan_runtime nlohmann_json)
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(json_export PROPERTIES
-  COMPILE_FLAGS "-stdlib=libc++ -I${LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
+  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
 )
 add_dependencies(json_export nlohmann_json)
 #target_include_directories(json_export PRIVATE $<TARGET_PROPERTY:nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>)
@@ -128,5 +129,6 @@ add_dependencies(JSONConverter nlohmann_json)
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 configure_file(tools/rebuild_tests.sh.in tools/rebuild_tests.sh @ONLY)
 configure_file(bin/perf-taint.in bin/perf-taint @ONLY)
+configure_file(bin/clang++.in bin/clang++ @ONLY)
 
 

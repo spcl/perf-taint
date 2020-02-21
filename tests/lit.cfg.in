@@ -10,7 +10,7 @@ config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
 # Help variable used to locate compiled library
 config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
 config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
-config.libcxx_path = '@CMAKE_LIBCXX_PATH@'
+config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
 config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
 if config.with_omp:
   config.libomp = '@OpenMP_C_LIBRARIES@'
