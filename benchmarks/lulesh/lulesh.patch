@@ -1,0 +1,45 @@
+diff --git lulesh.cc lulesh.cc
+index c840817..a659759 100644
+--- lulesh.cc
++++ lulesh.cc
+@@ -2690,6 +2690,13 @@ int main(int argc, char *argv[])
+    opts.cost = 1;
+ 
+    ParseCommandLineOptions(argc, argv, myRank, &opts);
++#if defined(WITH_EXTRAP)
++   //register_variable(&opts.its, "iters");
++   register_variable(&opts.nx, "size");
++   register_variable(&opts.numReg, "regions");
++   register_variable(&numRanks, "p");
++#endif
++
+ 
+    if ((myRank == 0) && (opts.quiet == 0)) {
+       std::cout << "Running problem size " << opts.nx << "^3 per domain until completion\n";
+diff --git lulesh.h lulesh.h
+index 6808c5f..7d711f2 100644
+--- lulesh.h
++++ lulesh.h
+@@ -19,6 +19,9 @@
+ #include <math.h>
+ #include <stdlib.h>
+ #include <vector>
++#if defined(WITH_EXTRAP)
++#include "ExtraPInstrumenter.hpp"
++#endif
+ 
+ //**************************************************
+ // Allow flexibility for arithmetic representations 
+@@ -596,9 +599,9 @@ class Domain {
+ typedef Real_t &(Domain::* Domain_member )(Index_t) ;
+ 
+ struct cmdLineOpts {
+-   Int_t its; // -i 
+-   Int_t nx;  // -s 
+-   Int_t numReg; // -r 
++   Int_t its EXTRAP; // -i 
++   Int_t nx EXTRAP;  // -s 
++   Int_t numReg EXTRAP; // -r 
+    Int_t numFiles; // -f
+    Int_t showProg; // -p
+    Int_t quiet; // -q

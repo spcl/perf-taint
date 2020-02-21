@@ -1,0 +1,3 @@
+[submodule "benchmarks/lulesh/LULESH"]
+	path = benchmarks/lulesh/LULESH
+	url = git@github.com:LLNL/LULESH.git
