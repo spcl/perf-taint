@@ -1,0 +1,22 @@
+FROM mcopik/clang-dfsan:dfsan-9.0
+
+USER docker
+
+RUN sudo apt-get update\
+  # Basic developer tools
+  && sudo apt-get install -y --no-install-recommends\
+        ninja-build\
+        cmake\
+        git\
+  # OpenMPI 
+        ssh\
+        libopenmpi-dev\
+        openmpi-bin\
+  # libstdc++ to easily build the project itself
+        libstdc++-7-dev \
+  # Necessary python deps to install LLVM lit
+        python3-setuptools\
+        python3-pip\
+  && pip3 install wheel\
+  && pip3 install lit
+    
