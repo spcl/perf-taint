@@ -3,22 +3,9 @@ version: 2
 jobs:
  build:
    docker:
-     - image: mcopik/clang-dfsan:dfsan-9.0
+     - image: mcopik/perf-taint:base-9.0
        user: docker
    steps:
-     - run:
-        name: Install dependencies
-        command: 'sudo apt-get update && sudo apt-get install
-                  --no-install-recommends -y ninja-build cmake libopenmpi-dev
-                  openmpi-bin git ssh'
-     - run:
-        name: Install libstdc++
-        command: 'sudo apt-get install --no-install-recommends -y libstdc++-7-dev'
-     - run:
-        name: Install llvm-lit
-        command: 'sudo apt-get install --no-install-recommends -y
-                  python3-setuptools python3-pip && pip3 install wheel &&
-                  pip3 install lit'
      - checkout
      - run:
         name: Run CMake configuration
