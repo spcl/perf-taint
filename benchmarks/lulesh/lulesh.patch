@@ -1,7 +1,7 @@
-diff --git lulesh.cc lulesh.cc
+diff --git a/lulesh.cc b/lulesh.cc
 index c840817..a659759 100644
---- lulesh.cc
-+++ lulesh.cc
+--- a/lulesh.cc
++++ b/lulesh.cc
 @@ -2690,6 +2690,13 @@ int main(int argc, char *argv[])
     opts.cost = 1;
  
@@ -16,10 +16,10 @@ index c840817..a659759 100644
  
     if ((myRank == 0) && (opts.quiet == 0)) {
        std::cout << "Running problem size " << opts.nx << "^3 per domain until completion\n";
-diff --git lulesh.h lulesh.h
+diff --git a/lulesh.h b/lulesh.h
 index 6808c5f..7d711f2 100644
---- lulesh.h
-+++ lulesh.h
+--- a/lulesh.h
++++ b/lulesh.h
 @@ -19,6 +19,9 @@
  #include <math.h>
  #include <stdlib.h>
