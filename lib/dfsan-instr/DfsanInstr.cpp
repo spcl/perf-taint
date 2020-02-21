@@ -228,7 +228,21 @@ namespace extrap {
         }
 
         // TODO: merge this into a single collection
-        for(auto & t : instrumented_functions) {
+        // Copy to vector and sort to ensure that we get a deterministic order
+        // of functions and their indices. Otherwise the indices of functions
+        // might depend on addresses of functions. While it does not influence
+        // the correctness of the algorithm, it makes testing harder.
+        typedef std::pair<llvm::Function *, llvm::Optional<Function>> elem_t;
+        std::vector<elem_t> elems(
+            instrumented_functions.begin(),
+            instrumented_functions.end()
+        );
+        std::sort(elems.begin(), elems.end(),
+            [](elem_t & f1, elem_t & f2) {
+              return f1.first->getName() < f2.first->getName();
+            }
+        );
+        for(auto & t : elems) {
             // For each unimportant function, add it to a database
             // for callstack generation
             if(t.second.hasValue()) {
@@ -375,7 +389,8 @@ namespace extrap {
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
-        llvm::SmallVector< std::tuple<llvm::Function*, llvm::Value*>, 5> library_calls;
+        typedef std::tuple<llvm::Function*, llvm::Value*> vec_entry_t;
+        llvm::SmallVector<vec_entry_t, 5> library_calls;
         bool has_important_call = false;
         for(auto & callsite : *cg_node)
         {
