@@ -15,7 +15,6 @@ jobs:
                     -DCMAKE_CXX_COMPILER=clang++
                     -DLLVM_DIR=/opt/llvm/
                     -DLIBCXX_PATH=/opt/llvm/
-                    -DOMP_PATH=/opt/llvm
                     ..'
      - run:
         name: Run CMake build

@@ -10,6 +10,7 @@
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/ModuleSlotTracker.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Scalar.h>
@@ -23,6 +24,9 @@
 #include <fstream>
 #include <cxxabi.h>
 #include <cstdio>
+
+#define DEBUG_TYPE "perf-taint"
+using llvm::dbgs;
 
 static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -309,6 +313,7 @@ namespace extrap {
                         //        std::make_pair(func, counter)
                         //    );
                         openmp_call = true;
+                        llvm::errs() << "Detected OpenMP call " << f.getName() << " " << call->getCalledFunction()->getName() << ' ' << func->getName() << '\n';
                         //handle additional calls
                         //OpenMP can split for loop functions into additional
                         //calls e.g. omp.outlined and omp.outlined._debug
@@ -342,12 +347,12 @@ namespace extrap {
                 overriden = false;
             }
             instrumented_functions[&f] =
-                llvm::Optional<Function>(Function(counter, overriden));
+                llvm::Optional<Function>(Function(counter, f.getName(), overriden));
         } else {
             // Insert information that function is overriden by a parent
             if(counter != -1) {
                 instrumented_functions[&f] =
-                    llvm::Optional<Function>(Function(counter, true));
+                    llvm::Optional<Function>(Function(counter, f.getName(), true));
             }
             // Insert information that function is processed and unimportant
             else {
@@ -386,6 +391,7 @@ namespace extrap {
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
+        llvm::errs() << f.getName() << ' ' << linfo->empty() << '\n';
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
@@ -408,6 +414,7 @@ namespace extrap {
 
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
+            llvm::errs() << "Instrument: " << func.name << '\n';
 
             // TODO: refactor for general loop interface
             for(llvm::Loop * l : *linfo) {
@@ -423,6 +430,11 @@ namespace extrap {
                 func.loops_sizes.push_back(depth);
                 func.loops_sizes.push_back(structure_size);
                 func.loops_sizes.push_back(loop_count);
+                //TODO: debug
+                llvm::errs() << "In function: " << f.getName()
+                  << " found loop at line: " << l->getLocRange().getStart().getLine()
+                  << ' ' << *l
+                  << '\n';
             }
 
             for(auto t : library_calls) {
@@ -433,6 +445,8 @@ namespace extrap {
 
             return true;
         } else {
+            //TODO: debug
+            llvm::errs() << "Not instrumenting function: " << f.getName() << '\n';
             foundFunction(f, false, override_counter);
             return false;
         }
@@ -447,6 +461,8 @@ namespace extrap {
         auto it = instrumented_functions.find(&f);
         if(it != instrumented_functions.end())
             return (*it).second.hasValue();
+        //TODO: debug
+        llvm::errs() << "Analyzing function: " << f.getName() << '\n';
         stats.found_function();
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
@@ -455,6 +471,7 @@ namespace extrap {
             found_params.push_back(param);
         }
         bool is_important = analyzeFunction(f, f_node, override_counter);
+        llvm::errs() << "Function: " << f.getName() << " is important: " << is_important << '\n';
         for(auto & callsite : *f_node)
         {
             llvm::CallGraphNode * node = callsite.second;
@@ -614,13 +631,21 @@ namespace extrap {
             Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+        llvm::errs() << f.getName() << ' ' << linfo->empty() << '\n';
         assert(linfo);
 
+        //TODO: debug
+        llvm::errs() << "Instrumenting function: " << f.getName()
+          << " is_overriden: " << func.is_overriden() << '\n';
         if(!func.is_overriden()){
             std::set<llvm::BasicBlock*> loop_blocks;
             int loop_idx = 0, nested_loop_idx = 0;
             call_vec_t calls;
+            llvm::errs() << "Instrumenting function: " << f.getName()
+              << " loop: " << linfo->empty() << '\n';
             for(llvm::Loop * l : *linfo) {
+                llvm::errs() << "Instrumenting function: " << f.getName()
+                  << " loop: " << *l << '\n';
                 instrumentLoop(func, *l, nested_loop_idx, calls, instr);
 
                 for(auto & call: calls) {
@@ -717,8 +742,12 @@ namespace extrap {
         llvm::Function * in_module = m.getFunction(f.getName());
         if(f.isDeclaration() || !in_module) {
             unknown << f.getName().str() << '\n';
+            //LLVM_DEBUG(dbgs() << "Not analyzable: " << f.getName() << '\n');
+            llvm::errs() << "Not analyzable: " << f.getName() << '\n';
             return false;
         }
+        //LLVM_DEBUG(dbgs() << "Analyzable: " << f.getName() << '\n');
+        llvm::errs() << "Analyzable: " << f.getName() << '\n';
         return true;
     }
 

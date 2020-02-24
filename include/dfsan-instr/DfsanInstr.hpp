@@ -86,6 +86,7 @@ namespace extrap {
     struct Function
     {
         int idx;
+        llvm::StringRef name;
         bool overriden;
         llvm::SmallVector<llvm::Value*, 10> callsites;
         // # of entries = loop_depths.size()
@@ -95,8 +96,9 @@ namespace extrap {
         std::vector<std::tuple<llvm::Instruction*, std::string, int>> implicit_loops;
         typedef std::vector< std::vector<int> > vec_t;
 
-        Function(int _idx, bool _overriden = false):
+        Function(int _idx, llvm::StringRef _name, bool _overriden = false):
             idx(_idx),
+            name(_name),
             overriden(_overriden)
         {}
 
