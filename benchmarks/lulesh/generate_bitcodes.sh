@@ -6,7 +6,7 @@ BUILD_DIRECTORY=$2
 pushd ${SOURCE_DIRECTORY}/benchmarks/lulesh > /dev/null
 git submodule update --recursive --init LULESH
 cd LULESH\
-  && git checkout a201764b50632a831e2b57072c4b1d933ef9acb4\
+  && git checkout b56882ba0c1b972631e1e54a8256d2a07893e324\
   && git checkout -- .\
   && git apply ../lulesh.patch
 
