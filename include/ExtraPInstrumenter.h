@@ -2,6 +2,7 @@
 #define __EXTRAP_INSTRUMENTER_H__
 
 #include <stdint.h>
+#include <stdarg.h>
 
 extern const char * __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[];
 extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
