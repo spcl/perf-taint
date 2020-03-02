@@ -1,0 +1,36 @@
+#!/bin/bash
+
+SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
+LIBCXX_PATH="@CMAKE_LIBCXX_PATH@"
+MPI_INCLUDE_PATHS="@CMAKE_MPI_INCLUDE_PATH@"
+MPI_LINK_FLAG="@CMAKE_MPI_LINK_FLAGS@"
+source "@CMAKE_CURRENT_SOURCE_DIR@/bin/clang-wrapper-functions.sh"
+
+export IFS=";"
+MPI_INCLUDE=()
+for path in ${MPI_INCLUDE_PATHS}; do
+  if [[ ! -z "$path" ]]; then
+    MPI_INCLUDE+=("-I${path}")
+  fi
+done
+unset IFS
+
+CFLAGS="\
+  -mllvm\
+  -disable-llvm-optzns\
+  -g\
+  -Wall\
+  -DWITH_EXTRAP\
+  -I${SOURCE_DIR}/include\
+  -fsanitize=dataflow\
+  -fsanitize-blacklist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+  ${MPI_INCLUDE[@]}\
+  "
+LINKFLAGS="\
+  -g\
+  -fsanitize=dataflow\
+  -fsanitize-blacklist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+  ${MPI_LINK_FLAG}\
+  "
+
+run_compilation "clang" "$@"
