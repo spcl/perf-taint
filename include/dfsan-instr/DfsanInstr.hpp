@@ -5,6 +5,8 @@
 
 #include "ParameterFinder.hpp"
 #include "DebugInfo.hpp"
+#include <dfsan-instr/FunctionDatabase.hpp>
+#include <dfsan-instr/common.hpp>
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/IRBuilder.h>
@@ -15,9 +17,6 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include <nlohmann/json.hpp>
-
-class DebugInfo;
 
 namespace llvm {
     class Function;
@@ -27,41 +26,16 @@ namespace llvm {
     class Loop;
 }
 
+namespace perf_taint {
+  struct Function;
+}
+
+//TODO: remove after refactor
+using perf_taint::json_t;
+using perf_taint::Function;
+using perf_taint::FunctionDatabase;
+
 namespace extrap {
-
-    using json_t = nlohmann::json;
-
-    struct Function;
-
-    struct FunctionDatabase
-    {
-        llvm::GlobalVariable * glob_indices;
-
-        struct DataBaseEntry
-        {
-            json_t loops_data;
-        };
-
-        struct ImplicitParameter
-        {
-            std::string name;
-            int param_idx;
-
-            // TODO: 50 shades of c++
-            ImplicitParameter(const std::string & _name, int _param_idx):
-                name(_name), param_idx(_param_idx) {}
-        };
-
-        std::unordered_map<std::string, DataBaseEntry> functions;
-        llvm::SmallVector<ImplicitParameter, 5> implicit_parameters;
-
-        void read(std::ifstream &);
-        bool contains(llvm::Function * f);
-        typedef std::vector< std::vector<int> > vec_t;
-        void processLoop(llvm::Function * f, llvm::Value *, Function &, vec_t &);
-        size_t parameters_count() const;
-        const std::string & parameter_name(size_t idx) const;
-    };
 
     struct Statistics
     {
@@ -81,48 +55,6 @@ namespace extrap {
         void empty_function();
         void label_function(int labels);
         void print();
-    };
-
-    struct Function
-    {
-        int idx;
-        llvm::StringRef name;
-        bool overriden;
-        llvm::SmallVector<llvm::Value*, 10> callsites;
-        // # of entries = loop_depths.size()
-        std::vector<int> loops_structures;
-        std::vector<int> loops_sizes;
-        // call + index of parameter
-        std::vector<std::tuple<llvm::Instruction*, std::string, int>> implicit_loops;
-        typedef std::vector< std::vector<int> > vec_t;
-
-        Function(int _idx, llvm::StringRef _name, bool _overriden = false):
-            idx(_idx),
-            name(_name),
-            overriden(_overriden)
-        {}
-
-        int function_idx()
-        {
-            return idx;
-        }
-
-        void add_callsite(llvm::Value* val)
-        {
-            callsites.push_back(val);
-        }
-
-        size_t callsites_size()
-        {
-            return callsites.size();
-        }
-
-        bool is_overriden()
-        {
-            return overriden;
-        }
-
-        void addImplicitLoop(llvm::Value * call, vec_t & loop);
     };
 
     struct FileIndex
