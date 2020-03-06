@@ -20,6 +20,6 @@ jobs:
         name: Run CMake build
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
-        name: Run tests
-        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests'
+        name: Run unit tests
+        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/dfsan-unit'
 
