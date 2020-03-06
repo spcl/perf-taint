@@ -16,14 +16,10 @@ done
 unset IFS
 
 CFLAGS="\
-  -mllvm\
-  -disable-llvm-optzns\
   -g\
   -Wall\
   -DWITH_EXTRAP\
   -I${SOURCE_DIR}/include\
-  -fsanitize=dataflow\
-  -fsanitize-blacklist=${SOURCE_DIR}/share/dfsan_abilist.txt\
   ${MPI_INCLUDE[@]}\
   "
 LINKFLAGS="\
