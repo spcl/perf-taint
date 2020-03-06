@@ -600,14 +600,15 @@ void __dfsw_dump_json_output()
         + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     for(int i = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; i < full_vars_count; ++i) {
 
-        int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-        for(int j = 0; j < vars_count; ++j) {
-            if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[j],
-                        __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i])) {
-                __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] = j;
-                break;
-            }
+      __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] = -1;
+      int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+      for(int j = 0; j < vars_count; ++j) {
+        if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[j],
+                    __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i])) {
+          __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] = j;
+          break;
         }
+      }
     }
 
     //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
@@ -693,10 +694,10 @@ void __dfsw_dump_json_output()
         + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     for(int i = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; i < vars_count; ++i) {
         if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] == -1) {
-            if(__EXTRAP_INSTRUMENTATION_PARAMS_USED[i])
-                params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
-            else
-                unused_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+          if(__EXTRAP_INSTRUMENTATION_PARAMS_USED[i])
+              params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
+          else
+              unused_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
         }
     }
     out["parameters"] = params;

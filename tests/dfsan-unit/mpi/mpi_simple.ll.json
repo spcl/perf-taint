@@ -287,6 +287,7 @@
   ],
   "parameters": [
     "size",
-    "ranks"
+    "ranks",
+    "p"
   ]
 }

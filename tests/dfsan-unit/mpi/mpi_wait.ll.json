@@ -1,0 +1,78 @@
+{
+  "functions": {
+    "MPI_Wait": {
+      "func_idx": 1,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2,
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                "p"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z4waitP14ompi_request_tS0_": {
+      "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
+      "func_idx": 0,
+      "line": 15,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "wait(ompi_request_t*, ompi_request_t*)",
+    "MPI_Wait",
+    "main",
+    "prepare(int, int*, int*, ompi_request_t**, ompi_request_t**)"
+  ],
+  "functions_mangled_names": [
+    "_Z4waitP14ompi_request_tS0_",
+    "MPI_Wait",
+    "main",
+    "_Z7prepareiPiS_PP14ompi_request_tS2_"
+  ],
+  "functions_names": [
+    "wait",
+    "MPI_Wait",
+    "main",
+    "prepare"
+  ],
+  "parameters": [
+    "p"
+  ]
+}
