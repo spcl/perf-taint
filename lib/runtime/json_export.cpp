@@ -10,6 +10,11 @@ typedef nlohmann::json json_t;
 
 //#define DEBUG
 
+#define DEBUG2 true
+
+#define debug_print(fmt, ...) \
+  do { if (DEBUG2) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+
 json_t * __dfsw_json_get()
 {
     static json_t * out = new json_t;
@@ -575,9 +580,9 @@ bool __dfsw_json_is_important(json_t & json)
         //std::cerr << __EXTRAP_INSTRUMENTATION_MPI_RANK << ' ' << loop << std::endl;
         // don't leave - important but continue pruning
         if(__dfsw_json_loop_is_important(loop["instance"]))
-            important = true;
+          important = true;
         else
-            entries_to_remove.push_back(idx);
+          entries_to_remove.push_back(idx);
         ++idx;
     }
     for(size_t v : entries_to_remove)

@@ -11,6 +11,12 @@
 
 #include "runtime.h"
 
+#define DEBUG false
+
+#define debug_print(fmt, ...) \
+  do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+
+
 //extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 //extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 //extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
@@ -27,24 +33,32 @@ dependencies * __EXTRAP_LOOP_DEPENDENCIES = NULL;
 
 void __dfsw_EXTRAP_INIT_MPI()
 {
-    int flag;
-    MPI_Initialized(&flag);
-    assert(flag);
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    __EXTRAP_INSTRUMENTATION_MPI_RANK = rank;
+  int flag;
+  MPI_Initialized(&flag);
+  assert(flag);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  __EXTRAP_INSTRUMENTATION_MPI_RANK = rank;
 }
 
 void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
 {
-    if(__EXTRAP_CALLSTACK.len == __EXTRAP_CALLSTACK.capacity) {
-        __EXTRAP_CALLSTACK.capacity += 5;
-        __EXTRAP_CALLSTACK.stack = realloc(__EXTRAP_CALLSTACK.stack,
-                sizeof(uint16_t) * __EXTRAP_CALLSTACK.capacity);
-    }
-    //if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 0)
-    //fprintf(stderr, "Push function %d len %d\n", idx, __EXTRAP_CALLSTACK.len + 1);
-    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
+  debug_print(
+    "Push function %d, new callstack length %lu\n",
+    idx,
+    __EXTRAP_CALLSTACK.len + 1
+  );
+  if(__EXTRAP_CALLSTACK.len == __EXTRAP_CALLSTACK.capacity) {
+    debug_print(
+      "Reached callstack capacity %lu, reallocated to %lu\n",
+      __EXTRAP_CALLSTACK.capacity,
+      __EXTRAP_CALLSTACK.capacity + 5
+    );
+    __EXTRAP_CALLSTACK.capacity += 5;
+    __EXTRAP_CALLSTACK.stack = realloc(__EXTRAP_CALLSTACK.stack,
+            sizeof(uint16_t) * __EXTRAP_CALLSTACK.capacity);
+  }
+  __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
 }
 
 void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t function_idx)
@@ -54,31 +68,26 @@ void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t function_idx)
 
 void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
 {
-    //fprintf(stderr, "Pop function %d len %d\n", __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1], __EXTRAP_CALLSTACK.len - 1);
-    if(__EXTRAP_CALLSTACK.len == 0) {
-        fprintf(stderr, "Callstack below zero!\n");
-        abort();
-    }
-    if(idx != __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len - 1]) {
-        fprintf(stderr, "Incorrect callstack pop - expected %d, found %d !\n", idx, __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len - 1]);
-        abort();
-    }
-    //if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 0)
-    //fprintf(stderr, "Pop function %d len %d\n", __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1], __EXTRAP_CALLSTACK.len - 1);
-    __EXTRAP_CALLSTACK.len--;
+  debug_print(
+    "Pop function %d, new callstack length %lu\n",
+    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1],
+    __EXTRAP_CALLSTACK.len - 1
+  );
+  if(__EXTRAP_CALLSTACK.len == 0) {
+    fprintf(stderr, "Callstack below zero!\n");
+    abort();
+  }
+  if(idx != __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len - 1]) {
+    fprintf(
+        stderr,
+        "Incorrect callstack pop - expected %d, found %d !\n",
+        idx,
+        __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len - 1]
+    );
+    abort();
+  }
+  __EXTRAP_CALLSTACK.len--;
 }
-
-// TODO: is this even necessary?
-//uint16_t * __dfsw_EXTRAP_CALLSTACK_COPY()
-//{
-//    if(!__EXTRAP_CALLSTACK.len)
-//        return NULL;
-//    size_t callstack_size = sizeof(uint16_t) * (__EXTRAP_CALLSTACK.len);
-//    uint16_t * mem = malloc(callstack_size + sizeof(uint16_t));
-//    memcpy(mem + 1, __EXTRAP_CALLSTACK.stack, callstack_size);
-//    mem[0] = __EXTRAP_CALLSTACK.len;
-//    return mem;
-//}
 
 // Insert function with a given loop_idx and loop_size into a register
 // Parameters are necessary during loop commit to know where to place loops
@@ -97,9 +106,6 @@ uint16_t __dfsw_EXTRAP_REGISTER_CALL(int16_t nested_loop_idx, uint16_t loop_size
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].len = 0;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].capacity = 0;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].json_data = NULL;
-#ifdef DEBUG
-    fprintf(stderr, "RegsiterCall Loopidx %d LoopLevel %d ValueIdx %d\n", nested_loop_idx, loop_size, __EXTRAP_NESTED_CALLS.len);
-#endif
     return __EXTRAP_NESTED_CALLS.len++;
 }
 
@@ -119,43 +125,25 @@ void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len)
 // Store the recent 
 void __dfsw_EXTRAP_SET_CURRENT_CALL(int16_t idx)
 {
-    //fprintf(stderr, "CurrentCall %d\n", idx);
-    __EXTRAP_CURRENT_CALL = idx;
+  debug_print("Set current function call index %d\n", idx);
+  __EXTRAP_CURRENT_CALL = idx;
 }
 
 int16_t __dfsw_EXTRAP_CURRENT_CALL()
 {
-    return __EXTRAP_CURRENT_CALL;
+  debug_print("Get current function call index %d\n", __EXTRAP_CURRENT_CALL);
+  return __EXTRAP_CURRENT_CALL;
 }
-
-//dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx)
-//{
-//    static dependencies * results = NULL;
-//    if(!results) {
-//        results = calloc(sizeof(dependencies), __EXTRAP_INSTRUMENTATION_FUNCS_COUNT);
-//    }
-//    return &results[func_idx];
-//}
 
 int32_t __dfsw_EXTRAP_VAR_ID()
 {
-    static int32_t id = 0;
-    __EXTRAP_INSTRUMENTATION_PARAMS_COUNT++;
-    return id++;
+  static int32_t id = 0;
+  __EXTRAP_INSTRUMENTATION_PARAMS_COUNT++;
+  return id++;
 }
 
 void __dfsw_EXTRAP_AT_EXIT()
 {
-    //int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-    //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT; ++i) {
-    //    printf("Function %s depends on: ", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
-    //    for(int j = 0; j < vars_count; ++j) {
-    //        if(__EXTRAP_INSTRUMENTATION_RESULTS[i*vars_count + j])
-    //            printf("%d ", j);
-    //    }
-    //    printf("\n");
-    //}
-    //fflush(stdout);
     __dfsw_dump_json_output();
     //dependencies * deps = __dfsw_EXTRAP_DEPS_FUNC(0);
     int deps_count = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[
@@ -232,10 +220,10 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 
 void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx, int calls_count)
 {
-    if(__EXTRAP_LOOP_DEPENDENCIES) {
-        //fprintf(stderr, "Idx %d CallsCount %d\n", function_idx, calls_count);
-        __dfsw_json_write_loop(function_idx, calls_count);
-    }
+  if(__EXTRAP_LOOP_DEPENDENCIES) {
+    //fprintf(stderr, "Idx %d CallsCount %d\n", function_idx, calls_count);
+    __dfsw_json_write_loop(function_idx, calls_count);
+  }
 }
 
 void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t function_idx)
@@ -304,12 +292,13 @@ void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t cou
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
-    fprintf(stderr, "Register %d variables\n", count);
+    debug_print("Register %lu variables\n", count);
+    fprintf(stderr, "Store label %s with label %ld\n", name, lab);
     //va_start(args, count);
     for (int i = 0; i < count; ++i) {
         void * addr = va_arg(args, void*);
         size_t size = va_arg(args, size_t);
-        fprintf(stderr, "Register %p of size %d\n", addr, size);
+        debug_print("Register variable %s at %p of size %lu\n", name, addr, size);
         dfsan_set_label(lab, addr, size);
     }
     //va_end(args);
@@ -322,30 +311,22 @@ void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
         if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i], name)) {
             dfsan_label lab = __EXTRAP_INSTRUMENTATION_LABELS[i];
             dfsan_set_label(lab, addr, size);
-            fprintf(stderr, "Write variables %s\n", name);
+            debug_print("Write label %d for variable %s at pos %d \n", lab, name, i);
             return;
         }
     }
-    fprintf(stderr, "Register variable %s\n", name);
     int32_t param_id = __dfsw_EXTRAP_VAR_ID();
+    debug_print("Write new label %s at pos %d\n", name, param_id);
     __dfsw_EXTRAP_STORE_LABEL(addr, size, param_id, name);
-//}
-    //fprintf(stderr, "WRITE_LABEL\n");
-    //dfsan_label lab = __EXTRAP_INSTRUMENTATION_LABELS[param_idx];
-    //dfsan_set_label(lab, addr, size);
-    //printf("Create label %d for %d at %d %p %s\n", lab, param_idx, size, addr, name);
-    //printf("Set label %d\n", dfsan_read_label(addr, size));
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
 {
-    fprintf(stderr, "Register variable\n");
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
+    fprintf(stderr, "Store label %s with label %ld\n", name, lab);
     dfsan_set_label(lab, addr, size);
-    //printf("Create label %d for %d at %d %p %s\n", lab, param_idx, size, addr, name);
-    //printf("Set label %d\n", dfsan_read_label(addr, size));
 }
 
 void __dfsw_EXTRAP_INIT()
