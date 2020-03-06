@@ -16,7 +16,7 @@ for path in ${MPI_INCLUDE_PATHS}; do
 done
 
 pushd @CMAKE_CURRENT_SOURCE_DIR@ > /dev/null
-for f in tests/dfsan-unit/*.cpp; do
+for f in tests/dfsan-unit/**/*.cpp; do
   test_name="${f%.*}.ll"
   instr_name="${test_name}.instructions"
 
@@ -28,7 +28,7 @@ for f in tests/dfsan-unit/*.cpp; do
 $(cat ${test_name})" > ${test_name}
 done
 
-for f in tests/dfsan-unit/*.c; do
+for f in tests/dfsan-unit/**/*.c; do
   test_name="${f%.*}.ll"
   instr_name="${test_name}.instructions"
 
