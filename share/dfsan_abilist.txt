@@ -1,5 +1,7 @@
 fun:main=uninstrumented
 fun:main=discard
+fun:gethostname=uninstrumented
+fun:gethostname=discard
 
 # MPI
 
