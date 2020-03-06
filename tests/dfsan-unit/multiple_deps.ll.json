@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
       "func_idx": 0,
       "line": 31,
       "loops": [
@@ -26,7 +26,7 @@
       ]
     },
     "_Z1gii": {
-      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
       "func_idx": 1,
       "line": 41,
       "loops": [
@@ -68,7 +68,7 @@
       ]
     },
     "_Z1hP4test": {
-      "file": "tests/dfsan-instr/multiple_deps.cpp",
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
       "func_idx": 2,
       "line": 51,
       "loops": [

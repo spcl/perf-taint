@@ -1,6 +1,6 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && echo 10 | %execparams %t2 10 | diff -w %s.json -
-; ModuleID = 'tests/dfsan-instr/prune.cpp'
-source_filename = "tests/dfsan-instr/prune.cpp"
+; ModuleID = 'tests/dfsan-unit/prune.cpp'
+source_filename = "tests/dfsan-unit/prune.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -16,13 +16,13 @@ $_Z17register_variableIdEvPT_PKc = comdat any
 @global = dso_local global i32 100, align 4, !dbg !0
 @global2 = dso_local global double 3.140000e+00, align 8, !dbg !18
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [28 x i8] c"tests/dfsan-instr/prune.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [27 x i8] c"tests/dfsan-unit/prune.cpp\00", section "llvm.metadata"
 @_ZNSt3__13cinE = external dso_local global %"class.std::__1::basic_istream", align 8
 @.str.2 = private unnamed_addr constant [3 x i8] c"x1\00", align 1
 @.str.3 = private unnamed_addr constant [3 x i8] c"x2\00", align 1
 @.str.4 = private unnamed_addr constant [7 x i8] c"global\00", align 1
 @.str.5 = private unnamed_addr constant [8 x i8] c"global2\00", align 1
-@llvm.global.annotations = appending global [2 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (i32* @global to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 8 }, { i8*, i8*, i8*, i32 } { i8* bitcast (double* @global2 to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 9 }], section "llvm.metadata"
+@llvm.global.annotations = appending global [2 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (i32* @global to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 8 }, { i8*, i8*, i8*, i32 } { i8* bitcast (double* @global2 to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 9 }], section "llvm.metadata"
 
 ; Function Attrs: nounwind uwtable
 define dso_local i32 @_Z1hi(i32) #0 !dbg !1303 {
@@ -287,7 +287,7 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !1449 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %8) #5, !dbg !1461
   call void @llvm.dbg.declare(metadata i32* %6, metadata !1455, metadata !DIExpression()), !dbg !1462
   %9 = bitcast i32* %6 to i8*, !dbg !1461
-  call void @llvm.var.annotation(i8* %9, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 57), !dbg !1461
+  call void @llvm.var.annotation(i8* %9, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 57), !dbg !1461
   %10 = load i8**, i8*** %5, align 8, !dbg !1463, !tbaa !1458
   %11 = getelementptr inbounds i8*, i8** %10, i64 1, !dbg !1463
   %12 = load i8*, i8** %11, align 8, !dbg !1463, !tbaa !1458
@@ -297,7 +297,7 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !1449 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %14) #5, !dbg !1465
   call void @llvm.dbg.declare(metadata i32* %7, metadata !1456, metadata !DIExpression()), !dbg !1466
   %15 = bitcast i32* %7 to i8*, !dbg !1465
-  call void @llvm.var.annotation(i8* %15, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 58), !dbg !1465
+  call void @llvm.var.annotation(i8* %15, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 58), !dbg !1465
   %16 = call dereferenceable(168) %"class.std::__1::basic_istream"* @_ZNSt3__113basic_istreamIcNS_11char_traitsIcEEErsERi(%"class.std::__1::basic_istream"* @_ZNSt3__13cinE, i32* dereferenceable(4) %7), !dbg !1467
   call void @_Z17register_variableIiEvPT_PKc(i32* %6, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.2, i64 0, i64 0)), !dbg !1468
   call void @_Z17register_variableIiEvPT_PKc(i32* %7, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.3, i64 0, i64 0)), !dbg !1469
@@ -419,7 +419,7 @@ attributes #9 = { nounwind readonly }
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
 !1 = distinct !DIGlobalVariable(name: "global", scope: !2, file: !3, line: 8, type: !7, isLocal: false, isDefinition: true)
 !2 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !3, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, retainedTypes: !5, globals: !17, imports: !20, nameTableKind: None)
-!3 = !DIFile(filename: "tests/dfsan-instr/prune.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!3 = !DIFile(filename: "tests/dfsan-unit/prune.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !4 = !{}
 !5 = !{!6, !7, !8, !11}
 !6 = !DIBasicType(name: "double", size: 64, encoding: DW_ATE_float)
@@ -1911,7 +1911,7 @@ attributes #9 = { nounwind readonly }
 !1492 = !DILocation(line: 363, column: 16, scope: !366)
 !1493 = !DILocation(line: 363, column: 3, scope: !366)
 !1494 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !1495, file: !1495, line: 14, type: !1496, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !1502, retainedNodes: !1498)
-!1495 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!1495 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !1496 = !DISubroutineType(types: !1497)
 !1497 = !{null, !86, !176}
 !1498 = !{!1499, !1500, !1501}

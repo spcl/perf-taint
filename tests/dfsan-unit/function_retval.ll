@@ -1,6 +1,6 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 | diff -w %s.json -
-; ModuleID = 'tests/dfsan-instr/function_retval.cpp'
-source_filename = "tests/dfsan-instr/function_retval.cpp"
+; ModuleID = 'tests/dfsan-unit/function_retval.cpp'
+source_filename = "tests/dfsan-unit/function_retval.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -14,11 +14,11 @@ $_ZN4testC2Eii = comdat any
 
 @global = dso_local global i32 100, align 4, !dbg !0
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [38 x i8] c"tests/dfsan-instr/function_retval.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [37 x i8] c"tests/dfsan-unit/function_retval.cpp\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [3 x i8] c"x1\00", align 1
 @.str.3 = private unnamed_addr constant [3 x i8] c"x2\00", align 1
 @.str.4 = private unnamed_addr constant [7 x i8] c"global\00", align 1
-@llvm.global.annotations = appending global [1 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (i32* @global to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([38 x i8], [38 x i8]* @.str.1, i32 0, i32 0), i32 7 }], section "llvm.metadata"
+@llvm.global.annotations = appending global [1 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (i32* @global to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.1, i32 0, i32 0), i32 7 }], section "llvm.metadata"
 
 ; Function Attrs: nounwind uwtable
 define dso_local i32 @_Z1gii(i32, i32) #0 !dbg !594 {
@@ -256,7 +256,7 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !738 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %10) #5, !dbg !750
   call void @llvm.dbg.declare(metadata i32* %6, metadata !744, metadata !DIExpression()), !dbg !751
   %11 = bitcast i32* %6 to i8*, !dbg !750
-  call void @llvm.var.annotation(i8* %11, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([38 x i8], [38 x i8]* @.str.1, i32 0, i32 0), i32 70), !dbg !750
+  call void @llvm.var.annotation(i8* %11, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.1, i32 0, i32 0), i32 70), !dbg !750
   %12 = load i8**, i8*** %5, align 8, !dbg !752, !tbaa !706
   %13 = getelementptr inbounds i8*, i8** %12, i64 1, !dbg !752
   %14 = load i8*, i8** %13, align 8, !dbg !752, !tbaa !706
@@ -266,7 +266,7 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !738 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %16) #5, !dbg !754
   call void @llvm.dbg.declare(metadata i32* %7, metadata !745, metadata !DIExpression()), !dbg !755
   %17 = bitcast i32* %7 to i8*, !dbg !754
-  call void @llvm.var.annotation(i8* %17, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([38 x i8], [38 x i8]* @.str.1, i32 0, i32 0), i32 71), !dbg !754
+  call void @llvm.var.annotation(i8* %17, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.1, i32 0, i32 0), i32 71), !dbg !754
   %18 = load i8**, i8*** %5, align 8, !dbg !756, !tbaa !706
   %19 = getelementptr inbounds i8*, i8** %18, i64 2, !dbg !756
   %20 = load i8*, i8** %19, align 8, !dbg !756, !tbaa !706
@@ -396,7 +396,7 @@ attributes #9 = { nounwind readonly }
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
 !1 = distinct !DIGlobalVariable(name: "global", scope: !2, file: !3, line: 7, type: !6, isLocal: false, isDefinition: true)
 !2 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !3, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, retainedTypes: !5, globals: !16, imports: !17, nameTableKind: None)
-!3 = !DIFile(filename: "tests/dfsan-instr/function_retval.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!3 = !DIFile(filename: "tests/dfsan-unit/function_retval.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !4 = !{}
 !5 = !{!6, !7, !10}
 !6 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
@@ -1181,7 +1181,7 @@ attributes #9 = { nounwind readonly }
 !785 = !DILocation(line: 363, column: 16, scope: !364)
 !786 = !DILocation(line: 363, column: 3, scope: !364)
 !787 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !788, file: !788, line: 14, type: !789, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !795, retainedNodes: !791)
-!788 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!788 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !789 = !DISubroutineType(types: !790)
 !790 = !{null, !84, !174}
 !791 = !{!792, !793, !794}

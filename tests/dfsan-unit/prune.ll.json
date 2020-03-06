@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z11f_not_pruneii": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 2,
       "line": 45,
       "loops": [
@@ -129,7 +129,7 @@
       ]
     },
     "_Z11g_not_prunei": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 1,
       "line": 26,
       "loops": [
@@ -202,7 +202,7 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 0,
       "line": 12,
       "loops": [

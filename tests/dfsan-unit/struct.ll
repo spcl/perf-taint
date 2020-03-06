@@ -1,6 +1,6 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 | diff -w %s.json -
-; ModuleID = 'tests/dfsan-instr/struct.cpp'
-source_filename = "tests/dfsan-instr/struct.cpp"
+; ModuleID = 'tests/dfsan-unit/struct.cpp'
+source_filename = "tests/dfsan-unit/struct.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -9,13 +9,13 @@ target triple = "x86_64-unknown-linux-gnu"
 $_Z17register_variableIiEvPT_PKc = comdat any
 
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [29 x i8] c"tests/dfsan-instr/struct.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [28 x i8] c"tests/dfsan-unit/struct.cpp\00", section "llvm.metadata"
 @global_params = dso_local global %struct.Params { i32 100, i32 100, i32 100, double 2.000000e-01 }, align 8, !dbg !0
 @.str.2 = private unnamed_addr constant [13 x i8] c"params.ranks\00", align 1
 @.str.3 = private unnamed_addr constant [20 x i8] c"params.problem_size\00", align 1
 @.str.4 = private unnamed_addr constant [27 x i8] c"global_params.problem_size\00", align 1
 @.str.5 = private unnamed_addr constant [20 x i8] c"global_params.ranks\00", align 1
-@llvm.global.annotations = appending global [1 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 19 }], section "llvm.metadata"
+@llvm.global.annotations = appending global [1 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 19 }], section "llvm.metadata"
 
 ; Function Attrs: nounwind uwtable
 define dso_local double @_Z12print_paramsP6Params(%struct.Params*) #0 !dbg !1309 {
@@ -34,7 +34,7 @@ define dso_local double @_Z12print_paramsP6Params(%struct.Params*) #0 !dbg !1309
   %7 = load %struct.Params*, %struct.Params** %2, align 8, !dbg !1329, !tbaa !1318
   %8 = getelementptr inbounds %struct.Params, %struct.Params* %7, i32 0, i32 0, !dbg !1330
   %9 = bitcast i32* %8 to i8*, !dbg !1330
-  %10 = call i8* @llvm.ptr.annotation.p0i8(i8* %9, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1330
+  %10 = call i8* @llvm.ptr.annotation.p0i8(i8* %9, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1330
   %11 = bitcast i8* %10 to i32*, !dbg !1330
   %12 = load i32, i32* %11, align 8, !dbg !1330, !tbaa !1331
   store i32 %12, i32* %4, align 4, !dbg !1328, !tbaa !1334
@@ -45,7 +45,7 @@ define dso_local double @_Z12print_paramsP6Params(%struct.Params*) #0 !dbg !1309
   %15 = load %struct.Params*, %struct.Params** %2, align 8, !dbg !1337, !tbaa !1318
   %16 = getelementptr inbounds %struct.Params, %struct.Params* %15, i32 0, i32 2, !dbg !1338
   %17 = bitcast i32* %16 to i8*, !dbg !1338
-  %18 = call i8* @llvm.ptr.annotation.p0i8(i8* %17, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1338
+  %18 = call i8* @llvm.ptr.annotation.p0i8(i8* %17, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1338
   %19 = bitcast i8* %18 to i32*, !dbg !1338
   %20 = load i32, i32* %19, align 8, !dbg !1338, !tbaa !1339
   %21 = icmp slt i32 %14, %20, !dbg !1340
@@ -63,7 +63,7 @@ define dso_local double @_Z12print_paramsP6Params(%struct.Params*) #0 !dbg !1309
   %28 = getelementptr inbounds %struct.Params, %struct.Params* %27, i32 0, i32 3, !dbg !1346
   %29 = load double, double* %28, align 8, !dbg !1346, !tbaa !1347
   %30 = fmul double %26, %29, !dbg !1348
-  %31 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (i32* getelementptr inbounds (%struct.Params, %struct.Params* @global_params, i32 0, i32 2) to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1349
+  %31 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (i32* getelementptr inbounds (%struct.Params, %struct.Params* @global_params, i32 0, i32 2) to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1349
   %32 = bitcast i8* %31 to i32*, !dbg !1349
   %33 = load i32, i32* %32, align 8, !dbg !1349, !tbaa !1339
   %34 = sitofp i32 %33 to double, !dbg !1350
@@ -213,20 +213,20 @@ define dso_local i32 @_Z7do_sth3R6Params(%struct.Params* dereferenceable(24)) #0
   %3 = load %struct.Params*, %struct.Params** %2, align 8, !dbg !1433, !tbaa !1318
   %4 = getelementptr inbounds %struct.Params, %struct.Params* %3, i32 0, i32 0, !dbg !1434
   %5 = bitcast i32* %4 to i8*, !dbg !1434
-  %6 = call i8* @llvm.ptr.annotation.p0i8(i8* %5, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1434
+  %6 = call i8* @llvm.ptr.annotation.p0i8(i8* %5, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1434
   %7 = bitcast i8* %6 to i32*, !dbg !1434
   %8 = load i32, i32* %7, align 8, !dbg !1434, !tbaa !1331
   %9 = load %struct.Params*, %struct.Params** %2, align 8, !dbg !1435, !tbaa !1318
   %10 = getelementptr inbounds %struct.Params, %struct.Params* %9, i32 0, i32 2, !dbg !1436
   %11 = bitcast i32* %10 to i8*, !dbg !1436
-  %12 = call i8* @llvm.ptr.annotation.p0i8(i8* %11, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1436
+  %12 = call i8* @llvm.ptr.annotation.p0i8(i8* %11, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1436
   %13 = bitcast i8* %12 to i32*, !dbg !1436
   %14 = load i32, i32* %13, align 8, !dbg !1436, !tbaa !1339
   %15 = add nsw i32 %8, %14, !dbg !1437
   %16 = load %struct.Params*, %struct.Params** %2, align 8, !dbg !1438, !tbaa !1318
   %17 = getelementptr inbounds %struct.Params, %struct.Params* %16, i32 0, i32 2, !dbg !1439
   %18 = bitcast i32* %17 to i8*, !dbg !1439
-  %19 = call i8* @llvm.ptr.annotation.p0i8(i8* %18, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1439
+  %19 = call i8* @llvm.ptr.annotation.p0i8(i8* %18, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1439
   %20 = bitcast i8* %19 to i32*, !dbg !1439
   %21 = load i32, i32* %20, align 8, !dbg !1439, !tbaa !1339
   %22 = call i32 @_Z6do_sthii(i32 %15, i32 %21), !dbg !1440
@@ -248,12 +248,12 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !1442 {
   call void @llvm.lifetime.start.p0i8(i64 24, i8* %7) #3, !dbg !1451
   call void @llvm.dbg.declare(metadata %struct.Params* %6, metadata !1448, metadata !DIExpression()), !dbg !1452
   %8 = bitcast %struct.Params* %6 to i8*, !dbg !1451
-  call void @llvm.var.annotation(i8* %8, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 62), !dbg !1451
+  call void @llvm.var.annotation(i8* %8, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 62), !dbg !1451
   %9 = call i32 @rand() #3, !dbg !1453
   %10 = srem i32 %9, 5, !dbg !1454
   %11 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 0, !dbg !1455
   %12 = bitcast i32* %11 to i8*, !dbg !1455
-  %13 = call i8* @llvm.ptr.annotation.p0i8(i8* %12, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1455
+  %13 = call i8* @llvm.ptr.annotation.p0i8(i8* %12, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1455
   %14 = bitcast i8* %13 to i32*, !dbg !1455
   store i32 %10, i32* %14, align 8, !dbg !1456, !tbaa !1331
   %15 = load i8**, i8*** %5, align 8, !dbg !1457, !tbaa !1318
@@ -262,7 +262,7 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !1442 {
   %18 = call i32 @atoi(i8* %17) #9, !dbg !1458
   %19 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 2, !dbg !1459
   %20 = bitcast i32* %19 to i8*, !dbg !1459
-  %21 = call i8* @llvm.ptr.annotation.p0i8(i8* %20, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1459
+  %21 = call i8* @llvm.ptr.annotation.p0i8(i8* %20, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1459
   %22 = bitcast i8* %21 to i32*, !dbg !1459
   store i32 %18, i32* %22, align 8, !dbg !1460, !tbaa !1339
   %23 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 1, !dbg !1461
@@ -275,29 +275,29 @@ define dso_local i32 @main(i32, i8**) #4 !dbg !1442 {
   store double %27, double* %28, align 8, !dbg !1467, !tbaa !1347
   %29 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 0, !dbg !1468
   %30 = bitcast i32* %29 to i8*, !dbg !1468
-  %31 = call i8* @llvm.ptr.annotation.p0i8(i8* %30, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1468
+  %31 = call i8* @llvm.ptr.annotation.p0i8(i8* %30, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1468
   %32 = bitcast i8* %31 to i32*, !dbg !1468
   call void @_Z17register_variableIiEvPT_PKc(i32* %32, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str.2, i64 0, i64 0)), !dbg !1469
   %33 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 2, !dbg !1470
   %34 = bitcast i32* %33 to i8*, !dbg !1470
-  %35 = call i8* @llvm.ptr.annotation.p0i8(i8* %34, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1470
+  %35 = call i8* @llvm.ptr.annotation.p0i8(i8* %34, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1470
   %36 = bitcast i8* %35 to i32*, !dbg !1470
   call void @_Z17register_variableIiEvPT_PKc(i32* %36, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.3, i64 0, i64 0)), !dbg !1471
-  %37 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (i32* getelementptr inbounds (%struct.Params, %struct.Params* @global_params, i32 0, i32 2) to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1472
+  %37 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (i32* getelementptr inbounds (%struct.Params, %struct.Params* @global_params, i32 0, i32 2) to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1472
   %38 = bitcast i8* %37 to i32*, !dbg !1472
   call void @_Z17register_variableIiEvPT_PKc(i32* %38, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.4, i64 0, i64 0)), !dbg !1473
-  %39 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1474
+  %39 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1474
   %40 = bitcast i8* %39 to i32*, !dbg !1474
   call void @_Z17register_variableIiEvPT_PKc(i32* %40, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.5, i64 0, i64 0)), !dbg !1475
   %41 = call double @_Z12print_paramsP6Params(%struct.Params* %6), !dbg !1476
   %42 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 2, !dbg !1477
   %43 = bitcast i32* %42 to i8*, !dbg !1477
-  %44 = call i8* @llvm.ptr.annotation.p0i8(i8* %43, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1477
+  %44 = call i8* @llvm.ptr.annotation.p0i8(i8* %43, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 15), !dbg !1477
   %45 = bitcast i8* %44 to i32*, !dbg !1477
   %46 = load i32, i32* %45, align 8, !dbg !1477, !tbaa !1339
   %47 = mul nsw i32 %46, 2, !dbg !1478
   %48 = add nsw i32 %47, 100, !dbg !1479
-  %49 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1480
+  %49 = call i8* @llvm.ptr.annotation.p0i8(i8* bitcast (%struct.Params* @global_params to i8*), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i32 0, i32 0), i32 13), !dbg !1480
   %50 = bitcast i8* %49 to i32*, !dbg !1480
   %51 = load i32, i32* %50, align 8, !dbg !1480, !tbaa !1331
   %52 = getelementptr inbounds %struct.Params, %struct.Params* %6, i32 0, i32 1, !dbg !1481
@@ -396,7 +396,7 @@ attributes #9 = { nounwind readonly }
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
 !1 = distinct !DIGlobalVariable(name: "global_params", scope: !2, file: !3, line: 19, type: !1299, isLocal: false, isDefinition: true)
 !2 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !3, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, retainedTypes: !5, globals: !16, imports: !17, nameTableKind: None)
-!3 = !DIFile(filename: "tests/dfsan-instr/struct.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!3 = !DIFile(filename: "tests/dfsan-unit/struct.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !4 = !{}
 !5 = !{!6, !7, !10}
 !6 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
@@ -1892,7 +1892,7 @@ attributes #9 = { nounwind readonly }
 !1496 = !DILocation(line: 27, column: 10, scope: !361)
 !1497 = !DILocation(line: 27, column: 3, scope: !361)
 !1498 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !1499, file: !1499, line: 14, type: !1500, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !1506, retainedNodes: !1502)
-!1499 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!1499 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !1500 = !DISubroutineType(types: !1501)
 !1501 = !{null, !84, !174}
 !1502 = !{!1503, !1504, !1505}

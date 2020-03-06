@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z15perf_nest_constii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/dfsan-unit/nested_loop.cpp",
       "func_idx": 1,
       "line": 18,
       "loops": [
@@ -25,7 +25,7 @@
       ]
     },
     "_Z15perf_nest_quadrii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/dfsan-unit/nested_loop.cpp",
       "func_idx": 3,
       "line": 38,
       "loops": [
@@ -86,7 +86,7 @@
       ]
     },
     "_Z16perf_nest_linearii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/dfsan-unit/nested_loop.cpp",
       "func_idx": 2,
       "line": 28,
       "loops": [
@@ -127,7 +127,7 @@
       ]
     },
     "_Z24perf_nest_multiple_quadrii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/dfsan-unit/nested_loop.cpp",
       "func_idx": 4,
       "line": 49,
       "loops": [
@@ -198,7 +198,7 @@
   ],
   "unimportant_functions": {
     "_Z17perf_nest_unknownii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/dfsan-unit/nested_loop.cpp",
       "func_idx": 0,
       "line": 8
     }

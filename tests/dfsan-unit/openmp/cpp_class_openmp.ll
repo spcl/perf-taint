@@ -1,7 +1,7 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %omplink %t1 -o %t2 && OMP_NUM_THREADS=1 %execparams %t2 10 10 10 | diff -w %s.json -
 ; RUN: %jsonconvert %s.json | diff -w %s.processed.json -
-; ModuleID = 'tests/dfsan-instr/cpp_class_openmp.cpp'
-source_filename = "tests/dfsan-instr/cpp_class_openmp.cpp"
+; ModuleID = 'tests/dfsan-unit/openmp/cpp_class_openmp.cpp'
+source_filename = "tests/dfsan-unit/openmp/cpp_class_openmp.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -25,16 +25,16 @@ $_ZN4Grid8update_zEd = comdat any
 $_ZN4GridD2Ev = comdat any
 
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [39 x i8] c"tests/dfsan-instr/cpp_class_openmp.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [45 x i8] c"tests/dfsan-unit/openmp/cpp_class_openmp.cpp\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [7 x i8] c"size_x\00", align 1
 @.str.3 = private unnamed_addr constant [7 x i8] c"size_y\00", align 1
 @.str.4 = private unnamed_addr constant [23 x i8] c";unknown;unknown;0;0;;\00", align 1
 @0 = private unnamed_addr global %struct.ident_t { i32 0, i32 2, i32 0, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.4, i32 0, i32 0) }, align 8
-@1 = private unnamed_addr constant [65 x i8] c";tests/dfsan-instr/cpp_class_openmp.cpp;Grid::update_grid;26;9;;\00", align 1
-@2 = private unnamed_addr constant [69 x i8] c";tests/dfsan-instr/cpp_class_openmp.cpp;Grid::update_constant;34;9;;\00", align 1
-@3 = private unnamed_addr constant [62 x i8] c";tests/dfsan-instr/cpp_class_openmp.cpp;Grid::update_y;51;9;;\00", align 1
-@4 = private unnamed_addr constant [65 x i8] c";tests/dfsan-instr/cpp_class_openmp.cpp;Grid::update_data;43;9;;\00", align 1
-@5 = private unnamed_addr constant [62 x i8] c";tests/dfsan-instr/cpp_class_openmp.cpp;Grid::update_z;59;9;;\00", align 1
+@1 = private unnamed_addr constant [71 x i8] c";tests/dfsan-unit/openmp/cpp_class_openmp.cpp;Grid::update_grid;26;9;;\00", align 1
+@2 = private unnamed_addr constant [75 x i8] c";tests/dfsan-unit/openmp/cpp_class_openmp.cpp;Grid::update_constant;34;9;;\00", align 1
+@3 = private unnamed_addr constant [68 x i8] c";tests/dfsan-unit/openmp/cpp_class_openmp.cpp;Grid::update_y;51;9;;\00", align 1
+@4 = private unnamed_addr constant [71 x i8] c";tests/dfsan-unit/openmp/cpp_class_openmp.cpp;Grid::update_data;43;9;;\00", align 1
+@5 = private unnamed_addr constant [68 x i8] c";tests/dfsan-unit/openmp/cpp_class_openmp.cpp;Grid::update_z;59;9;;\00", align 1
 
 ; Function Attrs: norecurse uwtable
 define dso_local i32 @main(i32, i8**) #0 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) !dbg !293 {
@@ -56,7 +56,7 @@ define dso_local i32 @main(i32, i8**) #0 personality i8* bitcast (i32 (...)* @__
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %12) #3, !dbg !333
   call void @llvm.dbg.declare(metadata i32* %6, metadata !299, metadata !DIExpression()), !dbg !334
   %13 = bitcast i32* %6 to i8*, !dbg !333
-  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([39 x i8], [39 x i8]* @.str.1, i32 0, i32 0), i32 67), !dbg !333
+  call void @llvm.var.annotation(i8* %13, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @.str.1, i32 0, i32 0), i32 67), !dbg !333
   %14 = load i8**, i8*** %5, align 8, !dbg !335, !tbaa !330
   %15 = getelementptr inbounds i8*, i8** %14, i64 1, !dbg !335
   %16 = load i8*, i8** %15, align 8, !dbg !335, !tbaa !330
@@ -66,7 +66,7 @@ define dso_local i32 @main(i32, i8**) #0 personality i8* bitcast (i32 (...)* @__
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %18) #3, !dbg !337
   call void @llvm.dbg.declare(metadata i32* %7, metadata !300, metadata !DIExpression()), !dbg !338
   %19 = bitcast i32* %7 to i8*, !dbg !337
-  call void @llvm.var.annotation(i8* %19, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([39 x i8], [39 x i8]* @.str.1, i32 0, i32 0), i32 68), !dbg !337
+  call void @llvm.var.annotation(i8* %19, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @.str.1, i32 0, i32 0), i32 68), !dbg !337
   %20 = load i8**, i8*** %5, align 8, !dbg !339, !tbaa !330
   %21 = getelementptr inbounds i8*, i8** %20, i64 2, !dbg !339
   %22 = load i8*, i8** %21, align 8, !dbg !339, !tbaa !330
@@ -76,7 +76,7 @@ define dso_local i32 @main(i32, i8**) #0 personality i8* bitcast (i32 (...)* @__
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %24) #3, !dbg !341
   call void @llvm.dbg.declare(metadata i32* %8, metadata !301, metadata !DIExpression()), !dbg !342
   %25 = bitcast i32* %8 to i8*, !dbg !341
-  call void @llvm.var.annotation(i8* %25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([39 x i8], [39 x i8]* @.str.1, i32 0, i32 0), i32 69), !dbg !341
+  call void @llvm.var.annotation(i8* %25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([45 x i8], [45 x i8]* @.str.1, i32 0, i32 0), i32 69), !dbg !341
   %26 = load i8**, i8*** %5, align 8, !dbg !343, !tbaa !330
   %27 = getelementptr inbounds i8*, i8** %26, i64 3, !dbg !343
   %28 = load i8*, i8** %27, align 8, !dbg !343, !tbaa !330
@@ -263,7 +263,7 @@ define linkonce_odr dso_local void @_ZN4Grid11update_gridEd(%class.Grid*, double
   call void @llvm.dbg.declare(metadata double* %4, metadata !425, metadata !DIExpression()), !dbg !429
   %8 = load %class.Grid*, %class.Grid** %3, align 8
   %9 = getelementptr inbounds %struct.ident_t, %struct.ident_t* %5, i32 0, i32 4, !dbg !430
-  store i8* getelementptr inbounds ([65 x i8], [65 x i8]* @1, i32 0, i32 0), i8** %9, align 8, !dbg !430, !tbaa !431
+  store i8* getelementptr inbounds ([71 x i8], [71 x i8]* @1, i32 0, i32 0), i8** %9, align 8, !dbg !430, !tbaa !431
   call void (%struct.ident_t*, i32, void (i32*, i32*, ...)*, ...) @__kmpc_fork_call(%struct.ident_t* %5, i32 2, void (i32*, i32*, ...)* bitcast (void (i32*, i32*, %class.Grid*, double*)* @.omp_outlined. to void (i32*, i32*, ...)*), %class.Grid* %8, double* %4), !dbg !430
   ret void, !dbg !433
 }
@@ -290,7 +290,7 @@ define linkonce_odr dso_local void @_ZN4Grid15update_constantEd(%class.Grid*, do
   %15 = fadd double %14, %10, !dbg !443
   store double %15, double* %13, align 8, !dbg !443, !tbaa !427
   %16 = getelementptr inbounds %struct.ident_t, %struct.ident_t* %5, i32 0, i32 4, !dbg !444
-  store i8* getelementptr inbounds ([69 x i8], [69 x i8]* @2, i32 0, i32 0), i8** %16, align 8, !dbg !444, !tbaa !431
+  store i8* getelementptr inbounds ([75 x i8], [75 x i8]* @2, i32 0, i32 0), i8** %16, align 8, !dbg !444, !tbaa !431
   call void (%struct.ident_t*, i32, void (i32*, i32*, ...)*, ...) @__kmpc_fork_call(%struct.ident_t* %5, i32 2, void (i32*, i32*, ...)* bitcast (void (i32*, i32*, %class.Grid*, double*)* @.omp_outlined..6 to void (i32*, i32*, ...)*), %class.Grid* %8, double* %4), !dbg !444
   ret void, !dbg !445
 }
@@ -309,7 +309,7 @@ define linkonce_odr dso_local void @_ZN4Grid8update_yEd(%class.Grid*, double) #5
   call void @llvm.dbg.declare(metadata double* %4, metadata !449, metadata !DIExpression()), !dbg !451
   %8 = load %class.Grid*, %class.Grid** %3, align 8
   %9 = getelementptr inbounds %struct.ident_t, %struct.ident_t* %5, i32 0, i32 4, !dbg !452
-  store i8* getelementptr inbounds ([62 x i8], [62 x i8]* @3, i32 0, i32 0), i8** %9, align 8, !dbg !452, !tbaa !431
+  store i8* getelementptr inbounds ([68 x i8], [68 x i8]* @3, i32 0, i32 0), i8** %9, align 8, !dbg !452, !tbaa !431
   call void (%struct.ident_t*, i32, void (i32*, i32*, ...)*, ...) @__kmpc_fork_call(%struct.ident_t* %5, i32 2, void (i32*, i32*, ...)* bitcast (void (i32*, i32*, %class.Grid*, double*)* @.omp_outlined..8 to void (i32*, i32*, ...)*), %class.Grid* %8, double* %4), !dbg !452
   ret void, !dbg !453
 }
@@ -336,7 +336,7 @@ define linkonce_odr dso_local void @_ZN4Grid11update_dataEd(%class.Grid*, double
   %15 = fadd double %14, %10, !dbg !463
   store double %15, double* %13, align 8, !dbg !463, !tbaa !427
   %16 = getelementptr inbounds %struct.ident_t, %struct.ident_t* %5, i32 0, i32 4, !dbg !464
-  store i8* getelementptr inbounds ([65 x i8], [65 x i8]* @4, i32 0, i32 0), i8** %16, align 8, !dbg !464, !tbaa !431
+  store i8* getelementptr inbounds ([71 x i8], [71 x i8]* @4, i32 0, i32 0), i8** %16, align 8, !dbg !464, !tbaa !431
   call void (%struct.ident_t*, i32, void (i32*, i32*, ...)*, ...) @__kmpc_fork_call(%struct.ident_t* %5, i32 2, void (i32*, i32*, ...)* bitcast (void (i32*, i32*, %class.Grid*, double*)* @.omp_outlined..10 to void (i32*, i32*, ...)*), %class.Grid* %8, double* %4), !dbg !464
   ret void, !dbg !465
 }
@@ -355,7 +355,7 @@ define linkonce_odr dso_local void @_ZN4Grid8update_zEd(%class.Grid*, double) #5
   call void @llvm.dbg.declare(metadata double* %4, metadata !469, metadata !DIExpression()), !dbg !471
   %8 = load %class.Grid*, %class.Grid** %3, align 8
   %9 = getelementptr inbounds %struct.ident_t, %struct.ident_t* %5, i32 0, i32 4, !dbg !472
-  store i8* getelementptr inbounds ([62 x i8], [62 x i8]* @5, i32 0, i32 0), i8** %9, align 8, !dbg !472, !tbaa !431
+  store i8* getelementptr inbounds ([68 x i8], [68 x i8]* @5, i32 0, i32 0), i8** %9, align 8, !dbg !472, !tbaa !431
   call void (%struct.ident_t*, i32, void (i32*, i32*, ...)*, ...) @__kmpc_fork_call(%struct.ident_t* %5, i32 2, void (i32*, i32*, ...)* bitcast (void (i32*, i32*, %class.Grid*, double*)* @.omp_outlined..12 to void (i32*, i32*, ...)*), %class.Grid* %8, double* %4), !dbg !472
   ret void, !dbg !473
 }
@@ -834,7 +834,7 @@ attributes #14 = { builtin nounwind }
 !llvm.ident = !{!292}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !1, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !2, retainedTypes: !3, imports: !14, nameTableKind: None)
-!1 = !DIFile(filename: "tests/dfsan-instr/cpp_class_openmp.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!1 = !DIFile(filename: "tests/dfsan-unit/openmp/cpp_class_openmp.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !2 = !{}
 !3 = !{!4, !5, !8}
 !4 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
@@ -1207,7 +1207,7 @@ attributes #14 = { builtin nounwind }
 !371 = !DILocation(line: 363, column: 16, scope: !128)
 !372 = !DILocation(line: 363, column: 3, scope: !128)
 !373 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !374, file: !374, line: 14, type: !375, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, templateParams: !382, retainedNodes: !378)
-!374 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!374 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !375 = !DISubroutineType(types: !376)
 !376 = !{null, !377, !125}
 !377 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !4, size: 64)

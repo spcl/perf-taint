@@ -1,6 +1,6 @@
 ; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 10 10 10 && diff -w %s.json %t4_0.json && diff -w %s.json %t4_1.json
-; ModuleID = 'tests/dfsan-instr/mpi_simple.cpp'
-source_filename = "tests/dfsan-instr/mpi_simple.cpp"
+; ModuleID = 'tests/dfsan-unit/mpi/mpi_simple.cpp'
+source_filename = "tests/dfsan-unit/mpi/mpi_simple.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -17,7 +17,7 @@ $_Z17register_variableIiEvPT_PKc = comdat any
 @ompi_mpi_op_sum = external dso_local global %struct.ompi_predefined_op_t, align 1
 @ompi_mpi_comm_world = external dso_local global %struct.ompi_predefined_communicator_t, align 1
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [33 x i8] c"tests/dfsan-instr/mpi_simple.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [36 x i8] c"tests/dfsan-unit/mpi/mpi_simple.cpp\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [5 x i8] c"size\00", align 1
 @.str.3 = private unnamed_addr constant [6 x i8] c"ranks\00", align 1
 @.str.4 = private unnamed_addr constant [4 x i8] c"%f\0A\00", align 1
@@ -215,7 +215,7 @@ define dso_local i32 @main(i32, i8**) #5 !dbg !225 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %13) #6, !dbg !240
   call void @llvm.dbg.declare(metadata i32* %6, metadata !231, metadata !DIExpression()), !dbg !241
   %14 = bitcast i32* %6 to i8*, !dbg !240
-  call void @llvm.var.annotation(i8* %14, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 43), !dbg !240
+  call void @llvm.var.annotation(i8* %14, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([36 x i8], [36 x i8]* @.str.1, i32 0, i32 0), i32 43), !dbg !240
   %15 = load i8**, i8*** %5, align 8, !dbg !242, !tbaa !128
   %16 = getelementptr inbounds i8*, i8** %15, i64 1, !dbg !242
   %17 = load i8*, i8** %16, align 8, !dbg !242, !tbaa !128
@@ -226,7 +226,7 @@ define dso_local i32 @main(i32, i8**) #5 !dbg !225 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %19) #6, !dbg !245
   call void @llvm.dbg.declare(metadata i32* %7, metadata !232, metadata !DIExpression()), !dbg !246
   %20 = bitcast i32* %7 to i8*, !dbg !245
-  call void @llvm.var.annotation(i8* %20, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @.str.1, i32 0, i32 0), i32 45), !dbg !245
+  call void @llvm.var.annotation(i8* %20, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([36 x i8], [36 x i8]* @.str.1, i32 0, i32 0), i32 45), !dbg !245
   store i32 1, i32* %7, align 4, !dbg !246, !tbaa !161
   %21 = bitcast i32* %8 to i8*, !dbg !245
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %21) #6, !dbg !245
@@ -380,7 +380,7 @@ attributes #9 = { nounwind readonly }
 !llvm.ident = !{!121}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !1, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !2, retainedTypes: !3, imports: !27, nameTableKind: None)
-!1 = !DIFile(filename: "tests/dfsan-instr/mpi_simple.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!1 = !DIFile(filename: "tests/dfsan-unit/mpi/mpi_simple.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !2 = !{}
 !3 = !{!4, !8, !9, !12, !15, !17, !18, !21}
 !4 = !DIDerivedType(tag: DW_TAG_typedef, name: "MPI_Datatype", file: !5, line: 331, baseType: !6)
@@ -678,7 +678,7 @@ attributes #9 = { nounwind readonly }
 !296 = !DILocation(line: 363, column: 16, scope: !286)
 !297 = !DILocation(line: 363, column: 3, scope: !286)
 !298 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !299, file: !299, line: 14, type: !300, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, templateParams: !307, retainedNodes: !303)
-!299 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!299 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !300 = !DISubroutineType(types: !301)
 !301 = !{null, !302, !290}
 !302 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !17, size: 64)

@@ -1,7 +1,7 @@
 {
   "functions": {
     "create_matrix": {
-      "file": "tests/dfsan-instr/matmul.c",
+      "file": "tests/dfsan-unit/matmul.c",
       "func_idx": 0,
       "line": 17,
       "loops": [
@@ -44,7 +44,7 @@
       ]
     },
     "mat_mul": {
-      "file": "tests/dfsan-instr/matmul.c",
+      "file": "tests/dfsan-unit/matmul.c",
       "func_idx": 1,
       "line": 31,
       "loops": [
@@ -100,21 +100,24 @@
     "mat_mul",
     "main",
     "atoi",
-    "register_variable"
+    "register_variable",
+    "register_variables"
   ],
   "functions_mangled_names": [
     "create_matrix",
     "mat_mul",
     "main",
     "atoi",
-    "register_variable"
+    "register_variable",
+    "register_variables"
   ],
   "functions_names": [
     "create_matrix",
     "mat_mul",
     "main",
     "atoi",
-    "register_variable"
+    "register_variable",
+    "register_variables"
   ],
   "parameters": [
     "m",

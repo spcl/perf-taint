@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/dfsan-unit/function_call.cpp",
       "func_idx": 0,
-      "line": 8,
+      "line": 11,
       "loops": [
         {
           "callstacks": [
@@ -28,9 +28,9 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/dfsan-unit/function_call.cpp",
       "func_idx": 1,
-      "line": 16,
+      "line": 19,
       "loops": [
         {
           "callstacks": [
@@ -70,9 +70,9 @@
       ]
     },
     "_Z1iiii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/dfsan-unit/function_call.cpp",
       "func_idx": 2,
-      "line": 29,
+      "line": 32,
       "loops": [
         {
           "callstacks": [

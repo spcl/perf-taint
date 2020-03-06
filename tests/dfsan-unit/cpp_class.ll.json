@@ -1,7 +1,7 @@
 {
   "functions": {
     "_ZN4Grid11update_gridEd": {
-      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 0,
       "line": 23,
       "loops": [
@@ -67,17 +67,17 @@
   ],
   "unimportant_functions": {
     "_ZN4Grid11update_dataEd": {
-      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 2,
       "line": 38
     },
     "_ZN4Grid15update_constantEd": {
-      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 1,
       "line": 30
     },
     "_ZN4Grid8update_zEd": {
-      "file": "tests/dfsan-instr/cpp_class.cpp",
+      "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 3,
       "line": 46
     }

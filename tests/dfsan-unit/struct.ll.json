@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z12print_paramsP6Params": {
-      "file": "tests/dfsan-instr/struct.cpp",
+      "file": "tests/dfsan-unit/struct.cpp",
       "func_idx": 0,
       "line": 23,
       "loops": [
@@ -28,7 +28,7 @@
       ]
     },
     "_Z6do_sthii": {
-      "file": "tests/dfsan-instr/struct.cpp",
+      "file": "tests/dfsan-unit/struct.cpp",
       "func_idx": 1,
       "line": 33,
       "loops": [
@@ -111,7 +111,7 @@
   ],
   "unimportant_functions": {
     "_Z7do_sth2di": {
-      "file": "tests/dfsan-instr/struct.cpp",
+      "file": "tests/dfsan-unit/struct.cpp",
       "func_idx": 2,
       "line": 44
     }

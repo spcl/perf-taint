@@ -1,6 +1,6 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 | diff -w %s.json -
-; ModuleID = 'tests/dfsan-instr/nested_function_call.cpp'
-source_filename = "tests/dfsan-instr/nested_function_call.cpp"
+; ModuleID = 'tests/dfsan-unit/nested_function_call.cpp'
+source_filename = "tests/dfsan-unit/nested_function_call.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -8,7 +8,7 @@ $_Z17register_variableIiEvPT_PKc = comdat any
 
 @global = dso_local global i32 12, align 4, !dbg !0
 @.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [43 x i8] c"tests/dfsan-instr/nested_function_call.cpp\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [42 x i8] c"tests/dfsan-unit/nested_function_call.cpp\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [3 x i8] c"x1\00", align 1
 @.str.3 = private unnamed_addr constant [3 x i8] c"x2\00", align 1
 
@@ -761,7 +761,7 @@ define dso_local i32 @main(i32, i8**) #3 !dbg !690 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %9) #4, !dbg !703
   call void @llvm.dbg.declare(metadata i32* %6, metadata !696, metadata !DIExpression()), !dbg !704
   %10 = bitcast i32* %6 to i8*, !dbg !703
-  call void @llvm.var.annotation(i8* %10, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([43 x i8], [43 x i8]* @.str.1, i32 0, i32 0), i32 112), !dbg !703
+  call void @llvm.var.annotation(i8* %10, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([42 x i8], [42 x i8]* @.str.1, i32 0, i32 0), i32 112), !dbg !703
   %11 = load i8**, i8*** %5, align 8, !dbg !705, !tbaa !700
   %12 = getelementptr inbounds i8*, i8** %11, i64 1, !dbg !705
   %13 = load i8*, i8** %12, align 8, !dbg !705, !tbaa !700
@@ -771,7 +771,7 @@ define dso_local i32 @main(i32, i8**) #3 !dbg !690 {
   call void @llvm.lifetime.start.p0i8(i64 4, i8* %15) #4, !dbg !707
   call void @llvm.dbg.declare(metadata i32* %7, metadata !697, metadata !DIExpression()), !dbg !708
   %16 = bitcast i32* %7 to i8*, !dbg !707
-  call void @llvm.var.annotation(i8* %16, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([43 x i8], [43 x i8]* @.str.1, i32 0, i32 0), i32 113), !dbg !707
+  call void @llvm.var.annotation(i8* %16, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([42 x i8], [42 x i8]* @.str.1, i32 0, i32 0), i32 113), !dbg !707
   %17 = load i8**, i8*** %5, align 8, !dbg !709, !tbaa !700
   %18 = getelementptr inbounds i8*, i8** %17, i64 2, !dbg !709
   %19 = load i8*, i8** %18, align 8, !dbg !709, !tbaa !700
@@ -889,7 +889,7 @@ attributes #9 = { nounwind readonly }
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
 !1 = distinct !DIGlobalVariable(name: "global", scope: !2, file: !3, line: 6, type: !6, isLocal: false, isDefinition: true)
 !2 = distinct !DICompileUnit(language: DW_LANG_C_plus_plus, file: !3, producer: "clang version 9.0.0 (tags/RELEASE_900/final)", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, retainedTypes: !5, globals: !16, imports: !17, nameTableKind: None)
-!3 = !DIFile(filename: "tests/dfsan-instr/nested_function_call.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!3 = !DIFile(filename: "tests/dfsan-unit/nested_function_call.cpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !4 = !{}
 !5 = !{!6, !7, !10}
 !6 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
@@ -1638,7 +1638,7 @@ attributes #9 = { nounwind readonly }
 !749 = !DILocation(line: 363, column: 16, scope: !60)
 !750 = !DILocation(line: 363, column: 3, scope: !60)
 !751 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !752, file: !752, line: 14, type: !753, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !760, retainedNodes: !756)
-!752 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/extrap-tool")
+!752 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !753 = !DISubroutineType(types: !754)
 !754 = !{null, !755, !57}
 !755 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !6, size: 64)
