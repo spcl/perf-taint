@@ -571,23 +571,32 @@ bool __dfsw_json_is_important(json_t & json)
 {
     //std::cerr << __EXTRAP_INSTRUMENTATION_MPI_RANK << ' ' << json << std::endl;
     json_t & loops = json["loops"];
-    if(loops.empty())
-        return false;
-    bool important = false;
-    size_t idx = 0;
-    std::vector<size_t> entries_to_remove;
-    for(auto & loop : loops) {
-        //std::cerr << __EXTRAP_INSTRUMENTATION_MPI_RANK << ' ' << loop << std::endl;
-        // don't leave - important but continue pruning
-        if(__dfsw_json_loop_is_important(loop["instance"]))
-          important = true;
-        else
-          entries_to_remove.push_back(idx);
-        ++idx;
-    }
-    for(size_t v : entries_to_remove)
-        loops.erase(v);
-    return important;
+    //if(loops.empty())
+    //    return false;
+    //bool important = false;
+    //size_t idx = 0;
+    //std::vector<size_t> entries_to_remove;
+    //for(auto & loop : loops) {
+    //    //std::cerr << __EXTRAP_INSTRUMENTATION_MPI_RANK << ' ' << loop << std::endl;
+    //    // don't leave - important but continue pruning
+    //    if(__dfsw_json_loop_is_important(loop["instance"]))
+    //      important = true;
+    //    //else
+    //    //  entries_to_remove.push_back(idx);
+    //    ++idx;
+    //}
+    loops.erase(
+      std::remove_if(loops.begin(), loops.end(),
+        [](auto & loop) {
+          return !__dfsw_json_loop_is_important(loop["instance"]);
+        }
+      ),
+      loops.end()
+    );
+    return !loops.empty();
+    //for(size_t v : entries_to_remove)
+    //    loops.erase(v);
+    //return important;
 }
 
 void __dfsw_dump_json_output()
