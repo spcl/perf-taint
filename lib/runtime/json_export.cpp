@@ -13,7 +13,10 @@ typedef nlohmann::json json_t;
 #define DEBUG2 true
 
 #define debug_print(fmt, ...) \
-  do { if (DEBUG2) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+  do {\
+    if (DEBUG2 && __EXTRAP_INSTRUMENTATION_MPI_RANK <= 0)\
+      fprintf(stderr, fmt, __VA_ARGS__);\
+  } while (0)
 
 json_t * __dfsw_json_get()
 {
@@ -149,20 +152,26 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
 {
     json_t params;
     for(int jj = 0; jj < deps->len; ++jj) {
+
         json_t dependency;
         uint16_t val = deps->deps[jj];
+        debug_print("Processing dependency %d\n", val);
+        int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
         //fprintf(stderr, "Func: %s Level %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, loop, val);
-        for(int kk = 0; kk < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++kk)
+        for(int kk = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+            kk < vars_count; ++kk) {
             if(val & (1 << kk)) {
                 __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
+                debug_print("Add regular parameter %s\n", __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //filled = true;
             }
-        int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-        for(int kk = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; kk < vars_count; ++kk)
+        }
+        for(int kk = 0; kk < __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; ++kk)
             if(val & (1 << kk)) {
                 //if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] == -1) {
                     __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
+                    debug_print("Add implicit parameter %s\n", __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                     dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //} else {
                     //__EXTRAP_INSTRUMENTATION_PARAMS_USED[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] = true;
@@ -602,16 +611,18 @@ bool __dfsw_json_is_important(json_t & json)
 void __dfsw_dump_json_output()
 {
     json_t & out = *__dfsw_json_get();
-    fprintf(stderr, "Start generating output Params %d!\n", __EXTRAP_INSTRUMENTATION_PARAMS_COUNT);
-    int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-
-    int full_vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT
+    int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT;
+    int full_vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
         + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-    for(int i = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; i < full_vars_count; ++i) {
+    // Detect if any of user-registered parameters are the same as an implicit parameter.
+    // Then, we 'redirect' the calls to generate consistent output.
+    // Otherwise the same parameter could appear multiple times since it does
+    // have a different ID.
+    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; ++i) {
 
       __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] = -1;
-      int vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-      for(int j = 0; j < vars_count; ++j) {
+      for(int j = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+          j < full_vars_count; ++j) {
         if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[j],
                     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i])) {
           __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] = j;
@@ -685,7 +696,7 @@ void __dfsw_dump_json_output()
     }
 
     json_t params, unused_params;
-    for(int i = 0; i < vars_count; ++i) {
+    for(int i = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; i < full_vars_count; ++i) {
         // Fix for an old problem where legacy code detected params through
         // annotations and the new code registered params at runtime through
         // a call to store_label. Thus, it is possible that in case
@@ -699,9 +710,8 @@ void __dfsw_dump_json_output()
         }
 
     }
-    vars_count = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT
-        + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-    for(int i = __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT; i < vars_count; ++i) {
+    // Process implicit parameters
+    for(int i = 0; i < full_vars_count; ++i) {
         if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[i] == -1) {
           if(__EXTRAP_INSTRUMENTATION_PARAMS_USED[i])
               params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );

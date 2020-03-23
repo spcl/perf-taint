@@ -14,7 +14,10 @@
 #define DEBUG false
 
 #define debug_print(fmt, ...) \
-  do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+  do {\
+    if (DEBUG && __EXTRAP_INSTRUMENTATION_MPI_RANK <= 0)\
+      fprintf(stderr, fmt, __VA_ARGS__);\
+  } while (0)
 
 
 //extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
@@ -28,7 +31,7 @@ callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
 nested_call_vec __EXTRAP_NESTED_CALLS = {0, 0, NULL};
 int16_t __EXTRAP_CURRENT_CALL = 0;
 int __EXTRAP_INSTRUMENTATION_MPI_RANK = -1;
-int __EXTRAP_INSTRUMENTATION_PARAMS_COUNT = 0;
+int __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT = 0;
 dependencies * __EXTRAP_LOOP_DEPENDENCIES = NULL;
 
 void __dfsw_EXTRAP_INIT_MPI()
@@ -137,8 +140,13 @@ int16_t __dfsw_EXTRAP_CURRENT_CALL()
 
 int32_t __dfsw_EXTRAP_VAR_ID()
 {
-  static int32_t id = 0;
-  __EXTRAP_INSTRUMENTATION_PARAMS_COUNT++;
+  // Using a local variable prevents static initialization fiasco
+  // Parameter ids begin at the last implicit parameter and the ID values
+  // grow during program execution.
+  static int32_t id = -1;
+  if(id == -1)
+    id = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+  __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT++;
   return id++;
 }
 
@@ -195,6 +203,7 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
             return;
         }
     }
+    debug_print("Added dependency %d to size %d\n", val, deps->len);
     if(deps->len == deps->capacity) {
         deps->capacity += 5;
         deps->deps = realloc(deps->deps, sizeof(dependencies) * deps->capacity);
@@ -266,8 +275,10 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t f
     int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
     offset += nested_loop_idx;
     uint16_t found_params = 0;
+    size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+      + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     // We iterate only to # of currently known parameters
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
+    for(int i = 0; i < param_count; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
             bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
             found_params |= (has_label << i);
@@ -283,6 +294,7 @@ void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size,
     if(!addr)
         return;
     dfsan_label temp = dfsan_read_label(addr, size);
+    debug_print("Read label %d at addr: %p, loop %d func %d \n", temp, addr, nested_loop_idx, func_idx);
     __dfsw_EXTRAP_CHECK_LABEL(temp, nested_loop_idx, func_idx);
 }
 
@@ -293,7 +305,6 @@ void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t cou
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
     debug_print("Register %lu variables\n", count);
-    fprintf(stderr, "Store label %s with label %ld\n", name, lab);
     //va_start(args, count);
     for (int i = 0; i < count; ++i) {
         void * addr = va_arg(args, void*);
@@ -307,17 +318,19 @@ void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t cou
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name);
 void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
 {
-    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
-        if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i], name)) {
-            dfsan_label lab = __EXTRAP_INSTRUMENTATION_LABELS[i];
-            dfsan_set_label(lab, addr, size);
-            debug_print("Write label %d for variable %s at pos %d \n", lab, name, i);
-            return;
-        }
-    }
-    int32_t param_id = __dfsw_EXTRAP_VAR_ID();
-    debug_print("Write new label %s at pos %d\n", name, param_id);
-    __dfsw_EXTRAP_STORE_LABEL(addr, size, param_id, name);
+  size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+    + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+  for(int i = 0; i < param_count; ++i) {
+      if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i], name)) {
+          dfsan_label lab = __EXTRAP_INSTRUMENTATION_LABELS[i];
+          dfsan_set_label(lab, addr, size);
+          debug_print("Write label %d for variable %s at pos %d \n", lab, name, i);
+          return;
+      }
+  }
+  int32_t param_id = __dfsw_EXTRAP_VAR_ID();
+  debug_print("Write new label %s at pos %d\n", name, param_id);
+  __dfsw_EXTRAP_STORE_LABEL(addr, size, param_id, name);
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
@@ -325,7 +338,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
-    fprintf(stderr, "Store label %s with label %ld\n", name, lab);
+    debug_print("Store label %s with label %ld\n", name, lab);
     dfsan_set_label(lab, addr, size);
 }
 
@@ -344,7 +357,7 @@ void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t function_idx,
 {
     int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
     offset += nested_loop_idx;
-    uint16_t found_params = (1 << (__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT + implicit_label_idx));
+    uint16_t found_params = (1 << (implicit_label_idx));
     __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
 }
 

@@ -153,7 +153,7 @@ namespace extrap {
         static constexpr const char * glob_implicit_params_count_name
             = "__EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT";
         static constexpr const char * glob_params_max_count_name
-            = "__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT";
+            = "__EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_MAX_COUNT";
         static constexpr const char * glob_result_array_name
             = "__EXTRAP_INSTRUMENTATION_RESULTS";
         static constexpr const char * glob_funcs_args_name

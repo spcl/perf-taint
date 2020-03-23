@@ -53,14 +53,14 @@ extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[];
 extern int32_t  __EXTRAP_INSTRUMENTATION_FUNCS_DBG[];
 
 // Number of currently registered parameters
-extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
+extern int32_t __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT;
 // Maximal number of parameters that can appear.
 // Computed as: number of parameters introduced by implicit library calls
 // plus the number of calls to register_variable.
 // Actual number of params might be lower if several calls to register_variable
 // create the same label (distinct control-flow paths).
-extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT;
-extern int32_t __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+extern int32_t __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_MAX_COUNT;
+extern const int32_t __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
 // Names of all parameters - first max_count, then implicit
 extern const char * __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[];
 extern bool  __EXTRAP_INSTRUMENTATION_PARAMS_USED[];

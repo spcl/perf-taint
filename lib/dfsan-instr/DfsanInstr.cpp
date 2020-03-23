@@ -891,11 +891,11 @@ namespace extrap {
                     builder.getInt8PtrTy(),
                     full_params_count);
         std::vector<llvm::Constant*> params_names(full_params_count);
-        for(int i = 0; i < params_count; ++i)
-            params_names[i] = llvm::ConstantPointerNull::get(builder.getInt8PtrTy());
         for(int i = 0; i < database.parameters_count(); ++i)
-            params_names[i + params_count] =
+            params_names[i] =
                 builder.CreateGlobalStringPtr(database.parameter_name(i));
+        for(int i = 0; i < params_count; ++i)
+            params_names[i + database.parameters_count()] = llvm::ConstantPointerNull::get(builder.getInt8PtrTy());
         glob_params_names = new llvm::GlobalVariable(m,
                 array_type,
                 false,
