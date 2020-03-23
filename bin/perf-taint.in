@@ -1,10 +1,11 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-t <string>] [-o <string>] ir_files" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-t <string>] [-o <string>] [-p] ir_files" 1>&2; exit 1; }
 
 tmp_file=""
 out_file="out.exe"
-while getopts "h:t:o:" arg; do
+preserve=false
+while getopts "h:t:o:p" arg; do
   case $arg in
     h)
       echo "usage"
@@ -14,6 +15,9 @@ while getopts "h:t:o:" arg; do
       ;;
 		o)
 			out_file=${OPTARG}
+      ;;
+    p)
+      preserve=true
 			;;
   esac
 done
@@ -74,10 +78,12 @@ ${CXXLANG} ${OBJECT_FILES[@]}\
   -o ${out_file}
 echo "Generated ${out_file}"
 
-for ir_file in "${IR_FILES[@]}"; do
-  rm ${ir_file}
-done
+if [ "$preserve" = false ] ; then
+  for ir_file in "${IR_FILES[@]}"; do
+    rm ${ir_file}
+  done
+  for obj_file in "${OBJECT_FILES[@]}"; do
+    rm ${obj_file}
+  done
+fi
 
-for obj_file in "${OBJECT_FILES[@]}"; do
-  rm ${obj_file}
-done
