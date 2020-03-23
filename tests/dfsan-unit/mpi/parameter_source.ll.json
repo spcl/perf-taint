@@ -1,0 +1,75 @@
+{
+  "functions": {
+    "_Z24test_implicit_parameter1v": {
+      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+      "func_idx": 0,
+      "line": 20,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p",
+                  "param"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z24test_implicit_parameter2i": {
+      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+      "func_idx": 1,
+      "line": 30,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "test_implicit_parameter1()",
+    "test_implicit_parameter2(int)",
+    "main",
+    "source()"
+  ],
+  "functions_mangled_names": [
+    "_Z24test_implicit_parameter1v",
+    "_Z24test_implicit_parameter2i",
+    "main",
+    "_Z6sourcev"
+  ],
+  "functions_names": [
+    "test_implicit_parameter1",
+    "test_implicit_parameter2",
+    "main",
+    "source"
+  ],
+  "parameters": [
+    "p",
+    "param"
+  ]
+}

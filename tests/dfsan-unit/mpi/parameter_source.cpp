@@ -13,11 +13,11 @@ int source()
   return size;
 }
 
-int test_implicit_parameter1()
+int test_implicit_parameter1(int size_x)
 {
   int size, sum;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  for(int i = 0; i < size; ++i)
+  for(int i = 0; i < size + size_x; ++i)
     sum += i;
   return sum;
 }
@@ -32,8 +32,10 @@ int test_implicit_parameter2(int size)
 int main(int argc, char ** argv)
 {
   MPI_Init(&argc, &argv);
+  int param EXTRAP = 3;
+  register_variable(&param, "param");
 
-  test_implicit_parameter1();
+  test_implicit_parameter1(param);
   test_implicit_parameter2(source());
 
   MPI_Finalize();
