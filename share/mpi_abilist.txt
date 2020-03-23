@@ -1,10 +1,11 @@
 {
   "parameters": [ "p" ],
-  "params": [ "p" ],
   "sources": {
     "MPI_Comm_size": {
-      "positions": [2],
-      "retval": false
+      "positions": {
+        "1": "p"
+      },
+      "retval": null
     }
   },
   "functions" : {
