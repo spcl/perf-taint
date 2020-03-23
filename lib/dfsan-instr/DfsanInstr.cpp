@@ -303,6 +303,7 @@ namespace extrap {
                has_important_call = true;
                library_calls.emplace_back(called_f, call);
             }
+            database.annotateParameters(called_f, call);
         }
 
         // Worth instrumenting

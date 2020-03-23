@@ -32,11 +32,52 @@ namespace perf_taint {
           DataBaseEntry entry{it.value()["loops"]};
           this->functions[it.key()] = std::move(entry);
       }
+
+      json_t & sources = json["sources"];
+      for(auto it = sources.begin(), end = sources.end(); it != end; ++it) {
+
+        ParameterSource source;
+        auto & args_positions = it.value()["positions"];
+        for (auto v = args_positions.begin(), v_end = args_positions.end();
+            v != v_end;
+            ++v
+        ) {
+          int pos = std::stoi(v.key());
+          const ImplicitParameter * param = find_parameter(v.value().get<std::string>());
+          assert(param);
+          source.function_parameters.emplace_back(pos, param);
+        }
+        if(!(*it)["retval"].is_null()) {
+          const ImplicitParameter * param = find_parameter(
+              (*it)["retval"].get<std::string>()
+          );
+          assert(param);
+          source.return_value = param;
+        }
+        this->parameter_sources[it.key()] = std::move(source);
+      }
+  }
+
+  const FunctionDatabase::ImplicitParameter * FunctionDatabase::find_parameter(
+      const std::string & param_name
+  ) const
+  {
+    auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
+            [&](const auto & v) { return v.name == param_name; });
+    return it != implicit_parameters.end() ? &(*it) : nullptr;
   }
 
   bool FunctionDatabase::contains(llvm::Function * f)
   {
       return functions.find(f->getName()) != functions.end();
+  }
+
+  void FunctionDatabase::annotateParameters(
+      llvm::Function * called_function,
+      llvm::Value * call
+  ) const
+  {
+
   }
 
   void FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,

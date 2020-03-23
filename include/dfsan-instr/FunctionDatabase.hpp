@@ -39,7 +39,17 @@ namespace perf_taint {
           name(_name), param_idx(_param_idx) {}
     };
 
+    struct ParameterSource
+    {
+      llvm::SmallVector<std::tuple<int, const ImplicitParameter*>, 5> function_parameters;
+      const ImplicitParameter* return_value;
+
+      ParameterSource():
+        return_value(nullptr) {}
+    };
+
     std::unordered_map<std::string, DataBaseEntry> functions;
+    std::unordered_map<std::string, ParameterSource> parameter_sources;
     llvm::SmallVector<ImplicitParameter, 5> implicit_parameters;
 
     void read(std::ifstream &);
@@ -48,6 +58,9 @@ namespace perf_taint {
     void processLoop(llvm::Function * f, llvm::Value *, Function &, vec_t &);
     size_t parameters_count() const;
     const std::string & parameter_name(size_t idx) const;
+    const ImplicitParameter * find_parameter(const std::string & name) const;
+    void annotateParameters(llvm::Function * called_function,
+        llvm::Value * call) const;
   };
 
 }
