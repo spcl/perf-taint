@@ -1,4 +1,12 @@
 {
+  "parameters": [ "p" ],
+  "params": [ "p" ],
+  "sources": {
+    "MPI_Comm_size": {
+      "positions": [2],
+      "retval": false
+    }
+  },
   "functions" : {
     "MPI_Reduce" : {
       "loops" : {
@@ -116,8 +124,5 @@
         ]
       }
     }
-  },
-  "params": [
-    "p"
-  ]
+  }
 }
