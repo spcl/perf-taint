@@ -1,9 +1,9 @@
 {
   "functions": {
-    "_Z24test_implicit_parameter1v": {
-      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+    "_Z24test_implicit_parameter1i": {
+      "file": "tests/dfsan-unit/mpi/parameter_source.cpp",
       "func_idx": 0,
-      "line": 20,
+      "line": 16,
       "loops": [
         {
           "callstacks": [
@@ -16,7 +16,9 @@
               "level": 0,
               "params": [
                 [
-                  "p",
+                  "p"
+                ],
+                [
                   "param"
                 ]
               ]
@@ -26,9 +28,9 @@
       ]
     },
     "_Z24test_implicit_parameter2i": {
-      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+      "file": "tests/dfsan-unit/mpi/parameter_source.cpp",
       "func_idx": 1,
-      "line": 30,
+      "line": 25,
       "loops": [
         {
           "callstacks": [
@@ -51,25 +53,28 @@
     }
   },
   "functions_demangled_names": [
-    "test_implicit_parameter1()",
+    "test_implicit_parameter1(int)",
     "test_implicit_parameter2(int)",
     "main",
+    "void register_variable<int>(int*, char const*)",
     "source()"
   ],
   "functions_mangled_names": [
-    "_Z24test_implicit_parameter1v",
+    "_Z24test_implicit_parameter1i",
     "_Z24test_implicit_parameter2i",
     "main",
+    "_Z17register_variableIiEvPT_PKc",
     "_Z6sourcev"
   ],
   "functions_names": [
     "test_implicit_parameter1",
     "test_implicit_parameter2",
     "main",
+    "register_variable<int>",
     "source"
   ],
   "parameters": [
-    "p",
-    "param"
+    "param",
+    "p"
   ]
 }

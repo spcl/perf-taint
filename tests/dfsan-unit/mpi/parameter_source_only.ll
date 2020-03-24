@@ -7,23 +7,19 @@ target triple = "x86_64-unknown-linux-gnu"
 %struct.ompi_predefined_communicator_t = type opaque
 %struct.ompi_communicator_t = type opaque
 
-@.str = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [47 x i8] c"tests/dfsan-unit/mpi/parameter_source_only.cpp\00", section "llvm.metadata"
 @ompi_mpi_comm_world = external dso_local global %struct.ompi_predefined_communicator_t, align 1
 
 ; Function Attrs: uwtable
 define dso_local i32 @_Z6sourcev() #0 !dbg !110 {
   %1 = alloca i32, align 4
   %2 = bitcast i32* %1 to i8*, !dbg !115
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %2) #3, !dbg !115
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %2) #6, !dbg !115
   call void @llvm.dbg.declare(metadata i32* %1, metadata !114, metadata !DIExpression()), !dbg !116
-  %3 = bitcast i32* %1 to i8*, !dbg !115
-  call void @llvm.var.annotation(i8* %3, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([47 x i8], [47 x i8]* @.str.1, i32 0, i32 0), i32 11), !dbg !115
-  %4 = call i32 @MPI_Comm_size(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %1), !dbg !117
-  %5 = load i32, i32* %1, align 4, !dbg !118, !tbaa !119
-  %6 = bitcast i32* %1 to i8*, !dbg !123
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %6) #3, !dbg !123
-  ret i32 %5, !dbg !124
+  %3 = call i32 @MPI_Comm_size(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %1), !dbg !117
+  %4 = load i32, i32* %1, align 4, !dbg !118, !tbaa !119
+  %5 = bitcast i32* %1 to i8*, !dbg !123
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %5) #6, !dbg !123
+  ret i32 %4, !dbg !124
 }
 
 ; Function Attrs: argmemonly nounwind
@@ -32,10 +28,7 @@ declare void @llvm.lifetime.start.p0i8(i64 immarg, i8* nocapture) #1
 ; Function Attrs: nounwind readnone speculatable
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #2
 
-; Function Attrs: nounwind
-declare void @llvm.var.annotation(i8*, i8*, i8*, i32) #3
-
-declare dso_local i32 @MPI_Comm_size(%struct.ompi_communicator_t*, i32*) #4
+declare dso_local i32 @MPI_Comm_size(%struct.ompi_communicator_t*, i32*) #3
 
 ; Function Attrs: argmemonly nounwind
 declare void @llvm.lifetime.end.p0i8(i64 immarg, i8* nocapture) #1
@@ -46,14 +39,14 @@ define dso_local i32 @_Z24test_implicit_parameter1v() #0 !dbg !125 {
   %2 = alloca i32, align 4
   %3 = alloca i32, align 4
   %4 = bitcast i32* %1 to i8*, !dbg !131
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %4) #3, !dbg !131
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %4) #6, !dbg !131
   call void @llvm.dbg.declare(metadata i32* %1, metadata !127, metadata !DIExpression()), !dbg !132
   %5 = bitcast i32* %2 to i8*, !dbg !131
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %5) #3, !dbg !131
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %5) #6, !dbg !131
   call void @llvm.dbg.declare(metadata i32* %2, metadata !128, metadata !DIExpression()), !dbg !133
   %6 = call i32 @MPI_Comm_size(%struct.ompi_communicator_t* bitcast (%struct.ompi_predefined_communicator_t* @ompi_mpi_comm_world to %struct.ompi_communicator_t*), i32* %1), !dbg !134
   %7 = bitcast i32* %3 to i8*, !dbg !135
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #3, !dbg !135
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #6, !dbg !135
   call void @llvm.dbg.declare(metadata i32* %3, metadata !129, metadata !DIExpression()), !dbg !136
   store i32 0, i32* %3, align 4, !dbg !136, !tbaa !119
   br label %8, !dbg !135
@@ -66,7 +59,7 @@ define dso_local i32 @_Z24test_implicit_parameter1v() #0 !dbg !125 {
 
 12:                                               ; preds = %8
   %13 = bitcast i32* %3 to i8*, !dbg !142
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %13) #3, !dbg !142
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %13) #6, !dbg !142
   br label %21
 
 14:                                               ; preds = %8
@@ -85,24 +78,24 @@ define dso_local i32 @_Z24test_implicit_parameter1v() #0 !dbg !125 {
 21:                                               ; preds = %12
   %22 = load i32, i32* %2, align 4, !dbg !149, !tbaa !119
   %23 = bitcast i32* %2 to i8*, !dbg !150
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %23) #3, !dbg !150
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %23) #6, !dbg !150
   %24 = bitcast i32* %1 to i8*, !dbg !150
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %24) #3, !dbg !150
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %24) #6, !dbg !150
   ret i32 %22, !dbg !151
 }
 
 ; Function Attrs: nounwind uwtable
-define dso_local i32 @_Z24test_implicit_parameter2i(i32) #5 !dbg !152 {
+define dso_local i32 @_Z24test_implicit_parameter2i(i32) #4 !dbg !152 {
   %2 = alloca i32, align 4
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   store i32 %0, i32* %2, align 4, !tbaa !119
   call void @llvm.dbg.declare(metadata i32* %2, metadata !156, metadata !DIExpression()), !dbg !160
   %5 = bitcast i32* %3 to i8*, !dbg !161
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %5) #3, !dbg !161
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %5) #6, !dbg !161
   call void @llvm.dbg.declare(metadata i32* %3, metadata !157, metadata !DIExpression()), !dbg !162
   %6 = bitcast i32* %4 to i8*, !dbg !163
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #3, !dbg !163
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #6, !dbg !163
   call void @llvm.dbg.declare(metadata i32* %4, metadata !158, metadata !DIExpression()), !dbg !164
   store i32 0, i32* %4, align 4, !dbg !164, !tbaa !119
   br label %7, !dbg !163
@@ -115,7 +108,7 @@ define dso_local i32 @_Z24test_implicit_parameter2i(i32) #5 !dbg !152 {
 
 11:                                               ; preds = %7
   %12 = bitcast i32* %4 to i8*, !dbg !170
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %12) #3, !dbg !170
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %12) #6, !dbg !170
   br label %20
 
 13:                                               ; preds = %7
@@ -134,12 +127,12 @@ define dso_local i32 @_Z24test_implicit_parameter2i(i32) #5 !dbg !152 {
 20:                                               ; preds = %11
   %21 = load i32, i32* %3, align 4, !dbg !177, !tbaa !119
   %22 = bitcast i32* %3 to i8*, !dbg !178
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %22) #3, !dbg !178
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %22) #6, !dbg !178
   ret i32 %21, !dbg !179
 }
 
 ; Function Attrs: norecurse uwtable
-define dso_local i32 @main(i32, i8**) #6 !dbg !180 {
+define dso_local i32 @main(i32, i8**) #5 !dbg !180 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   %5 = alloca i8**, align 8
@@ -156,17 +149,17 @@ define dso_local i32 @main(i32, i8**) #6 !dbg !180 {
   ret i32 0, !dbg !198
 }
 
-declare dso_local i32 @MPI_Init(i32*, i8***) #4
+declare dso_local i32 @MPI_Init(i32*, i8***) #3
 
-declare dso_local i32 @MPI_Finalize() #4
+declare dso_local i32 @MPI_Finalize() #3
 
 attributes #0 = { uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { argmemonly nounwind }
 attributes #2 = { nounwind readnone speculatable }
-attributes #3 = { nounwind }
-attributes #4 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #5 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #6 = { norecurse uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #5 = { norecurse uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #6 = { nounwind }
 
 !llvm.dbg.cu = !{!0}
 !llvm.module.flags = !{!106, !107, !108}

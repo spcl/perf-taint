@@ -8,7 +8,7 @@
 
 int source()
 {
-  int size EXTRAP;
+  int size;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   return size;
 }

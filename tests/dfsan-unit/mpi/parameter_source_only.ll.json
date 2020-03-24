@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z24test_implicit_parameter1v": {
-      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+      "file": "tests/dfsan-unit/mpi/parameter_source_only.cpp",
       "func_idx": 0,
-      "line": 20,
+      "line": 16,
       "loops": [
         {
           "callstacks": [
@@ -25,9 +25,9 @@
       ]
     },
     "_Z24test_implicit_parameter2i": {
-      "file": "tests/dfsan-unit/mpi/mpi_size.cpp",
+      "file": "tests/dfsan-unit/mpi/parameter_source_only.cpp",
       "func_idx": 1,
-      "line": 30,
+      "line": 25,
       "loops": [
         {
           "callstacks": [
