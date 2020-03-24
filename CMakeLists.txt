@@ -108,10 +108,10 @@ set_target_properties(dfsan_runtime PROPERTIES
 add_dependencies(dfsan_runtime nlohmann_json)
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-set_target_properties(json_export PROPERTIES
-  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
-)
-add_dependencies(json_export nlohmann_json)
+#set_target_properties(json_export PROPERTIES
+#  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
+#)
+#add_dependencies(json_export nlohmann_json)
 #target_include_directories(json_export PRIVATE $<TARGET_PROPERTY:nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>)
 #target_link_libraries(json_export PRIVATE nlohmann_json)
 set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
