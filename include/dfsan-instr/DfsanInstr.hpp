@@ -76,6 +76,7 @@ namespace extrap {
         llvm::IRBuilder<> builder;
         DebugInfo info;
         FileIndex file_index;
+        llvm::DataLayout * layout;
         //std::unordered_map<Parameters::id_t, llvm::GlobalVariable> allocated;
         size_t functions_count;
         size_t params_count;
@@ -234,9 +235,13 @@ namespace extrap {
         llvm::Function * mark_implicit_label;
         llvm::Function * call_implicit_function;
 
+        // void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t *, size_t, int32_t)
+        llvm::Function * write_parameter_function;
+
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
+            layout(new llvm::DataLayout(&m)),
             functions_count(0),
             params_count(0),
             glob_retval_tls(nullptr),
@@ -252,6 +257,11 @@ namespace extrap {
         {
             file_index.import(m, info);
             declareFunctions();
+        }
+
+        ~Instrumenter()
+        {
+            delete layout;
         }
 
         // insert a call atexit(__EXTRAP__AT_EXIT)
@@ -300,8 +310,10 @@ namespace extrap {
         void callImplicitLoop(llvm::Instruction *, int func_idx, int called_func_idx,
                 int nested_loop_idx, int param_idx);
         void callImplicitFunction(int func_idx);
+        void writeParameter(llvm::Instruction * instr, llvm::Value * dest, int parameter_idx);
         void findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns);
         llvm::Function * getAtExit();
+        uint64_t size_of(llvm::Value * val);
     };
 
     struct LabelAnnotator : public llvm::InstVisitor<LabelAnnotator, bool>
@@ -325,7 +337,6 @@ namespace extrap {
 
     struct InstrumenterVisiter : public llvm::InstVisitor<InstrumenterVisiter, void>
     {
-        llvm::DataLayout * layout;
         Instrumenter & instr;
         bool avoid_duplicates;
         // avoid duplicates
@@ -339,23 +350,17 @@ namespace extrap {
         template<typename F, typename U>
         InstrumenterVisiter(Instrumenter & _instr, F && _load, U && _label,
                 bool _avoid_duplicates = true):
-            layout(new llvm::DataLayout(&_instr.m)),
             instr(_instr),
             avoid_duplicates(_avoid_duplicates),
             load_function(_load),
             label_function(_label)
             {}
-        ~InstrumenterVisiter()
-        {
-            delete layout;
-        }
         void visitLoadInst(llvm::LoadInst &);
         void visitInstruction(llvm::Instruction &);
         void visitPHINode(llvm::PHINode &);
         void visitCallInst(llvm::CallInst &);
         void visitInvokeInst(llvm::InvokeInst &);
 
-        uint64_t size_of(llvm::Value * val);
         void processCall(llvm::CallBase * call);
     };
 

@@ -17,11 +17,17 @@ namespace llvm {
   class Value;
 
 }
+  
+namespace extrap {
+  struct Instrumenter;
+}
 
 namespace perf_taint {
 
+
   struct FunctionDatabase
   {
+    extrap::Instrumenter * instrumenter;
     llvm::GlobalVariable * glob_indices;
 
     struct DataBaseEntry
@@ -59,6 +65,7 @@ namespace perf_taint {
     size_t parameters_count() const;
     const std::string & parameter_name(size_t idx) const;
     const ImplicitParameter * find_parameter(const std::string & name) const;
+    void setInstrumenter(extrap::Instrumenter * _instr);
     void annotateParameters(llvm::Function * called_function,
         llvm::Value * call) const;
   };
