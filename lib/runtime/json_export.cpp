@@ -155,14 +155,12 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
 
         json_t dependency;
         uint16_t val = deps->deps[jj];
-        debug_print("Processing dependency %d\n", val);
         int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
         //fprintf(stderr, "Func: %s Level %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, loop, val);
         for(int kk = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
             kk < vars_count; ++kk) {
             if(val & (1 << kk)) {
                 __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
-                debug_print("Add regular parameter %s\n", __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //filled = true;
             }
@@ -171,7 +169,6 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
             if(val & (1 << kk)) {
                 //if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] == -1) {
                     __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
-                    debug_print("Add implicit parameter %s\n", __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                     dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
                 //} else {
                     //__EXTRAP_INSTRUMENTATION_PARAMS_USED[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] = true;
@@ -594,14 +591,15 @@ bool __dfsw_json_is_important(json_t & json)
     //    //  entries_to_remove.push_back(idx);
     //    ++idx;
     //}
-    loops.erase(
-      std::remove_if(loops.begin(), loops.end(),
-        [](auto & loop) {
-          return !__dfsw_json_loop_is_important(loop["instance"]);
-        }
-      ),
-      loops.end()
-    );
+    if(!loops.is_null())
+      loops.erase(
+        std::remove_if(loops.begin(), loops.end(),
+          [](auto & loop) {
+            return !__dfsw_json_loop_is_important(loop["instance"]);
+          }
+        ),
+        loops.end()
+      );
     return !loops.empty();
     //for(size_t v : entries_to_remove)
     //    loops.erase(v);
