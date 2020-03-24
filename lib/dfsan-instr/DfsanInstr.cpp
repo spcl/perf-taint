@@ -256,7 +256,6 @@ namespace extrap {
                 instrumented_functions[&f] = llvm::Optional<Function>();
                 notinstrumented_functions.push_back(&f);
             }
-            stats.empty_function();
         }
     }
 
@@ -342,10 +341,12 @@ namespace extrap {
                 //func.addImplicitLoop(std::get<1>(t), data);
             }
 
+            stats.instrumented_function(f.getName());
             return true;
         } else {
             //TODO: debug
             llvm::errs() << "Not instrumenting function: " << f.getName() << '\n';
+            stats.pruned_function(f.getName(), "basic_analysis");
             foundFunction(f, false, override_counter);
             return false;
         }
@@ -362,7 +363,7 @@ namespace extrap {
             return (*it).second.hasValue();
         //TODO: debug
         llvm::errs() << "Analyzing function: " << f.getName() << '\n';
-        stats.found_function();
+        stats.found_function(f.getName());
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
         FunctionParameters parameters = finder.find_args();
@@ -1698,34 +1699,6 @@ namespace extrap {
         for(int i = 0; i < inst.getNumOperands(); ++i)
             if(llvm::Instruction * inst_new = llvm::dyn_cast<llvm::Instruction>(inst.getOperand(i)))
                 visit(inst_new);
-    }
-
-    void Statistics::found_function()
-    {
-        functions_count++;
-    }
-
-    void Statistics::label_function(int labels)
-    {
-        functions_checked++;
-        calls_to_check += labels;
-    }
-
-    void Statistics::empty_function()
-    {
-        empty_functions++;
-    }
-
-    void Statistics::print()
-    {
-        llvm::errs() << "Found internal functions: "
-            << functions_count << '\n';
-        llvm::errs() << "Skipped functions without loops: "
-            << empty_functions << '\n';
-        llvm::errs() << "Instrumented internal functions: "
-            << functions_checked << '\n';
-        llvm::errs() << "Average # of labels: "
-            << double(calls_to_check) / functions_checked << '\n';
     }
 
     FileIndex::iterator FileIndex::begin()

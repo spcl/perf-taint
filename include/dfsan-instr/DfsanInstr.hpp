@@ -7,6 +7,7 @@
 #include "DebugInfo.hpp"
 #include <dfsan-instr/FunctionDatabase.hpp>
 #include <dfsan-instr/common.hpp>
+#include <dfsan-instr/Statistics.hpp>
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/IRBuilder.h>
@@ -34,28 +35,9 @@ namespace perf_taint {
 using perf_taint::json_t;
 using perf_taint::Function;
 using perf_taint::FunctionDatabase;
+using perf_taint::Statistics;
 
 namespace extrap {
-
-    struct Statistics
-    {
-        int functions_count;
-        int empty_functions;
-        int functions_checked;
-        int calls_to_check;
-
-        Statistics():
-            functions_count(0),
-            empty_functions(0),
-            functions_checked(0),
-            calls_to_check(0)
-        {}
-
-        void found_function();
-        void empty_function();
-        void label_function(int labels);
-        void print();
-    };
 
     struct FileIndex
     {
@@ -398,7 +380,6 @@ namespace extrap {
 
         std::set<llvm::Function*> recursive_functions;
 
-        //Statistics stats;
         DfsanInstr():
             ModulePass(ID),
             m(nullptr),
