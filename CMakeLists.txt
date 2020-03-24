@@ -17,6 +17,7 @@ include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_INCLUDE_PATH ${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
+set(PASS_COMPILER_FLAGS "" CACHE STRING "Additional compiler flags for libraries and tools.")
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
 set(OMP_PATH "" CACHE STRING "Path to OpenMP installation")
 set(JSONCPP_PATH "" CACHE STRING "Path to installation of nlohmann_json")
@@ -95,6 +96,7 @@ add_library(DfsanInstrument MODULE ${DfsanInstrument} lib/ParameterFinder.cpp)
 set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
 set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
 set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
+set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti")
 #target_link_libraries(DfsanInstrument PRIVATE nlohmann_json::nlohmann_json)
 
 # Split into two targets so C++ JSON code is not instrumented
