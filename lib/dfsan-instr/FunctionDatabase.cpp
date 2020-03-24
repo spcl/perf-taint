@@ -4,6 +4,7 @@
 #include <llvm/IR/Function.h>
 
 #include <dfsan-instr/FunctionDatabase.hpp>
+#include <dfsan-instr/DfsanInstr.hpp>
 
 namespace perf_taint {
 
@@ -67,6 +68,11 @@ namespace perf_taint {
     return it != implicit_parameters.end() ? &(*it) : nullptr;
   }
 
+  void FunctionDatabase::setInstrumenter(extrap::Instrumenter * _instr)
+  {
+    this->instrumenter = _instr;
+  }
+
   bool FunctionDatabase::contains(llvm::Function * f)
   {
       return functions.find(f->getName()) != functions.end();
@@ -77,7 +83,28 @@ namespace perf_taint {
       llvm::Value * call
   ) const
   {
+    auto it = parameter_sources.find(called_function->getName());
+    if(it != parameter_sources.end()) {
+      llvm::CallBase * call_instr
+        = llvm::dyn_cast<llvm::CallBase>(call);
+      assert(call_instr);
+      const ParameterSource & source = (*it).second; 
+      // write label to corresponding arguments
+      for(auto & arg : source.function_parameters)
+        instrumenter->writeParameter(
+            call_instr,
+            call_instr->getArgOperand(std::get<0>(arg)),
+            std::get<1>(arg)->param_idx
+        );
+      // write label to return value from the function
+      if(source.return_value)
+        instrumenter->writeParameter(
+            call_instr,
+            call_instr,
+            source.return_value->param_idx
+        );
 
+    }
   }
 
   void FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,

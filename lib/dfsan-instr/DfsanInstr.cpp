@@ -114,6 +114,8 @@ namespace extrap {
             database.read(file);
             file.close();
         }
+        Instrumenter instr(m);
+        database.setInstrumenter(&instr);
 
         this->m = &m;
         llvm::Function * main = m.getFunction("main");
@@ -157,7 +159,6 @@ namespace extrap {
             }
         }
 
-        Instrumenter instr(m);
         instr.createGlobalStorage(parent_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
                 implicit_functions.begin(), implicit_functions.end(),
@@ -661,6 +662,19 @@ namespace extrap {
             assert(false);
         free( static_cast<void*>(demangled_name) );
         return str_name;
+    }
+    
+    void Instrumenter::writeParameter(llvm::Instruction * instr,
+        llvm::Value * dest, int parameter_idx)
+    {
+      builder.SetInsertPoint(instr);
+      llvm::Value* casted = builder.CreatePointerCast(dest, builder.getInt8PtrTy());
+      builder.CreateCall(write_parameter_function,
+          {
+            casted,
+            builder.getInt32(size_of(dest)),
+            builder.getInt32(parameter_idx) 
+          });
     }
 
     void Instrumenter::callImplicitLoop(llvm::Instruction * instr, int func_idx,
@@ -1494,6 +1508,12 @@ namespace extrap {
         m.getOrInsertFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION", func_t);
         call_implicit_function = m.getFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION");
         assert(call_implicit_function);
+
+        // void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t *, size_t, int32_t)
+        func_t = llvm::FunctionType::get(void_t, {int8_ptr, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_EXTRAP_WRITE_PARAMETER", func_t);
+        write_parameter_function = m.getFunction("__dfsw_EXTRAP_WRITE_PARAMETER");
+        assert(write_parameter_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -1603,7 +1623,7 @@ namespace extrap {
         return llvm::GetElementPtrInst::CreateInBounds(str, llvm::makeArrayRef(indices, 2), "", placement);
     }
 
-    uint64_t InstrumenterVisiter::size_of(llvm::Value * val)
+    uint64_t Instrumenter::size_of(llvm::Value * val)
     {
         llvm::PointerType * ptr = llvm::dyn_cast<llvm::PointerType>(val->getType());
         assert(ptr);
@@ -1621,13 +1641,13 @@ namespace extrap {
 
         if(load.getType()->isPointerTy()) {
             instr.setInsertPoint(*load.getNextNode());
-            uint64_t size = size_of(&load);
+            uint64_t size = instr.size_of(&load);
             load_function(size, &load);
         } else {
             // we perform verification close to the original load
             // branches 
             instr.setInsertPoint(load);
-            uint64_t size = size_of(load.getPointerOperand());
+            uint64_t size = instr.size_of(load.getPointerOperand());
             //instr.callCheckLabel(function_idx, size, load.getPointerOperand());
             load_function(size, load.getPointerOperand());
         }

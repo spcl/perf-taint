@@ -333,7 +333,7 @@ void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
   __dfsw_EXTRAP_STORE_LABEL(addr, size, param_id, name);
 }
 
-void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t * addr, size_t size, int32_t param_idx)
+void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t * addr, int32_t size, int32_t param_idx)
 {
   dfsan_set_label(
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx],
