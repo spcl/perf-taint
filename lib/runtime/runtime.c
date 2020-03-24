@@ -333,6 +333,15 @@ void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
   __dfsw_EXTRAP_STORE_LABEL(addr, size, param_id, name);
 }
 
+void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t * addr, size_t size, int32_t param_idx)
+{
+  dfsan_set_label(
+    __EXTRAP_INSTRUMENTATION_LABELS[param_idx],
+    addr,
+    size
+  );
+}
+
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name)
 {
     dfsan_label lab = dfsan_create_label(name, NULL);
@@ -347,6 +356,13 @@ void __dfsw_EXTRAP_INIT()
     int deps_count = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[
                 __EXTRAP_INSTRUMENTATION_FUNCS_COUNT
             ];
+    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; ++i) {
+      dfsan_label lab = dfsan_create_label(
+          __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i],
+          NULL
+      );
+      __EXTRAP_INSTRUMENTATION_LABELS[i] = lab;
+    }
     __EXTRAP_LOOP_DEPENDENCIES = calloc(deps_count, sizeof(dependencies));
     __EXTRAP_CURRENT_CALL = -1;
     __dfsw_json_initialize();
