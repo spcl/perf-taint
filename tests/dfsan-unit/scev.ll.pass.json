@@ -1,0 +1,67 @@
+{
+  "functions": {
+    "_Z10mixed_loopii": {
+      "instrumented": [
+        "loops"
+      ],
+      "loops": {
+        "count": 2,
+        "scev_analyzed_constant": 1,
+        "scev_analyzed_nonconstant": 1
+      }
+    },
+    "_Z13constant_loopii": {
+      "loops": {
+        "count": 1,
+        "scev_analyzed_constant": 1,
+        "scev_analyzed_nonconstant": 0
+      },
+      "pruned": [
+        "scev"
+      ]
+    },
+    "_Z14empty_functionii": {
+      "loops": {
+        "count": 0,
+        "scev_analyzed_constant": 0,
+        "scev_analyzed_nonconstant": 0
+      },
+      "pruned": [
+        "no_performance_critical_code"
+      ]
+    },
+    "_Z16nonconstant_loopii": {
+      "instrumented": [
+        "loops"
+      ],
+      "loops": {
+        "count": 1,
+        "scev_analyzed_constant": 0,
+        "scev_analyzed_nonconstant": 1
+      }
+    },
+    "atoi": {
+      "loops": {
+        "count": 0,
+        "scev_analyzed_constant": 0,
+        "scev_analyzed_nonconstant": 0
+      },
+      "pruned": [
+        "no_performance_critical_code"
+      ]
+    },
+    "main": {
+      "loops": {
+        "count": 0,
+        "scev_analyzed_constant": 0,
+        "scev_analyzed_nonconstant": 0
+      },
+      "pruned": [
+        "no_performance_critical_code"
+      ]
+    }
+  },
+  "statistics": {
+    "functions": 6
+  }
+}

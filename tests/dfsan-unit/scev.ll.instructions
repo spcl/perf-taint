@@ -1,0 +1,1 @@
+; RUN: opt %dfsan -extrap-extractor-scev -S < %s 2> /dev/null && diff %s.pass.json perf-taint-pass.json
