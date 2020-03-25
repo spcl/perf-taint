@@ -71,14 +71,14 @@ namespace extrap {
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
-        ModulePass::getAnalysisUsage(AU);
-        // We require loop information
-        AU.addRequired<llvm::LoopInfoWrapperPass>();
-        if(EnableSCEV)
-            AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
-        // Pass does not modify the input information
-        AU.addRequired<llvm::CallGraphWrapperPass>();
-        AU.setPreservesAll();
+      ModulePass::getAnalysisUsage(AU);
+      // We require loop information
+      AU.addRequired<llvm::LoopInfoWrapperPass>();
+      if(EnableSCEV)
+          AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
+      // Pass does not modify the input information
+      AU.addRequired<llvm::CallGraphWrapperPass>();
+      AU.setPreservesAll();
     }
 
     bool DfsanInstr::runOnModule(llvm::Module &m)
@@ -109,7 +109,7 @@ namespace extrap {
         PM.add(llvm::createLoopSimplifyPass());
         PM.run(m);
       }
-        
+
 
         // Since neither m.getName() or m.getSourceFileName provides a meaningful name
         // We rely on the user to supply an additional log name.
@@ -190,9 +190,9 @@ namespace extrap {
                 modifyFunction(*f.first, f.second.getValue(), instr);
             }
         }
-        // TODO: also change that we dependent on this vector. 
+        // TODO: also change that we dependent on this vector.
         // we should have all functions - not important, instrumented - in same data structure
-        // TODO: why the hell is it parent_functions? 
+        // TODO: why the hell is it parent_functions?
         //int idx = parent_functions.size();
         int idx = instrumented_functions_counter;
         for(auto * f : notinstrumented_functions) {
@@ -365,7 +365,7 @@ namespace extrap {
         } else {
           loop_count = std::distance(linfo->begin(), linfo->end());
           has_nonconstant_loop = loop_count;
-        } 
+        }
         stats.function_statistics(function_name, "loops", "count", loop_count);
 
         // Worth instrumenting
@@ -515,7 +515,7 @@ namespace extrap {
         if(called_f)
             return callsImportantFunction(called_f, recursive_calls);
         // unknown function - most likely a call/invoke of a pointer
-        // overapproximation, assume yes - 
+        // overapproximation, assume yes -
         else
             return true;
     }
@@ -730,7 +730,7 @@ namespace extrap {
         free( static_cast<void*>(demangled_name) );
         return str_name;
     }
-    
+
     void Instrumenter::writeParameter(llvm::Instruction * instr,
         llvm::Value * dest, int parameter_idx)
     {
@@ -740,7 +740,7 @@ namespace extrap {
           {
             casted,
             builder.getInt32(size_of(dest)),
-            builder.getInt32(parameter_idx) 
+            builder.getInt32(parameter_idx)
           });
     }
 
@@ -1712,7 +1712,7 @@ namespace extrap {
             load_function(size, &load);
         } else {
             // we perform verification close to the original load
-            // branches 
+            // branches
             instr.setInsertPoint(load);
             uint64_t size = instr.size_of(load.getPointerOperand());
             //instr.callCheckLabel(function_idx, size, load.getPointerOperand());
