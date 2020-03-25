@@ -21,7 +21,7 @@ namespace perf_taint {
     void found_function(const std::string & name);
     void instrumented_function(const std::string & name, const std::string & reason);
     void pruned_function(const std::string & name, const std::string & reason);
-    void print();
+    void print(const std::string & file_name);
 
     template<typename T>
     void function_statistics(const std::string & name, const std::string & cat,

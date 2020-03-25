@@ -30,11 +30,11 @@ namespace perf_taint {
     stats["functions"][name]["instrumented"].push_back(reason);
   }
 
-  void Statistics::print()
+  void Statistics::print(const std::string & file_name)
   {
     stats["statistics"]["functions"] = functions_count;
 
-    std::ofstream json_out("perf-taint-pass.json");
+    std::ofstream json_out(file_name);
     json_out << stats.dump(2) << std::endl;
   }
 

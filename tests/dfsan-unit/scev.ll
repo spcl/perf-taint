@@ -1,4 +1,4 @@
-; RUN: opt %dfsan -extrap-extractor-scev -S < %s 2> /dev/null && diff %s.pass.json perf-taint-pass.json
+; RUN: opt %dfsan -perf-taint-scev -perf-taint-pass-stats=scev.json -S < %s 2> /dev/null && diff %s.pass.json scev.json
 ; ModuleID = 'tests/dfsan-unit/scev.cpp'
 source_filename = "tests/dfsan-unit/scev.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

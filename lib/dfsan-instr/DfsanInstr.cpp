@@ -50,7 +50,12 @@ static llvm::cl::opt<std::string> FunctionDatabaseName("extrap-extractor-func-da
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
-static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
+static llvm::cl::opt<std::string> PassStatsFile("perf-taint-pass-stats",
+                                       llvm::cl::desc("Input database with functions."),
+                                       llvm::cl::init("perf-taint-pass.json"),
+                                       llvm::cl::value_desc("filename"));
+
+static llvm::cl::opt<bool> EnableSCEV("perf-taint-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("boolean flag"));
@@ -200,7 +205,7 @@ namespace extrap {
         }
         // instrument callstack
 
-        stats.print();
+        stats.print(PassStatsFile);
 
         return false;
     }
