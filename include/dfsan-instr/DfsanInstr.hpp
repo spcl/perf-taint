@@ -355,6 +355,7 @@ namespace extrap {
         llvm::LoopInfo * linfo;
         FunctionParameters parameters;
         FunctionDatabase database;
+        std::unique_ptr<llvm::Module> analyzed_module;
 
 
         // Insert null value when function is not importan

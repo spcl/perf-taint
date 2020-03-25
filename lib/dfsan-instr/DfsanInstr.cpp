@@ -10,6 +10,7 @@
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/ScalarEvolution.h>
+#include <llvm/Analysis/ScalarEvolutionExpressions.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/ModuleSlotTracker.h>
 #include <llvm/IR/LegacyPassManager.h>
@@ -18,6 +19,7 @@
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 
 #include <algorithm>
 #include <iostream>
@@ -50,7 +52,7 @@ static llvm::cl::opt<std::string> FunctionDatabaseName("extrap-extractor-func-da
 
 static llvm::cl::opt<bool> EnableSCEV("extrap-extractor-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
-                                       llvm::cl::init(true),
+                                       llvm::cl::init(false),
                                        llvm::cl::value_desc("boolean flag"));
 
 static llvm::cl::opt<std::string> JSONOutputToFile("extrap-extractor-json-output-file",
@@ -81,6 +83,20 @@ namespace extrap {
 
     bool DfsanInstr::runOnModule(llvm::Module &m)
     {
+      if(EnableSCEV) {
+        analyzed_module = llvm::CloneModule(m);
+        llvm::legacy::PassManager PM;
+        // correlated-propagation
+        PM.add(llvm::createInstructionNamerPass());
+        //PM.add(llvm::createMetaRenamerPass());
+        PM.add(llvm::createCorrelatedValuePropagationPass());
+        // mem2reg pass
+        PM.add(llvm::createPromoteMemoryToRegisterPass());
+        // loop-simplify
+        PM.add(llvm::createLoopSimplifyPass());
+        PM.run(*analyzed_module);
+      }
+      {
         llvm::legacy::PassManager PM;
         // correlated-propagation
         PM.add(llvm::createInstructionNamerPass());
@@ -92,6 +108,8 @@ namespace extrap {
         // loop-simplify
         PM.add(llvm::createLoopSimplifyPass());
         PM.run(m);
+      }
+        
 
         // Since neither m.getName() or m.getSourceFileName provides a meaningful name
         // We rely on the user to supply an additional log name.
@@ -307,12 +325,54 @@ namespace extrap {
               database.annotateParameters(called_f, call);
         }
 
+        int loop_count = 0;
+        // Count if SCEV helped with pruning some loops or scev helped
+        // with prunning all loops. False if empty since SCEV didn't help at all.
+        int scev_analyzed_constant = 0;
+        int scev_analyzed_nonconstant = 0;
+        bool has_nonconstant_loop = false;
+        const std::string & function_name = f.getName();
+
+        if(EnableSCEV) {
+          llvm::Function* analyzed_f = (*analyzed_module).getFunction(function_name);
+
+          llvm::ScalarEvolution & scev = getAnalysis<llvm::ScalarEvolutionWrapperPass>(*analyzed_f).getSE();
+          // Process loops
+          for(llvm::Loop * l : *linfo) {
+
+            ++loop_count;
+            if(scev.hasLoopInvariantBackedgeTakenCount(l)) {
+              const llvm::SCEV * backedge_count = scev.getBackedgeTakenCount(l);
+              // Unknown count? SCEV failed, function is instrumented
+              if(isa<llvm::SCEVCouldNotCompute>(backedge_count)) {
+                has_nonconstant_loop = true;
+              // Non-constant count? SCEV succeeded, function is instrumented
+              } else if(!isa<llvm::SCEVConstant>(backedge_count)) {
+                has_nonconstant_loop = true;
+                ++scev_analyzed_nonconstant;
+              // Constant count? SCEV succeeded, function maybe not instrumented
+              } else
+                ++scev_analyzed_constant;
+            // Not known? SCEV failed, function is instrumented
+            } else {
+              has_nonconstant_loop = true;
+            }
+          }
+          stats.function_statistics(function_name, "loops",
+              "scev_analyzed_constant", scev_analyzed_constant);
+          stats.function_statistics(function_name, "loops",
+              "scev_analyzed_nonconstant", scev_analyzed_nonconstant);
+        } else {
+          loop_count = std::distance(linfo->begin(), linfo->end());
+          has_nonconstant_loop = loop_count;
+        } 
+        stats.function_statistics(function_name, "loops", "count", loop_count);
+
         // Worth instrumenting
-        if(!linfo->empty() || has_openmp_calls || has_important_call) {
+        if(has_nonconstant_loop || has_openmp_calls || has_important_call) {
 
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
-            llvm::errs() << "Instrument: " << func.name << '\n';
 
             // TODO: refactor for general loop interface
             for(llvm::Loop * l : *linfo) {
@@ -328,11 +388,6 @@ namespace extrap {
                 func.loops_sizes.push_back(depth);
                 func.loops_sizes.push_back(structure_size);
                 func.loops_sizes.push_back(loop_count);
-                //TODO: debug
-                llvm::errs() << "In function: " << f.getName()
-                  << " found loop at line: " << l->getLocRange().getStart().getLine()
-                  << ' ' << *l
-                  << '\n';
             }
 
             for(auto t : library_calls) {
@@ -341,12 +396,22 @@ namespace extrap {
                 //func.addImplicitLoop(std::get<1>(t), data);
             }
 
-            stats.instrumented_function(f.getName());
+            if(has_nonconstant_loop)
+              stats.instrumented_function(f.getName(), "loops");
+            if(has_openmp_calls)
+              stats.instrumented_function(f.getName(), "openmp_calls");
+            // TODO: per-library discovery
+            if(has_important_call)
+              stats.instrumented_function(f.getName(), "important_call");
             return true;
         } else {
             //TODO: debug
             llvm::errs() << "Not instrumenting function: " << f.getName() << '\n';
-            stats.pruned_function(f.getName(), "basic_analysis");
+            // We had some loops and found out they're constant
+            if(loop_count > 0 && loop_count == scev_analyzed_constant)
+              stats.pruned_function(function_name, "scev");
+            else
+              stats.pruned_function(function_name, "no_performance_critical_code");
             foundFunction(f, false, override_counter);
             return false;
         }
