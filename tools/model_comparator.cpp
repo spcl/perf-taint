@@ -180,9 +180,9 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation, mode
     } else {
       if(!old_model.model[i].compare(new_model.model[i])) {
         count_equal++;
-        result["different"].push_back(std::move(m));
-      } else {
         result["equal"].push_back(std::move(m));
+      } else {
+        result["different"].push_back(std::move(m));
         count_different++;
       }
     }
