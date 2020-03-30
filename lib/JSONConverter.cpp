@@ -320,6 +320,7 @@ json_t convert(json_t & input)
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
+        std::string name = output["functions_names"][idx].get<std::string>();
         std::cerr << it.key() << ' ' << it.value()["func_idx"].get<int>() << '\n';
         of << "INCLUDE *" << output["functions_names"][idx].get<std::string>() << "*\n";
         //std::cout << "Name: " << it.key() << '\n';
@@ -352,13 +353,36 @@ json_t convert(json_t & input)
 
             json_t converted_callstacks;
             for(auto value : callstack_data) {
-                json_t new_callstack;
+                std::vector<json_t> new_callstack;
+                new_callstack.push_back(json_t::array());
                 for(auto v : value) {
-                    // push update_u
-                    if(important_indices.count(v.get<int>()) || v.get<int>() == 403)
-                        new_callstack.push_back(v);
+
+                    size_t size = new_callstack.size();
+                    if(name == "MPI_Allreduce")
+                      std::cerr << "Process: " << v.get<int>() << " size " << size << std::endl;
+                    if(!important_indices.count(v.get<int>())) {
+                      new_callstack.resize(size*2);
+                      std::copy_n(std::begin(new_callstack), size, std::begin(new_callstack) + size);
+                    }
+                    for(int i = 0; i < size; ++i)
+                      new_callstack[i].push_back(v);
+
+                    if(name == "MPI_Allreduce") {
+                      std::cerr << "Processed: ";
+                      for(auto v2 : new_callstack)
+                        std::cerr << v2;
+                      std::cerr << std::endl;
+                    }
+                    // push update_u -> update_h :( old hack around ScoreP filtering
+                    //if(important_indices.count(v.get<int>()) || v.get<int>() == 403)
+                     //   new_callstack.push_back(v);
                 }
-                converted_callstacks.push_back(new_callstack);
+                for(auto & c : new_callstack)
+                  converted_callstacks.push_back(c);
+            }
+            if(name == "MPI_Allreduce") {
+              std::cerr << callstack_data.dump(2) << std::endl;
+              std::cerr << converted_callstacks.dump(2) << std::endl;
             }
             callstack_data = std::move(converted_callstacks);
 
