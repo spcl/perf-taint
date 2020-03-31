@@ -284,8 +284,8 @@ namespace extrap {
         void enterFunction(llvm::Function &, Function &);
         void enterFunction(llvm::Function &, size_t idx);
 
-        void instrumentLoopCall(llvm::Function &, llvm::CallBase * call,
-                int16_t nested_loop_idx, uint16_t loop_size);
+        llvm::Instruction* instrumentLoopCall(llvm::Function &, llvm::CallBase * call,
+                int16_t nested_loop_idx, uint16_t loop_size, llvm::Instruction*);
         void removeLoopCalls(llvm::Function & f, size_t size);
         void saveCurrentCall(llvm::Function & f);
 

@@ -656,12 +656,13 @@ namespace extrap {
                 }
             }
 
+            llvm::Instruction * place = nullptr;
             for(auto & v : calls)
             {
                 //llvm::errs() << f.getName() << ' ' << std::get<0>(v)->getCalledFunction()->getName()
                 //    << ' ' << std::get<1>(v) << ' ' << std::get<2>(v) << '\n';
-                instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
-                        std::get<2>(v));
+                place = instr.instrumentLoopCall(f, std::get<0>(v), std::get<1>(v),
+                        std::get<2>(v), place ? place->getNextNode() : place);
             }
 
             // Handle implicit calls
@@ -1377,8 +1378,8 @@ namespace extrap {
         }
     }
 
-    void Instrumenter::instrumentLoopCall(llvm::Function & f, llvm::CallBase * call,
-            int16_t nested_loop_idx, uint16_t loop_size)
+    llvm::Instruction * Instrumenter::instrumentLoopCall(llvm::Function & f, llvm::CallBase * call,
+            int16_t nested_loop_idx, uint16_t loop_size, llvm::Instruction * insert_place)
     {
         //llvm::BasicBlock * header = l.getHeader();
         //assert(header);
@@ -1403,14 +1404,18 @@ namespace extrap {
         //builder.CreateCall(current_call_function, {phi});
         // on function enter
         // idx = register_call(loop_idx, loop_size);
-        builder.SetInsertPoint(&f.front().front());
-        llvm::Value * idx = builder.CreateCall(register_call_function,
+        if(insert_place)
+          builder.SetInsertPoint(insert_place);
+        else
+          builder.SetInsertPoint(&f.front().front());
+        llvm::Instruction * idx = builder.CreateCall(register_call_function,
                 {builder.getInt16(nested_loop_idx), builder.getInt16(loop_size)}
             );
         // just before the call
         // set_current_register(idx)
         builder.SetInsertPoint(call);
         builder.CreateCall(set_current_call_function, {idx});
+        return idx;
     }
 
     void Instrumenter::removeLoopCalls(llvm::Function & f, size_t size)
