@@ -55,7 +55,8 @@ int f(int x1, int x2)
   int tmp = 0;
   for(int i = 0; i < x2; i += 1) {
     tmp += i*1.1;
-    g(x1, x2);
+    for(int j = 0; j < x1; j += 1)
+      g(x1, x2);
     g2(x2, x1);
   }
   g(x1, 100);
