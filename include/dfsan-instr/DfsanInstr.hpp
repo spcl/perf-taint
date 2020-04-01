@@ -248,6 +248,7 @@ namespace extrap {
 
         // insert a call atexit(__EXTRAP__AT_EXIT)
         void initialize(llvm::Function * main);
+        void initialize_MPI(llvm::Function * main);
         void declareFunctions();
         template<typename Vector, typename FuncIter, typename FuncIter2, typename FuncIter3>
         void createGlobalStorage(const Vector & func_names,

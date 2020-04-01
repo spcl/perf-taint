@@ -146,10 +146,14 @@ namespace extrap {
         // TODO: why is main treated differently?
         // why is main not inserted?
         bool is_important = runOnFunction(*main);
+        instr.initialize(main);
+        for(llvm::Function & f : m)
+          instr.initialize_MPI(&f);
         for(llvm::Function & f : m)
         {
-            if(instrumented_functions.find(&f) == instrumented_functions.end())
-                runOnFunction(f);
+          if(instrumented_functions.find(&f) == instrumented_functions.end()) {
+            runOnFunction(f);
+          }
         }
 
         // TODO: merge this into a single collection
@@ -186,7 +190,6 @@ namespace extrap {
                 instrumented_functions.begin(), instrumented_functions.end(),
                 implicit_functions.begin(), implicit_functions.end(),
                 notinstrumented_functions.begin(), notinstrumented_functions.end());
-        instr.initialize(main);
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
         for(auto & f : instrumented_functions)
@@ -1632,15 +1635,10 @@ namespace extrap {
     {
         builder.SetInsertPoint(&instr);
     }
-
-    void Instrumenter::initialize(llvm::Function * main)
+   
+    //TODO: make library dependent 
+    void Instrumenter::initialize_MPI(llvm::Function * main)
     {
-        //builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
-        builder.SetInsertPoint( &(*main->getEntryBlock().begin()) );
-        llvm::Value * cast_f = builder.CreatePointerCast(at_exit_function, builder.getInt8PtrTy());
-        builder.CreateCall(getAtExit(), {cast_f});
-        builder.CreateCall(init_function);
-
         // TODO: make it work outside of main
         for(llvm::BasicBlock & bb : *main) {
             for(llvm::Instruction & instr : bb) {
@@ -1656,6 +1654,15 @@ namespace extrap {
                 }
             }
         }
+    }
+
+    void Instrumenter::initialize(llvm::Function * main)
+    {
+        //builder.SetInsertPoint(main->getEntryBlock().getTerminator()->getPrevNode());
+        builder.SetInsertPoint( &(*main->getEntryBlock().begin()) );
+        llvm::Value * cast_f = builder.CreatePointerCast(at_exit_function, builder.getInt8PtrTy());
+        builder.CreateCall(getAtExit(), {cast_f});
+        builder.CreateCall(init_function);
     }
 
     void Instrumenter::annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params)
