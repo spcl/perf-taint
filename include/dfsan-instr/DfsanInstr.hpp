@@ -270,12 +270,6 @@ namespace extrap {
         void checkLoopRetval(int loop_idx, int function_idx,
                 llvm::CallBase * cast);
 
-        void checkCallSite(int function_idx, int callsite_idx, llvm::CallBase *);
-        void checkCallSiteLoad(int function_idx, int callsite_idx, int arg_idx,
-                uint64_t size, llvm::Value * ptr);
-        void checkCallSiteRetval(int function_idx, int callsite_idx,
-                int arg_idx, llvm::CallBase *);
-
         void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params);
         void setLabel(Parameters::id_t param, const llvm::Value * val);
         void callSetLabel(int param_idx, const char * param_name,

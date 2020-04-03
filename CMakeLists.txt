@@ -105,7 +105,7 @@ add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.c
 target_link_libraries(dfsan_runtime PRIVATE ${MPI_C_LIBRARIES})
 #target_link_libraries(dfsan_runtime PRIVATE nlohmann_json::nlohmann_json)
 set_target_properties(dfsan_runtime PROPERTIES
-  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
+  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -W -Wall -Wextra -pedantic -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
 )
 add_dependencies(dfsan_runtime nlohmann_json)
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -127,6 +127,10 @@ add_executable(JSONConverter lib/JSONConverter.cpp)
 set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
 add_dependencies(JSONConverter nlohmann_json)
 #target_link_libraries(JSONConverter PRIVATE nlohmann_json::nlohmann_json)
+
+add_executable(model_comparator tools/model_comparator.cpp)
+set_property(TARGET model_comparator PROPERTY CXX_STANDARD 14)
+add_dependencies(model_comparator nlohmann_json)
 
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 configure_file(tools/rebuild_tests.sh.in tools/rebuild_tests.sh @ONLY)

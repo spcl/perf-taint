@@ -20,8 +20,8 @@ typedef nlohmann::json json_t;
 
 json_t * __dfsw_json_get()
 {
-    static json_t * out = new json_t;
-    return out;
+  static json_t out;
+  return &out;
 }
 
 void __dfsw_json_init_func(json_t & function, int func_idx, bool important)
@@ -45,22 +45,11 @@ void __dfsw_json_init_func(json_t & function, int func_idx, bool important)
 }
 
 // ignore initialization when accessing ptrs for cleaning
-json_t & __dfsw_json_get(int func_idx, bool init = true)
+json_t & __dfsw_json_get(int func_idx)
 {
-    static json_t * funcs = new json_t[__EXTRAP_INSTRUMENTATION_FUNCS_COUNT
-        + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT]();
-    return funcs[func_idx];
-}
-
-void __dfsw_json_write_callsites(json_t & out, int func_idx)
-{
-    json_t callsites;
-
-    //int begin = __EXTRAP_CALLSITES_OFFSET[func_idx];
-    //int end = __EXTRAP_CALLSITES_OFFSET[func_idx];
-
-
-    out["callsites"] = callsites;
+  static json_t * funcs = new json_t[__EXTRAP_INSTRUMENTATION_FUNCS_COUNT
+      + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT]();
+  return funcs[func_idx];
 }
 
 bool __dfsw_json_write_loop(int function_idx, int loop_idx, int loop_depth,
@@ -151,7 +140,7 @@ void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
 json_t __dfsw_json_write_single_loop(dependencies * deps)
 {
     json_t params;
-    for(int jj = 0; jj < deps->len; ++jj) {
+    for(size_t jj = 0; jj < deps->len; ++jj) {
 
         json_t dependency;
         uint16_t val = deps->deps[jj];
@@ -186,7 +175,7 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
     return params;
 }
 
-json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
+json_t __dfsw_json_write_loop(int, int32_t * loop_data,
         int32_t * loop_structure, dependencies * deps, int & nested_loop_idx,
         nested_call *& begin, nested_call * end)
 {
@@ -391,16 +380,8 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         //TODO: fix
         json_t loop_copied;
         if(begin != end) {
-            //fprintf(stderr, "Function %d Idx %d LoopIdx %d Len %d\n", function_idx, nested_loop_idx, (begin + 0)->nested_loop_idx, begin->len);
-            int loop_idx_shift = begin->loop_size_at_level;
             while(begin != end && begin->nested_loop_idx == old_nested_idx) {
-#ifdef DEBUG
-                fprintf(stderr, "Function %d Idx %d Len %zu data_ptr %p\n", function_idx, nested_loop_idx, begin->len, begin->json_data);
-#endif
                 for(size_t i = 0; i < begin->len; ++i) {
-#ifdef DEBUG
-                    fprintf(stderr, "Read Function %d Idx %d Len %zu data_ptr %p Wrte at pos %d\n", function_idx, nested_loop_idx, begin->len, begin->json_data[i], loop_idx_shift);
-#endif
                     json_t * data = static_cast<json_t*>(begin->json_data[i]);
                     loop_copied[std::to_string(begin->loop_size_at_level)].push_back(*data);
                     __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
@@ -609,7 +590,6 @@ bool __dfsw_json_is_important(json_t & json)
 void __dfsw_dump_json_output()
 {
     json_t & out = *__dfsw_json_get();
-    int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT;
     int full_vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
         + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     // Detect if any of user-registered parameters are the same as an implicit parameter.
@@ -731,27 +711,22 @@ void __dfsw_dump_json_output()
     out["functions_names"] = std::move(functions_names);
     out["functions_mangled_names"] = std::move(functions_mangled_names);
     out["functions_demangled_names"] = std::move(functions_demangled_names);
-    fprintf(stderr, "Write to %s\n", __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME);
     if(strcmp(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME, "")) {
-        if(__EXTRAP_INSTRUMENTATION_MPI_RANK != -1) {
-            std::ofstream file(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME
-                    + std::string("_")
-                    + std::to_string(__EXTRAP_INSTRUMENTATION_MPI_RANK)
-                    + ".json",
-                    std::ofstream::out);
-            file << out.dump(2) << std::endl;
-            file.close();
-        } else {
-            std::ofstream file(
-                __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME + std::string(".json"),
-                std::ofstream::out
-                );
-            file << out.dump(2) << std::endl;
-            file.close();
-        }
+      std::string file_name;
+      if(__EXTRAP_INSTRUMENTATION_MPI_RANK != -1) {
+        file_name = __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME
+          + std::string("_")
+          + std::to_string(__EXTRAP_INSTRUMENTATION_MPI_RANK)
+          + ".json";
+      } else {
+        file_name = __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME + std::string(".json");
+      }
+      fprintf(stderr, "Write to %s\n", file_name.c_str());
+      std::ofstream file(file_name, std::ofstream::out);
+      file << out.dump(2) << std::endl;
+      file.close();
     } else
-        std::cout << out.dump(2) << std::endl;
-    delete &out;
+      std::cout << out.dump(2) << std::endl;
     delete[] &__dfsw_json_get(0);
 }
 

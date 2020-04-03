@@ -11,7 +11,7 @@ cd LULESH\
   && git apply ../lulesh.patch
 
 # Build with MPI
-make CXX=${BUILD_DIRECTORY}/bin/clang++ CXXFLAGS="-g -I. -Wall -DUSE_MPI=1" LDFLAGS="-g" all
+make CXX=${BUILD_DIRECTORY}/bin/clang++ CXXFLAGS="-fno-inline-functions -g -I. -Wall -DUSE_MPI=1" LDFLAGS="-g" all
 llvm-link *.bc -o lulesh_mpi.bc
 mv lulesh_mpi.bc ..
 make clean && rm *.bc

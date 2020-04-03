@@ -1,0 +1,289 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 0,
+      "line": 53,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": [
+                      {
+                        "0": {
+                          "level": 2
+                        }
+                      },
+                      {
+                        "0": {
+                          "level": 2,
+                          "params": [
+                            [
+                              "x1"
+                            ],
+                            [
+                              "x2"
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "0": {
+                          "level": 2,
+                          "params": [
+                            [
+                              "x1"
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                },
+                "1": [
+                  {
+                    "0": {
+                      "level": 1
+                    }
+                  },
+                  {
+                    "0": {
+                      "level": 1,
+                      "params": [
+                        [
+                          "x2"
+                        ],
+                        [
+                          "x1"
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "0": {
+                      "level": 1,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "0": {
+                  "level": 0
+                }
+              },
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                }
+              },
+              {
+                "0": {
+                  "level": 0,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z2f2ii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 2,
+      "line": 20,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4,
+              0,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ],
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              0,
+              8
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ],
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              0,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z2f3ii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 3,
+      "line": 27,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4,
+              0,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              4,
+              0,
+              8
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "f1(int, int)",
+    "f2(int, int)",
+    "f3(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "g(int, int)",
+    "g2(int, int)",
+    "g3(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z2f1ii",
+    "_Z2f2ii",
+    "_Z2f3ii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z1gii",
+    "_Z2g2ii",
+    "_Z2g3ii"
+  ],
+  "functions_names": [
+    "f",
+    "f1",
+    "f2",
+    "f3",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "g",
+    "g2",
+    "g3"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ],
+  "unimportant_functions": {
+    "_Z2f1ii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 1,
+      "line": 13
+    }
+  }
+}

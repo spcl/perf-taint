@@ -1288,47 +1288,6 @@ namespace extrap {
             );
     }
 
-    void Instrumenter::checkCallSite(int function_idx, int callsite_idx,
-            llvm::CallBase * call)
-    {
-        // dom't cache loads because we update args seperately
-        // same load might appear twice
-        // TODO: optimize this to call check with multiple arg ids
-        int arg_idx = 0;
-        auto load_check =
-            [=, &arg_idx](uint64_t size, llvm::Value * ptr) {
-                checkCallSiteLoad(function_idx, callsite_idx, arg_idx++, size, ptr);
-            };
-        auto label_check =
-            [=, &arg_idx](llvm::CallBase * ptr) {
-                checkCallSiteRetval(function_idx, callsite_idx, arg_idx++, ptr);
-            };
-        InstrumenterVisiter vis(*this, load_check, label_check, false);
-        for(int i = 0; i < call->getNumArgOperands(); ++i) {
-            llvm::Value * arg = call->getArgOperand(i);
-            // constant values (int, fp)
-            if(llvm::isa<llvm::ConstantData>(arg))
-                continue;
-            llvm::Instruction * instr = llvm::dyn_cast<llvm::Instruction>(arg);
-            assert(instr);
-            vis.visit(*instr);
-        }
-    }
-
-    void Instrumenter::checkCallSiteLoad(int function_idx, int callsite_idx,
-            int arg_idx, uint64_t size, llvm::Value * ptr)
-    {
-        llvm::Value * cast = builder.CreatePointerCast(ptr, builder.getInt8PtrTy());
-        builder.CreateCall(callsite_function, {cast, builder.getInt32(size),
-                builder.getInt32(function_idx), builder.getInt32(callsite_idx),
-                builder.getInt32(arg_idx)});
-    }
-
-    void Instrumenter::checkCallSiteRetval(int function_idx, int callsite_idx,
-            int arg_idx, llvm::CallBase * ptr)
-    {
-    }
-
     void Instrumenter::setLabel(Parameters::id_t param, const llvm::Value * val)
     {
         assert(glob_labels);
@@ -1495,13 +1454,6 @@ namespace extrap {
                 {int8_ptr, idx_t, idx_t, int8_ptr}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_STORE_LABEL", func_t);
         store_function = m.getFunction("__dfsw_EXTRAP_STORE_LABEL");
-        assert(store_function);
-
-        // void check_arg(int8_t *, int32_t, int32_t, int32_t, int32_t)
-        func_t = llvm::FunctionType::get(void_t,
-                {int8_ptr, idx_t, idx_t, idx_t, idx_t}, false);
-        m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_CALLSITE", func_t);
-        callsite_function = m.getFunction("__dfsw_EXTRAP_CHECK_CALLSITE");
         assert(store_function);
 
         // void at_exit()
