@@ -15,30 +15,31 @@
 
 typedef struct _dependencies
 {
-    size_t len;
-    size_t capacity;
-    uint16_t * deps;
+  size_t len;
+  size_t capacity;
+  uint16_t * deps;
 } dependencies;
 
 typedef struct _callstack
 {
-    size_t len;
-    size_t capacity;
-    uint16_t * stack;
+  size_t len;
+  size_t capacity;
+  uint16_t * stack;
 } callstack;
 
 typedef struct _nested_call {
-    int16_t nested_loop_idx;
-    uint16_t loop_size_at_level;
-    void ** json_data;
-    size_t len;
-    size_t capacity;
+  int16_t nested_loop_idx;
+  uint16_t loop_size_at_level;
+  uint16_t function_idx;
+  void ** json_data;
+  size_t len;
+  size_t capacity;
 } nested_call;
 
 typedef struct _nested_call_vec {
-    uint16_t len;
-    size_t capacity;
-    nested_call * data;
+  uint16_t len;
+  size_t capacity;
+  nested_call * data;
 } nested_call_vec;
 
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
