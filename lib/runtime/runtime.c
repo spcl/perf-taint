@@ -165,24 +165,6 @@ void __dfsw_EXTRAP_AT_EXIT()
     free(__EXTRAP_CALLSTACK.stack);
 }
 
-void __dfsw_EXTRAP_CHECK_CALLSITE(int8_t * addr, size_t size, int32_t function_idx, int32_t callsite_idx, int32_t arg_idx)
-{
-    //dfsan_label temp = dfsan_read_label(addr, size);
-    //for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i) {
-    //    if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-    //        printf("Call %d func at %d site for arg %d label %d result %d\n",
-    //                function_idx, callsite_idx, arg_idx, i, dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]));
-    //        if(dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i])) {
-    //            int offset = __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[function_idx];
-    //            int arg_count = __EXTRAP_INSTRUMENTATION_FUNCS_ARGS[function_idx];
-    //            offset += arg_count * callsite_idx;
-    //            offset += arg_idx;
-    //            __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[offset] |= (1 << i);
-    //        }
-    //    }
-    //}
-}
-
 bool __dfsw_is_power_of_two(uint16_t val)
 {
     return val && !(val & (val - 1) );
@@ -203,7 +185,7 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
             return;
         }
     }
-    debug_print("Added dependency %d to size %d\n", val, deps->len);
+    debug_print("Added dependency %d to size %lu\n", val, deps->len);
     if(deps->len == deps->capacity) {
         deps->capacity += 5;
         deps->deps = realloc(deps->deps, sizeof(dependencies) * deps->capacity);
@@ -211,21 +193,6 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
     deps->deps[deps->len] = val;
     deps->len++;
 }
-
-//dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
-//        int32_t function_idx)
-//{
-//    int32_t depths_offset = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
-//    //Position of `dependencies` object for this loop is composed from
-//    //a) beginning offset of this function
-//    //b) sum of depths for all previous loops in this function
-//    //c) depth level for this loop
-//    int offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
-//    for(int i = 0; i < loop_idx; ++i)
-//        offset += __EXTRAP_LOOPS_DEPTHS_PER_FUNC[depths_offset + i];
-//    offset += depth;
-//    return &__EXTRAP_LOOP_DEPENDENCIES[offset];
-//}
 
 void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx, int calls_count)
 {
@@ -278,7 +245,7 @@ void __dfsw_EXTRAP_CHECK_LABEL(uint16_t temp, int32_t nested_loop_idx, int32_t f
     size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
       + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     // We iterate only to # of currently known parameters
-    for(int i = 0; i < param_count; ++i)
+    for(size_t i = 0; i < param_count; ++i)
         if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
             bool has_label = dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
             found_params |= (has_label << i);
@@ -294,7 +261,7 @@ void __dfsw_EXTRAP_CHECK_LOAD(int8_t * addr, size_t size,
     if(!addr)
         return;
     dfsan_label temp = dfsan_read_label(addr, size);
-    debug_print("Read label %d at addr: %p, loop %d func %d \n", temp, addr, nested_loop_idx, func_idx);
+    debug_print("Read label %d at addr: %p, loop %d func %d \n", temp, (void*)addr, nested_loop_idx, func_idx);
     __dfsw_EXTRAP_CHECK_LABEL(temp, nested_loop_idx, func_idx);
 }
 
@@ -305,14 +272,12 @@ void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t cou
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
     debug_print("Register %lu variables\n", count);
-    //va_start(args, count);
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         void * addr = va_arg(args, void*);
         size_t size = va_arg(args, size_t);
         debug_print("Register variable %s at %p of size %lu\n", name, addr, size);
         dfsan_set_label(lab, addr, size);
     }
-    //va_end(args);
 }
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name);
@@ -320,11 +285,11 @@ void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
 {
   size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
     + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-  for(int i = 0; i < param_count; ++i) {
+  for(size_t i = 0; i < param_count; ++i) {
       if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i], name)) {
           dfsan_label lab = __EXTRAP_INSTRUMENTATION_LABELS[i];
           dfsan_set_label(lab, addr, size);
-          debug_print("Write label %d for variable %s at pos %d \n", lab, name, i);
+          debug_print("Write label %d for variable %s at pos %lu \n", lab, name, i);
           return;
       }
   }
@@ -347,7 +312,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
-    debug_print("Store label %s with label %ld\n", name, lab);
+    debug_print("Store label %s with label %hu\n", name, lab);
     dfsan_set_label(lab, addr, size);
 }
 
@@ -377,19 +342,3 @@ void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t function_idx,
     __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
 }
 
-void __dfsw_EXTRAP_REGISTER_FUNCTION_CALL(uint16_t function_idx)
-{
-    
-}
-
-//void __dfsw_EXTRAP_CHECK_CALLSITE(int function_idx, int callsite_idx,
-//        int arg_idx, int8_t * addr, size_t size)
-//{
-//    dfsan_label temp = dfsan_read_label(addr, size);
-//    bool found_params[__EXTRAP_INSTRUMENTATION_PARAMS_COUNT] = {0};
-//    for(int i = 0; i < __EXTRAP_INSTRUMENTATION_PARAMS_COUNT; ++i)
-//        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
-//            dfound_params[i] =
-//                dfsan_has_label(temp, __EXTRAP_INSTRUMENTATION_LABELS[i]);
-//    __dfsw_json_callsite(function_idx, callsite_idx, arg_idx, found_params);
-//}
