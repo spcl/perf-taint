@@ -247,8 +247,7 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
                 json_t entry;
                 entry["function_idx"] = begin->function_idx;
                 for(size_t i = 0; i < begin->len; ++i) {
-                  json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                  entry["entry_id"].push_back((*data)["id"]);
+                  entry["entry_id"].push_back(begin->json_data[i]);
                 }
                 loop_level["loops"][std::to_string(begin->loop_size_at_level)] = std::move(entry);
                 non_empty = true;
@@ -319,28 +318,29 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
   if(non_empty)
     return loop;
   else
-    return json_t(nullptr);
+    return json_t{};
 }
 
-void __dfsw_json_loop_committed(uint16_t function_idx, json_t * loop)
+void __dfsw_json_loop_committed(uint16_t function_idx, size_t pos)
 {
     if(__EXTRAP_CURRENT_CALL == -1)
         return;
     nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL];
     for(size_t i = 0; i < last_call.len; ++i) {
-        if(last_call.json_data[i] == static_cast<void*>(loop))
+        if(last_call.json_data[i] == pos)
             return;
     }
     if(last_call.len == last_call.capacity) {
         last_call.capacity += 5;
-        last_call.json_data = static_cast<void**>(realloc(last_call.json_data, sizeof(void**) *
+        last_call.json_data = static_cast<size_t*>(realloc(last_call.json_data, sizeof(size_t) *
                 last_call.capacity));
     }
-#ifdef DEBUG
-    fprintf(stderr, "Save JSON data at pos %d new len %lu for call %d %d pos_ptr %p data_ptr %p\n", __EXTRAP_CURRENT_CALL, last_call.len + 1, last_call.nested_loop_idx, last_call.loop_size_at_level, &__EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL], loop);
-#endif
     last_call.function_idx = function_idx;
-    last_call.json_data[last_call.len++] = static_cast<void*>(loop);
+
+    //last_call.json_data[last_call.len++] = static_cast<void*>(loop);
+    last_call.json_data[last_call.len++] = pos;
+    //if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 4 && function_idx == 24)
+      //std::cerr << ("COMMIT CALL " + std::to_string(__EXTRAP_CURRENT_CALL) + " " + std::to_string(last_call.len-1) + " " + std::to_string(loop->empty()) + " " + std::to_string(loop->is_null()))<< std::endl;
 }
 
 bool __dfsw_json_write_loop(int function_idx, int calls_count)
@@ -392,29 +392,18 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         //TODO: fix
         json_t loop_copied;
         if(begin != end) {
-            while(begin != end && begin->nested_loop_idx == old_nested_idx) {
-              if(begin->len > 0) {
-                json_t entry;
-                entry["function_idx"] = begin->function_idx;
-                for(size_t i = 0; i < begin->len; ++i) {
-                  json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                  entry["entry_id"].push_back((*data)["id"]);
-                    //loop_copied[std::to_string(begin->loop_size_at_level)].push_back(*data);
-                    //__dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
-                    //for(auto it = data->begin(), end = data->end(); it != end; ++it) {
-                    //    std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
-                    //    loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
-                    //    __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
-                    //}
-                }
-                loop_copied[std::to_string(begin->loop_size_at_level)] = std::move(entry);
-                //for(size_t i = 0; i < begin->len; ++i)
-                //    output[std::to_string(begin->loop_size_at_level)]
-                //        .push_back(*static_cast<json_t*>(begin->json_data[i]));
-                non_empty = true;
+          while(begin != end && begin->nested_loop_idx == old_nested_idx) {
+            if(begin->len > 0) {
+              json_t entry;
+              entry["function_idx"] = begin->function_idx;
+              for(size_t i = 0; i < begin->len; ++i) {
+                entry["entry_id"].push_back(begin->json_data[i]);
               }
-              begin++; 
+              loop_copied[std::to_string(begin->loop_size_at_level)] = std::move(entry);
+              non_empty = true;
             }
+            begin++; 
+          }
         }
         dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
         //if(function_idx == 22)
@@ -422,7 +411,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, loop_idx, deps_offset, nested_loop_idx);
         json_t loop = __dfsw_json_write_loop(function_idx, loop_data,
                loop_structure, deps, nested_loop_idx, begin, end);
-        if(!loop.is_null() || !loop_copied.empty()) {
+        if((!loop.is_null() && !loop.empty()) || !loop_copied.empty()) {
           non_empty = true;
           for(auto it = loop_copied.begin(), end = loop_copied.end(); it != end; ++it)
             loop["loops"][it.key()] = std::move(it.value());
@@ -453,9 +442,16 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
           json_t entry;
           entry["function_idx"] = begin->function_idx;
           for(size_t i = 0; i < begin->len; ++i) {
-            json_t * data = static_cast<json_t*>(begin->json_data[i]);
-            //std::cout << function_idx << " " << (*data) << std::endl;
-            entry["entry_id"].push_back((*data)["id"]);
+            //std::vector<json_t> *_data = static_cast<std::vector<json_t>*>(begin->json_data[i].data);
+            //json_t & data = (*_data)[begin->json_data[i].pos];
+            //if(!data || data.empty()) {
+            //  std::cerr << "FUNCTION: " << function_idx << " " << __EXTRAP_NESTED_CALLS.len << " " << calls_count
+            //    << " " << (begin - __EXTRAP_NESTED_CALLS.data) << " " << __EXTRAP_INSTRUMENTATION_MPI_RANK << std::endl << std::flush;
+            //  exit(3);
+            //}
+            //  std::cout << function_idx << " " << data << std::endl << std::flush;//(*data) << std::endl;
+            //entry["entry_id"].push_back((*data)["id"]);
+            entry["entry_id"].push_back(begin->json_data[i]);
           }
           non_empty = true;
           output[std::to_string(begin->loop_size_at_level)] = std::move(entry);
@@ -470,9 +466,12 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
     //}
 
     if(non_empty) {
+      if(output.empty())
+        exit(4);
         json_t * func = &__dfsw_json_get(function_idx);
         json_t & prev_loops = (*func)["loops"];
         bool found = false;
+        size_t cur_idx = 0;
         for(json_t & prev : prev_loops) {
             if(prev["instance"] == output) {
                 found = true;
@@ -487,7 +486,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                         break;
                     }
                 }
-                __dfsw_json_loop_committed(function_idx, &prev);
+                __dfsw_json_loop_committed(function_idx, cur_idx); //&prev);
                 //fprintf(stderr, "Commit JSON data already known %p callstack_len %d\n", &prev,
                         //callstack.size());
                 if(!callstack_found) {
@@ -495,6 +494,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                 }
                 break;
             }
+            cur_idx++;
         }
         if(!found) {
             // don't write current function
@@ -505,7 +505,6 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             instance["callstacks"].push_back(callstack);
             instance["instance"] = output;
             instance["id"] = prev_loops.size();
-            std::cerr << "PRINT " << function_idx << " " << instance << " " << prev_loops << '\n';
             ////
             //std::cout << instance << std::endl;
             //std::cout << *func << std::endl;
@@ -513,7 +512,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             //std::cout << prev_loops << std::endl;
             prev_loops.push_back( std::move(instance) );
             //fprintf(stderr, "Commit new JSON data %p callstack_len %d \n", &prev_loops.back(), callstack.size());
-            __dfsw_json_loop_committed(function_idx, & prev_loops.back());
+            __dfsw_json_loop_committed(function_idx, prev_loops.size() - 1); //&prev_loops.back());
         }
     }
 

@@ -31,7 +31,7 @@ typedef struct _nested_call {
   int16_t nested_loop_idx;
   uint16_t loop_size_at_level;
   uint16_t function_idx;
-  void ** json_data;
+  size_t * json_data;
   size_t len;
   size_t capacity;
 } nested_call;
