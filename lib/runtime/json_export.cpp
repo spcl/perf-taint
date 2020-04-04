@@ -504,7 +504,6 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             json_t instance;
             instance["callstacks"].push_back(callstack);
             instance["instance"] = output;
-            instance["id"] = prev_loops.size();
             ////
             //std::cout << instance << std::endl;
             //std::cout << *func << std::endl;
