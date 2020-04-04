@@ -34,7 +34,6 @@ json_t convert_loop(const json_t & loop)
 
     json_t current;
     std::vector<json_t> additive_layers;
-    //std::cerr << loop.dump(2) << '\n';
 
     //array of jsons coming from nested calls
     if(loop.is_array()) {
@@ -135,7 +134,6 @@ json_t convert_loop_set(const json_t & loop_set)
         //}
         //deps.push_back(dep);
         json_t converted = convert_loop(it.value());
-        //std::cerr << converted << "\n\n";
         if(converted["operands"].size() != 0) {
             deps.push_back( std::move(converted) );
         }
@@ -168,7 +166,6 @@ std::vector<uint32_t> parse(const json_t & op, const json_t & all_params)
     //    std::cout << "Process param: " << op << ' ' << param_to_int(op, all_params) << '\n';
     //    return std::vector<uint32_t>(1, param_to_int(op, all_params));
     //} else
-    //std::cerr << op << '\n';
     if(op.is_array()) {
         return parse(op[0], all_params);
     } else if(op["dependency"] == "additive") {
@@ -271,25 +268,28 @@ void get_deps(json_t & out, json_t & loop, const json_t & params)
 
 void replace(const json_t & input, json_t & instance)
 {
-  //std::cerr << input << " " << instance << std::endl;
   for(auto it = instance.begin(), end = instance.end(); it != end; ++it) {
     auto elem = it.value().find("loops");
     if(elem != it.value().end())
-      replace(input, it.value()); 
-    elem = it.value().find("entry_id");
-    if(elem != it.value().end()) {
-      uint32_t f_idx = it.value()["function_idx"].get<uint32_t>();
-      //std::cerr << f_idx << " " << input["functions_mangled_names"]<< std::endl;
-      std::string f_name = input["functions_mangled_names"][f_idx].get<std::string>();
-      auto function_instance = input["functions"].find(f_name);
-      assert(function_instance != input["functions"].end());
+      replace(input, *elem); 
+    if(it.value().is_array()) {
       json_t out;
-      for(auto entry_it = (*elem).begin(); entry_it != (*elem).end(); ++entry_it) {
-        uint32_t id = (*entry_it).get<uint32_t>();
-        //std::cerr << id << " " << (*function_instance)["loops"][id] << std::endl;
-        out.push_back((*function_instance)["loops"][id]["instance"]);
+      for(auto & entry : it.value()) {
+
+        elem = entry.find("entry_id");
+        if(elem != entry.end()) {
+          uint32_t f_idx = entry["function_idx"].get<uint32_t>();
+          std::string f_name = input["functions_mangled_names"][f_idx].get<std::string>();
+          auto function_instance = input["functions"].find(f_name);
+          assert(function_instance != input["functions"].end());
+          uint32_t id = (*elem).get<uint32_t>();
+          out.push_back((*function_instance)["loops"][id]["instance"]);
+        }
       }
-      (*it) = std::move(out);
+      // will be null for an array of params, 
+      if(!out.is_null()) {
+        (*it) = std::move(out);
+      }
     }
   }
 }
@@ -326,7 +326,6 @@ json_t convert(json_t & input)
     of.open("filter_important", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
     std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " importatn functions" << '\n';
-    int functions_count = functions.size();
     std::set<int> important_indices{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
         important_indices.insert( (it.value()["func_idx"].get<int>()));
@@ -335,7 +334,6 @@ json_t convert(json_t & input)
 
         int idx = it.value()["func_idx"].get<int>();
         std::string name = input["functions_names"][idx].get<std::string>();
-        std::cerr << it.key() << ' ' << it.value()["func_idx"].get<int>() << '\n';
         of << "INCLUDE *" << input["functions_names"][idx].get<std::string>() << "*\n";
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
