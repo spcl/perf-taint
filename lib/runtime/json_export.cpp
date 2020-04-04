@@ -325,25 +325,21 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
 
 void __dfsw_json_loop_committed(uint16_t function_idx, size_t pos)
 {
-    if(__EXTRAP_CURRENT_CALL == -1)
-        return;
-    nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL];
-    for(size_t i = 0; i < last_call.len; ++i) {
-      if(last_call.data[i].function_idx == function_idx && last_call.data[i].pos == pos) {
-        return;
-      }
+  if(__EXTRAP_CURRENT_CALL == -1)
+    return;
+  nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL];
+  for(size_t i = 0; i < last_call.len; ++i) {
+    if(last_call.data[i].function_idx == function_idx && last_call.data[i].pos == pos) {
+      return;
     }
-    if(last_call.len == last_call.capacity) {
-        last_call.capacity += 5;
-        last_call.data = static_cast<nested_call_data*>(realloc(last_call.data, sizeof(nested_call_data) *
-                last_call.capacity));
-    }
-    last_call.data[last_call.len].function_idx = function_idx;
-
-    //last_call.json_data[last_call.len++] = static_cast<void*>(loop);
-    last_call.data[last_call.len++].pos = pos;
-    //if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 4 && function_idx == 24)
-      //std::cerr << ("COMMIT CALL " + std::to_string(__EXTRAP_CURRENT_CALL) + " " + std::to_string(last_call.len-1) + " " + std::to_string(loop->empty()) + " " + std::to_string(loop->is_null()))<< std::endl;
+  }
+  if(last_call.len == last_call.capacity) {
+    last_call.capacity += 5;
+    last_call.data = static_cast<nested_call_data*>(realloc(last_call.data, sizeof(nested_call_data) *
+      last_call.capacity));
+ }
+  last_call.data[last_call.len].function_idx = function_idx;
+  last_call.data[last_call.len++].pos = pos;
 }
 
 bool __dfsw_json_write_loop(int function_idx, int calls_count)
