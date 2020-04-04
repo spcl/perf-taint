@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 0,
-      "line": 17,
+      "line": 20,
       "loops": [
         {
           "callstack": [
@@ -21,6 +21,22 @@
                     "global",
                     "x1"
                   ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -37,6 +53,9 @@
             }
           ],
           "deps": [
+            [
+              "x1"
+            ],
             [
               "x2"
             ],
@@ -64,11 +83,30 @@
                     "global",
                     "x2"
                   ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ],
           "deps": [
+            [
+              "x2"
+            ],
             [
               "x2",
               "global"
@@ -81,9 +119,9 @@
       ]
     },
     "_Z1gi": {
-      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 2,
-      "line": 25,
+      "line": 28,
       "loops": [
         {
           "callstack": [
@@ -99,6 +137,22 @@
                   "dependency": "unknown",
                   "operands": [
                     "global"
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "global"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -117,9 +171,9 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 1,
-      "line": 9,
+      "line": 12,
       "loops": [
         {
           "callstack": [
@@ -222,9 +276,9 @@
       ]
     },
     "_Z1iiii": {
-      "file": "tests/dfsan-instr/function_call_nested.cpp",
+      "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 3,
-      "line": 33,
+      "line": 36,
       "loops": [
         {
           "callstack": [
@@ -243,11 +297,70 @@
                     "global",
                     "x1"
                   ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "global",
+                            "x2"
+                          ]
+                        },
+                        {
+                          "dependency": "additive",
+                          "operands": [
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x2"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "global"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ],
           "deps": [
+            [
+              "x2"
+            ],
+            [
+              "global"
+            ],
+            [
+              "x2",
+              "global"
+            ],
             [
               "x1",
               "x2",
