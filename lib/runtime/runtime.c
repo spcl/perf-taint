@@ -72,9 +72,10 @@ void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t function_idx)
 void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
 {
   debug_print(
-    "Pop function %d, new callstack length %lu\n",
-    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1],
-    __EXTRAP_CALLSTACK.len - 1
+    "Pop function %d, new callstack length %lu with val %d\n",
+    idx,
+    __EXTRAP_CALLSTACK.len - 1,
+    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1]
   );
   if(__EXTRAP_CALLSTACK.len == 0) {
     fprintf(stderr, "Callstack below zero!\n");
@@ -313,7 +314,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
-    debug_print("Store label %s with label %hu\n", name, lab);
+    debug_print("Store label %s at %d with label %hu\n", name, param_idx, lab);
     dfsan_set_label(lab, addr, size);
 }
 
