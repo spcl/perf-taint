@@ -108,21 +108,22 @@ uint16_t __dfsw_EXTRAP_REGISTER_CALL(int16_t nested_loop_idx, uint16_t loop_size
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].loop_size_at_level = loop_size;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].len = 0;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].capacity = 0;
-    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].json_data = NULL;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].data = NULL;
     return __EXTRAP_NESTED_CALLS.len++;
 }
 
 // Remove `len` last entries in the register of calls.
 void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len)
 {
-    if(len > __EXTRAP_NESTED_CALLS.len)
-        abort();
-    __EXTRAP_NESTED_CALLS.len -= len;
-    for(int i = 0; i < len; ++i) {
-        size_t idx = __EXTRAP_NESTED_CALLS.len + i;
-        // Free allocated array of pointers.
-        free(__EXTRAP_NESTED_CALLS.data[idx].json_data);
-    }
+  if(len > __EXTRAP_NESTED_CALLS.len)
+    abort();
+  __EXTRAP_NESTED_CALLS.len -= len;
+  for(int i = 0; i < len; ++i) {
+    size_t idx = __EXTRAP_NESTED_CALLS.len + i;
+    __EXTRAP_NESTED_CALLS.data[idx].len = 0;
+    // Free allocated array of pointers.
+    free(__EXTRAP_NESTED_CALLS.data[idx].data);
+  }
 }
 
 // Store the recent 

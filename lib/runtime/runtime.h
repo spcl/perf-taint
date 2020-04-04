@@ -27,11 +27,18 @@ typedef struct _callstack
   uint16_t * stack;
 } callstack;
 
+// Represents a scenario where a single call might produce multiple results.
+// f -> g -> h1, h2, h3...
+// Thus, we need to store both the position of result and the function idx.
+typedef struct _nested_call_data {
+  uint16_t function_idx;
+  size_t pos;
+} nested_call_data;
+
 typedef struct _nested_call {
   int16_t nested_loop_idx;
   uint16_t loop_size_at_level;
-  uint16_t function_idx;
-  size_t * json_data;
+  nested_call_data * data;
   size_t len;
   size_t capacity;
 } nested_call;
