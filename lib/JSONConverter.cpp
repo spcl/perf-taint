@@ -266,32 +266,56 @@ void get_deps(json_t & out, json_t & loop, const json_t & params)
     }
 }
 
-void replace(const json_t & input, json_t & instance)
+bool process_entry(json_t & entry, const json_t & input, json_t & out)
 {
-  for(auto it = instance.begin(), end = instance.end(); it != end; ++it) {
-    auto elem = it.value().find("loops");
-    if(elem != it.value().end())
-      replace(input, *elem); 
-    if(it.value().is_array()) {
-      json_t out;
-      for(auto & entry : it.value()) {
+  auto elem = entry.find("entry_id");
+  if(elem != entry.end()) {
+    uint32_t f_idx = entry["function_idx"].get<uint32_t>();
+    std::string f_name = input["functions_mangled_names"][f_idx].get<std::string>();
+    auto function_instance = input["functions"].find(f_name);
+    assert(function_instance != input["functions"].end());
+    uint32_t id = (*elem).get<uint32_t>();
+    std::cerr << (*function_instance)["loops"][id]["instance"] << std::endl;
+    out.push_back((*function_instance)["loops"][id]["instance"]);
+    return true;
+  }
+  return false;
+}
 
-        elem = entry.find("entry_id");
-        if(elem != entry.end()) {
-          uint32_t f_idx = entry["function_idx"].get<uint32_t>();
-          std::string f_name = input["functions_mangled_names"][f_idx].get<std::string>();
-          auto function_instance = input["functions"].find(f_name);
-          assert(function_instance != input["functions"].end());
-          uint32_t id = (*elem).get<uint32_t>();
-          out.push_back((*function_instance)["loops"][id]["instance"]);
+bool replace(const json_t & input, json_t & instance)
+{
+  bool replaced = true;
+  while(replaced) {
+    replaced = false;
+    //std::cerr << "BEFORE REPLACE " << instance.dump(2) << std::endl;
+    for(auto it = instance.begin(), end = instance.end(); it != end; ++it) {
+      auto elem = it.value().find("loops");
+      if(elem != it.value().end())
+        replaced |= replace(input, *elem); 
+      if(it.value().is_array()) {
+        json_t out;
+        for(auto & entry : it.value()) {
+
+          if(!process_entry(entry, input, out)) {
+            replace(input, entry);
+            // for recursive processing - replaced one, now we have to replace the same thing again
+            //for(auto entry_elem = entry.begin(); entry_elem != entry.end(); ++entry_elem) {
+            //  for(auto & entry_elem2 : entry_elem.value())
+            //    process_entry(entry_elem2, input, out);
+            //}
+          }
+          std::cerr << entry << std::endl;
+        }
+        // will be null for an array of params, 
+        if(!out.is_null()) {
+          (*it) = std::move(out);
+          replaced = true;
         }
       }
-      // will be null for an array of params, 
-      if(!out.is_null()) {
-        (*it) = std::move(out);
-      }
     }
+    //std::cerr << "AFTER REPLACE " << replaced << " " << instance.dump(2) << std::endl;
   }
+  return replaced;
 }
 
 json_t convert(json_t & input)
