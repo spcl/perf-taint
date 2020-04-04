@@ -1,4 +1,5 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 | diff -w %s.json -
+; RUN: %jsonconvert %s.json 2> /dev/null | diff -w %s.processed.json -
 ; ModuleID = 'tests/dfsan-unit/bug_nested_calls.cpp'
 source_filename = "tests/dfsan-unit/bug_nested_calls.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

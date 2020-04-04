@@ -1,0 +1,303 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 0,
+      "line": 53,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "x2"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "x1"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "additive",
+                                  "operands": [
+                                    {
+                                      "dependency": "additive",
+                                      "operands": [
+                                        {
+                                          "dependency": "unknown",
+                                          "operands": [
+                                            "x1",
+                                            "x2"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "dependency": "additive",
+                                      "operands": [
+                                        {
+                                          "dependency": "unknown",
+                                          "operands": [
+                                            "x1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "dependency": "additive",
+                          "operands": [
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x2",
+                                    "x1"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x2"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ],
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z2f2ii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 2,
+      "line": 20,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2",
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z2f3ii": {
+      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "func_idx": 3,
+      "line": 27,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "f1(int, int)",
+    "f2(int, int)",
+    "f3(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "g(int, int)",
+    "g2(int, int)",
+    "g3(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z2f1ii",
+    "_Z2f2ii",
+    "_Z2f3ii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z1gii",
+    "_Z2g2ii",
+    "_Z2g3ii"
+  ],
+  "functions_names": [
+    "f",
+    "f1",
+    "f2",
+    "f3",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "g",
+    "g2",
+    "g3"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
