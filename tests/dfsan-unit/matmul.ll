@@ -1,4 +1,5 @@
 ; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %t1 -o %t2 %link && %execparams %t2 50 30 40 | diff -w %s.json -
+; RUN: %jsonconvert %s.json 2> /dev/null | diff -w %s.processed.json -
 ; ModuleID = 'tests/dfsan-unit/matmul.c'
 source_filename = "tests/dfsan-unit/matmul.c"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
