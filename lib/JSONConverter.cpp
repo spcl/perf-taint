@@ -316,7 +316,7 @@ bool replace(const json_t & input, json_t & instance)
 
 bool is_important(const std::string & name, const json_t & func)
 {
-
+  return true;
 }
 
 json_t convert(json_t & input, bool generate_full_data)
