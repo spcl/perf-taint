@@ -12,7 +12,7 @@ target triple = "x86_64-unknown-linux-gnu"
 
 @stderr = external dso_local global %struct._IO_FILE*, align 8
 @.str = private unnamed_addr constant [19 x i8] c"Register variable\0A\00", align 1
-@.str.1 = private unnamed_addr constant [23 x i8] c"Register %d variables\0A\00", align 1
+@.str.1 = private unnamed_addr constant [24 x i8] c"Register %zu variables\0A\00", align 1
 @.str.2 = private unnamed_addr constant [7 x i8] c"extrap\00", section "llvm.metadata"
 @.str.3 = private unnamed_addr constant [26 x i8] c"tests/dfsan-unit/matmul.c\00", section "llvm.metadata"
 @.str.4 = private unnamed_addr constant [10 x i8] c"argc == 4\00", align 1
@@ -93,7 +93,7 @@ define dso_local void @register_variables(i8*, i64, ...) #0 !dbg !59 {
   store i32 %11, i32* %6, align 4, !dbg !88, !tbaa !49
   %12 = load %struct._IO_FILE*, %struct._IO_FILE** @stderr, align 8, !dbg !90, !tbaa !37
   %13 = load i64, i64* %4, align 8, !dbg !91, !tbaa !42
-  %14 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %12, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @.str.1, i64 0, i64 0), i64 %13), !dbg !92
+  %14 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %12, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @.str.1, i64 0, i64 0), i64 %13), !dbg !92
   %15 = load i8*, i8** %3, align 8, !dbg !93, !tbaa !37
   %16 = load i32, i32* %6, align 4, !dbg !94, !tbaa !49
   %17 = load i64, i64* %4, align 8, !dbg !95, !tbaa !42
@@ -632,7 +632,7 @@ attributes #9 = { nounwind readonly }
 !88 = !DILocation(line: 50, column: 13, scope: !59)
 !89 = !DILocation(line: 50, column: 24, scope: !59)
 !90 = !DILocation(line: 51, column: 13, scope: !59)
-!91 = !DILocation(line: 51, column: 48, scope: !59)
+!91 = !DILocation(line: 51, column: 49, scope: !59)
 !92 = !DILocation(line: 51, column: 5, scope: !59)
 !93 = !DILocation(line: 52, column: 32, scope: !59)
 !94 = !DILocation(line: 52, column: 38, scope: !59)
