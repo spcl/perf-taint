@@ -55,31 +55,6 @@ json_t & __dfsw_json_get(int func_idx)
 bool __dfsw_json_write_loop(int function_idx, int loop_idx, int loop_depth,
 int deps_offset);
 
-//void __dfsw_json_write_loop(int function_idx, int loop_idx)
-//{
-//    int32_t loops_depths_begin = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
-//    int32_t loops_depths_end = loops_depths_begin + loop_idx;
-//    int32_t deps_offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
-//    int loop_depth = 0;
-//    for(int j = loops_depths_begin; j <= loops_depths_end; ++j) {
-//        loop_depth = __EXTRAP_LOOPS_DEPTHS_PER_FUNC[j];
-//        deps_offset += loop_depth;
-//    }
-//    // one accumulation of deps_offset too far
-//    deps_offset -= loop_depth;
-//
-//    fprintf(stderr, "WriteLoop Func: %s Loop %d Depth %d DepsOffset %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], loop_idx, loop_depth, deps_offset);
-//    dfsw_json_write_loop(function_idx, loop_idx, loop_depth, deps_offset);
-//
-//    dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset - loop_depth];
-//    // we need to clean it since the subset detection in __dfsw_add_dep
-//    // might use old results
-//    for(int i = 0; i < deps->len; ++i)
-//        deps->deps[i] = 0;
-//    deps->len = 0;
-//}
-
-
 // This function is usually called with a single loop instance.
 // Such calles emerge during loop write and the input is an array of loop instances
 // from a nested function call.
@@ -90,6 +65,8 @@ int deps_offset);
 //
 // TODO: this won't be necessary after replacing JSON -> array of integers
 // and a proper aggregation that replaces an array
+
+/*
 void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth);
 
 void __dfsw_json_update_loop_level(json_t & loops, int depth)
@@ -135,7 +112,7 @@ void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
             }
         }
     }
-}
+}*/
 
 json_t __dfsw_json_write_single_loop(dependencies * deps)
 {
@@ -145,26 +122,17 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
         json_t dependency;
         uint16_t val = deps->deps[jj];
         int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-        //fprintf(stderr, "Func: %s Level %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, loop, val);
         for(int kk = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
             kk < vars_count; ++kk) {
             if(val & (1 << kk)) {
                 __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
-                //filled = true;
             }
         }
         for(int kk = 0; kk < __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; ++kk)
             if(val & (1 << kk)) {
-                //if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] == -1) {
                     __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                     dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
-                //} else {
-                    //__EXTRAP_INSTRUMENTATION_PARAMS_USED[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] = true;
-                    //int redirect = __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT];
-                    //dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[redirect]);
-                //}
-                //filled = true;
             }
         deps->deps[jj] = 0;
         if(!dependency.empty()) {
@@ -183,42 +151,27 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
     int depth = *loop_data;
     bool non_empty = false;
 
-    //fprintf(stderr, "WriteFirstLoop Rank %d CallStackLen %d Func %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //fprintf(stderr, "FunctionIdx %d NestedLoopIdx %d Deps %p", function_idx, nested_loop_idx, deps);
     json_t params = __dfsw_json_write_single_loop(deps++);
-    //fprintf(stderr, "Finished WriteFirstLoop Rank %d  Func %d CallStackLen %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //std::cerr << params << ' ' << params.empty() << '\n';
     if(!params.empty()) {
       loop["params"] = params;
       non_empty = true;
     }
-    //std::cerr << params << ' ' << params.empty() << '\n';
     loop["level"] = 0;
-    //std::cerr << params << ' ' << params.empty() << '\n';
-    int level_size = *loop_structure, next_level_size = 0;
-    //fprintf(stderr, "Finished WriteFirstLoop Rank %d  Func %d CallStackLen %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //loop["nested_loops"] = level_size;
+    int level_size = *loop_structure, prev_level_size = 0, next_level_size = 0;
 
     json_t ** prev_iteration = new json_t*[1]();
     prev_iteration[0] = &loop;
     for(int level = 1; level < depth; ++level) {
-        //fprintf(stderr, "Iterate WriteFirstLoop Rank %d Func %d CallStackLen %d Iteration %d Loop %d LoopSize %d Dep %p NestedLoopidx %d\n",
-         //   __EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, level, level_size, deps, nested_loop_idx);
 
-        //int loop = 0;
         // number of loops on this level
         int parent_idx = 0, loop_idx = 0, processed_loops = 0;
         json_t ** cur_iteration = new json_t*[level_size];
         for(int loop = 0; loop < level_size; ++loop) {
 
-            //fprintf(stderr, "WriteFirstLoop Rank %d Func %d Loop %d LoopSize %d Dep %p NestedLoopidx %d\n",
-                //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, loop, level_size, deps, nested_loop_idx);
-            //fprintf(stderr, "Function %d Level %d LevelSize %d Loop %d ParentIdx %d\n", function_idx, level, level_size, loop, parent_idx);
             nested_loop_idx++;
-            // skip parent when all loops are already processed
+            // On each level, there are N entries of loop_structure corresponding
+            // to N parent loops. When loop of N-th parent is done, skip to the next one
+            // and start counting from zero again.
             while(loop_idx >= *loop_structure) {
 
                 parent_idx++;
@@ -234,15 +187,7 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
               non_empty = true;
               loop_level["params"] = params;
             }
-            //loop_level["nested_loops"] = level_size;
             while(begin != end && begin->nested_loop_idx == nested_loop_idx) {
-              //  for(size_t i = 0; i < begin->len; ++i) {
-              //      json_t * data = static_cast<json_t*>(begin->json_data[i]);
-              //      if(!data->empty()) {
-              //          loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(*data);
-              //          __dfsw_json_update_loop_level(loop_level["loops"][std::to_string(begin->loop_size_at_level)].back(), level + 1);
-              //      }
-              //  }
               if(begin->len > 0) {
                 json_t entry;
                 for(size_t i = 0; i < begin->len; ++i) {
@@ -275,9 +220,15 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
             //auto & prev_loops = (*prev_iteration)["loops"];
             //auto it = prev_loops.find( std::to_string(
         }
+        // Skip loop structure entries corresponding to entry parents that
+        // were not updated
+        for(int j = parent_idx + 1; j < prev_level_size; ++j)
+          loop_structure++;
+        // Move to the next level
         loop_structure++;
         for(int i = 0; i < level_size; ++i)
             next_level_size += *(loop_structure + i);
+        prev_level_size = level_size;
         std::swap(level_size, next_level_size);
         std::swap(prev_iteration, cur_iteration);
         //prev_iteration = &(*prev_iteration)["subloops"];
