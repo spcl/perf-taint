@@ -275,7 +275,6 @@ bool process_entry(json_t & entry, const json_t & input, json_t & out)
     auto function_instance = input["functions"].find(f_name);
     assert(function_instance != input["functions"].end());
     uint32_t id = (*elem).get<uint32_t>();
-    std::cerr << (*function_instance)["loops"][id]["instance"] << std::endl;
     out.push_back((*function_instance)["loops"][id]["instance"]);
     return true;
   }
@@ -287,7 +286,6 @@ bool replace(const json_t & input, json_t & instance)
   bool replaced = true;
   while(replaced) {
     replaced = false;
-    //std::cerr << "BEFORE REPLACE " << instance.dump(2) << std::endl;
     for(auto it = instance.begin(), end = instance.end(); it != end; ++it) {
       auto elem = it.value().find("loops");
       if(elem != it.value().end())
@@ -304,7 +302,6 @@ bool replace(const json_t & input, json_t & instance)
             //    process_entry(entry_elem2, input, out);
             //}
           }
-          std::cerr << entry << std::endl;
         }
         // will be null for an array of params, 
         if(!out.is_null()) {
@@ -313,9 +310,13 @@ bool replace(const json_t & input, json_t & instance)
         }
       }
     }
-    //std::cerr << "AFTER REPLACE " << replaced << " " << instance.dump(2) << std::endl;
   }
   return replaced;
+}
+
+bool is_important(const std::string & name, const json_t & func)
+{
+
 }
 
 json_t convert(json_t & input, bool generate_full_data)
@@ -357,6 +358,7 @@ json_t convert(json_t & input, bool generate_full_data)
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
+        is_important(it.key(), it.value());
         std::string name = input["functions_names"][idx].get<std::string>();
         of << "INCLUDE *" << input["functions_names"][idx].get<std::string>() << "*\n";
         //std::cout << "Name: " << it.key() << '\n';
