@@ -506,11 +506,13 @@ json_t convert(json_t & input, bool generate_full_data)
 int main(int argc, char ** argv)
 {
     json_t input;
-    assert(argc == 3);
+    assert(argc >= 2);
     std::ifstream in(argv[1], std::ios_base::in);
     in >> input;
     in.close();
-    bool generate_full_data = atoi(argv[2]);
+    bool generate_full_data = false;
+    if(argc > 2)
+      generate_full_dat = atoi(argv[2]);
 
     json_t converted = convert(input, generate_full_data);
     std::cout << converted.dump(2);
