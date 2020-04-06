@@ -512,7 +512,7 @@ int main(int argc, char ** argv)
     in.close();
     bool generate_full_data = false;
     if(argc > 2)
-      generate_full_dat = atoi(argv[2]);
+      generate_full_data = atoi(argv[2]);
 
     json_t converted = convert(input, generate_full_data);
     std::cout << converted.dump(2);
