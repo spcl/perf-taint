@@ -318,7 +318,7 @@ bool replace(const json_t & input, json_t & instance)
   return replaced;
 }
 
-json_t convert(json_t & input)
+json_t convert(json_t & input, bool generate_full_data)
 {
     json_t output;
 
@@ -387,7 +387,6 @@ json_t convert(json_t & input)
         for(auto & callstack : loops) {//aggregated_callstacks) {
             replace(input, callstack["instance"]);
             json_t & callstack_data = callstack["callstacks"];
-            std::cerr << "INSTANCE: " << callstack["instance"].dump(2) << std::endl;
 
             json_t converted_callstacks;
             for(auto value : callstack_data) {
@@ -405,16 +404,17 @@ json_t convert(json_t & input)
 
                     // push update_u -> update_h :( old hack around ScoreP filtering
                     if(important_indices.count(v.get<int>())
-                        || v.get<int>() == 403
+                        //update_h
+                        || v.get<int>() == 418
+                        //setup_output_gauge_file
+                        || v.get<int>() == 352
                         || input["functions_names"][v.get<int>()] == "main")
                       new_callstack.push_back(v);
                 }
                 converted_callstacks.push_back(new_callstack);
             }
             callstack_data = std::move(converted_callstacks);
-            std::cerr << "CALLSTACK: " << callstack_data.dump(2) << std::endl;
 
-            std::cerr << callstack["instance"].dump(2) << std::endl;
             json_t converted = convert_loop_set(callstack["instance"]);
             if(converted.empty())
                 continue;
@@ -506,12 +506,13 @@ json_t convert(json_t & input)
 int main(int argc, char ** argv)
 {
     json_t input;
-    assert(argc == 2);
+    assert(argc == 3);
     std::ifstream in(argv[1], std::ios_base::in);
     in >> input;
     in.close();
+    bool generate_full_data = atoi(argv[2]);
 
-    json_t converted = convert(input);
+    json_t converted = convert(input, generate_full_data);
     std::cout << converted.dump(2);
     return 0;
 }
