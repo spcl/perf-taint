@@ -12,8 +12,13 @@
 // all known loops. However, we didn't catch the issue because some loops
 // were not processed while committing the loop, we noticed it because the call
 // to important function was not present in the JSON.
+// The problem was caused by multipath level where at least one of last functions
+// didn't have any subloops. This lead to a loop structure entry: 0 1 0,
+// in this case for level 3, and the pointer to loop structure was not increment
+// enought to cover for not used loops.
 //
-// Bug fix:
+// Bug fix: increment loop structure increment enough times to propagate to the
+// next loop level.
 
 int call_interesting_function(int x1, int x2)
 {
@@ -30,14 +35,14 @@ int f(int x1, int x2)
     // first unimportant OpenMP loop
     for(int j = 0; j < x2; ++j)
       tmp += i*1.1;
-    for(int j = 0; j < x1; j += 1) {
+    for(int j = 0; j < x2; j += 1) {
       for(int k = 0; k < x1; k += 1) {
         // Unimportant nested loop
-        for(int l = 0; l < x1; l += 1) {
+        for(int l = 0; l < x2; l += 1) {
           tmp += i*1.1;
         }
         // main loop
-        for(int l = 0; l < x1; l += 1) {
+        for(int l = 0; l < x2; l += 1) {
           // Another two loops that don't bring anything
           for(int m = 0; m < x1; m += 1) {
             tmp += i*1.1;
@@ -50,7 +55,7 @@ int f(int x1, int x2)
           // Some OpenMP loop
           for(int m = 0; m < x1; m += 1) {
             // Some other loop
-            for(int n = 0; n < x1; n += 1) {
+            for(int n = 0; n < x2; n += 1) {
               tmp += i*1.1;
             }
           }
@@ -58,7 +63,7 @@ int f(int x1, int x2)
       }
     }
     // Final OMP loop
-    for(int l = 0; l < x1; l += 1) {
+    for(int l = 0; l < x2; l += 1) {
       tmp += i*1.1;
     }
   }
