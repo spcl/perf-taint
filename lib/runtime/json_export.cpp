@@ -55,31 +55,6 @@ json_t & __dfsw_json_get(int func_idx)
 bool __dfsw_json_write_loop(int function_idx, int loop_idx, int loop_depth,
 int deps_offset);
 
-//void __dfsw_json_write_loop(int function_idx, int loop_idx)
-//{
-//    int32_t loops_depths_begin = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[function_idx];
-//    int32_t loops_depths_end = loops_depths_begin + loop_idx;
-//    int32_t deps_offset = __EXTRAP_LOOPS_DEPS_OFFSETS[function_idx];
-//    int loop_depth = 0;
-//    for(int j = loops_depths_begin; j <= loops_depths_end; ++j) {
-//        loop_depth = __EXTRAP_LOOPS_DEPTHS_PER_FUNC[j];
-//        deps_offset += loop_depth;
-//    }
-//    // one accumulation of deps_offset too far
-//    deps_offset -= loop_depth;
-//
-//    fprintf(stderr, "WriteLoop Func: %s Loop %d Depth %d DepsOffset %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], loop_idx, loop_depth, deps_offset);
-//    dfsw_json_write_loop(function_idx, loop_idx, loop_depth, deps_offset);
-//
-//    dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset - loop_depth];
-//    // we need to clean it since the subset detection in __dfsw_add_dep
-//    // might use old results
-//    for(int i = 0; i < deps->len; ++i)
-//        deps->deps[i] = 0;
-//    deps->len = 0;
-//}
-
-
 // This function is usually called with a single loop instance.
 // Such calles emerge during loop write and the input is an array of loop instances
 // from a nested function call.
@@ -90,6 +65,8 @@ int deps_offset);
 //
 // TODO: this won't be necessary after replacing JSON -> array of integers
 // and a proper aggregation that replaces an array
+
+/*
 void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth);
 
 void __dfsw_json_update_loop_level(json_t & loops, int depth)
@@ -135,7 +112,7 @@ void __dfsw_json_update_loop_level_subloop(json_t & loops, int depth)
             }
         }
     }
-}
+}*/
 
 json_t __dfsw_json_write_single_loop(dependencies * deps)
 {
@@ -145,26 +122,17 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
         json_t dependency;
         uint16_t val = deps->deps[jj];
         int vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
-        //fprintf(stderr, "Func: %s Level %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, loop, val);
         for(int kk = __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
             kk < vars_count; ++kk) {
             if(val & (1 << kk)) {
                 __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                 dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
-                //filled = true;
             }
         }
         for(int kk = 0; kk < __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT; ++kk)
             if(val & (1 << kk)) {
-                //if(__EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] == -1) {
                     __EXTRAP_INSTRUMENTATION_PARAMS_USED[kk] = true;
                     dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[kk]);
-                //} else {
-                    //__EXTRAP_INSTRUMENTATION_PARAMS_USED[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT] = true;
-                    //int redirect = __EXTRAP_INSTRUMENTATION_PARAMS_REDIRECT[kk-__EXTRAP_INSTRUMENTATION_PARAMS_MAX_COUNT];
-                    //dependency.push_back(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[redirect]);
-                //}
-                //filled = true;
             }
         deps->deps[jj] = 0;
         if(!dependency.empty()) {
@@ -181,41 +149,29 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
 {
     json_t loop;
     int depth = *loop_data;
+    bool non_empty = false;
 
-    //fprintf(stderr, "WriteFirstLoop Rank %d CallStackLen %d Func %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //fprintf(stderr, "FunctionIdx %d NestedLoopIdx %d Deps %p", function_idx, nested_loop_idx, deps);
     json_t params = __dfsw_json_write_single_loop(deps++);
-    //fprintf(stderr, "Finished WriteFirstLoop Rank %d  Func %d CallStackLen %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //std::cerr << params << ' ' << params.empty() << '\n';
-    if(!params.empty())
-        loop["params"] = params;
-    //std::cerr << params << ' ' << params.empty() << '\n';
+    if(!params.empty()) {
+      loop["params"] = params;
+      non_empty = true;
+    }
     loop["level"] = 0;
-    //std::cerr << params << ' ' << params.empty() << '\n';
-    int level_size = *loop_structure, next_level_size = 0;
-    //fprintf(stderr, "Finished WriteFirstLoop Rank %d  Func %d CallStackLen %d Depth %d Dep %p NestedLoopidx %d\n",
-        //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, depth, deps, nested_loop_idx);
-    //loop["nested_loops"] = level_size;
+    int level_size = *loop_structure, prev_level_size = 0, next_level_size = 0;
 
     json_t ** prev_iteration = new json_t*[1]();
     prev_iteration[0] = &loop;
     for(int level = 1; level < depth; ++level) {
-        //fprintf(stderr, "Iterate WriteFirstLoop Rank %d Func %d CallStackLen %d Iteration %d Loop %d LoopSize %d Dep %p NestedLoopidx %d\n",
-         //   __EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, __EXTRAP_CALLSTACK.len, level, level_size, deps, nested_loop_idx);
 
-        //int loop = 0;
         // number of loops on this level
         int parent_idx = 0, loop_idx = 0, processed_loops = 0;
         json_t ** cur_iteration = new json_t*[level_size];
         for(int loop = 0; loop < level_size; ++loop) {
 
-            //fprintf(stderr, "WriteFirstLoop Rank %d Func %d Loop %d LoopSize %d Dep %p NestedLoopidx %d\n",
-                //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, loop, level_size, deps, nested_loop_idx);
-            //fprintf(stderr, "Function %d Level %d LevelSize %d Loop %d ParentIdx %d\n", function_idx, level, level_size, loop, parent_idx);
             nested_loop_idx++;
-            // skip parent when all loops are already processed
+            // On each level, there are N entries of loop_structure corresponding
+            // to N parent loops. When loop of N-th parent is done, skip to the next one
+            // and start counting from zero again.
             while(loop_idx >= *loop_structure) {
 
                 parent_idx++;
@@ -227,25 +183,23 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
             json_t loop_level;
             loop_level["level"] = level;
             json_t params = __dfsw_json_write_single_loop(deps++);
-            if(!params.empty())
-                loop_level["params"] = params;
-            //loop_level["nested_loops"] = level_size;
-            if(begin != end) {
-                //fprintf(stderr, "Function %d Idx %d LoopIdx %d Len %d data_ptr %p\n", function_idx, nested_loop_idx, (begin + 0)->nested_loop_idx, begin->len, begin->json_data[0]);
-                while(begin != end && begin->nested_loop_idx == nested_loop_idx) {
-#ifdef DEBUG
-                    fprintf(stderr, "Inner Function %d Idx %d Len %zu data_ptr %p\n", function_idx, nested_loop_idx, begin->len, begin->json_data);
-#endif
-                    for(size_t i = 0; i < begin->len; ++i) {
-                        json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                        if(!data->empty()) {
-                            loop_level["loops"][std::to_string(begin->loop_size_at_level)].push_back(*data);
-                            __dfsw_json_update_loop_level(loop_level["loops"][std::to_string(begin->loop_size_at_level)].back(), level + 1);
-                        }
-                    }
-                        //(*prev_iteration[parent_idx])["loops"][std::to_string(begin->loop_size_at_level)].push_back(*static_cast<json_t*>(begin->json_data[i]));
-                    begin++;
+            if(!params.empty()) {
+              non_empty = true;
+              loop_level["params"] = params;
+            }
+            while(begin != end && begin->nested_loop_idx == nested_loop_idx) {
+              if(begin->len > 0) {
+                json_t entry;
+                for(size_t i = 0; i < begin->len; ++i) {
+                  entry.push_back({
+                      {"function_idx", begin->data[i].function_idx},
+                      {"entry_id", begin->data[i].pos}
+                  });
                 }
+                loop_level["loops"][std::to_string(begin->loop_size_at_level)] = std::move(entry);
+                non_empty = true;
+              }
+              begin++;
             }
             (*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)] = loop_level;
             cur_iteration[loop] = &(*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)];
@@ -266,9 +220,15 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
             //auto & prev_loops = (*prev_iteration)["loops"];
             //auto it = prev_loops.find( std::to_string(
         }
+        // Skip loop structure entries corresponding to entry parents that
+        // were not updated
+        for(int j = parent_idx + 1; j < prev_level_size; ++j)
+          loop_structure++;
+        // Move to the next level
         loop_structure++;
         for(int i = 0; i < level_size; ++i)
             next_level_size += *(loop_structure + i);
+        prev_level_size = level_size;
         std::swap(level_size, next_level_size);
         std::swap(prev_iteration, cur_iteration);
         //prev_iteration = &(*prev_iteration)["subloops"];
@@ -308,27 +268,29 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
     //    //}
     //    deps++;
     //}
+  if(non_empty)
     return loop;
+  else
+    return json_t{};
 }
 
-void __dfsw_json_loop_committed(json_t * loop)
+void __dfsw_json_loop_committed(uint16_t function_idx, size_t pos)
 {
-    if(__EXTRAP_CURRENT_CALL == -1)
-        return;
-    nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL];
-    for(size_t i = 0; i < last_call.len; ++i) {
-        if(last_call.json_data[i] == static_cast<void*>(loop))
-            return;
+  if(__EXTRAP_CURRENT_CALL == -1)
+    return;
+  nested_call & last_call = __EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL];
+  for(size_t i = 0; i < last_call.len; ++i) {
+    if(last_call.data[i].function_idx == function_idx && last_call.data[i].pos == pos) {
+      return;
     }
-    if(last_call.len == last_call.capacity) {
-        last_call.capacity += 5;
-        last_call.json_data = static_cast<void**>(realloc(last_call.json_data, sizeof(void**) *
-                last_call.capacity));
-    }
-#ifdef DEBUG
-    fprintf(stderr, "Save JSON data at pos %d new len %lu for call %d %d pos_ptr %p data_ptr %p\n", __EXTRAP_CURRENT_CALL, last_call.len + 1, last_call.nested_loop_idx, last_call.loop_size_at_level, &__EXTRAP_NESTED_CALLS.data[__EXTRAP_CURRENT_CALL], loop);
-#endif
-    last_call.json_data[last_call.len++] = static_cast<void*>(loop);
+  }
+  if(last_call.len == last_call.capacity) {
+    last_call.capacity += 5;
+    last_call.data = static_cast<nested_call_data*>(realloc(last_call.data, sizeof(nested_call_data) *
+      last_call.capacity));
+ }
+  last_call.data[last_call.len].function_idx = function_idx;
+  last_call.data[last_call.len++].pos = pos;
 }
 
 bool __dfsw_json_write_loop(int function_idx, int calls_count)
@@ -380,22 +342,20 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
         //TODO: fix
         json_t loop_copied;
         if(begin != end) {
-            while(begin != end && begin->nested_loop_idx == old_nested_idx) {
-                for(size_t i = 0; i < begin->len; ++i) {
-                    json_t * data = static_cast<json_t*>(begin->json_data[i]);
-                    loop_copied[std::to_string(begin->loop_size_at_level)].push_back(*data);
-                    __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
-                    //for(auto it = data->begin(), end = data->end(); it != end; ++it) {
-                    //    std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
-                    //    loop_copied[std::to_string(begin->loop_size_at_level)].push_back(it.value());
-                    //    __dfsw_json_update_loop_level(loop_copied[std::to_string(begin->loop_size_at_level)].back(), 1);
-                    //}
-                }
-                //for(size_t i = 0; i < begin->len; ++i)
-                //    output[std::to_string(begin->loop_size_at_level)]
-                //        .push_back(*static_cast<json_t*>(begin->json_data[i]));
-                begin++;
+          while(begin != end && begin->nested_loop_idx == old_nested_idx) {
+            if(begin->len > 0) {
+              json_t entry;
+              for(size_t i = 0; i < begin->len; ++i) {
+                entry.push_back({
+                    {"function_idx", begin->data[i].function_idx},
+                    {"entry_id", begin->data[i].pos}
+                });
+              }
+              loop_copied[std::to_string(begin->loop_size_at_level)] = std::move(entry);
+              non_empty = true;
             }
+            begin++; 
+          }
         }
         dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
         //if(function_idx == 22)
@@ -403,13 +363,11 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, loop_idx, deps_offset, nested_loop_idx);
         json_t loop = __dfsw_json_write_loop(function_idx, loop_data,
                loop_structure, deps, nested_loop_idx, begin, end);
-        //fprintf(stderr, "Finished Rank %d Func %d Loop %d DepOffset %d NestedLoopidx %d\n",
-            //__EXTRAP_INSTRUMENTATION_MPI_RANK, function_idx, loop_idx, deps_offset, nested_loop_idx);
-        for(auto it = loop_copied.begin(), end = loop_copied.end(); it != end; ++it)
+        if((!loop.is_null() && !loop.empty()) || !loop_copied.empty()) {
+          non_empty = true;
+          for(auto it = loop_copied.begin(), end = loop_copied.end(); it != end; ++it)
             loop["loops"][it.key()] = std::move(it.value());
-        //std::cerr << loop << std::endl;
-        if(!loop.empty()) {
-            output[std::to_string(loop_idx)] = loop;
+          output[std::to_string(loop_idx)] = loop;
         }
         // finish previous loop
         loop_data += 3;
@@ -422,18 +380,29 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
     // Their nested_loop_idx is -1.
     // No need to update loop levels - they start from 0.
     if(begin != end) {
-        while(begin != end && begin->nested_loop_idx == -1) {
-            for(size_t i = 0; i < begin->len; ++i) {
-                json_t * data = static_cast<json_t*>(begin->json_data[i]);
+      while(begin != end && begin->nested_loop_idx == -1) {
+            //for(size_t i = 0; i < begin->len; ++i) {
+                //json_t * data = static_cast<json_t*>(begin->json_data[i]);
                 //fprintf(stderr, "Function %d callsCount %d Outside Len %d AtPos %d pos_ptr %p data_ptr %p\n", function_idx, calls_count, begin->len, begin->loop_size_at_level, begin, begin->json_data[i]);
-                for(auto it = data->begin(), end = data->end(); it != end; ++it) {
-                    //std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
-                    //output[std::to_string(begin->loop_size_at_level)].push_back(it.value());
-                }
-                output[std::to_string(begin->loop_size_at_level)].push_back(*data);
-            }
-            begin++;
+                //for(auto it = data->begin(), end = data->end(); it != end; ++it) {
+                //    //std::cerr << "Add loop: " << it.key() << " " << it.value() << '\n';
+                //    //output[std::to_string(begin->loop_size_at_level)].push_back(it.value());
+                //}
+                //output[std::to_string(begin->loop_size_at_level)].push_back(*data);
+            //}
+        if(begin->len > 0) {
+          json_t entry;
+          for(size_t i = 0; i < begin->len; ++i) {
+            entry.push_back({
+                {"function_idx", begin->data[i].function_idx},
+                {"entry_id", begin->data[i].pos}
+            });
+          }
+          non_empty = true;
+          output[std::to_string(begin->loop_size_at_level)] = std::move(entry);
         }
+        begin++;
+      }
     }
 
     //for(int i = 0; i < calls_count; ++i) {
@@ -441,10 +410,13 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
     //    fprintf(stderr, "Function %d Call %d Found %d non-zero calls\n", function_idx, i, call.len);
     //}
 
-    if(!output.empty()) {
+    if(non_empty) {
+      if(output.empty())
+        exit(4);
         json_t * func = &__dfsw_json_get(function_idx);
         json_t & prev_loops = (*func)["loops"];
         bool found = false;
+        size_t cur_idx = 0;
         for(json_t & prev : prev_loops) {
             if(prev["instance"] == output) {
                 found = true;
@@ -459,7 +431,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                         break;
                     }
                 }
-                __dfsw_json_loop_committed(&prev["instance"]);
+                __dfsw_json_loop_committed(function_idx, cur_idx); //&prev);
                 //fprintf(stderr, "Commit JSON data already known %p callstack_len %d\n", &prev,
                         //callstack.size());
                 if(!callstack_found) {
@@ -467,6 +439,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
                 }
                 break;
             }
+            cur_idx++;
         }
         if(!found) {
             // don't write current function
@@ -476,7 +449,6 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             json_t instance;
             instance["callstacks"].push_back(callstack);
             instance["instance"] = output;
-            ////std::cerr << instance << " " << prev_loops << '\n';
             ////
             //std::cout << instance << std::endl;
             //std::cout << *func << std::endl;
@@ -484,7 +456,7 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             //std::cout << prev_loops << std::endl;
             prev_loops.push_back( std::move(instance) );
             //fprintf(stderr, "Commit new JSON data %p callstack_len %d \n", &prev_loops.back(), callstack.size());
-            __dfsw_json_loop_committed( & prev_loops.back()["instance"] );
+            __dfsw_json_loop_committed(function_idx, prev_loops.size() - 1); //&prev_loops.back());
         }
     }
 
@@ -542,10 +514,12 @@ bool __dfsw_json_loop_is_important(json_t & loop_set)
         // TODO: temporary fix to handle the case where subloops is an array
         // it can only happen when multiple JSONs are written in a nested function call
         if(loop.is_array()) {
-            for(auto & v : loop) {
-                //std::cerr << v << '\n';
-                important |= __dfsw_json_loop_is_important(v);//__dfsw_is_important(v);
-            }
+          // If nested call have written any data, then it means it is not empty.
+          important = !loop.empty();
+          //for(auto & v : loop) {
+          //    std::cerr << v << '\n';
+          //    //important |= __dfsw_json_loop_is_important(v);//__dfsw_is_important(v);
+          //}
         } else {
             important |= __dfsw_is_important(loop);
         }
@@ -590,6 +564,8 @@ bool __dfsw_json_is_important(json_t & json)
 void __dfsw_dump_json_output()
 {
     json_t & out = *__dfsw_json_get();
+
+
     int full_vars_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
         + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
     // Detect if any of user-registered parameters are the same as an implicit parameter.

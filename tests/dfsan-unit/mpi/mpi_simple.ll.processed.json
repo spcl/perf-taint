@@ -1,0 +1,423 @@
+{
+  "functions": {
+    "MPI_Barrier": {
+      "file": null,
+      "func_idx": 6,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "size",
+            "ranks"
+          ]
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "file": null,
+      "func_idx": 5,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3,
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "size",
+            "ranks"
+          ]
+        }
+      ]
+    },
+    "_Z16h_multiple_loopsPdm": {
+      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "func_idx": 2,
+      "line": 17,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "size",
+                    "ranks"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "size",
+              "ranks"
+            ],
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1fPdm": {
+      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "func_idx": 1,
+      "line": 9,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "size",
+                    "ranks"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "size",
+              "ranks"
+            ]
+          ],
+          "not_found_params": [
+            "p"
+          ]
+        }
+      ]
+    },
+    "_Z1hPd": {
+      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "func_idx": 4,
+      "line": 26,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "size",
+            "ranks"
+          ]
+        }
+      ]
+    },
+    "_Z8h_nestedPdm": {
+      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "func_idx": 3,
+      "line": 33,
+      "loops": [
+        {
+          "callstack": [
+            [
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "size",
+                        "ranks"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "additive",
+                          "operands": [
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "p"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "size",
+              "ranks",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "main": {
+      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "func_idx": 0,
+      "line": 40,
+      "loops": [
+        {
+          "callstack": [
+            null
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "size",
+                            "ranks"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "size",
+                            "ranks"
+                          ]
+                        },
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "size",
+                                "ranks"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "additive",
+                                  "operands": [
+                                    {
+                                      "dependency": "additive",
+                                      "operands": [
+                                        {
+                                          "dependency": "unknown",
+                                          "operands": [
+                                            "p"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "size",
+              "ranks"
+            ],
+            [
+              "p"
+            ],
+            [
+              "size",
+              "ranks",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "main",
+    "f(double*, unsigned long)",
+    "h_multiple_loops(double*, unsigned long)",
+    "h_nested(double*, unsigned long)",
+    "h(double*)",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "main",
+    "_Z1fPdm",
+    "_Z16h_multiple_loopsPdm",
+    "_Z8h_nestedPdm",
+    "_Z1hPd",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "main",
+    "f",
+    "h_multiple_loops",
+    "h_nested",
+    "h",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "size",
+    "ranks",
+    "p"
+  ]
+}

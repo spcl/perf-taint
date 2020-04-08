@@ -48,7 +48,7 @@ void register_variables(const char * name, size_t count, ...)
     //}
     va_start(args, count);
     int32_t param_id = __dfsw_EXTRAP_VAR_ID();
-    fprintf(stderr, "Register %d variables\n", count);
+    fprintf(stderr, "Register %zu variables\n", count);
     __dfsw_EXTRAP_STORE_LABELS(name, param_id, count, args);
     //va_end(args);
 }

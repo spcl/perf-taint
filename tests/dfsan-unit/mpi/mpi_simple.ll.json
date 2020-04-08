@@ -146,14 +146,8 @@
               "loops": {
                 "0": [
                   {
-                    "0": {
-                      "level": 1,
-                      "params": [
-                        [
-                          "p"
-                        ]
-                      ]
-                    }
+                    "entry_id": 0,
+                    "function_idx": 4
                   }
                 ]
               },
@@ -188,63 +182,20 @@
             },
             "1": [
               {
-                "0": {
-                  "level": 0,
-                  "params": [
-                    [
-                      "size",
-                      "ranks"
-                    ]
-                  ]
-                }
+                "entry_id": 0,
+                "function_idx": 1
               }
             ],
             "2": [
               {
-                "0": {
-                  "level": 0,
-                  "params": [
-                    [
-                      "size",
-                      "ranks"
-                    ]
-                  ]
-                },
-                "1": {
-                  "level": 0,
-                  "params": [
-                    [
-                      "p"
-                    ]
-                  ]
-                }
+                "entry_id": 0,
+                "function_idx": 2
               }
             ],
             "3": [
               {
-                "0": {
-                  "level": 0,
-                  "loops": {
-                    "0": [
-                      {
-                        "0": {
-                          "level": 1,
-                          "params": [
-                            [
-                              "p"
-                            ]
-                          ]
-                        }
-                      }
-                    ]
-                  },
-                  "params": [
-                    [
-                      "size",
-                      "ranks"
-                    ]
-                  ]
-                }
+                "entry_id": 0,
+                "function_idx": 3
               }
             ]
           }

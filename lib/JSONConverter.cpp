@@ -34,7 +34,6 @@ json_t convert_loop(const json_t & loop)
 
     json_t current;
     std::vector<json_t> additive_layers;
-    //std::cerr << loop.dump(2) << '\n';
 
     //array of jsons coming from nested calls
     if(loop.is_array()) {
@@ -135,7 +134,6 @@ json_t convert_loop_set(const json_t & loop_set)
         //}
         //deps.push_back(dep);
         json_t converted = convert_loop(it.value());
-        //std::cerr << converted << "\n\n";
         if(converted["operands"].size() != 0) {
             deps.push_back( std::move(converted) );
         }
@@ -168,7 +166,6 @@ std::vector<uint32_t> parse(const json_t & op, const json_t & all_params)
     //    std::cout << "Process param: " << op << ' ' << param_to_int(op, all_params) << '\n';
     //    return std::vector<uint32_t>(1, param_to_int(op, all_params));
     //} else
-    //std::cerr << op << '\n';
     if(op.is_array()) {
         return parse(op[0], all_params);
     } else if(op["dependency"] == "additive") {
@@ -269,25 +266,85 @@ void get_deps(json_t & out, json_t & loop, const json_t & params)
     }
 }
 
-json_t convert(json_t & input)
+bool process_entry(json_t & entry, const json_t & input, json_t & out)
+{
+  auto elem = entry.find("entry_id");
+  if(elem != entry.end()) {
+    uint32_t f_idx = entry["function_idx"].get<uint32_t>();
+    std::string f_name = input["functions_mangled_names"][f_idx].get<std::string>();
+    auto function_instance = input["functions"].find(f_name);
+    assert(function_instance != input["functions"].end());
+    uint32_t id = (*elem).get<uint32_t>();
+    out.push_back((*function_instance)["loops"][id]["instance"]);
+    return true;
+  }
+  return false;
+}
+
+bool replace(const json_t & input, json_t & instance)
+{
+  bool replaced = true;
+  while(replaced) {
+    replaced = false;
+    for(auto it = instance.begin(), end = instance.end(); it != end; ++it) {
+      auto elem = it.value().find("loops");
+      if(elem != it.value().end())
+        replaced |= replace(input, *elem); 
+      if(it.value().is_array()) {
+        json_t out;
+        for(auto & entry : it.value()) {
+
+          if(!process_entry(entry, input, out)) {
+            replace(input, entry);
+            // for recursive processing - replaced one, now we have to replace the same thing again
+            //for(auto entry_elem = entry.begin(); entry_elem != entry.end(); ++entry_elem) {
+            //  for(auto & entry_elem2 : entry_elem.value())
+            //    process_entry(entry_elem2, input, out);
+            //}
+          }
+        }
+        // will be null for an array of params, 
+        if(!out.is_null()) {
+          (*it) = std::move(out);
+          replaced = true;
+        }
+      }
+    }
+  }
+  return replaced;
+}
+
+bool is_important_instance(const json_t & instance)
+{
+  std::cerr << "instance: " << instance << std::endl;
+  for(auto loop_it  = instance.begin(); loop_it != instance.end(); ++loop_it) {
+    // if it's an array, it will contain entries of called functions
+    const json_t & loop = loop_it.value();
+    if(!loop.is_array()) {
+      if(loop.count("params"))
+        return true;
+      auto subloops = loop.find("loops");
+      if(subloops != loop.end())
+        return is_important_instance(subloops.value());
+    }
+  }
+  return false;
+}
+
+bool is_important(const json_t & func)
+{
+  std::cerr << "Important function: " << func << std::endl;
+  for(auto it = func.begin(); it != func.end(); ++it) {
+    const json_t & instance = it.value()["instance"];
+    if(is_important_instance(instance))
+      return true;
+  }
+  return false;
+}
+
+json_t convert(json_t & input, bool generate_full_data)
 {
     json_t output;
-    std::vector<std::string> to_copy{
-        "functions_demangled_names",
-        "functions_mangled_names",
-        "functions_names",
-        "parameters",
-        "unused_parameters"
-    };
-    std::vector<std::string> to_copy_local{
-        "file",
-        "line",
-        "func_idx"
-    };
-    for(const auto & key : to_copy) {
-        if(!input[key].empty())
-            output[key] = std::move(input[key]);
-    }
 
     //int i = 0;
     //for(; i < output["functions_names"].size(); ++i) {
@@ -295,10 +352,15 @@ json_t convert(json_t & input)
     //        std::cerr << i << '\n';
 
     //}
+    std::vector<std::string> to_copy_local{
+        "file",
+        "line",
+        "func_idx"
+    };
 
-    std::ofstream of("filter", std::ios_base::out);
+    std::ofstream of("all_functions.filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
-    for(const auto & name : output["functions_names"]) {
+    for(const auto & name : input["functions_names"]) {
         of << "INCLUDE *" << name.get<std::string>() << "*\n";
     }
     of << "SCOREP_REGION_NAMES_END\n";
@@ -307,12 +369,12 @@ json_t convert(json_t & input)
     json_t & functions = input["functions"];
     json_t & unimportant_functions = input["unimportant_functions"];
     json_t & functions_output = output["functions"];
-    json_t & params = output["parameters"];
+    json_t & params = input["parameters"];
     std::vector<std::string> important_functions(functions.size() + unimportant_functions.size());
-    of.open("filter_important", std::ios_base::out);
+    of.open("important_functions.filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
-    std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " importatn functions" << '\n';
-    int functions_count = functions.size();
+    of << "EXCLUDE *\n";
+    std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
     std::set<int> important_indices{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
         important_indices.insert( (it.value()["func_idx"].get<int>()));
@@ -320,9 +382,16 @@ json_t convert(json_t & input)
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
-        std::string name = output["functions_names"][idx].get<std::string>();
-        std::cerr << it.key() << ' ' << it.value()["func_idx"].get<int>() << '\n';
-        of << "INCLUDE *" << output["functions_names"][idx].get<std::string>() << "*\n";
+        if(is_important(it.value()["loops"])) {
+          bool is_mangled =
+            input["functions_demangled_names"][idx].get<std::string>() !=
+              input["functions_mangled_names"][idx].get<std::string>();
+          if(is_mangled)
+            of << "INCLUDE *\\ " << input["functions_names"][idx].get<std::string>() << "(*\n";
+          else
+            of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
+        }
+        std::string name = input["functions_names"][idx].get<std::string>();
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
         // callstack -> list of loops
@@ -349,40 +418,33 @@ json_t convert(json_t & input)
         std::map<json_t, std::tuple<json_t, std::vector<uint32_t>> > aggregated_callstacks;
         json_t new_loops;
         for(auto & callstack : loops) {//aggregated_callstacks) {
+            replace(input, callstack["instance"]);
             json_t & callstack_data = callstack["callstacks"];
 
             json_t converted_callstacks;
             for(auto value : callstack_data) {
-                std::vector<json_t> new_callstack;
-                new_callstack.push_back(json_t::array());
+                json_t new_callstack;
+                //new_callstack.push_back(json_t::array());
                 for(auto v : value) {
 
-                    size_t size = new_callstack.size();
-                    if(name == "MPI_Allreduce")
-                      std::cerr << "Process: " << v.get<int>() << " size " << size << std::endl;
-                    if(!important_indices.count(v.get<int>())) {
-                      new_callstack.resize(size*2);
-                      std::copy_n(std::begin(new_callstack), size, std::begin(new_callstack) + size);
-                    }
-                    for(int i = 0; i < size; ++i)
-                      new_callstack[i].push_back(v);
+                    //size_t size = new_callstack.size();
+                    //if(!important_indices.count(v.get<int>())) {
+                    //  new_callstack.resize(size*2);
+                    //  std::copy_n(std::begin(new_callstack), size, std::begin(new_callstack) + size);
+                    //}
+                    //for(int i = 0; i < size; ++i)
+                    //  new_callstack[i].push_back(v);
 
-                    if(name == "MPI_Allreduce") {
-                      std::cerr << "Processed: ";
-                      for(auto v2 : new_callstack)
-                        std::cerr << v2;
-                      std::cerr << std::endl;
-                    }
                     // push update_u -> update_h :( old hack around ScoreP filtering
-                    //if(important_indices.count(v.get<int>()) || v.get<int>() == 403)
-                     //   new_callstack.push_back(v);
+                    if(important_indices.count(v.get<int>())
+                        //update_h
+                        || v.get<int>() == 418
+                        //setup_output_gauge_file
+                        || v.get<int>() == 352
+                        || input["functions_names"][v.get<int>()] == "main")
+                      new_callstack.push_back(v);
                 }
-                for(auto & c : new_callstack)
-                  converted_callstacks.push_back(c);
-            }
-            if(name == "MPI_Allreduce") {
-              std::cerr << callstack_data.dump(2) << std::endl;
-              std::cerr << converted_callstacks.dump(2) << std::endl;
+                converted_callstacks.push_back(new_callstack);
             }
             callstack_data = std::move(converted_callstacks);
 
@@ -456,6 +518,17 @@ json_t convert(json_t & input)
         }
         functions_output[it.key()] = std::move(function);
     }
+    std::vector<std::string> to_copy{
+        "functions_demangled_names",
+        "functions_mangled_names",
+        "functions_names",
+        "parameters",
+        "unused_parameters"
+    };
+    for(const auto & key : to_copy) {
+        if(!input[key].empty())
+            output[key] = std::move(input[key]);
+    }
     of << "SCOREP_REGION_NAMES_END\n";
     of.close();
 
@@ -466,12 +539,15 @@ json_t convert(json_t & input)
 int main(int argc, char ** argv)
 {
     json_t input;
-    assert(argc == 2);
+    assert(argc >= 2);
     std::ifstream in(argv[1], std::ios_base::in);
     in >> input;
     in.close();
+    bool generate_full_data = false;
+    if(argc > 2)
+      generate_full_data = atoi(argv[2]);
 
-    json_t converted = convert(input);
+    json_t converted = convert(input, generate_full_data);
     std::cout << converted.dump(2);
     return 0;
 }

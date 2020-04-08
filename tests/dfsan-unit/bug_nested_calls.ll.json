@@ -20,32 +20,12 @@
                   "loops": {
                     "0": [
                       {
-                        "0": {
-                          "level": 2
-                        }
+                        "entry_id": 0,
+                        "function_idx": 2
                       },
                       {
-                        "0": {
-                          "level": 2,
-                          "params": [
-                            [
-                              "x1"
-                            ],
-                            [
-                              "x2"
-                            ]
-                          ]
-                        }
-                      },
-                      {
-                        "0": {
-                          "level": 2,
-                          "params": [
-                            [
-                              "x1"
-                            ]
-                          ]
-                        }
+                        "entry_id": 0,
+                        "function_idx": 3
                       }
                     ]
                   },
@@ -57,32 +37,12 @@
                 },
                 "1": [
                   {
-                    "0": {
-                      "level": 1
-                    }
+                    "entry_id": 1,
+                    "function_idx": 2
                   },
                   {
-                    "0": {
-                      "level": 1,
-                      "params": [
-                        [
-                          "x2"
-                        ],
-                        [
-                          "x1"
-                        ]
-                      ]
-                    }
-                  },
-                  {
-                    "0": {
-                      "level": 1,
-                      "params": [
-                        [
-                          "x2"
-                        ]
-                      ]
-                    }
+                    "entry_id": 1,
+                    "function_idx": 3
                   }
                 ]
               },
@@ -94,29 +54,12 @@
             },
             "1": [
               {
-                "0": {
-                  "level": 0
-                }
+                "entry_id": 2,
+                "function_idx": 2
               },
               {
-                "0": {
-                  "level": 0,
-                  "params": [
-                    [
-                      "x1"
-                    ]
-                  ]
-                }
-              },
-              {
-                "0": {
-                  "level": 0,
-                  "params": [
-                    [
-                      "x1"
-                    ]
-                  ]
-                }
+                "entry_id": 0,
+                "function_idx": 3
               }
             ]
           }
