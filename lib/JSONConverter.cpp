@@ -314,9 +314,32 @@ bool replace(const json_t & input, json_t & instance)
   return replaced;
 }
 
-bool is_important(const std::string & name, const json_t & func)
+bool is_important_instance(const json_t & instance)
 {
-  return true;
+  std::cerr << "instance: " << instance << std::endl;
+  for(auto loop_it  = instance.begin(); loop_it != instance.end(); ++loop_it) {
+    // if it's an array, it will contain entries of called functions
+    const json_t & loop = loop_it.value();
+    if(!loop.is_array()) {
+      if(loop.count("params"))
+        return true;
+      auto subloops = loop.find("loops");
+      if(subloops != loop.end())
+        return is_important_instance(subloops.value());
+    }
+  }
+  return false;
+}
+
+bool is_important(const json_t & func)
+{
+  std::cerr << "Important function: " << func << std::endl;
+  for(auto it = func.begin(); it != func.end(); ++it) {
+    const json_t & instance = it.value()["instance"];
+    if(is_important_instance(instance))
+      return true;
+  }
+  return false;
 }
 
 json_t convert(json_t & input, bool generate_full_data)
@@ -335,7 +358,7 @@ json_t convert(json_t & input, bool generate_full_data)
         "func_idx"
     };
 
-    std::ofstream of("filter", std::ios_base::out);
+    std::ofstream of("all_functions.filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
     for(const auto & name : input["functions_names"]) {
         of << "INCLUDE *" << name.get<std::string>() << "*\n";
@@ -348,9 +371,10 @@ json_t convert(json_t & input, bool generate_full_data)
     json_t & functions_output = output["functions"];
     json_t & params = input["parameters"];
     std::vector<std::string> important_functions(functions.size() + unimportant_functions.size());
-    of.open("filter_important", std::ios_base::out);
+    of.open("important_functions.filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
-    std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " importatn functions" << '\n';
+    of << "EXCLUDE *\n";
+    std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
     std::set<int> important_indices{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
         important_indices.insert( (it.value()["func_idx"].get<int>()));
@@ -358,9 +382,16 @@ json_t convert(json_t & input, bool generate_full_data)
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
-        is_important(it.key(), it.value());
+        if(is_important(it.value()["loops"])) {
+          bool is_mangled =
+            input["functions_demangled_names"][idx].get<std::string>() !=
+              input["functions_mangled_names"][idx].get<std::string>();
+          if(is_mangled)
+            of << "INCLUDE *\\ " << input["functions_names"][idx].get<std::string>() << "(*\n";
+          else
+            of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
+        }
         std::string name = input["functions_names"][idx].get<std::string>();
-        of << "INCLUDE *" << input["functions_names"][idx].get<std::string>() << "*\n";
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
         // callstack -> list of loops
