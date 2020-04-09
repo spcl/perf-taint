@@ -1,4 +1,6 @@
 
+#include <map>
+
 #include <dfsan-instr/common.hpp>
 
 namespace perf_taint {
@@ -8,11 +10,15 @@ namespace perf_taint {
     json_t stats;
     int functions_count;
     int instrumented_count;
+    int pruned_count;
     int calls_to_check;
+    std::map<std::string, int> pruned_functions;
+    std::map<std::string, int> instrumented_functions;
 
     Statistics():
       functions_count(0),
-      instrumented_count(0)
+      instrumented_count(0),
+      pruned_count(0)
     {
       init();
     }
