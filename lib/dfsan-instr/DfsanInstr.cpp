@@ -307,13 +307,45 @@ namespace extrap {
         }
         return loop_count;
     }
+    
+    std::tuple<int, int, int, bool> DfsanInstr::analyzeLoopSCEV(llvm::Loop *l, llvm::ScalarEvolution & scev)
+    {
+      int loop_count = 1, scev_analyzed_nonconstant = 0, scev_analyzed_constant = 0;
+      bool has_nonconstant_loop =false;
+      if(scev.hasLoopInvariantBackedgeTakenCount(l)) {
+        const llvm::SCEV * backedge_count = scev.getBackedgeTakenCount(l);
+        // Unknown count? SCEV failed, function is instrumented
+        if(llvm::isa<llvm::SCEVCouldNotCompute>(backedge_count)) {
+          has_nonconstant_loop = true;
+        // Non-constant count? SCEV succeeded, function is instrumented
+        } else if(!llvm::isa<llvm::SCEVConstant>(backedge_count)) {
+          has_nonconstant_loop = true;
+          ++scev_analyzed_nonconstant;
+        // Constant count? SCEV succeeded, function maybe not instrumented
+        } else {
+          ++scev_analyzed_constant;
+        }
+      // Not known? SCEV failed, function is instrumented
+      } else {
+        has_nonconstant_loop = true;
+      }
+      for(llvm::Loop * subloop : l->getSubLoops()) {
+        auto ret = analyzeLoopSCEV(subloop, scev);
+        loop_count += std::get<0>(ret);
+        scev_analyzed_nonconstant += std::get<1>(ret);
+        scev_analyzed_constant += std::get<2>(ret);
+        has_nonconstant_loop |= std::get<3>(ret);
+      }
+      return std::make_tuple(loop_count, scev_analyzed_nonconstant,
+          scev_analyzed_constant, has_nonconstant_loop);
+    }
 
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
             llvm::CallGraphNode * cg_node, int override_counter)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        llvm::errs() << f.getName() << ' ' << linfo->empty() << '\n';
+        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end()) << '\n';
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
@@ -346,27 +378,16 @@ namespace extrap {
 
           llvm::ScalarEvolution & scev = getAnalysis<llvm::ScalarEvolutionWrapperPass>(*analyzed_f).getSE();
           llvm::LoopInfo * analyzed_linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(*analyzed_f).getLoopInfo();
+          //llvm::errs() << "SCEV: " << function_name << " " << std::distance(analyzed_linfo->begin(), analyzed_linfo->end()) << '\n';
+          //if(function_name == "load_fatlinks_cpu")
+            //llvm::errs() << *analyzed_f << '\n';
           // Process loops
           for(llvm::Loop * l : *analyzed_linfo) {
-
-            ++loop_count;
-            if(scev.hasLoopInvariantBackedgeTakenCount(l)) {
-              const llvm::SCEV * backedge_count = scev.getBackedgeTakenCount(l);
-              // Unknown count? SCEV failed, function is instrumented
-              if(isa<llvm::SCEVCouldNotCompute>(backedge_count)) {
-                has_nonconstant_loop = true;
-              // Non-constant count? SCEV succeeded, function is instrumented
-              } else if(!isa<llvm::SCEVConstant>(backedge_count)) {
-                has_nonconstant_loop = true;
-                ++scev_analyzed_nonconstant;
-              // Constant count? SCEV succeeded, function maybe not instrumented
-              } else {
-                ++scev_analyzed_constant;
-              }
-            // Not known? SCEV failed, function is instrumented
-            } else {
-              has_nonconstant_loop = true;
-            }
+            auto ret = analyzeLoopSCEV(l, scev);
+            loop_count += std::get<0>(ret);
+            scev_analyzed_nonconstant += std::get<1>(ret);
+            scev_analyzed_constant += std::get<2>(ret);
+            has_nonconstant_loop |= std::get<3>(ret);
           }
           stats.function_statistics(function_name, "loops",
               "scev_analyzed_constant", scev_analyzed_constant);
@@ -606,7 +627,7 @@ namespace extrap {
             Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
-        llvm::errs() << f.getName() << ' ' << linfo->empty() << '\n';
+        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end())<< '\n';
         assert(linfo);
 
         //TODO: debug
