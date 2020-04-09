@@ -62,6 +62,17 @@
     }
   },
   "statistics": {
-    "functions": 6
+    "functions": {
+      "instrumented": {
+        "loops": 2
+      },
+      "pruned": {
+        "no_performance_critical_code": 3,
+        "scev": 1
+      },
+      "total": 6,
+      "total_instrumented": 2,
+      "total_pruned": 4
+    }
   }
 }
