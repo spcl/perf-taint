@@ -345,8 +345,9 @@ namespace extrap {
           llvm::Function* analyzed_f = (*analyzed_module).getFunction(function_name);
 
           llvm::ScalarEvolution & scev = getAnalysis<llvm::ScalarEvolutionWrapperPass>(*analyzed_f).getSE();
+          llvm::LoopInfo * analyzed_linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(*analyzed_f).getLoopInfo();
           // Process loops
-          for(llvm::Loop * l : *linfo) {
+          for(llvm::Loop * l : *analyzed_linfo) {
 
             ++loop_count;
             if(scev.hasLoopInvariantBackedgeTakenCount(l)) {
@@ -359,8 +360,9 @@ namespace extrap {
                 has_nonconstant_loop = true;
                 ++scev_analyzed_nonconstant;
               // Constant count? SCEV succeeded, function maybe not instrumented
-              } else
+              } else {
                 ++scev_analyzed_constant;
+              }
             // Not known? SCEV failed, function is instrumented
             } else {
               has_nonconstant_loop = true;
@@ -1250,8 +1252,8 @@ namespace extrap {
     void Instrumenter::checkLoopRetval(int nested_loop_idx,
             int function_idx, llvm::CallBase * call)
     {
-        llvm::Value * load_tls = builder.CreateLoad(glob_retval_tls);
-        builder.CreateCall(label_loop_function, {
+      llvm::Value * load_tls = builder.CreateLoad(glob_retval_tls);
+      llvm::Instruction * ptr =  builder.CreateCall(label_loop_function, {
                 load_tls, builder.getInt32(nested_loop_idx),
                 builder.getInt32(function_idx)
             });
@@ -1720,12 +1722,13 @@ namespace extrap {
 
     void InstrumenterVisiter::processCall(llvm::CallBase * call)
     {
-        if(avoid_duplicates) {
-            if(processed_calls.count(call))
-                return;
-            processed_calls.insert(call);
-        }
-        label_function(call);
+      if(avoid_duplicates) {
+          if(processed_calls.count(call))
+              return;
+          processed_calls.insert(call);
+      }
+      instr.setInsertPoint(*call);
+      label_function(call);
     }
 
     void InstrumenterVisiter::visitInstruction(llvm::Instruction & inst)
