@@ -73,6 +73,11 @@
       "total": 6,
       "total_instrumented": 2,
       "total_pruned": 4
+    },
+    "loops": {
+      "static_analyzed": 2,
+      "static_instrumented": 2,
+      "total": 4
     }
   }
 }
