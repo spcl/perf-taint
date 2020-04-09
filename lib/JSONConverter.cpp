@@ -316,24 +316,27 @@ bool replace(const json_t & input, json_t & instance)
 
 bool is_important_instance(const json_t & instance)
 {
-  std::cerr << "instance: " << instance << std::endl;
+  bool is_important = false;
   for(auto loop_it  = instance.begin(); loop_it != instance.end(); ++loop_it) {
     // if it's an array, it will contain entries of called functions
     const json_t & loop = loop_it.value();
     if(!loop.is_array()) {
-      if(loop.count("params"))
+      if(loop.count("params")) {
         return true;
+      }
       auto subloops = loop.find("loops");
       if(subloops != loop.end())
-        return is_important_instance(subloops.value());
+        is_important |= is_important_instance(subloops.value());
     }
+    // as soon as we find an important subloop then we're done
+    if(is_important)
+      return true;
   }
   return false;
 }
 
 bool is_important(const json_t & func)
 {
-  std::cerr << "Important function: " << func << std::endl;
   for(auto it = func.begin(); it != func.end(); ++it) {
     const json_t & instance = it.value()["instance"];
     if(is_important_instance(instance))
