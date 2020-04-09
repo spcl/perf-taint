@@ -444,6 +444,8 @@ json_t convert(json_t & input, bool generate_full_data)
                         || v.get<int>() == 418
                         //setup_output_gauge_file
                         || v.get<int>() == 352
+                        //cleanup_gathers 
+                        || v.get<int>() == 345
                         || input["functions_names"][v.get<int>()] == "main")
                       new_callstack.push_back(v);
                 }
