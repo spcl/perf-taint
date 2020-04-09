@@ -1,4 +1,5 @@
 ; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 10 10 10 && diff -w %s.json %t4_0.json && diff -w %s.json %t4_1.json
+; RUN: %jsonconvert %s.json 2> /dev/null | diff -w %s.processed.json -
 ; ModuleID = 'tests/dfsan-unit/mpi/mpi_simple.cpp'
 source_filename = "tests/dfsan-unit/mpi/mpi_simple.cpp"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

@@ -157,32 +157,6 @@
             ]
           ],
           "instance": {
-            "14": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
-            "15": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
             "16": {
               "level": 0,
               "loops": {
@@ -242,27 +216,6 @@
                 }
               }
             },
-            "24": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
-            "27": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
             "29": {
               "level": 0,
               "params": [
@@ -280,30 +233,6 @@
               ]
             },
             "35": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "36": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "37": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "51": {
               "level": 0,
               "params": [
                 [
@@ -342,40 +271,6 @@
         }
       ]
     },
-    "_Z25VerifyAndWriteFinalOutputdR6Domainii": {
-      "file": "lulesh-util.cc",
-      "func_idx": 40,
-      "line": 172,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              0
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              },
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            }
-          }
-        }
-      ]
-    },
     "_Z7CommSBNR6DomainiPMS_FRdiE": {
       "file": "lulesh-comm.cc",
       "func_idx": 4,
@@ -394,32 +289,6 @@
             ]
           ],
           "instance": {
-            "14": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
-            "15": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
             "16": {
               "level": 0,
               "loops": {
@@ -479,7 +348,7 @@
                 }
               }
             },
-            "24": {
+            "25": {
               "level": 0,
               "loops": {
                 "0": {
@@ -492,7 +361,7 @@
                 }
               }
             },
-            "27": {
+            "26": {
               "level": 0,
               "params": [
                 [
@@ -524,7 +393,7 @@
                 ]
               ]
             },
-            "36": {
+            "42": {
               "level": 0,
               "params": [
                 [
@@ -532,7 +401,7 @@
                 ]
               ]
             },
-            "37": {
+            "43": {
               "level": 0,
               "params": [
                 [
@@ -540,13 +409,39 @@
                 ]
               ]
             },
-            "51": {
+            "50": {
               "level": 0,
               "params": [
                 [
                   "p"
                 ]
               ]
+            },
+            "8": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
+            },
+            "9": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
             }
           }
         }
@@ -570,32 +465,6 @@
             ]
           ],
           "instance": {
-            "14": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
-            "15": {
-              "level": 0,
-              "loops": {
-                "0": {
-                  "level": 1,
-                  "params": [
-                    [
-                      "size"
-                    ]
-                  ]
-                }
-              }
-            },
             "16": {
               "level": 0,
               "loops": {
@@ -655,7 +524,7 @@
                 }
               }
             },
-            "24": {
+            "25": {
               "level": 0,
               "loops": {
                 "0": {
@@ -675,6 +544,32 @@
                   "p"
                 ]
               ]
+            },
+            "8": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
+            },
+            "9": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
             }
           }
         },
@@ -687,6 +582,19 @@
             ]
           ],
           "instance": {
+            "25": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
+            },
             "27": {
               "level": 0,
               "params": [
@@ -694,6 +602,32 @@
                   "p"
                 ]
               ]
+            },
+            "8": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
+            },
+            "9": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "size"
+                    ]
+                  ]
+                }
+              }
             }
           }
         },
@@ -753,7 +687,7 @@
                 }
               }
             },
-            "24": {
+            "25": {
               "level": 0,
               "loops": {
                 "0": {
@@ -827,7 +761,7 @@
                 }
               }
             },
-            "4": {
+            "5": {
               "level": 0,
               "loops": {
                 "0": {
@@ -840,7 +774,7 @@
                 }
               }
             },
-            "7": {
+            "6": {
               "level": 0,
               "params": [
                 [
@@ -1940,14 +1874,6 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
             "1": {
               "level": 0,
               "params": [
@@ -2438,6 +2364,24 @@
                 "function_idx": 24
               }
             ],
+            "55": [
+              {
+                "entry_id": 0,
+                "function_idx": 24
+              }
+            ],
+            "56": [
+              {
+                "entry_id": 0,
+                "function_idx": 24
+              }
+            ],
+            "57": [
+              {
+                "entry_id": 0,
+                "function_idx": 24
+              }
+            ],
             "58": [
               {
                 "entry_id": 0,
@@ -2541,12 +2485,6 @@
               }
             ],
             "76": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "77": [
               {
                 "entry_id": 0,
                 "function_idx": 45
@@ -2962,12 +2900,6 @@
               {
                 "entry_id": 0,
                 "function_idx": 4
-              }
-            ],
-            "8": [
-              {
-                "entry_id": 0,
-                "function_idx": 40
               }
             ],
             "9": [
@@ -4059,6 +3991,11 @@
       "file": "lulesh-util.cc",
       "func_idx": 1,
       "line": 60
+    },
+    "_Z25VerifyAndWriteFinalOutputdR6Domainii": {
+      "file": "lulesh-util.cc",
+      "func_idx": 40,
+      "line": 172
     },
     "_Z8CommRecvR6Domainiiiiibb": {
       "file": "lulesh-comm.cc",

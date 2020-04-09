@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z11f_not_pruneii": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 2,
       "line": 45,
       "loops": [
@@ -16,10 +16,126 @@
               "dependency": "additive",
               "operands": [
                 {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "global2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "additive",
+                          "operands": [
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "global"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
                   "dependency": "unknown",
                   "operands": [
                     "x1",
                     "x2"
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "global2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "x2"
+                          ]
+                        },
+                        {
+                          "dependency": "additive",
+                          "operands": [
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2",
+                                    "global"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "x2"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -29,25 +145,36 @@
             [
               "x1",
               "x2"
+            ],
+            [
+              "global"
+            ],
+            [
+              "x1",
+              "x2",
+              "global"
+            ],
+            [
+              "global2"
+            ],
+            [
+              "x1",
+              "global2"
             ]
           ],
-          "not_found_params": [
-            "global",
-            "global2"
-          ]
+          "not_found_params": null
         }
       ]
     },
     "_Z11g_not_prunei": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 1,
       "line": 26,
       "loops": [
         {
           "callstack": [
             [
-              3,
-              6
+              3
             ],
             [
               3,
@@ -59,10 +186,49 @@
               "dependency": "additive",
               "operands": [
                 {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "global"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
                   "dependency": "unknown",
                   "operands": [
                     "x1",
                     "x2"
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "x2",
+                            "global"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -72,25 +238,31 @@
             [
               "x1",
               "x2"
+            ],
+            [
+              "global"
+            ],
+            [
+              "x1",
+              "x2",
+              "global"
             ]
           ],
           "not_found_params": [
-            "global",
             "global2"
           ]
         }
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-instr/prune.cpp",
+      "file": "tests/dfsan-unit/prune.cpp",
       "func_idx": 0,
       "line": 12,
       "loops": [
         {
           "callstack": [
             [
-              3,
-              6
+              3
             ],
             [
               3,
@@ -98,6 +270,29 @@
             ]
           ],
           "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "global2"
+                  ]
+                }
+              ]
+            },
             {
               "dependency": "additive",
               "operands": [
@@ -115,18 +310,23 @@
             [
               "x1",
               "x2"
+            ],
+            [
+              "global2"
+            ],
+            [
+              "x1",
+              "global2"
             ]
           ],
           "not_found_params": [
-            "global",
-            "global2"
+            "global"
           ]
         },
         {
           "callstack": [
             [
               3,
-              6,
               1
             ],
             [
@@ -174,58 +374,6 @@
           "not_found_params": [
             "global2"
           ]
-        },
-        {
-          "callstack": [
-            [
-              3,
-              6,
-              7
-            ],
-            [
-              3,
-              2,
-              7
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "global2"
-                  ]
-                }
-              ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x1",
-                    "global2"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "global2"
-            ],
-            [
-              "x1",
-              "global2"
-            ]
-          ],
-          "not_found_params": [
-            "x2",
-            "global"
-          ]
         }
       ]
     }
@@ -235,6 +383,7 @@
     "g_not_prune(int)",
     "f_not_prune(int, int)",
     "main",
+    "atoi",
     "void register_variable<int>(int*, char const*)",
     "void register_variable<double>(double*, char const*)",
     "f_prune(int, int)",
@@ -245,6 +394,7 @@
     "_Z11g_not_prunei",
     "_Z11f_not_pruneii",
     "main",
+    "atoi",
     "_Z17register_variableIiEvPT_PKc",
     "_Z17register_variableIdEvPT_PKc",
     "_Z7f_pruneii",
@@ -255,6 +405,7 @@
     "g_not_prune",
     "f_not_prune",
     "main",
+    "atoi",
     "register_variable<int>",
     "register_variable<double>",
     "f_prune",

@@ -72,9 +72,10 @@ void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t function_idx)
 void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)
 {
   debug_print(
-    "Pop function %d, new callstack length %lu\n",
-    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1],
-    __EXTRAP_CALLSTACK.len - 1
+    "Pop function %d, new callstack length %lu with val %d\n",
+    idx,
+    __EXTRAP_CALLSTACK.len - 1,
+    __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-1]
   );
   if(__EXTRAP_CALLSTACK.len == 0) {
     fprintf(stderr, "Callstack below zero!\n");
@@ -108,21 +109,22 @@ uint16_t __dfsw_EXTRAP_REGISTER_CALL(int16_t nested_loop_idx, uint16_t loop_size
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].loop_size_at_level = loop_size;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].len = 0;
     __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].capacity = 0;
-    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].json_data = NULL;
+    __EXTRAP_NESTED_CALLS.data[__EXTRAP_NESTED_CALLS.len].data = NULL;
     return __EXTRAP_NESTED_CALLS.len++;
 }
 
 // Remove `len` last entries in the register of calls.
 void __dfsw_EXTRAP_REMOVE_CALLS(uint16_t len)
 {
-    if(len > __EXTRAP_NESTED_CALLS.len)
-        abort();
-    __EXTRAP_NESTED_CALLS.len -= len;
-    for(int i = 0; i < len; ++i) {
-        size_t idx = __EXTRAP_NESTED_CALLS.len + i;
-        // Free allocated array of pointers.
-        free(__EXTRAP_NESTED_CALLS.data[idx].json_data);
-    }
+  if(len > __EXTRAP_NESTED_CALLS.len)
+    abort();
+  __EXTRAP_NESTED_CALLS.len -= len;
+  for(int i = 0; i < len; ++i) {
+    size_t idx = __EXTRAP_NESTED_CALLS.len + i;
+    __EXTRAP_NESTED_CALLS.data[idx].len = 0;
+    // Free allocated array of pointers.
+    free(__EXTRAP_NESTED_CALLS.data[idx].data);
+  }
 }
 
 // Store the recent 
@@ -312,7 +314,7 @@ void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, co
     dfsan_label lab = dfsan_create_label(name, NULL);
     __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
     __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
-    debug_print("Store label %s with label %hu\n", name, lab);
+    debug_print("Store label %s at %d with label %hu\n", name, param_idx, lab);
     dfsan_set_label(lab, addr, size);
 }
 

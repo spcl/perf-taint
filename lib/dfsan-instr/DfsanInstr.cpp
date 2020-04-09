@@ -1015,7 +1015,7 @@ namespace extrap {
                 glob_params_redirect_name);
 
         // int16_t instrumentation_labels[] = {0..}
-        array_type = llvm::ArrayType::get(builder.getInt16Ty(), params_count);
+        array_type = llvm::ArrayType::get(builder.getInt16Ty(), full_params_count);
         std::vector<llvm::Constant*> labels;
         for(int i = 0; i < params_count; ++i)
             labels.push_back(builder.getInt16(0));

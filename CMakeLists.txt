@@ -99,24 +99,14 @@ set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
 set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti")
 #target_link_libraries(DfsanInstrument PRIVATE nlohmann_json::nlohmann_json)
 
-# Split into two targets so C++ JSON code is not instrumented
-add_library(json_export STATIC lib/runtime/json_export.cpp)
 add_library(dfsan_runtime STATIC lib/runtime/runtime.c lib/runtime/json_export.cpp)
 target_link_libraries(dfsan_runtime PRIVATE ${MPI_C_LIBRARIES})
-#target_link_libraries(dfsan_runtime PRIVATE nlohmann_json::nlohmann_json)
 set_target_properties(dfsan_runtime PROPERTIES
   COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -W -Wall -Wextra -pedantic -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
 )
 add_dependencies(dfsan_runtime nlohmann_json)
 set_property(TARGET dfsan_runtime PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-#set_target_properties(json_export PROPERTIES
-#  COMPILE_FLAGS "-stdlib=libc++ -I${CMAKE_LIBCXX_PATH}/include/c++/v1 -fsanitize=dataflow -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/share/dfsan_abilist.txt"
-#)
-#add_dependencies(json_export nlohmann_json)
-#target_include_directories(json_export PRIVATE $<TARGET_PROPERTY:nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>)
-#target_link_libraries(json_export PRIVATE nlohmann_json)
-set_property(TARGET json_export PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_executable(ScorePGenerator lib/ScorePGenerator.cpp)
 set_property(TARGET ScorePGenerator PROPERTY CXX_STANDARD 14)
