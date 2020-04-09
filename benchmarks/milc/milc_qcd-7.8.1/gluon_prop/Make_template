@@ -1,0 +1,214 @@
+#  Gluon and (staggered) quark propagators.
+#  MIMD version 7
+#
+#  Generic make-include file for gluon_prop/quark_prop codes
+#  This template file defines rules and macros common to all architectures
+#  It is intended to be an include file for other Makefiles.
+#  Don't use it by itself!
+#
+#	"make su3_gluon_prop"		makes the gluon propagator program
+#	"make su3_gluon_prop_nogfix"		makes the gluon propagator
+#						program without gauge fixing
+#						option
+#	"make su3_gluon_prop_imp"	makes an improved gluon propagator
+#	"make su3_gluon_prop_imp_nofix"		Dito without gauge fixing
+#	"make su3_ks_quark_prop"	makes the quark propagator program
+#					with standard staggered quarks
+#	"make su3_fn_quark_prop"	makes the quark propagator program
+#					with "fat+Naik" staggered quarks
+#	"make su3_p4_quark_prop"	makes the quark propagator program
+#					with "p4" staggered quarks
+#	"make su3_asqtad_quark_prop"	makes the quark propagator program
+#					with "asqtad" staggered quarks
+#	"make su3_asqtad_renorm"	makes the quark renormalization program
+#					with "asqtad" staggered quarks
+#
+
+MYINCLUDEDIR = .
+INCLUDEDIR = ../include
+#Where the complex and su3 libraries are
+LIBDIR = ../libraries
+
+GLOBAL_HEADERS = ${INCLUDEDIR} ../libraries/include
+
+INLINE_HEADERS = \
+  ../sse/include/ \
+  ../sse2/include/ \
+  ../libraries/include/
+
+MY_HEADERS = \
+  lattice.h \
+  lattice_qdp.h \
+  params.h \
+  defines.h \
+  gluon_prop_includes.h\
+  ${ADD_HEADER}
+
+HEADERS = ${GLOBAL_HEADERS} ${MY_HEADERS} ${INLINE_HEADERS} ${SCIDAC_HEADERS}
+
+# All required object files
+# Basic set from current directory
+MY_OBJECTS =         \
+  control.o          \
+  setup.o            \
+  gauge_info.o
+
+# Basic set from generic_ks directory
+QUARK_OBJECTS = \
+  ${FERMION_OBJECTS} \
+  ${KS_IO_OBJECTS} \
+  ksprop_info.o \
+  ploop3.o
+
+# ifeq ($(strip ${HAVEQIO}),true)
+#   QUARK_OBJECTS += io_scidac_w.o
+# endif
+
+# Objects depending on architecture and software package
+
+# Selection of layout
+LAYOUT = layout_hyper_prime.o # Choices possible here
+
+ADD_OBJECTS = ${MACHINE_DEP_IO} ${COMMPKG}
+
+# Generic QOP objects
+ifeq ($(strip ${HAVEQOP}),true)
+  ADD_OBJECTS += ${GENERICQOP}
+endif
+
+OBJECTS = \
+  ${MY_OBJECTS} \
+  ${FFT_OBJECTS} \
+  ${G_OBJECTS} \
+  ${GAUGE_OBJECTS} \
+  ${STANDARD_OBJECTS} \
+  ${G_W_OBJECTS} \
+  ${LAYOUT} \
+  ${ADD_OBJECTS} \
+  ${EXTRA_OBJECTS}
+
+#Libraries for complex numbers and su3 functions
+P = $(strip ${PRECISION})
+QCDLIB = ${LIBDIR}/su3.${P}.a ${LIBDIR}/complex.${P}.a 
+
+LIBRARIES = ${QCDLIB} ${SCIDAC_LIBRARIES} ${QUDA_LIBRARIES}
+
+# Default rule for C compilation
+.c.o: ; ${CC} -c ${CFLAGS}  $*.c
+
+# To force a full remake when changing targets
+LASTMAKE = .lastmake.${MAKEFILE}.${P}.${MYTARGET}
+
+${LASTMAKE}:
+	-/bin/rm -f .lastmake.* quark_action.h
+	${MAKE} -f ${MAKEFILE} clean
+	touch ${LASTMAKE}
+
+# All make files used in this compilation
+ALL_MAKES = \
+   Make_template \
+   ${MAKEFILE} \
+   ../Make_template_qop \
+   ../Make_template_scidac \
+   ../generic/Make_template \
+   ../generic_ks/Make_template \
+   ../generic_wilson/Make_template
+
+# To force a remake when changing any make file, header, or target
+${OBJECTS} : ${LASTMAKE} ${HEADERS} ${ALL_MAKES}
+
+ifeq ($(strip ${HAVEQOP}),true)
+  ${FLINKS_FNQOP}: quark_action.h
+endif
+
+# Directories where we store the improved action headers
+QUARKIMP = ../generic_ks/imp_actions
+
+quark_action.h: ${QUARKIMP}/${QUARK}
+	@echo Copying quark_action.h from ${QUARKIMP}/${QUARK}
+	/bin/cp ${QUARKIMP}/${QUARK} quark_action.h
+
+##### Targets:
+#               ("FN" = "fat+Naik")
+
+## NOTE: here QUARK is not actually used!
+su3_gluon_prop_nogfix::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DGLUON_PROP" \
+	"EXTRA_OBJECTS= gluon_prop.o"
+
+su3_gluon_prop_imp_nogfix::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DGLUON_PROP" \
+	"EXTRA_OBJECTS= gluon_prop_imp.o"
+
+su3_gluon_prop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DGLUON_PROP -DGFIX" \
+	"EXTRA_OBJECTS= gluon_prop.o gaugefixfft.o"
+
+su3_gluon_prop_imp::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DGLUON_PROP -DGFIX -DIMP_GFIX" \
+	"EXTRA_OBJECTS= gluon_prop_imp.o  gaugefixfft.o"
+
+su3_ks_quark_prop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DFN -DQUARK_PROP -DGFIX -DHAVE_KS" \
+	"QUARK = onelink_action.h" "ADD_HEADER = quark_action.h" \
+	"EXTRA_OBJECTS= ${FN_OBJECTS} \
+	${QUARK_OBJECTS} quark_prop.o  gaugefixfft.o"
+
+su3_fn_quark_prop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DFN -DQUARK_PROP -DGFIX -DNAIK -DHAVE_KS" \
+	"QUARK = naik_action.h" "ADD_HEADER = quark_action.h" \
+	"EXTRA_OBJECTS= ${FN_OBJECTS} \
+	${QUARK_OBJECTS} quark_prop.o  gaugefixfft.o"
+
+su3_p4_quark_prop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DEO -DQUARK_PROP -DGFIX -DHAVE_KS" \
+	"QUARK = p4_action.h" "ADD_HEADER = quark_action.h" \
+	"EXTRA_OBJECTS= ${EO_OBJECTS} ${MULTI_INV_EO} \
+	${QUARK_OBJECTS} quark_prop.o  gaugefixfft.o"
+
+su3_asqtad_quark_prop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DFN -DQUARK_PROP -DGFIX -DNAIK -DHAVE_KS" \
+	"QUARK = asqtad_action.h" "ADD_HEADER = quark_action.h" \
+	"EXTRA_OBJECTS= ${FN_OBJECTS} \
+	${QUARK_OBJECTS} quark_prop.o  gaugefixfft.o"
+
+su3_asqtad_renorm::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DFN -DQUARK_PROP -DQUARK_RENORM -DGFIX -DNAIK -DHAVE_KS" \
+	"QUARK = asqtad_action.h" "ADD_HEADER = quark_action.h" \
+	"EXTRA_OBJECTS= ${FN_OBJECTS} \
+	${QUARK_OBJECTS} quark_renorm.o  gaugefixfft.o"
+
+clean:
+	-/bin/rm -f *.o
+
+
+# Rules for generic routines
+include ../generic/Make_template
+
+# Rules for generic_ks routines
+include ../generic_ks/Make_template
+
+# Rules for generic_wilson routines
+include ../generic_wilson/Make_template
+
+libmake:
+	@echo Building libraries with ${MAKELIBRARIES}
+	cd ${LIBDIR} ;\
+	${MAKE} -f ${MAKELIBRARIES} "APP_CC=${CC}" "PRECISION=${PRECISION}" all
+
+localmake: ${OBJECTS} ${LIBRARIES}
+	${LD} -o ${MYTARGET} ${LDFLAGS} \
+	${OBJECTS} ${QCDLIB} ${ILIB} -lm
+	touch localmake
+
+target:	libmake localmake
+

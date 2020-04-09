@@ -1,0 +1,29 @@
+BEGIN
+Restoring binary SciDAC file ../binary_samples/ksvector.src.sample.l8
+File inf
+"
+Derived MILC KS field
+gauge.filename ../binary_samples/lat.sample.l8
+layout.boundary_conditions space: periodic time: antiperiodic
+asqtad.u0 0
+asqtad.path_coeff[0] 2e-09
+asqtad.path_coeff[1] 2e-09
+asqtad.path_coeff[2] 2e-09
+asqtad.path_coeff[3] 2e-09
+asqtad.path_coeff[4] 2e-09
+asqtad.path_coeff[5] 2e-09
+asqtad_arg.sign MILC-convention
+inv_arg.mass 0
+inv_arg.rsqprop 0
+"
+Record 0
+"source color vector field"
+Checksums 0 adc0f9ee
+Computing the fermion force
+Saved KS matrix serially to binary file colormatrix.mom.test.l8
+Checksums XXX XXX
+Done checking fermion force
+
+
+get_f: EOF on STDIN.
+RUNNING COMPLETED

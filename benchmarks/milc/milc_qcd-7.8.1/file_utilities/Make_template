@@ -1,0 +1,363 @@
+#  file_utilities
+#  MIMD version 7
+#
+#  Generic make-include file for file_utilities
+#  This template file defines rules and macros common to all architectures
+#  It is intended to be an include file for other Makefiles.
+#  Don't use it by itself!
+#
+#	"make check_gauge" reads a gauge configuration file and 
+#             performs checksums (V5 format only) and a unitarity check
+#	"make check_prop" reads a propagator file and performs
+#             checksums (V5 format only)
+#	"make diff_colormatrix" compares two color matrix files.
+#             Requires enough RAM to hold both files.
+#	"make diff_ksprop" compares two KS propagator files.
+#	      Requires enough RAM to hold both files.
+#	"make diff_ksvector" Same as above, but for KS vector files.
+#	"make diff_wprop" Same as above, but for Wilson propagator files.
+#	"make lattice_2scidac" converts a lattice to SciDAC format.
+#             Requires enough RAM to hold the entire lattice.
+#	"make ksprop_2ksprop" converts among KS propagator formats.
+#	      Requires enough RAM to hold the entire file.
+#	"make wprop_2wprop" converts among W propagator formats.
+#	      Requires enough RAM to hold the entire file.
+#       "make ckpt1_2v5" converts checkpoint1 gauge configuration
+#             format to V5 format. Requires enough RAM to hold entire lattice.
+#	"make v5_2scidac" converts from MILC v5 format to SciDAC.
+#	      Lean memory conversion.
+#	"make scidac_2v5" converts from SciDAC to MILC v5 format.
+#	      Lean memory conversion.
+#
+
+MYINCLUDEDIR = .
+INCLUDEDIR = ../include
+#Where the complex and su3 libraries are
+LIBDIR = ../libraries
+
+GLOBAL_HEADERS = ${INCLUDEDIR} ../libraries/include
+
+INLINE_HEADERS = \
+  ../sse/include/ \
+  ../sse2/include/ \
+  ../libraries/include/
+
+MY_HEADERS = \
+  lattice.h \
+  defines.h
+
+HEADERS = ${GLOBAL_HEADERS} ${MY_HEADERS} ${INLINE_HEADERS} ${SCIDAC_HEADERS}
+
+MY_OBJECTS=
+
+
+# Basic set from generic directory
+G_OBJECTS = \
+  io_detect.o \
+  io_lat_utils.o \
+  remap_stdio_from_args.o \
+  field_utilities.o
+
+
+ifeq ($(strip ${HAVEQIO}),true)
+  G_OBJECTS += file_types_milc_usqcd.o io_scidac.o io_scidac_types.o
+  G_KS_OBJECTS += io_scidac_ks.o
+  G_W_OBJECTS += io_scidac_w.o
+endif
+
+# Objects depending on architecture and software package 
+
+# Layout
+
+LAYOUT = layout_hyper_prime.o # Choices possible here
+
+ifeq ($(strip ${QCDOC}),true)
+  QCDOC_OBJECTS = qcdoc_alloc.o
+endif
+
+ADD_OBJECTS = ${MACHINE_DEP_IO} ${COMMPKG} ${QCDOC_OBJECTS} ${QDP_OBJECTS} \
+   ${SCIDAC_OBJECTS}
+
+OBJECTS = ${MY_OBJECTS} ${LAYOUT} ${ADD_OBJECTS} ${EXTRA_OBJECTS}
+
+#Libraries for complex numbers and su3 functions
+P = $(strip ${PRECISION})
+QCDLIB = ${LIBDIR}/su3.${P}.a ${LIBDIR}/complex.${P}.a 
+
+LIBRARIES = ${QCDLIB} ${SCIDAC_LIBRARIES} ${QUDA_LIBRARIES}
+
+.c.o: ; ${CC} -c ${CFLAGS} $*.c 
+
+# To force a full remake when changing targets
+LASTMAKE = .lastmake.${MAKEFILE}.${P}.${MYTARGET}
+
+${LASTMAKE}:
+	-/bin/rm -f .lastmake.*
+	${MAKE} -f ${MAKEFILE} clean
+	touch ${LASTMAKE}
+
+# To force a remake when changing make files
+ALL_MAKES = \
+   Make_template \
+   ${MAKEFILE} \
+   ../Make_template_scidac \
+   ../generic/Make_template \
+   ../generic_ks/Make_template \
+   ../generic_wilson/Make_template
+
+${OBJECTS} : ${HEADERS} ${LASTMAKE} ${ALL_MAKES}
+
+########################################################
+
+ifeq ($(strip ${HAVEQIO}),true)
+  DHAVE_QIO = -DHAVE_QIO
+endif
+
+ifeq ($(strip ${HAVEQDP}),true)
+  DHAVE_QDP = -DHAVE_QDP
+endif
+
+DARCH = ${DQCDOC} ${DHAVE_QIO} ${DHAVE_QDP}
+
+# NOTE: check_prop has been discontinued since we dropped support
+# for the MILC format.  It doesn't check SciDAC formatted files, yet.
+# check_prop::
+# 	${MAKE} -f ${MAKEFILE} target "MYTARGET= check_prop" \
+# 	"DEFINES= " \
+# 	"EXTRA_OBJECTS= ${G_W_OBJECTS} check_prop.o io_prop_w.o wilson_info_dummy.o \
+# 	gauge_utilities.o \
+# 	gauge_info_dummy.o d_plaq4.o io_lat4.o  nersc_cksum.o"
+
+check_gauge::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= check_gauge" \
+	"DEFINES= -DONLY_GLUON_FILES" \
+	"EXTRA_OBJECTS= ${G_OBJECTS} check_gauge.o nersc_cksum.o \
+	gauge_utilities.o \
+	check_unitarity.o gauge_info_dummy.o d_plaq4.o io_lat4.o"
+
+diff_colormatrix::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= diff_colormatrix" \
+	"DEFINES= " \
+	"EXTRA_OBJECTS= ${G_OBJECTS} ${G_KS_OBJECTS} diff_colormatrix.o gauge_info_dummy.o \
+	gauge_utilities.o \
+	d_plaq4.o io_lat4.o nersc_cksum.o"
+
+diff_ksprop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= diff_ksprop" \
+	"DEFINES= -DNO_GAUGE_FIELD -DHAVE_KS" \
+	"EXTRA_OBJECTS= \
+	${G_OBJECTS}  \
+	${G_KS_OBJECTS} \
+	diff_ksprop.o \
+	discretize_wf.o \
+	gammas.o \
+	gauge_info_dummy.o \
+	gauge_utilities.o \
+	io_helpers.o \
+	io_helpers_ks.o \
+	io_prop_ks.o \
+ 	io_prop_ks_fm.o \
+	io_source_cmplx_fm.o \
+	io_source_ks_fm.o \
+ 	ksprop_info.o \
+	quark_source.o \
+        quark_source_io.o \
+	quark_source_sink_op.o \
+	ranstuff.o \
+	restrict_fourier.o \
+        spin_taste_ops.o"
+
+
+diff_ksvector::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= diff_ksvector" \
+	"DEFINES= " \
+	"EXTRA_OBJECTS= ${G_OBJECTS} ${G_KS_OBJECTS} diff_ksvector.o ksprop_info.o \
+	gauge_utilities.o \
+	gauge_info_dummy.o d_plaq4.o io_lat4.o nersc_cksum.o"
+
+diff_wprop::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= diff_wprop" \
+	"DEFINES= -DNO_GAUGE_FIELD -DHAVE_DIRAC" \
+	"EXTRA_OBJECTS=  \
+  	  ${G_OBJECTS}  \
+	  ${G_KS_OBJECTS} \
+	  ${G_W_OBJECTS} \
+	  canopy2weyl_rot.o \
+	  discretize_wf.o \
+	  gammas.o \
+	  diff_wprop.o \
+	  flavor_ops2.o \
+	  gauge_info_dummy.o \
+	  gauss_smear_w.o \
+	  gauge_utilities.o \
+	  io_helpers.o \
+	  io_helpers_ks.o \
+	  io_helpers_w.o \
+	  io_prop_ks_fm.o \
+	  io_prop_ks.o \
+	  io_prop_w.o \
+	  io_prop_w_fm.o \
+	  io_source_cmplx_fm.o \
+	  io_source_ks_fm.o \
+	  io_source_w_fm.o \
+	  ksprop_info.o \
+	  project_su3_hit.o \
+	  quark_source.o \
+	  quark_source_io.o \
+	  quark_source_sink_op.o \
+	  ranstuff.o \
+	  restrict_fourier.o \
+	  staggered2naive.o \
+	  wprop_info.o"
+
+lattice_2scidac::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= lattice_to_scidac" \
+	"DEFINES= " \
+	"EXTRA_OBJECTS= ${G_OBJECTS} lattice_to_scidac.o nersc_cksum.o \
+	gauge_utilities.o \
+	check_unitarity.o gauge_info_dummy.o d_plaq4.o io_lat4.o"
+
+make_modulation::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= make_modulation" \
+	"DEFINES= -DNO_GAUGE_FIELD " \
+	"EXTRA_OBJECTS= \
+          field_utilities.o \
+	  io_scidac.o \
+	  io_scidac_types.o \
+  	  make_modulation.o"
+
+# ksprop_2ksprop::
+# 	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+# 	"DEFINES= " \
+# 	"EXTRA_OBJECTS=  \
+# 	  ${G_KS_OBJECTS} \
+# 	  check_unitarity.o \
+#           d_plaq4.o \
+# 	  discretize_wf.o \
+# 	  field_translation.o \
+# 	  field_utilities.o \
+# 	  flavor_ops2.o \
+# 	  gauge_info_dummy.o \
+# 	  gauss_smear_ks.o \
+# 	  gauge_utilities.o \
+#           io_helpers.o \
+#           io_helpers_ks.o \
+#           io_lat4.o \
+#   	  io_prop_ks.o \
+#           io_prop_ks_fm.o \
+# 	  io_source_cmplx_fm.o \
+#           io_source_ks_fm.o \
+#           ksprop_info.o \
+#           ksprop_to_ksprop.o \
+# 	  ks_source.o \
+#           nersc_cksum.o \
+# 	  ranstuff.o \
+# 	  restrict_fourier.o \
+# 	  reunitarize2.o"
+# 
+# wprop_2wprop::
+# 	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+# 	"DEFINES= " \
+# 	"EXTRA_OBJECTS=  \
+# 	  ${G_W_OBJECTS}
+# 	  ape_smear.o \
+# 	  canopy2weyl_rot.o \
+# 	  check_unitarity.o \
+# 	  d_plaq4.o \
+# 	  discretize_wf.o \
+# 	  dslash_w_space.o \
+# 	  field_translation.o \
+# 	  field_utilities.o \
+# 	  flavor_ops2.o \
+# 	  gammas.o \
+# 	  gauge_info_dummy.o \
+# 	  gauss_smear_ks.o \
+# 	  gauss_smear_w.o \
+# 	  gauge_utilities.o \
+# 	  io_helpers.o \
+# 	  io_helpers_ks.o \
+# 	  io_helpers_w.o \
+# 	  io_lat4.o \
+# 	  io_prop_ks.o \
+# 	  io_prop_ks_fm.o \
+# 	  io_prop_w.o \
+# 	  io_prop_w_fm.o \
+# 	  io_source_cmplx_fm.o \
+#           io_source_ks_fm.o \
+# 	  io_source_w_fm.o \
+# 	  ks_source.o \
+# 	  ksprop_info.o \
+# 	  nersc_cksum.o \
+# 	  project_su3_hit.o \
+# 	  ranstuff.o \
+# 	  restrict_fourier.o \
+# 	  reunitarize2.o \
+# 	  staggered2naive.o \
+# 	  w_source.o \
+# 	  wprop_info.o \
+# 	  wprop_to_wprop.o"
+
+ckpt1_2v5::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= ckpt1_to_v5" \
+	"DEFINES= " \
+	"EXTRA_OBJECTS=  ckpt1_to_v5.o    gauge_utilities.o \
+	nersc_cksum.o \
+	check_unitarity.o gauge_info.o d_plaq4.o io_lat4.o"
+
+v5_2scidac::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= v5_to_scidac" \
+	"DEFINES= -DNO_GAUGE_FIELD" \
+	"EXTRA_OBJECTS= ${G_OBJECTS} v5_to_scidac.o \
+	gauge_info_dummy.o"
+
+scidac_2v5::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DNO_GAUGE_FIELD" \
+	"EXTRA_OBJECTS= ${G_OBJECTS} scidac_to_v5.o \
+	gauge_info_scidac.o"
+
+
+###################################################
+# Miscellaneous
+###################################################
+# Compute crc32 checksum of a binary record
+crc32: crc32.o
+	${LD} $< ${LDFLAGS} -o $@ ${ILIB} -lm
+
+# Compute cksum checksum of a binary record
+cksum: cksum.o
+	${LD} $< ${LDFLAGS} -o $@ ${ILIB} -lm
+
+# Extract the binary payload of a MILC-formatted gauge file
+extract_gauge_v5: extract_gauge_v5.o
+	${LD} $< ${LDFLAGS} -o $@ ${ILIB} -lm
+
+# Remember to compile the next one in MPP mode!
+get_qmp_node_number: get_qmp_node_number.o
+	${LD} $< ${LDFLAGS} -o $@ ${ILIB} -lm
+
+
+clean:
+	-/bin/rm -f *.o
+
+# Rules for generic routines
+include ../generic/Make_template
+
+# Rules for generic_ks routines
+include ../generic_ks/Make_template
+
+# Rules for generic_wilson routines
+include ../generic_wilson/Make_template
+
+libmake:
+	@echo Building libraries with ${MAKELIBRARIES}
+	cd ${LIBDIR} ;\
+	${MAKE} -f ${MAKELIBRARIES} "APP_CC=${CC}" "PRECISION=${PRECISION}" all
+
+localmake: ${OBJECTS} ${LIBRARIES}
+	${LD} ${LDFLAGS} -o ${MYTARGET} \
+	${OBJECTS} ${QCDLIB} ${ILIB} -lm
+	touch localmake
+
+target: libmake localmake 
+

@@ -1,0 +1,101 @@
+# Makefile for Libraries for QCD programs
+#
+# Library routines involve no communication, so are compiled
+# as for a scalar processor.
+
+# The specialized Makefiles are for processors for which we
+# have some assembly coded substitutes.
+#
+# This Makefile builds the purely C coded versions and should work
+# for all architectures with a suitable choice of CFLAGS and 
+# CC below
+
+# The FAST option uses "fast" variants of the code, where available, and is 
+# recommended.  The fast variants are C-coded with explicit loop unrolling
+# and inlining.
+
+# The SHORT32 option is required on machines with 64-bit int's
+
+MAKEFILE = Make_vanilla
+
+# See Make_RS6K for IBM RS6000 assembly code
+# See Make_t3e for the Cray T3E assembly code
+# See Make_alpha for  DEC alpha assembly code
+# See Make_SSE_nasm for P3/P4 assembly code
+
+#----------------------------------------------------------------------
+#  User choices - edit to suit 
+#----------------------------------------------------------------------
+# 1. Compiler
+
+ifeq ($(strip ${COMPILER}),intel)
+  CC = icc
+else ifeq ($(strip ${COMPILER}),gnu)
+  CC = gcc
+else ifeq ($(strip ${COMPILER}),cray-intel)
+  CC = icc
+endif
+
+# Override
+# CC = # ( cc89 gcc xlc gcc pgcc cl g++ )
+
+#----------------------------------------------------------------------
+# 2. Compiler optimization level
+OPT              = -O3 # ( -g -O, etc )
+
+#OCFLAGS = -DOLD_GAUSSRAND
+#----------------------------------------------------------------------
+# 3. Other compiler optimization flags.  Uncomment stanza to suit.
+#-------------- Gnu C -------------------------------------
+ifeq ($(strip ${COMPILER}),gnu)
+  #OCFLAGS = -Wall
+endif
+#------------------------ BlueGene -----------------------------------
+ifeq ($(strip ${COMPILER}),ibm)
+   OCFLAGS = -qarch=440d -qtune=440
+endif
+
+#-------------- Intel icc/ecc -----------------------------------
+ifeq ($(strip ${COMPILER}),intel)
+  
+  # Architecture choices: knl, knc, hsw
+  ifeq ($(strip ${ARCH}),knl)
+    OCFLAGS +=  -xMIC-AVX512 
+  else ifeq ($(strip ${ARCH}),knc)
+    OCFLAGS +=  -mmic
+  else ifeq ($(strip ${ARCH}),hsw)
+    OCFLAGS += -xCORE-AVX2
+  else
+    OCFLAGS += -xavx
+  endif
+  
+  # Debugging and optimization
+  OCFLAGS += -parallel-source-info=2 -debug inline-debug-info -qopt-report=5
+endif
+
+#-------------- Portland Group ----------------------------
+ifeq ($(strip ${COMPILER}),portland)
+  OCFLAGS = -tp p6 -Munroll=c:4,n:4
+endif
+
+#----------------------------------------------------------------------
+# 4. Code alternatives 
+CODETYPE         = -DFAST # usually unchanged
+
+#----------------------------------------------------------------------
+# 5. Choose archiver to match compiler for the QCDOC
+
+AR = ar
+
+#----------------------------------------------------------------------
+# End of user choices.  PLEASE, ALSO, CHECK include/config.h.
+#----------------------------------------------------------------------
+
+# Complete set of compiler flags - do not change
+CFLAGS = ${OPT} ${OCFLAGS} ${CODETYPE}
+
+# Prefetch - compile with no optimization
+prefetch.o: prefetch.c
+	${CC} ${OCFLAGS} -c prefetch.c
+
+include Make_template

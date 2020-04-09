@@ -1,0 +1,15 @@
+# Makefile for building the tar file for the MILC code
+#  C. DeTar 12/02/11
+
+# Run this in the top level directory
+
+VER = 7.8.1
+NAME_ROOT = milc_qcd-${VER}
+TARBALL = ${NAME_ROOT}.tar.gz
+
+include tarlist
+
+${TARBALL}:
+	cd ..; tar -czf ${NAME_ROOT}/$@ ${TARLIST}
+
+

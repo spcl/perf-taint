@@ -1,0 +1,512 @@
+OBSOLETE
+# This file is for inclusion in Make_tar and Make_unpack_*
+# It is not intended to be run stand-alone
+# 12/16/06 C. DeTar
+
+#  Change these names to suit
+VER = 7.7.4
+NAME_ROOT = milc_qcd-${VER}
+
+######################################################################
+# Table of contents
+# This list is intended to be all-inclusive
+
+THIS_DIR =         \
+ ${NAME_ROOT}/getints.sh             \
+ ${NAME_ROOT}/Make*                  \
+ ${NAME_ROOT}/README                 \
+ ${NAME_ROOT}/README_RELEASE_NOTES   \
+ ${NAME_ROOT}/cc.pl                  \
+ ${NAME_ROOT}/check.pl               \
+ ${NAME_ROOT}/check_malloc.pl        \
+ ${NAME_ROOT}/compare.sh             \
+ ${NAME_ROOT}/diffn.pl               \
+ ${NAME_ROOT}/diffn3.pl              \
+ ${NAME_ROOT}/seterrfile.pl          \
+ ${NAME_ROOT}/trainerrfile.pl        \
+ ${NAME_ROOT}/train.sh               \
+ ${NAME_ROOT}/headtail.pl            \
+ ${NAME_ROOT}/convert_f2d.sh         \
+ ${NAME_ROOT}/todo
+
+DOC =              \
+ ${NAME_ROOT}/doc/Makefile           \
+ ${NAME_ROOT}/doc/milcv7.texi        \
+ ${NAME_ROOT}/doc/port_notes.txt
+
+LIBRARIES =        \
+ ${NAME_ROOT}/libraries/*.c          \
+ ${NAME_ROOT}/libraries/*.h          \
+ ${NAME_ROOT}/libraries/*.m4         \
+ ${NAME_ROOT}/libraries/*.rs6k       \
+ ${NAME_ROOT}/libraries/*.t3d        \
+ ${NAME_ROOT}/libraries/*.t3e        \
+ ${NAME_ROOT}/libraries/*.alpha      \
+ ${NAME_ROOT}/libraries/Make_*        \
+ ${NAME_ROOT}/libraries/README*      \
+ ${NAME_ROOT}/libraries/include/*.h
+
+FILE_UTILITIES =     \
+ ${NAME_ROOT}/file_utilities/Make*     \
+ ${NAME_ROOT}/file_utilities/*.c       \
+ ${NAME_ROOT}/file_utilities/*.h       \
+ ${NAME_ROOT}/file_utilities/test/*.sample-in \
+ ${NAME_ROOT}/file_utilities/test/*.errtol \
+ ${NAME_ROOT}/file_utilities/test/*.sample-out \
+ ${NAME_ROOT}/file_utilities/test/checklist \
+ ${NAME_ROOT}/file_utilities/test/Makefile
+
+GAUGE_UTILITIES =      \
+ ${NAME_ROOT}/gauge_utilities/Make*     \
+ ${NAME_ROOT}/gauge_utilities/*.c       \
+ ${NAME_ROOT}/gauge_utilities/*.h       \
+ ${NAME_ROOT}/gauge_utilities/test/*.sample-in \
+ ${NAME_ROOT}/gauge_utilities/test/*.errtol \
+ ${NAME_ROOT}/gauge_utilities/test/*.sample-out \
+ ${NAME_ROOT}/gauge_utilities/test/checklist \
+ ${NAME_ROOT}/gauge_utilities/test/Makefile
+
+
+BINARY_SAMPLES =      \
+ ${NAME_ROOT}/binary_samples/colormatrix.*sample* \
+ ${NAME_ROOT}/binary_samples/lat.sample*    \
+ ${NAME_ROOT}/binary_samples/lprop.*sample* \
+ ${NAME_ROOT}/binary_samples/in.sample.*smear* \
+ ${NAME_ROOT}/binary_samples/ksprop*.sample.* \
+ ${NAME_ROOT}/binary_samples/ks.sample.* \
+ ${NAME_ROOT}/binary_samples/ksvector.*sample.* \
+ ${NAME_ROOT}/binary_samples/wprop*.sample.* \
+ ${NAME_ROOT}/binary_samples/smear*.sample.*
+
+INCLUDE =        \
+ ${NAME_ROOT}/include/Make_*        \
+ ${NAME_ROOT}/include/*.h
+
+GENERIC =        \
+ ${NAME_ROOT}/generic/Make_*        \
+ ${NAME_ROOT}/generic/*.c          \
+ ${NAME_ROOT}/generic/*.h          \
+ ${NAME_ROOT}/generic/imp_actions/*.h
+
+GENERIC_KS =     \
+ ${NAME_ROOT}/generic_ks/Make_*     \
+ ${NAME_ROOT}/generic_ks/*.c       \
+ ${NAME_ROOT}/generic_ks/*.cc      \
+ ${NAME_ROOT}/generic_ks/*.h       \
+ ${NAME_ROOT}/generic_ks/imp_actions/README \
+ ${NAME_ROOT}/generic_ks/imp_actions/*.h \
+ ${NAME_ROOT}/generic_ks/imp_actions/hisq/*.h
+
+GENERIC_PG =     \
+ ${NAME_ROOT}/generic_pg/Make_*     \
+ ${NAME_ROOT}/generic_pg/*.c       \
+ ${NAME_ROOT}/generic_pg/*.h
+
+GENERIC_U1 =     \
+ ${NAME_ROOT}/generic_u1/Make_*     \
+ ${NAME_ROOT}/generic_u1/*.c       \
+ ${NAME_ROOT}/generic_u1/*.h
+
+GENERIC_SCHROED =         \
+ ${NAME_ROOT}/generic_schroed/Make_*         \
+ ${NAME_ROOT}/generic_schroed/*.c           \
+ ${NAME_ROOT}/generic_schroed/*.h
+
+GENERIC_WILSON =     \
+ ${NAME_ROOT}/generic_wilson/Make_*     \
+ ${NAME_ROOT}/generic_wilson/*.c       \
+ ${NAME_ROOT}/generic_wilson/*.h
+
+GENERIC_CLOVER =          \
+ ${NAME_ROOT}/generic_clover/Make_*     \
+ ${NAME_ROOT}/generic_clover/*.c       \
+ ${NAME_ROOT}/generic_clover/*.h       \
+ ${NAME_ROOT}/generic_clover/utilities/Make*  \
+ ${NAME_ROOT}/generic_clover/utilities/*.c
+
+GENERIC_FORM =     \
+ ${NAME_ROOT}/generic_form/Make_*     \
+ ${NAME_ROOT}/generic_form/*.c       \
+ ${NAME_ROOT}/generic_form/*.h
+
+ARB_DIRAC_EIGEN =          \
+ ${NAME_ROOT}/arb_dirac_eigen/README         \
+ ${NAME_ROOT}/arb_dirac_eigen/*.c            \
+ ${NAME_ROOT}/arb_dirac_eigen/*.h            \
+ ${NAME_ROOT}/arb_dirac_eigen/Make_*          \
+ ${NAME_ROOT}/arb_dirac_eigen/test/*.sample-in     \
+ ${NAME_ROOT}/arb_dirac_eigen/test/*.errtol     \
+ ${NAME_ROOT}/arb_dirac_eigen/test/*.sample-out \
+ ${NAME_ROOT}/arb_dirac_eigen/test/checklist \
+ ${NAME_ROOT}/arb_dirac_eigen/test/Makefile
+
+ARB_DIRAC_INVERT =          \
+ ${NAME_ROOT}/arb_dirac_invert/README         \
+ ${NAME_ROOT}/arb_dirac_invert/*.c            \
+ ${NAME_ROOT}/arb_dirac_invert/*.h            \
+ ${NAME_ROOT}/arb_dirac_invert/Make_*          \
+ ${NAME_ROOT}/arb_dirac_invert/test/*.sample-in     \
+ ${NAME_ROOT}/arb_dirac_invert/test/*.errtol     \
+ ${NAME_ROOT}/arb_dirac_invert/test/*.sample-out \
+ ${NAME_ROOT}/arb_dirac_invert/test/checklist \
+ ${NAME_ROOT}/arb_dirac_invert/test/Makefile
+
+ARB_OVERLAP =
+ ${NAME_ROOT}/arb_overlap/README        \
+ ${NAME_ROOT}/arb_overlap/*.c           \
+ ${NAME_ROOT}/arb_overlap/*.h           \
+ ${NAME_ROOT}/arb_overlap/Make_*        \
+ ${NAME_ROOT}/arb_overlap/c4444.d        \
+ ${NAME_ROOT}/arb_overlap/test/*.sample-in     \
+ ${NAME_ROOT}/arb_overlap/test/*.sample-out \
+ ${NAME_ROOT}/arb_overlap/test/checklist \
+ ${NAME_ROOT}/arb_overlap/test/Makefile
+
+#  arb_overlap/test/*.errtol     \
+
+CLOVER_DYNAMICAL =          \
+ ${NAME_ROOT}/clover_dynamical/*.c            \
+ ${NAME_ROOT}/clover_dynamical/*.h            \
+ ${NAME_ROOT}/clover_dynamical/Make_*          \
+ ${NAME_ROOT}/clover_dynamical/test/*.sample-in     \
+ ${NAME_ROOT}/clover_dynamical/test/*.errtol     \
+ ${NAME_ROOT}/clover_dynamical/test/*.sample-out \
+ ${NAME_ROOT}/clover_dynamical/test/checklist \
+ ${NAME_ROOT}/clover_dynamical/test/Makefile
+
+CLOVER_HYBRIDS =            \
+ ${NAME_ROOT}/clover_hybrids/*.c              \
+ ${NAME_ROOT}/clover_hybrids/*.h              \
+ ${NAME_ROOT}/clover_hybrids/Make_*            \
+ ${NAME_ROOT}/clover_hybrids/test/*.sample-in       \
+ ${NAME_ROOT}/clover_hybrids/test/*.sample-out \
+ ${NAME_ROOT}/clover_hybrids/test/checklist \
+ ${NAME_ROOT}/clover_hybrids/test/Makefile
+
+CLOVER_INVERT =              \
+ ${NAME_ROOT}/clover_invert/*.c           \
+ ${NAME_ROOT}/clover_invert/*.h           \
+ ${NAME_ROOT}/clover_invert/Make_*        \
+ ${NAME_ROOT}/clover_invert/test/*.sample-in    \
+ ${NAME_ROOT}/clover_invert/in.time*      \
+ ${NAME_ROOT}/clover_invert/test/*.errtol   \
+ ${NAME_ROOT}/clover_invert/test/*.sample-out \
+ ${NAME_ROOT}/clover_invert/test/checklist \
+ ${NAME_ROOT}/clover_invert/test/Makefile
+
+CLOVER_INVERT2 =             \
+ ${NAME_ROOT}/clover_invert2/*.c          \
+ ${NAME_ROOT}/clover_invert2/*.h          \
+ ${NAME_ROOT}/clover_invert2/Make_*       \
+ ${NAME_ROOT}/clover_invert2/test/*.sample-in   \
+ ${NAME_ROOT}/clover_invert2/test/*.errtol  \
+ ${NAME_ROOT}/clover_invert2/test/*.sample-out \
+ ${NAME_ROOT}/clover_invert2/test/checklist \
+ ${NAME_ROOT}/clover_invert2/test/Makefile
+
+EXT_SRC =                    \
+ ${NAME_ROOT}/ext_src/*.c                 \
+ ${NAME_ROOT}/ext_src/*.h                 \
+ ${NAME_ROOT}/ext_src/Make_*              \
+ ${NAME_ROOT}/ext_src/get_checksums_ks.sh \
+ ${NAME_ROOT}/ext_src/get_checksums_w.sh  \
+ ${NAME_ROOT}/ext_src/test/*.sample-in          \
+ ${NAME_ROOT}/ext_src/test/*.errtol         \
+ ${NAME_ROOT}/ext_src/test/*.sample-out \
+ ${NAME_ROOT}/ext_src/test/checklist \
+ ${NAME_ROOT}/ext_src/test/Makefile
+
+GLUON_PROP =                 \
+ ${NAME_ROOT}/gluon_prop/*.c              \
+ ${NAME_ROOT}/gluon_prop/*.h              \
+ ${NAME_ROOT}/gluon_prop/Make_*           \
+ ${NAME_ROOT}/gluon_prop/test/GF_555_6.1   \
+ ${NAME_ROOT}/gluon_prop/test/*.sample-in       \
+ ${NAME_ROOT}/gluon_prop/test/*.errtol      \
+ ${NAME_ROOT}/gluon_prop/test/*.sample-out \
+ ${NAME_ROOT}/gluon_prop/test/checklist \
+ ${NAME_ROOT}/gluon_prop/test/Makefile
+
+# h_dibaryon/test/*.errtol     \
+
+H_DIBARYON =                 \
+ ${NAME_ROOT}/h_dibaryon/*.c              \
+ ${NAME_ROOT}/h_dibaryon/*.h              \
+ ${NAME_ROOT}/h_dibaryon/Make_*           \
+ ${NAME_ROOT}/h_dibaryon/test/*.sample-in       \
+ ${NAME_ROOT}/h_dibaryon/test/*.sample-out \
+ ${NAME_ROOT}/h_dibaryon/test/checklist \
+ ${NAME_ROOT}/h_dibaryon/test/Makefile
+
+HVY_QPOT     =   \
+ ${NAME_ROOT}/hvy_qpot/README      \
+ ${NAME_ROOT}/hvy_qpot/Make_*       \
+ ${NAME_ROOT}/hvy_qpot/*.c         \
+ ${NAME_ROOT}/hvy_qpot/*.h         \
+ ${NAME_ROOT}/hvy_qpot/test/*.sample-in \
+ ${NAME_ROOT}/hvy_qpot/test/*.errtol     \
+ ${NAME_ROOT}/hvy_qpot/test/*.sample-out \
+ ${NAME_ROOT}/hvy_qpot/test/checklist \
+ ${NAME_ROOT}/hvy_qpot/test/Makefile
+
+KS_EIGEN =          \
+ ${NAME_ROOT}/ks_eigen/README*        \
+ ${NAME_ROOT}/ks_eigen/*.c            \
+ ${NAME_ROOT}/ks_eigen/*.h            \
+ ${NAME_ROOT}/ks_eigen/Make_*          \
+ ${NAME_ROOT}/ks_eigen/test/*.sample-in     \
+ ${NAME_ROOT}/ks_eigen/test/*.errtol     \
+ ${NAME_ROOT}/ks_eigen/test/*.sample-out \
+ ${NAME_ROOT}/ks_eigen/test/checklist \
+ ${NAME_ROOT}/ks_eigen/test/Makefile
+
+KS_IMP_DYN =           \
+ ${NAME_ROOT}/ks_imp_dyn/README          \
+ ${NAME_ROOT}/ks_imp_dyn/*.c             \
+ ${NAME_ROOT}/ks_imp_dyn/*.h             \
+ ${NAME_ROOT}/ks_imp_dyn/Make_*           \
+ ${NAME_ROOT}/ks_imp_dyn/test/*.sample-in      \
+ ${NAME_ROOT}/ks_imp_dyn/in.time*        \
+ ${NAME_ROOT}/ks_imp_dyn/test/*.errtol     \
+ ${NAME_ROOT}/ks_imp_dyn/test/*.sample-out \
+ ${NAME_ROOT}/ks_imp_dyn/test/checklist \
+ ${NAME_ROOT}/ks_imp_dyn/test/Makefile
+
+KS_IMP_RHMC =           \
+ ${NAME_ROOT}/ks_imp_rhmc/README*         \
+ ${NAME_ROOT}/ks_imp_rhmc/*.c             \
+ ${NAME_ROOT}/ks_imp_rhmc/*.h             \
+ ${NAME_ROOT}/ks_imp_rhmc/Make_*           \
+ ${NAME_ROOT}/ks_imp_rhmc/test/*.sample-in      \
+ ${NAME_ROOT}/ks_imp_rhmc/test/*.errtol     \
+ ${NAME_ROOT}/ks_imp_rhmc/test/*.sample-out     \
+ ${NAME_ROOT}/ks_imp_rhmc/test/checklist \
+ ${NAME_ROOT}/ks_imp_rhmc/test/Makefile     \
+ ${NAME_ROOT}/ks_imp_rhmc/test/rationals.sample* \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/README* \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/*.C     \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/*.h     \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/*.pl    \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/in.sample* \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/in.m013m065m838 \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/rationals.sample* \
+ ${NAME_ROOT}/ks_imp_rhmc/remez-milc/Make*
+
+
+KS_IMP_UTILITIES =           \
+ ${NAME_ROOT}/ks_imp_utilities/*.c             \
+ ${NAME_ROOT}/ks_imp_utilities/*.h             \
+ ${NAME_ROOT}/ks_imp_utilities/Make*           \
+ ${NAME_ROOT}/ks_imp_utilities/test/*.sample-in      \
+ ${NAME_ROOT}/ks_imp_utilities/test/*.errtol     \
+ ${NAME_ROOT}/ks_imp_utilities/test/*.sample-out \
+ ${NAME_ROOT}/ks_imp_utilities/test/checklist \
+ ${NAME_ROOT}/ks_imp_utilities/test/Makefile
+
+KS_MEASURE =    \
+ ${NAME_ROOT}/ks_measure/*.c            \
+ ${NAME_ROOT}/ks_measure/*.h            \
+ ${NAME_ROOT}/ks_measure/Make_*          \
+ ${NAME_ROOT}/ks_measure/test/*.sample-in     \
+ ${NAME_ROOT}/ks_measure/test/*.errtol     \
+ ${NAME_ROOT}/ks_measure/test/*.sample-out \
+ ${NAME_ROOT}/ks_measure/test/checklist \
+ ${NAME_ROOT}/ks_measure/test/Makefile
+
+KS_SPECTRUM =    \
+ ${NAME_ROOT}/ks_spectrum/*.c            \
+ ${NAME_ROOT}/ks_spectrum/*.h            \
+ ${NAME_ROOT}/ks_spectrum/Make_*          \
+ ${NAME_ROOT}/ks_spectrum/test/*.sample-in     \
+ ${NAME_ROOT}/ks_spectrum/test/*.errtol     \
+ ${NAME_ROOT}/ks_spectrum/test/*.sample-out \
+ ${NAME_ROOT}/ks_spectrum/test/*.sh \
+ ${NAME_ROOT}/ks_spectrum/test/*.test-param \
+ ${NAME_ROOT}/ks_spectrum/test/checklist \
+ ${NAME_ROOT}/ks_spectrum/test/Makefile \
+ ${NAME_ROOT}/ks_spectrum/test/README
+
+PURE_GAUGE =          \
+ ${NAME_ROOT}/pure_gauge/*.c            \
+ ${NAME_ROOT}/pure_gauge/*.h            \
+ ${NAME_ROOT}/pure_gauge/Make_*          \
+ ${NAME_ROOT}/pure_gauge/test/*.sample-in     \
+ ${NAME_ROOT}/pure_gauge/test/*.errtol     \
+ ${NAME_ROOT}/pure_gauge/test/*.sample-out \
+ ${NAME_ROOT}/pure_gauge/test/checklist \
+ ${NAME_ROOT}/pure_gauge/test/Makefile
+
+SCHROED_CL_INV =          \
+ ${NAME_ROOT}/schroed_cl_inv/*.c            \
+ ${NAME_ROOT}/schroed_cl_inv/*.h            \
+ ${NAME_ROOT}/schroed_cl_inv/Make_*          \
+ ${NAME_ROOT}/schroed_cl_inv/test/*.sample-in     \
+ ${NAME_ROOT}/schroed_cl_inv/test/*.errtol     \
+ ${NAME_ROOT}/schroed_cl_inv/test/*.sample-out \
+ ${NAME_ROOT}/schroed_cl_inv/test/checklist \
+ ${NAME_ROOT}/schroed_cl_inv/test/Makefile
+
+SCHROED_KS_DYN =          \
+ ${NAME_ROOT}/schroed_ks_dyn/*.c            \
+ ${NAME_ROOT}/schroed_ks_dyn/*.h            \
+ ${NAME_ROOT}/schroed_ks_dyn/Make_*          \
+ ${NAME_ROOT}/schroed_ks_dyn/test/*.sample-in     \
+ ${NAME_ROOT}/schroed_ks_dyn/test/*.errtol     \
+ ${NAME_ROOT}/schroed_ks_dyn/test/*.sample-out \
+ ${NAME_ROOT}/schroed_ks_dyn/test/checklist \
+ ${NAME_ROOT}/schroed_ks_dyn/test/Makefile
+
+SCHROED_PG =          \
+ ${NAME_ROOT}/schroed_pg/*.c            \
+ ${NAME_ROOT}/schroed_pg/*.h            \
+ ${NAME_ROOT}/schroed_pg/Make_*          \
+ ${NAME_ROOT}/schroed_pg/test/*.sample-in     \
+ ${NAME_ROOT}/schroed_pg/test/*.errtol     \
+ ${NAME_ROOT}/schroed_pg/test/*.sample-out \
+ ${NAME_ROOT}/schroed_pg/test/checklist \
+ ${NAME_ROOT}/schroed_pg/test/Makefile
+
+SMOOTH_INST =         \
+ ${NAME_ROOT}/smooth_inst/README*       \
+ ${NAME_ROOT}/smooth_inst/*.c           \
+ ${NAME_ROOT}/smooth_inst/*.c.unused    \
+ ${NAME_ROOT}/smooth_inst/*.h           \
+ ${NAME_ROOT}/smooth_inst/Make_*         \
+ ${NAME_ROOT}/smooth_inst/test/*.sample-in    \
+ ${NAME_ROOT}/smooth_inst/test/*.errtol   \
+ ${NAME_ROOT}/smooth_inst/test/*.sample-out   \
+ ${NAME_ROOT}/smooth_inst/test/checklist \
+ ${NAME_ROOT}/smooth_inst/test/Makefile \
+ ${NAME_ROOT}/smooth_inst/utilities/*.c \
+ ${NAME_ROOT}/smooth_inst/utilities/Make_utilities
+
+SYMANZIK_SL32 =         \
+ ${NAME_ROOT}/symanzik_sl32/*.c           \
+ ${NAME_ROOT}/symanzik_sl32/*.h           \
+ ${NAME_ROOT}/symanzik_sl32/Make_*         \
+ ${NAME_ROOT}/symanzik_sl32/test/*.sample-in    \
+ ${NAME_ROOT}/symanzik_sl32/test/*.errtol     \
+ ${NAME_ROOT}/symanzik_sl32/test/*.sample-out \
+ ${NAME_ROOT}/symanzik_sl32/test/checklist \
+ ${NAME_ROOT}/symanzik_sl32/test/Makefile
+
+
+U1_GAUGE =              \
+ ${NAME_ROOT}/u1_gauge/*.c            \
+ ${NAME_ROOT}/u1_gauge/*.h            \
+ ${NAME_ROOT}/u1_gauge/Make_*
+
+# We split up the archive into manageable components
+
+BASIC =               \
+ ${THIS_DIR}          \
+ ${DOC}               \
+ ${FILE_UTILITIES}    \
+ ${GAUGE_UTILITIES}   \
+ ${BINARY_SAMPLES}    \
+ ${GENERIC}           \
+ ${INCLUDE}           \
+ ${LIBRARIES}         \
+ ${SSE}               \
+ ${SSE_OPTERON}       \
+ ${SSE2}            
+
+SSE =               \
+ ${NAME_ROOT}/sse/README_SSE          \
+ ${NAME_ROOT}/sse/include/*.h         \
+ ${NAME_ROOT}/sse/include/Makefile    \
+ ${NAME_ROOT}/sse/nas/*.s             \
+ ${NAME_ROOT}/sse/bin/*.pl
+
+SSE_OPTERON =                    \
+ ${NAME_ROOT}/sse_opteron/README_SSE          \
+ ${NAME_ROOT}/sse_opteron/include/*.h         \
+ ${NAME_ROOT}/sse_opteron/include/Makefile    \
+ ${NAME_ROOT}/sse_opteron/nas/*.s             \
+ ${NAME_ROOT}/sse_opteron/bin/*.pl
+
+SSE2 =              \
+ ${NAME_ROOT}/sse2/README_SSE         \
+ ${NAME_ROOT}/sse2/include/*.h        \
+ ${NAME_ROOT}/sse2/include/Makefile   \
+ ${NAME_ROOT}/sse2/nas/*.s            \
+ ${NAME_ROOT}/sse2/bin/*.pl
+
+PG =          \
+ ${GENERIC_PG}        \
+ ${PURE_GAUGE}        \
+ ${SYMANZIK_SL32}     \
+ ${HVY_QPOT}
+
+CLOVER =              \
+ ${GENERIC_CLOVER}    \
+ ${CLOVER_DYNAMICAL}  \
+ ${CLOVER_HYBRIDS}    \
+ ${CLOVER_INVERT2}    \
+ ${EXT_SRC}           \
+ ${H_DIBARYON}
+
+FP =                  \
+ ${ARB_OVERLAP}       \
+ ${ARB_DIRAC_INVERT}  \
+ ${ARB_DIRAC_EIGEN}
+
+INST =                \
+ ${SMOOTH_INST}
+
+U1 =                  \
+ ${GENERIC_U1}        \
+ ${U1_GAUGE}
+
+# ${KS_IMP_INVERT_MULTI} \
+
+KS =                  \
+ ${GENERIC_KS}        \
+ ${GLUON_PROP}        \
+ ${KS_EIGEN}          \
+ ${KS_IMP_DYN}	      \
+ ${KS_IMP_RHMC}	      \
+ ${KS_IMP_UTILITIES}  \
+ ${KS_MEASURE}        \
+ ${KS_SPECTRUM}
+
+
+SF =                 \
+  ${GENERIC_SCHROED} \
+  ${SCHROED_CL_INV}  \
+  ${SCHROED_KS_DYN}
+  ${SCHROED_PG}
+
+WILSON =              \
+ ${GENERIC_WILSON} \
+
+# The names of the component tar files
+
+BASIC_TAR   = ${NAME_ROOT}/${NAME_ROOT}_basic.tar
+CLOVER_TAR  = ${NAME_ROOT}/${NAME_ROOT}_clover.tar
+FP_TAR      = ${NAME_ROOT}/${NAME_ROOT}_fp.tar
+INST_TAR    = ${NAME_ROOT}/${NAME_ROOT}_inst.tar
+KS_TAR      = ${NAME_ROOT}/${NAME_ROOT}_ks.tar
+PG_TAR      = ${NAME_ROOT}/${NAME_ROOT}_pure_gauge.tar
+SF_TAR      = ${NAME_ROOT}/${NAME_ROOT}_sf.tar
+WILSON_TAR  = ${NAME_ROOT}/${NAME_ROOT}_wilson.tar
+
+# The combined tar file
+
+TAR =          \
+ ${BASIC_TAR}  \
+ ${CLOVER_TAR} \
+ ${FP_TAR} \
+ ${KS_TAR}     \
+ ${INST_TAR}    \
+ ${PG_TAR} \
+ ${SF_TAR}     \
+ ${WILSON_TAR}
+
+# Contents of the whole ball of wax
+
+WORK =              \
+ ${NAME_ROOT}/README_UNPACK      \
+ ${NAME_ROOT}/Make_contents      \
+ ${NAME_ROOT}/Make_unpack        \
+ ${TAR}

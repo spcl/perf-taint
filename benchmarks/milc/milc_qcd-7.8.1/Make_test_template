@@ -1,0 +1,87 @@
+# Generic make-include file for all applications
+# For inclusion in an application-specific Make_test
+# Not intended to be used as a standalone.
+# C.D. 8/25/06
+
+# For making the test output.  Results are put in out.test.diff.${PROJ}
+
+# Instructions...
+# 1.  Copy the Makefile from the top level directory to the application 
+#     directory and edit it  for the options and architecture you desire
+# 2.  Select the appropriate job launch command below by uncommenting
+#     the appropriate set or creating one.
+# 3.  Go to the application directory
+# 4.  There should already be sample input and output files constructed from
+#     code that you trust and the corresponding error tolerance files.
+#     The sample files are called in.sample.TARGET out.sample.TARGET
+#     and out.errtol.TARGET where TARGET is built from "make TARGET".
+#     The test output file is called out.test.TARGET.
+#     To create an error tolerance file, see instructions in seterrfile.pl.
+# 5.  In the application directory, run the command
+#        make -f Make_test check > & maketest.log
+# 6.  Results are reported in files called out.test.diff.*
+#     These files show differences between the sample and test output files.
+#     using the error tolerance file to determine compliance.
+#     Results are also reported to stderr so should appear in maketest.log
+#     Look for lines with "Error" and "NOT OK".
+# 7.  The variable CUSTOM is normally undefined in the master
+#     Make_test file.  With this choice the test consists of comparing
+#     stdout from a test run with the corresponding sample output file.
+#     The rule for making this file is supplied here.
+#     Changing CUSTOM to another name and supplying a rule in the master 
+#     Make_test file for the file out.test${CUSTOM}.${PROJ} allows a custom 
+#     test - for example a test comparing output other than stdout.
+#     A corresponding out.sample${CUSTOM}.${PROJ} must be supplied.
+# 8.  The variable PRECLIST lists precisions to test.
+# 9.  The variable ADDMACRO is available to add further compiler macros to
+#     the compilation.
+#
+# For the "heavy" application, follow instructions in heavy/Make_test
+
+# Provisions for architecture-dependent job launching
+# Change to suit...
+
+# The job is launched with the commad
+# ${LAUNCH} ./${PROJ} ${LAUNCH2} in.sample.${PROJ} > out.test.${PROJ}
+
+# SGI Origin
+#LAUNCH = mpirun -np 4
+#LAUNCH2 = 
+
+# Linux MPI
+#LAUNCH = /uufs/icebox/sys/pkg/mpich/1.2.1/bin/mpirun -np 4 -machinefile $$PBS_NODEFILE  # icebox
+#LAUNCH = /usr/local/bin/vmi-launch -ncpus 8 --  #  VMI
+#LAUNCH2 = 
+
+# Linux QMP
+#LAUNCH = mpirun.ch_gm -np 8
+#LAUNCH2 = 
+
+# Compaq Alpha cluster (tcsini)
+#LAUNCH = prun -N $$RMS_NODES -n $$RMS_PROCS # (tcsini)
+#LAUNCH = prun -p test -B 1 -N 1 -n 4  (CHPC sierra cluster - private node sierra1)
+#LAUNCH2 =
+
+# SP
+#LAUNCH = poe 
+#LAUNCH2 = -nodes 1 -tasks_per_node 4 -rmpool 1 -euilib ip -euidevice en0
+
+# Scalar machine
+LAUNCH =
+LAUNCH2 = 
+
+
+#
+.SUFFIXES: .test-diff .test-out
+
+${PREFIX}.test-out: ../${EXEC} ${PREFIX}.sample-in
+	${LAUNCH} ../${EXEC} ${LAUNCH2} < $*.sample-in > $*.test-out
+
+.test-out.test-diff: $*.test-tmp $*.sample-tmp
+	perl ../../headtail.pl ${PATTERNS} <  $*.test-out | grep -iv "warning" | grep -v 'time =' | grep -v '^#' >  $*.test-tmp ;\
+	perl ../../headtail.pl ${PATTERNS} <  $*.sample-out > $*.sample-tmp ;\
+	perl ../../diffn3.pl $*.test-tmp $*.sample-tmp $*.errtol > $*.test-diff
+
+test_clean:
+	-/bin/rm -f *.test-tmp *.sample-tmp *.test-diff *.test-out*;
+

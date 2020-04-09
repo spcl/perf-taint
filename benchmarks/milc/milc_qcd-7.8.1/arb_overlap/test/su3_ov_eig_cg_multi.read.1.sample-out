@@ -1,0 +1,456 @@
+nHYP links with 3 smearing level(s)
+HARD-CODED alpha_smear={0.75, 0.6, 0.3}
+IR_STAB=1.000000e-06,  EPS_SQ=1.000000e-05 
+Antiperiodic boundary conditions
+MIMD version 7 $Name:  $
+Machine = Scalar processor, with 1 nodes
+start: Fri Jan 20 05:36:10 2012
+
+type 0 for no prompts, 1 for prompts, or 2 for proofreading
+nx 4
+ny 4
+nz 4
+nt 4
+iseed 3737
+LAYOUT = Hypercubes, options = with fixed node_geometry
+ON EACH NODE 4 x 4 x 4 x 4
+Mallocing 0.5 MBytes per node for lattice
+Mallocing 1.1 MBytes per node for fields
+only enough offsets for planar action
+
+
+beta 7.3
+u0 1
+number_of_masses 4
+m0 0.01
+m0 0.02
+m0 0.05
+m0 0.1
+R0 1.2
+scalez 1
+prec_sign 1e-07
+zolo_min 0.02
+zolo_max 2.7
+inner_cg_iterations 1000
+inner_residue 1e-07
+inner_residue_h 1e-07
+Number_of_inner_eigenvals 4
+Number_of_h0_eigenvals 8
+Number_of_hov_eigenvals 4
+Max_Rayleigh_iters 1000
+Max_r0_iters 0
+Restart_Rayleigh 10
+Kalkreuter_iters 10
+eigenvec_quality 0.00012
+eigenval_tol_low 1e-06
+error_decr_low 0.3
+eigenval_tol_high 1e-07
+error_decr_high 0.3
+max_cg_iterations 100
+max_cg_restarts 1
+error_for_fermforce 1e-05
+error_for_fermforce 1e-05
+error_for_fermforce 1e-05
+error_for_fermforce 1e-05
+error_for_fermaction 1e-05
+error_for_fermaction 1e-05
+error_for_fermaction 1e-05
+error_for_fermaction 1e-05
+gaussian
+subset full
+origin 0 0 0 0 
+r0 2
+source_label G
+reload_serial ../../binary_samples/lat.sample.inst
+topology 100
+fixing to coulomb gauge
+forget 
+fresh_wprop 
+save_serial_fm_sc_wprop su3_ov_eig_cg_multi.read.www.1.test-out
+iserial_hr0_modes
+su3_ov_eig_cg_f_hyp.Coul.hr0.1.test-out
+forget_hr0_modes 
+iserial_hov_modes
+ su3_ov_eig_cg_f_hyp.Coul.hov.1.test-out
+forget_hov_modes
+ Reading as old-style gauge field configuration.
+Old format header parameters are 6.000000 0.012500
+Restored binary gauge configuration serially from file ../../binary_samples/lat.sample.inst
+Checksums ed5b7449 68d34f64
+Checksums not verified in this format
+Time to reload gauge configuration = 1.477953e-03
+CHECK PLAQ: 2.973028e+00 2.973028e+00
+CHECK NERSC LINKTR: 9.916278e-01 CKSUM: a0e19040
+Unitarity checked.  Max deviation 1.46e-07
+Time to check unitarity = 1.360890e-04
+Fixing to Coulomb gauge
+GFIX: Ended at step 9. Av gf action 9.92502153e-01, delta 5.960e-08
+Time to gauge fix = 8.782945e-03
+FATLINK -2.817587e+00 5.205563e-09 0.000000e+00 2.976293e+00 2.976293e+00
+shift multi mass R0 1.200000e+00
+Zolotarov inner CG order 0
+inner CG steps 1000  resid 1.000000e-07
+lmin 2.000000e-02 lmax 2.700000e+00 prec 2.671116e-08 Norder 12
+shift[ 0 ]=2.812497e-05 coeff= 6.906356e-03
+shift[ 1 ]=3.028145e-04 coeff= 8.848960e-03
+shift[ 2 ]=1.183007e-03 coeff= 1.328127e-02
+shift[ 3 ]=3.729084e-03 coeff= 2.145363e-02
+shift[ 4 ]=1.101138e-02 coeff= 3.568286e-02
+shift[ 5 ]=3.183655e-02 coeff= 6.005973e-02
+shift[ 6 ]=9.159283e-02 coeff= 1.018711e-01
+shift[ 7 ]=2.648169e-01 coeff= 1.749894e-01
+shift[ 8 ]=7.819614e-01 coeff= 3.106650e-01
+shift[ 9 ]=2.464906e+00 coeff= 6.062421e-01
+shift[ 10 ]=9.629658e+00 coeff= 1.578009e+00
+shift[ 11 ]=1.036801e+02 coeff= 1.326022e+01
+scale dslash by 1.000000e+00
+mass= 0.01 r0= 2 residue= 1e-05
+mass= 0.02 r0= 2 residue= 1e-05
+mass= 0.05 r0= 2 residue= 1e-05
+mass= 0.1 r0= 2 residue= 1e-05
+Opening 1 files to read eigenmodes
+record[0].checksum  "5978b5f2 634da8ad"
+record[1].checksum  "8bdf1f7b 88ee2448"
+record[2].checksum  "8bdf1f7b 88ee2448"
+record[3].checksum  "c1bef1f4 328825d5"
+record[4].checksum  "8bdf1f7b 88ee2448"
+record[5].checksum  "8bdf1f7b 88ee2448"
+record[6].checksum  "b9a0d01f 88e1ade2"
+record[7].checksum  "87c7def7 3b891224"
+record[8].checksum  "87c7def7 3b891224"
+record[9].checksum  "299d64ff 760fdc6e"
+record[10].checksum  "8bdf1f7b 88ee2448"
+record[11].checksum  "8bdf1f7b 88ee2448"
+reading mode 0 with spin 0 color 0 file 0
+reading mode 1 with spin 1 color 0 file 0
+reading mode 2 with spin 2 color 0 file 0
+reading mode 3 with spin 3 color 0 file 0
+preparing to close files
+closed files
+
+TEST PROJECTOR planar action 
+lambda = 2.018950e+00 -1.666660e-01 -7.856700e-02 
+clover normalization -1.278000e+00
+
+START_EIGVALS of h(-r0): re im  IPR invp5
+QUALITY OF EIGENMODE 0 : 4.849574e-07
+F3MES 0 -1.488577e-01 -1.562019e-08   4.881059e+01 4.628564e+01
+QUALITY OF EIGENMODE 1 : 6.932999e-07
+F3MES 1 -7.348796e-01 3.823983e-08   6.728101e+01 6.611781e+01
+QUALITY OF EIGENMODE 2 : 9.401886e-07
+F3MES 2 -7.382827e-01 1.971060e-09   5.949771e+01 5.796500e+01
+QUALITY OF EIGENMODE 3 : 1.095584e-06
+F3MES 3 -7.382826e-01 -9.354086e-09   5.949791e+01 5.796521e+01
+END_EIGVALS of h(-r0)
+
+mxv operations for eigenvecs 4
+re_setup  : lmin 6.644543e-01 lmax 2.700000e+00 prec 2.123376e-09 Norder 6
+shift[ 0 ]=2.479572e-02 coeff= 2.043963e-01
+shift[ 1 ]=2.608207e-01 coeff= 2.548626e-01
+shift[ 2 ]=9.941950e-01 coeff= 3.816785e-01
+shift[ 3 ]=3.237325e+00 coeff= 6.887395e-01
+shift[ 4 ]=1.234002e+01 coeff= 1.753045e+00
+shift[ 5 ]=1.298019e+02 coeff= 1.478854e+01
+scale dslash by 1.000000e+00
+Opening 1 files to read eigenmodes
+record[0].checksum  "6f90eb29 494e07d"
+record[1].checksum  "d7bf801 c2eca6df"
+record[2].checksum  "80204335 3d3f5486"
+record[3].checksum  "31730b5f 54c3a6"
+record[4].checksum  "44a31896 b35c566b"
+record[5].checksum  "db845918 f2d9c2c2"
+record[6].checksum  "5288b576 2857f2b0"
+record[7].checksum  "547a49d8 1e35cb28"
+record[8].checksum  "e7c6cec8 c30c7eb8"
+record[9].checksum  "fb0d046 23c2bc3a"
+record[10].checksum  "8393737e 1f2df896"
+record[11].checksum  "7188fc1b ce9a7e9b"
+reading mode 0 with spin 0 color 0 file 0
+reading mode 1 with spin 1 color 0 file 0
+reading mode 2 with spin 2 color 0 file 0
+reading mode 3 with spin 3 color 0 file 0
+preparing to close files
+closed files
+reading eigenval 0 -1.497176e-07
+reading eigenval 1 5.850546e-01
+reading eigenval 2 5.850547e-01
+reading eigenval 3 5.878292e-01
+TESTNORM 9.999995e-01 5.466412e-16
+TESTNORM 9.999995e-01 1.000000e+00
+TESTNORM 1.000000e+00 1.000000e+00
+TESTNORM 1.000000e+00 1.000002e+00
+ZEROMODES -1
+reset current TOPOLOGY -1
+0 mass 1.000000e-02 shift0 1.000017e-04 coeff0 1.000017e+00
+1 mass 2.000000e-02 shift0 4.000278e-04 coeff0 1.000069e+00
+2 mass 5.000000e-02 shift0 2.501086e-03 coeff0 1.000434e+00
+3 mass 1.000000e-01 shift0 1.001739e-02 coeff0 1.001739e+00
+mass 1.000000e-02 mode 0 -1 1.000000e+02 0.000000e+00
+mass 1.000000e-02 mode 1 0 1.535395e-02 1.239016e+00
+mass 1.000000e-02 mode 2 0 1.535395e-02 1.239015e+00
+mass 1.000000e-02 mode 3 0 1.527330e-02 1.235758e+00
+mass 2.000000e-02 mode 0 -1 5.000000e+01 0.000000e+00
+mass 2.000000e-02 mode 1 0 3.069377e-02 1.238445e+00
+mass 2.000000e-02 mode 2 0 3.069376e-02 1.238445e+00
+mass 2.000000e-02 mode 3 0 3.053261e-02 1.235192e+00
+mass 5.000000e-02 mode 0 -1 2.000000e+01 0.000000e+00
+mass 5.000000e-02 mode 1 0 7.648791e-02 1.234467e+00
+mass 5.000000e-02 mode 2 0 7.648790e-02 1.234467e+00
+mass 5.000000e-02 mode 3 0 7.608760e-02 1.231244e+00
+mass 1.000000e-01 mode 0 -1 1.000000e+01 0.000000e+00
+mass 1.000000e-01 mode 1 0 1.512406e-01 1.220464e+00
+mass 1.000000e-01 mode 2 0 1.512406e-01 1.220464e+00
+mass 1.000000e-01 mode 3 0 1.504580e-01 1.217351e+00
+Propagator color 0 spin 0
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 8.226783e-10 4.779864e-10
+projector 1 -2.158188e-01 -9.303741e-01
+projector 2 5.449746e-01 -5.451270e-01
+projector 3 -4.603518e-01 -7.530967e-01
+inverting source color 0 spin 0 chirality 1
+congrad: source_norm = 1.066592e+01
+iter 0 residue 2.191373e+00  1.200000e-07
+iter 5 residue 3.547493e-04  2.985984e-07
+ vector 1 converged in 10 steps 7.828259e-10
+ vector 2 converged in 10 steps 7.653971e-10
+ vector 3 converged in 10 steps 7.064004e-10
+iter 10 residue 7.853495e-10  7.430085e-07
+cg iters 11 residue 7.853495e-10
+Propagator color 0 spin 1
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 2.817810e-09 0.000000e+00
+projector 1 -1.087862e+00 -2.478988e-02
+projector 2 -6.946326e-01 1.160202e+00
+projector 3 2.620012e-01 -1.220060e+00
+inverting source color 0 spin 1 chirality 1
+congrad: source_norm = 8.381498e+00
+iter 0 residue 3.224160e-01  1.848843e-06
+iter 5 residue 1.965974e-04  4.600513e-06
+ vector 1 converged in 10 steps 2.337424e-10
+ vector 2 converged in 10 steps 2.285696e-10
+ vector 3 converged in 10 steps 2.110543e-10
+iter 10 residue 2.344913e-10  1.144755e-05
+cg iters 11 residue 2.344913e-10
+Propagator color 0 spin 2
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -7.859244e-02 6.857553e-01
+projector 1 1.744064e-02 1.810793e-01
+projector 2 1.862117e-01 -1.443262e-01
+projector 3 2.248174e-01 -1.511588e-01
+inverting source color 0 spin 2 chirality -1
+congrad: source_norm = 1.231290e+01
+iter 0 residue 4.240172e+00  2.848517e-05
+iter 5 residue 2.095872e-04  7.088021e-05
+iter 10 residue 1.157035e-08  1.224810e-04
+ vector 1 converged in 12 steps 2.288206e-10
+ vector 2 converged in 12 steps 2.222018e-10
+ vector 3 converged in 12 steps 2.001487e-10
+cg iters 13 residue 2.297828e-10
+Propagator color 0 spin 3
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -1.093425e-03 -1.371309e-03
+projector 1 -1.627046e-01 -2.524477e-01
+projector 2 -1.660874e-01 -2.437351e-01
+projector 3 1.460858e-03 -6.774969e-03
+inverting source color 0 spin 3 chirality -1
+congrad: source_norm = 1.277408e+01
+iter 0 residue 4.818682e+00  7.088021e-05
+iter 5 residue 1.075909e-04  8.505625e-05
+iter 10 residue 3.686447e-09  1.469772e-04
+ vector 1 converged in 12 steps 1.145305e-09
+ vector 2 converged in 12 steps 1.109507e-09
+ vector 3 converged in 12 steps 9.909540e-10
+cg iters 13 residue 1.150517e-09
+Propagator color 1 spin 0
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 0.000000e+00 3.800046e-10
+projector 1 1.170984e+00 -3.733072e-01
+projector 2 -1.160042e+00 3.954390e-01
+projector 3 -1.220059e+00 -2.620220e-01
+inverting source color 1 spin 0 chirality 1
+congrad: source_norm = 8.381500e+00
+iter 0 residue 3.224124e-01  1.763726e-04
+iter 5 residue 1.965305e-04  1.020675e-04
+ vector 1 converged in 10 steps 2.343029e-10
+ vector 2 converged in 10 steps 2.291176e-10
+ vector 3 converged in 10 steps 2.115600e-10
+iter 10 residue 2.350536e-10  8.505625e-05
+cg iters 11 residue 2.350536e-10
+Propagator color 1 spin 1
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -3.474231e-11 -3.910788e-10
+projector 1 2.158130e-01 9.303735e-01
+projector 2 -5.449788e-01 5.451226e-01
+projector 3 4.976766e-01 7.289675e-01
+inverting source color 1 spin 1 chirality 1
+congrad: source_norm = 1.066592e+01
+iter 0 residue 2.191376e+00  7.088021e-05
+iter 5 residue 3.547481e-04  5.906684e-05
+ vector 1 converged in 10 steps 7.828365e-10
+ vector 2 converged in 10 steps 7.654074e-10
+ vector 3 converged in 10 steps 7.064096e-10
+iter 10 residue 7.853602e-10  1.469772e-04
+cg iters 11 residue 7.853602e-10
+Propagator color 1 spin 2
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -1.371231e-03 1.093133e-03
+projector 1 5.393613e-02 -3.263479e-01
+projector 2 2.018535e-01 1.644502e-01
+projector 3 -6.775945e-03 -1.455923e-03
+inverting source color 1 spin 2 chirality -1
+congrad: source_norm = 1.277408e+01
+iter 0 residue 4.818672e+00  1.224810e-04
+iter 5 residue 1.075692e-04  1.020675e-04
+iter 10 residue 9.901450e-09  1.763726e-04
+iter 15 residue 1.384661e-05  1.020675e-04
+ vector 3 converged in 16 steps 3.281106e-10
+ vector 2 converged in 18 steps 5.834419e-10
+ vector 1 converged in 19 steps 2.456829e-10
+iter 20 residue 7.628231e-11  1.224810e-04
+cg iters 21 residue 7.628231e-11
+Propagator color 1 spin 3
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -7.613130e-02 6.860326e-01
+projector 1 -1.743738e-02 -1.810763e-01
+projector 2 -1.862121e-01 1.443310e-01
+projector 3 2.301358e-01 -1.429320e-01
+inverting source color 1 spin 3 chirality -1
+congrad: source_norm = 1.231290e+01
+iter 0 residue 4.240105e+00  1.469772e-04
+iter 5 residue 2.095641e-04  1.224810e-04
+iter 10 residue 2.796342e-08  1.469772e-04
+iter 15 residue 2.904110e-05  1.224810e-04
+ vector 3 converged in 16 steps 1.376529e-10
+ vector 2 converged in 18 steps 8.783434e-10
+ vector 1 converged in 19 steps 7.810936e-10
+iter 20 residue 3.786309e-10  1.469772e-04
+cg iters 21 residue 3.786309e-10
+Propagator color 2 spin 0
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -1.117752e-15 8.160726e-16
+projector 1 -1.394356e-07 -1.141919e-07
+projector 2 1.919718e-07 2.287307e-07
+projector 3 -3.687686e-08 -3.657257e-07
+inverting source color 2 spin 0 chirality 1
+congrad: source_norm = 1.295133e+01
+iter 0 residue 5.220904e+00  8.505625e-05
+ vector 1 converged in 5 steps 5.072167e-11
+ vector 2 converged in 5 steps 5.020147e-11
+ vector 3 converged in 5 steps 4.839176e-11
+iter 5 residue 5.079648e-11  1.020675e-04
+cg iters 6 residue 5.079648e-11
+Propagator color 2 spin 1
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 1.076609e-16 -1.566848e-17
+projector 1 2.905812e-07 -5.402605e-07
+projector 2 -1.852491e-07 -2.673840e-07
+projector 3 3.749274e-07 5.654235e-07
+inverting source color 2 spin 1 chirality 1
+congrad: source_norm = 1.295133e+01
+iter 0 residue 5.220854e+00  1.763726e-04
+ vector 1 converged in 5 steps 9.466590e-11
+ vector 2 converged in 5 steps 9.369492e-11
+ vector 3 converged in 5 steps 9.031700e-11
+iter 5 residue 9.480553e-11  1.020675e-04
+cg iters 6 residue 9.480552e-11
+Propagator color 2 spin 2
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -1.275456e-07 6.983850e-08
+projector 1 -9.234352e-07 -4.388608e-08
+projector 2 -5.217349e-07 8.203683e-07
+projector 3 -7.014830e-08 -5.560519e-07
+inverting source color 2 spin 2 chirality -1
+congrad: source_norm = 1.295133e+01
+iter 0 residue 5.220854e+00  1.763726e-04
+ vector 1 converged in 5 steps 9.380032e-11
+ vector 2 converged in 5 steps 9.283822e-11
+ vector 3 converged in 5 steps 8.949120e-11
+iter 5 residue 9.393867e-11  1.020675e-04
+cg iters 6 residue 9.393868e-11
+Propagator color 2 spin 3
+Original: source_norm = 1.295133e+01
+removing 4 modes from source
+projector 0 -3.402592e-08 8.212579e-08
+projector 1 2.520467e-07 -1.482618e-07
+projector 2 3.888229e-07 1.378438e-07
+projector 3 -6.111553e-08 -3.050044e-07
+inverting source color 2 spin 3 chirality -1
+congrad: source_norm = 1.295133e+01
+iter 0 residue 5.220854e+00  1.763726e-04
+ vector 1 converged in 5 steps 9.308369e-11
+ vector 2 converged in 5 steps 9.212895e-11
+ vector 3 converged in 5 steps 8.880750e-11
+iter 5 residue 9.322099e-11  1.020675e-04
+cg iters 6 residue 9.322099e-11
+record[0].checksum  "0xc1d419f9 0xdc5d5c3a" 
+record[1].checksum  "0x88d2ba83 0x91061f8e" 
+record[2].checksum  "0xbb5ae58e 0xd2fd4baf" 
+record[3].checksum  "0x6ad1d51 0x6c66ac56" 
+record[4].checksum  "0xa561293c 0x25bfe9bf" 
+record[5].checksum  "0xafd1ebd 0x1f5346a1" 
+record[6].checksum  "0x5f02efc4 0x769d251d" 
+record[7].checksum  "0xb7c350c9 0x470bbc33" 
+record[8].checksum  "0x6139b5f 0xbf4c3bd9" 
+record[9].checksum  "0xb4518e21 0xce7b58dc" 
+record[10].checksum  "0xa3afd02 0x2dee882d" 
+record[11].checksum  "0xb4749fc0 0x76ed8df7" 
+Wrote prop file su3_ov_eig_cg_multi.read.www.1.test-out.n0.010000 time stamp Fri Dec 16 22:50:46 2011
+record[0].checksum  "0xe07ffff1 0x9ee047b0" 
+record[1].checksum  "0x70ae77d 0xc164bd15" 
+record[2].checksum  "0xb28dcdd6 0x23b86fa1" 
+record[3].checksum  "0x68ceb338 0xa38183c8" 
+record[4].checksum  "0xe3dd527d 0x2102ae7e" 
+record[5].checksum  "0xe0e657d3 0x4b99a1c2" 
+record[6].checksum  "0x54e975a5 0x22928fd9" 
+record[7].checksum  "0x36f440d9 0x22a7a587" 
+record[8].checksum  "0xe4ecc235 0xeadffeda" 
+record[9].checksum  "0x8e6581a 0x1d1cf35e" 
+record[10].checksum  "0x2a3c9068 0x74c7bd86" 
+record[11].checksum  "0xcafd252d 0x922d5769" 
+Wrote prop file su3_ov_eig_cg_multi.read.www.1.test-out.n0.020000 time stamp Fri Dec 16 22:50:46 2011
+record[0].checksum  "0xa8d83bde 0xfe97179" 
+record[1].checksum  "0xf061209 0x1fad514a" 
+record[2].checksum  "0x8098de45 0x9d20c6e6" 
+record[3].checksum  "0xaa4a10ec 0x723c5d18" 
+record[4].checksum  "0x5b155f06 0x6c242538" 
+record[5].checksum  "0x3fecef06 0x96215a27" 
+record[6].checksum  "0x4df25755 0xb95434fd" 
+record[7].checksum  "0x69fb98bb 0x49d106d3" 
+record[8].checksum  "0x54875072 0x25e0aeb1" 
+record[9].checksum  "0xb5d812d6 0xc217e4bf" 
+record[10].checksum  "0x357a8719 0x373208b6" 
+record[11].checksum  "0x3de39341 0xd70a0339" 
+Wrote prop file su3_ov_eig_cg_multi.read.www.1.test-out.n0.050000 time stamp Fri Dec 16 22:50:46 2011
+record[0].checksum  "0xcbc27b76 0xaa2767c3" 
+record[1].checksum  "0x4e903066 0x32f9df81" 
+record[2].checksum  "0x9889ec79 0x94004574" 
+record[3].checksum  "0x911ce0f 0x2f78b670" 
+record[4].checksum  "0x3b80c71d 0x5a4b5c7f" 
+record[5].checksum  "0x182be9f3 0x9d06c5f" 
+record[6].checksum  "0x3f21e1bf 0x99266fa9" 
+record[7].checksum  "0xeb32813e 0x2eb064ed" 
+record[8].checksum  "0x3caa49a0 0xc6b55737" 
+record[9].checksum  "0x85f017d8 0x607bd69" 
+record[10].checksum  "0xc5df952b 0x13c4cd59" 
+record[11].checksum  "0xcdc2f973 0x3047acbc" 
+Wrote prop file su3_ov_eig_cg_multi.read.www.1.test-out.n0.100000 time stamp Fri Dec 16 22:50:46 2011
+RUNNING COMPLETED
+avm_iters 1.360000e+02
+Time = 1.378003e+01 seconds
+
+
+get_f(0): EOF on input.
+exit: Fri Dec 16 22:51:00 2011
+
+12.949u 0.029s 0:13.82 93.7%	0+0k 0+0io 0pf+0w

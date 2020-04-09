@@ -1,0 +1,171 @@
+OBSOLETE
+# Makefile for upacking tar files of MILC code
+#  C. DeTar 3/26/08
+
+# Targets
+#   all    gets all
+#   <app>  gets only files needed for a specific application
+#          where <app> is the name of an application directory
+
+######################################################################
+# Rules for unpacking
+
+# We assume that the user has already untarred the primary
+# file ${WORK_NAME_ROOT}.tar.gz or ${RELEASE_NAME_ROOT}.tar.gz
+# into a clean directory
+# NOTE: These targets WILL overwrite any files with the
+# same names as the package files.
+
+include Make_contents
+
+all: ${TAR}
+	for f in ${TAR} ;\
+        do \
+	tar -xf $$f ;\
+	done
+
+# The following targets are intended to give the user a subset of
+# files needed for a selected application, in case the whole release
+# is not unpacked.
+
+ALL_APPS = \
+  arb_dirac_eigen \
+  arb_dirac_invert \
+  clover_dynamical \
+  clover_hybrids \
+  clover_invert \
+  clover_invert2 \
+  dense_static_su3 \
+  ext_src \
+  file_utilities \
+  gluon_prop \
+  h_dibaryon \
+  heavy \
+  hvy_qpot \
+  ks_eigen \
+  ks_hl_spectrum \
+  ks_imp_dyn \
+  ks_imp_rhmc \
+  ks_imp_utilities \
+  ks_imp_invert_multi \
+  pure_gauge \
+  pw_nr_meson \
+  schroed_cl_inv \
+  schroed_ks_dyn \
+  schroed_pg \
+  smooth_inst \
+  string_break \
+  symanzik_sl32 \
+  wilson_dynamical \
+  wilson_static
+
+${ALL_APPS}: MAKE_basic
+
+arb_dirac_eigen:  	MAKE_generic_quark
+arb_dirac_invert: 	MAKE_generic_quark
+clover_dynamical:  	MAKE_generic_quark MAKE_generic_clover
+clover_hybrids:  	MAKE_generic_quark MAKE_generic_clover
+clover_invert:  	MAKE_generic_quark MAKE_generic_clover
+clover_invert2:  	MAKE_generic_quark MAKE_generic_clover
+dense_static_su3:  	MAKE_generic_quark
+ext_src:                MAKE_generic_quark MAKE_generic_clover
+file_utilities:         MAKE_generic_quark
+gluon_prop:	        MAKE_generic_quark
+h_dibaryon:  		MAKE_generic_quark MAKE_generic_clover
+heavy:  		MAKE_generic_quark 
+hvy_qpot:
+ks_eigen:		MAKE_generic_quark 
+ks_hl_spectrum:	        MAKE_generic_quark
+ks_imp_dyn:		MAKE_generic_quark 
+ks_imp_utilities:	MAKE_generic_quark 
+ks_imp_invert_multi:	MAKE_generic_quark 
+ks_imp_rhmc:		MAKE_generic_quark
+pure_gauge: 		MAKE_generic_pg
+pw_nr_meson:            MAKE_generic_quark MAKE_generic_clover
+schroed_cl_inv:  	MAKE_generic_quark MAKE_generic_clover MAKE_generic_schroed
+schroed_ks_dyn:  	MAKE_generic_quark MAKE_generic_schroed
+schroed_pg:  		MAKE_generic_pg MAKE_generic_schroed
+string_break: 		MAKE_generic_quark
+symanzik_sl32:		MAKE_generic_pg
+wilson_dynamical:  	MAKE_generic_quark
+wilson_static:  	MAKE_generic_quark
+
+# Rules for the generic directories
+
+MAKE_basic:
+	tar -xf ${BASIC_TAR}
+
+MAKE_generic_clover:
+	tar -xf ${CLOVER_TAR} generic_clover
+
+MAKE_generic_form:
+	tar -xf ${FORM_TAR} generic_form
+
+MAKE_generic_ks:
+	tar -xf ${KS_TAR} generic_ks
+
+MAKE_generic_pg:
+	tar -xf ${PURE_GAUGE_TAR} generic_pg
+
+MAKE_generic_wilson:
+	tar -xf ${WILSON_TAR} generic_wilson
+
+MAKE_generic_quark: MAKE_generic_ks MAKE_generic_wilson
+
+
+# Rules for specific application directories
+
+generic_pg \
+pure_gauge \
+hvy_qpot \
+: ${PURE_GAUGE_TAR}
+	tar -xf ${PURE_GAUGE_TAR} $@
+
+generic_clover \
+clover_dynamical \
+clover_hybrids \
+clover_invert \
+clover_invert2 \
+h_dibaryon \
+: ${CLOVER_TAR}
+	tar -xf ${CLOVER_TAR} $@
+
+generic_form \
+: ${FORM_TAR}
+	tar -xf ${FORM_TAR} $@
+
+arb_dirac_invert \
+arb_dirac_eigen \
+symanzik_sl32 \
+: ${FP_TAR}
+	tar -xf ${FP_TAR} $@
+
+smooth_inst : ${INST_TAR}
+	tar -xf ${INST_TAR} $@
+
+dense_static_su3 \
+generic_ks \
+gluon_prop \
+ks_eigen \
+ks_imp_dyn \
+ks_imp_rhmc \
+ks_imp_utilities \
+ks_imp_invert_multi \
+string_break \
+: ${KS_TAR}
+	tar -xf ${KS_TAR} $@
+
+generic_schroed \
+schroed_cl_inv \
+schroed_ks_dyn \
+schroed_pg \
+: ${SF_TAR}
+	tar -xf ${SF_TAR} $@
+
+generic_wilson \
+heavy \
+wilson_dynamical \
+wilson_schroed \
+wilson_static \
+: ${WILSON_TAR}
+	tar -xf ${WILSON_TAR} $@

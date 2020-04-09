@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SOURCE_DIRECTORY=$1
+BUILD_DIRECTORY=$2
+
+pushd ${SOURCE_DIRECTORY}/benchmarks/milc > /dev/null
+
+#wget http://www.physics.utah.edu/~detar/milc_qcd-7.8.1.tar.gz
+#tar -xf milc_qcd-7.8.1.tar.gz 
+
+# Updates
+cp ks_imp_dyn/* milc_qcd-7.8.1/ks_imp_dyn/
+cp Makefile milc_qcd-7.8.1
+
+# Build with MPI
+cd milc_qcd-7.8.1/ks_imp_dyn
+make CC=${BUILD_DIRECTORY}/bin/clang
+cd ../..
+find milc_qcd-7.8.1 -name \*.bc | xargs llvm-link -o milc_mpi.bc
+find milc_qcd-7.8.1 -name \*.bc | xargs rm
+find milc_qcd-7.8.1 -name \*.o | xargs rm
+
+popd > /dev/null

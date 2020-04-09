@@ -1,0 +1,119 @@
+SU3 with Clover fermions
+Microcanonical simulation with refreshing
+MIMD version 7
+Machine = QMP (portable), with 1 nodes
+Hybrid Monte Carlo algorithm
+PHI algorithm
+With spectrum measurements
+start: Sun Feb 14 16:21:30 2016
+
+type 0 for no prompts, 1 for prompts, or 2 for proofreading
+nflavors 2
+nx 4
+ny 4
+nz 4
+nt 4
+iseed 3190
+LAYOUT = Hypercubes, options = hyper_prime,
+QMP with automatic hyper_prime layout
+ON EACH NODE 4 x 4 x 4 x 4
+Mallocing 2.5 MBytes per node for lattice
+
+
+warms 0
+trajecs 1
+traj_between_meas 1
+beta 7.3
+kappa 0.114
+clov_c 1
+u0 0.8695
+microcanonical_time_step 0.03
+steps_per_trajectory 2
+max_cg_iterations 100
+max_cg_restarts 10
+error_per_site 1e-06
+error_for_propagator 1e-06
+fresh 
+forget 
+unit gauge configuration loaded
+CHECK PLAQ: 3.0000000000000000e+00 3.0000000000000000e+00
+CHECK NERSC LINKTR: 1.0000000000000000e+00 CKSUM: 0
+Reunitarized for double precision. Max deviation 0.00e+00 changed to 0.00e+00
+Time to check unitarity = 3.290176e-04
+
+
+Note O_2 is really O_3 in the notes! 
+
+
+loop coefficients: nloop rep loop_coeff   multiplicity
+                    0 0      1.000000e+00     6
+                    1 0      -7.192793e-02     12
+                    2 0      -8.018107e-03     16
+START 3.000000e+00 3.000000e+00 6.000000e+00
+WARMUPS COMPLETED
+ACCEPT: delta S = -7.916439e-01
+ACTION_V  6.439368e+01  4.192297e-02
+ OK converged final_rsq= 6.7e-14 (cf 1e-12) rel = 6.5e-14 (cf 0) restarts = 1 iters= 13
+F2MES 1.157188e+01 2.083082e-01 -1.097669e+00 -5.708387e-01 1.189224e+01 -2.917578e-01 5.316780e-08
+GMES 2.941932e+00 -6.629651e-05 1.300000e+01 2.945096e+00 2.943872e+00
+GFIX: Ended at step 8. Av gf action 9.96887210e-01, delta 7.864e-08
+ OK converged final_rsq= 2.5e-14 (cf 1e-12) rel = 3.4e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 4.2e-14 (cf 1e-12) rel = 5.5e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 2.6e-14 (cf 1e-12) rel = 3.3e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 4.6e-14 (cf 1e-12) rel = 6e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 3.1e-14 (cf 1e-12) rel = 4.1e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 2.7e-14 (cf 1e-12) rel = 3.6e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 2.6e-14 (cf 1e-12) rel = 3.4e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 3.5e-14 (cf 1e-12) rel = 4.8e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 5.2e-14 (cf 1e-12) rel = 7e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 5.9e-14 (cf 1e-12) rel = 8.2e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 3.6e-14 (cf 1e-12) rel = 4.6e-15 (cf 0) restarts = 1 iters= 12
+ OK converged final_rsq= 2.3e-14 (cf 1e-12) rel = 3.1e-15 (cf 0) restarts = 1 iters= 12
+ONE_PSEUDO2  0  2.239568e+03   0.000000e+00   -1.498331e-01   1.665335e-16
+ONE_PSEUDO2  1  6.971131e+02   0.000000e+00   -4.067395e+02   9.020562e-17
+ONE_PSEUDO2  2  5.597956e+02   0.000000e+00   3.803778e-01   6.245005e-17
+ONE_PSEUDO2  3  6.966793e+02   0.000000e+00   4.067924e+02   6.938894e-18
+ONE_RHO03032  0  2.207606e+03   0.000000e+00
+ONE_RHO03032  1  6.900819e+02   0.000000e+00
+ONE_RHO03032  2  5.559065e+02   0.000000e+00
+ONE_RHO03032  3  6.897753e+02   0.000000e+00
+ONE_RHO332  0  2.221469e+03  1.604619e-17
+ONE_RHO332  1  6.926575e+02  -1.438736e-16
+ONE_RHO332  2  5.571033e+02  4.065758e-19
+ONE_RHO332  3  6.922960e+02  -1.279359e-17
+DSL_PSEUDO2  0  -1.551158e+03   -1.937482e-02   -5.162506e-01   -6.453958e-02
+DSL_PSEUDO2  1  3.939367e+02   -2.558016e-02   -1.124943e+03   -1.958884e-02
+DSL_PSEUDO2  2  7.643382e+02   -2.373532e-03   7.878556e-01   8.363424e-03
+DSL_PSEUDO2  3  3.928835e+02   4.732825e-02   1.125522e+03   -3.658731e-02
+DSL_RHO03032  0  -1.777556e+03   -3.160261e-02
+DSL_RHO03032  1  3.716106e+02   -5.301750e-03
+DSL_RHO03032  2  7.521801e+02   2.724466e-03
+DSL_RHO03032  3  3.714109e+02   1.873089e-02
+DSL_RHO332  0  -1.667480e+03  -4.797197e-02
+DSL_RHO332  1  3.815928e+02  -9.649357e-03
+DSL_RHO332  2  7.569233e+02  -2.396933e-03
+DSL_RHO332  3  3.807354e+02  4.013888e-02
+PROTON  0  1.006379e+04
+PROTON  1  1.641368e+03
+PROTON  2  1.192202e+03
+PROTON  3  1.640353e+03
+DELTA  0  9.909307e+03
+DELTA  1  1.626767e+03
+DELTA  2  1.185439e+03
+DELTA  3  1.625816e+03
+DELTA_N  0  7.915649e+03
+DELTA_N  1  1.374796e+03
+DELTA_N  2  9.477097e+02
+DELTA_N  3  1.374522e+03
+RUNNING COMPLETED
+STOP 2.945096e+00 2.943872e+00 5.888969e+00
+average cg iters for step= 2.100000e+01
+average cg iters for measurement= 1.300000e+01
+average cg iters for spectrum = 1.440000e+02
+Time = 9.029360e-01 seconds
+total_iters = 42
+
+
+get_i(0): EOF on input.
+exit: Sun Feb 14 16:21:31 2016
+
