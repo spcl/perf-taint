@@ -743,7 +743,7 @@ namespace extrap {
     void Instrumenter::writeParameter(llvm::Instruction * instr,
         llvm::Value * dest, int parameter_idx)
     {
-      builder.SetInsertPoint(instr);
+      builder.SetInsertPoint(instr->getNextNode());
       llvm::Value* casted = builder.CreatePointerCast(dest, builder.getInt8PtrTy());
       builder.CreateCall(write_parameter_function,
           {
