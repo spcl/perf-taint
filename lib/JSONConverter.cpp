@@ -389,9 +389,30 @@ json_t convert(json_t & input, bool generate_full_data)
           bool is_mangled =
             input["functions_demangled_names"][idx].get<std::string>() !=
               input["functions_mangled_names"][idx].get<std::string>();
-          if(is_mangled)
-            of << "INCLUDE *\\ " << input["functions_names"][idx].get<std::string>() << "(*\n";
-          else
+          if(is_mangled) {
+            std::string name = input["functions_names"][idx].get<std::string>();
+            std::string demangled_name = input["functions_demangled_names"][idx].get<std::string>();
+            size_t pos = demangled_name.rfind(name);
+            assert(pos != std::string::npos);
+            size_t l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
+            //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
+            if(l_pos == std::string::npos)
+              l_pos = 0;
+            // if the name includes namespace, we don't add a space in front.
+            // otherwise we might miss constructos since score-p will not match
+            // space + name::name()
+            // having space is beneficial for other functions since we avoid
+            // incorrect matching with some prefix
+            // e.g. rule *x(* matching for function f_x()
+            std::string parsed_name = demangled_name.substr(l_pos, pos + name.size());
+            bool contains_namespace = parsed_name.find("::") != std::string::npos;
+
+            //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
+            of << "INCLUDE *";
+            if(!contains_namespace)
+              of << "\\ ";
+            of << parsed_name << "(*\n";
+          } else
             of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
         }
         std::string name = input["functions_names"][idx].get<std::string>();
@@ -534,6 +555,7 @@ json_t convert(json_t & input, bool generate_full_data)
         if(!input[key].empty())
             output[key] = std::move(input[key]);
     }
+    of << "INCLUDE *\\ main(*\n";
     of << "SCOREP_REGION_NAMES_END\n";
     of.close();
 
