@@ -22,20 +22,27 @@ namespace perf_taint {
       const std::string & reason)
   {
     stats["functions"][name]["pruned"].push_back(reason);
-    ++pruned_count;
     pruned_functions[reason]++;
   }
-  
+
   void Statistics::instrumented_function(const std::string & name,
       const std::string & reason)
   {
-    ++instrumented_count;
     instrumented_functions[reason]++;
     stats["functions"][name]["instrumented"].push_back(reason);
   }
 
   void Statistics::print(const std::string & file_name)
   {
+    for(auto & function : stats["functions"]) {
+      if(function.count("pruned"))
+        ++pruned_count;
+      else if(function.count("instrumented"))
+        ++instrumented_count;
+      else
+        assert(false);
+    }
+
     stats["statistics"]["functions"]["total"] = functions_count;
     stats["statistics"]["functions"]["total_pruned"] = pruned_count;
     stats["statistics"]["functions"]["total_instrumented"] = instrumented_count;
