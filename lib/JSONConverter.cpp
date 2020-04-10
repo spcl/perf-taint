@@ -414,7 +414,8 @@ json_t convert(json_t & input, bool generate_full_data)
             of << parsed_name << "(*\n";
           } else
             of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
-        }
+        } else
+          std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
         std::string name = input["functions_names"][idx].get<std::string>();
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
