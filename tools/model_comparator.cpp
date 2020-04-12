@@ -153,7 +153,7 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation, mode
       double resold = calculate(old_model.model[i], evaluation_point);
       double resnew = calculate(new_model.model[i], evaluation_point);
       double reseval = calculate(evaluation.model[i], evaluation_point);
-      m["eval"]["model"] = reseval;
+      m["eval"]["value"] = reseval;
       
       if (resold==resnew) {
         count_equal++;
@@ -171,10 +171,22 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation, mode
           std::abs(std::abs(resnew) - std::abs(reseval))
           /
           std::abs(std::max(reseval, resnew));
+        json_t new_model_result;
+        new_model_result["value"] = resnew;
+        new_model_result["absolute"] = absolute_error_new;
+        new_model_result["relative"] = relative_error_new;
+        json_t old_model_result;
+        old_model_result["value"] = resold;
+        old_model_result["absolute"] = absolute_error_old;
+        old_model_result["relative"] = relative_error_old;
+        m["eval"]["new"] = new_model_result;
+        m["eval"]["old"] = old_model_result;
         if (absolute_error_old > absolute_error_new) {
           count_win++;
+          m["eval"]["result"] = "better";
           result["different"].push_back(std::move(m));
         } else
+          m["eval"]["result"] = "worse";
           result["different"].push_back(std::move(m));
       }
     } else {
@@ -221,13 +233,28 @@ int main(int argc,char**argv)
 
    
   if (old_model.names.size() != new_model.names.size()){
-    std::cout << "ERROR old new size" << std::endl;
+    std::cout << "ERROR old new size " << old_model.names.size() << ' ' << new_model.names.size() << std::endl;
     return -1;
   }
   if(with_evaluation) {
     if (old_model.names.size() != evaluation_model.names.size()){
-      std::cout << "ERROR old eval size" << std::endl;
-      return -1;
+      std::cout << "ERROR old eval size " << old_model.names.size() << ' ' << evaluation_model.names.size() << std::endl;
+
+      size_t count = 0;
+      std::vector<int> remove_indices;
+      for(const std::string & evaluation_path : evaluation_model.names) {
+        auto it = std::find(old_model.names.begin(), old_model.names.end(), evaluation_path);
+        if(it == old_model.names.end()) {
+          remove_indices.push_back(count);
+          std::cerr << "Not found in old: " << evaluation_path << std::endl;
+        }
+        ++count;
+      }
+      for(auto it = remove_indices.rbegin(); it != remove_indices.rend(); ++it) {
+        std::cerr << *it << std::endl;
+        evaluation_model.names.erase(evaluation_model.names.begin() + *it);
+        evaluation_model.model.erase(evaluation_model.model.begin() + *it);
+      }
     }
   }
 
@@ -241,7 +268,7 @@ int main(int argc,char**argv)
   if(with_evaluation) {
     for(int i=0;i<old_model.names.size();i++){
       if(old_model.names[i].compare(evaluation_model.names[i])!=0){
-        std::cout<<"NAME old eval: "<<old_model.names[i]<<" "<<evaluation_model.names[i]<<std::endl;
+        std::cout<<"NAME old eval: <"<<old_model.names[i]<<"> <"<<evaluation_model.names[i]<<">"<<std::endl;
         return -1;
       }
     }
