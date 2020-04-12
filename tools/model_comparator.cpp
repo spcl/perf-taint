@@ -135,12 +135,14 @@ std::string clean_model(const std::string m)
   return str;
 }
 
-json_t evaluate(model & old_model, model & new_model, bool with_evaluation, model & evaluation, json_t & evaluation_point)
+json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
+    std::vector<model> & evaluation, json_t & evaluation_point)
 {
   json_t result;
   int count_equal=0;
   int count_different=0;
-  int count_win=0;
+  std::vector<int> wins(evaluation.size());
+
   for(int i=0;i<old_model.names.size();i++)
   {
     json_t m;
@@ -149,45 +151,50 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation, mode
     m["model"]["new"] = clean_model(new_model.model[i]);
 
     if(with_evaluation) {
-      // TODO: test and finish
-      double resold = calculate(old_model.model[i], evaluation_point);
-      double resnew = calculate(new_model.model[i], evaluation_point);
-      double reseval = calculate(evaluation.model[i], evaluation_point);
-      m["eval"]["value"] = reseval;
-      
-      if (resold==resnew) {
+      if(!old_model.model[i].compare(new_model.model[i])) {
         count_equal++;
         result["equal"].push_back(std::move(m));
-      }
-      else {
+      } else {
+        int idx = 0;
         count_different++;
-        double absolute_error_old = std::abs(resold - reseval);
-        double absolute_error_new = std::abs(resnew - reseval);
-        double relative_error_old =
-          std::abs(std::abs(resold) - std::abs(reseval))
-          /
-          std::abs(std::max(reseval, resold));
-        double relative_error_new =
-          std::abs(std::abs(resnew) - std::abs(reseval))
-          /
-          std::abs(std::max(reseval, resnew));
-        json_t new_model_result;
-        new_model_result["value"] = resnew;
-        new_model_result["absolute"] = absolute_error_new;
-        new_model_result["relative"] = relative_error_new;
-        json_t old_model_result;
-        old_model_result["value"] = resold;
-        old_model_result["absolute"] = absolute_error_old;
-        old_model_result["relative"] = relative_error_old;
-        m["eval"]["new"] = new_model_result;
-        m["eval"]["old"] = old_model_result;
-        if (absolute_error_old > absolute_error_new) {
-          count_win++;
-          m["eval"]["result"] = "better";
-          result["different"].push_back(std::move(m));
-        } else
-          m["eval"]["result"] = "worse";
-          result["different"].push_back(std::move(m));
+        for(auto & eval : evaluation_point) {
+          json_t eval_res;
+          // TODO: test and finish
+          double resold = calculate(old_model.model[i], eval);
+          double resnew = calculate(new_model.model[i], eval);
+          double reseval = calculate(evaluation[idx].model[i], eval);
+          eval_res["value"] = reseval;
+          
+          double absolute_error_old = std::abs(resold - reseval);
+          double absolute_error_new = std::abs(resnew - reseval);
+          double relative_error_old =
+            std::abs(std::abs(resold) - std::abs(reseval))
+            /
+            std::abs(std::max(reseval, resold));
+          double relative_error_new =
+            std::abs(std::abs(resnew) - std::abs(reseval))
+            /
+            std::abs(std::max(reseval, resnew));
+          json_t new_model_result;
+          new_model_result["value"] = resnew;
+          new_model_result["absolute"] = absolute_error_new;
+          new_model_result["relative"] = relative_error_new;
+          json_t old_model_result;
+          old_model_result["value"] = resold;
+          old_model_result["absolute"] = absolute_error_old;
+          old_model_result["relative"] = relative_error_old;
+          eval_res["new"] = new_model_result;
+          eval_res["old"] = old_model_result;
+          if (absolute_error_old > absolute_error_new) {
+            wins[idx]++;
+            eval_res["result"] = "better";
+          } else {
+            eval_res["result"] = "worse";
+          }
+          m["eval"].push_back(eval_res);
+          ++idx;
+        }
+        result["different"].push_back(std::move(m));
       }
     } else {
       if(!old_model.model[i].compare(new_model.model[i])) {
@@ -202,8 +209,12 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation, mode
   result["summary"]["equal"] = count_equal;
   result["summary"]["different"] = count_different;
   if(with_evaluation) {
-    result["summary"]["better"] = count_win;
-    result["summary"]["worse"] = count_different - count_win;
+    json_t res;
+    for(int win : wins) { 
+      res["better"] = win;
+      res["worse"] = count_different - win;
+      result["summary"]["results"].push_back(res);
+    }
   }
 
   return result;
@@ -218,17 +229,18 @@ int main(int argc,char**argv)
   std::string first_model = argv[1];
   std::string second_model = argv[2];
   std::string evaluation_file, evaluation_config;
-  model evaluation_model;
+  std::vector<model> evaluations;
   json_t evaluation_point;
 
   model old_model = model::read(first_model);
   model new_model = model::read(second_model);
   if(with_evaluation) {
-    evaluation_file = argv[3];
-    evaluation_config = argv[4];
-    evaluation_model = model::read(evaluation_file);
+    evaluation_config = argv[3];
     std::ifstream eval(evaluation_config);
     eval >> evaluation_point;
+    for(auto & pos : evaluation_point) {
+      evaluations.push_back(model::read(pos["path"].get<std::string>()));
+    }
   }
 
    
@@ -237,23 +249,24 @@ int main(int argc,char**argv)
     return -1;
   }
   if(with_evaluation) {
-    if (old_model.names.size() != evaluation_model.names.size()){
-      std::cout << "ERROR old eval size " << old_model.names.size() << ' ' << evaluation_model.names.size() << std::endl;
+    for(size_t j = 0; j < evaluations.size(); ++j) {
+      if (old_model.names.size() != evaluations[j].names.size()){
+        std::cout << "ERROR old eval size " << old_model.names.size() << ' ' << evaluations[j].names.size() << std::endl;
 
-      size_t count = 0;
-      std::vector<int> remove_indices;
-      for(const std::string & evaluation_path : evaluation_model.names) {
-        auto it = std::find(old_model.names.begin(), old_model.names.end(), evaluation_path);
-        if(it == old_model.names.end()) {
-          remove_indices.push_back(count);
-          std::cerr << "Not found in old: " << evaluation_path << std::endl;
+        size_t count = 0;
+        std::vector<int> remove_indices;
+        for(const std::string & evaluation_path : evaluations[j].names) {
+          auto it = std::find(old_model.names.begin(), old_model.names.end(), evaluation_path);
+          if(it == old_model.names.end()) {
+            remove_indices.push_back(count);
+            std::cerr << "Not found in old: " << evaluation_path << std::endl;
+          }
+          ++count;
         }
-        ++count;
-      }
-      for(auto it = remove_indices.rbegin(); it != remove_indices.rend(); ++it) {
-        std::cerr << *it << std::endl;
-        evaluation_model.names.erase(evaluation_model.names.begin() + *it);
-        evaluation_model.model.erase(evaluation_model.model.begin() + *it);
+        for(auto it = remove_indices.rbegin(); it != remove_indices.rend(); ++it) {
+          evaluations[j].names.erase(evaluations[j].names.begin() + *it);
+          evaluations[j].model.erase(evaluations[j].model.begin() + *it);
+        }
       }
     }
   }
@@ -267,18 +280,19 @@ int main(int argc,char**argv)
 
   if(with_evaluation) {
     for(int i=0;i<old_model.names.size();i++){
-      if(old_model.names[i].compare(evaluation_model.names[i])!=0){
-        std::cout<<"NAME old eval: <"<<old_model.names[i]<<"> <"<<evaluation_model.names[i]<<">"<<std::endl;
-        return -1;
+      for(size_t j = 0; j < evaluations.size(); ++j) {
+        if(old_model.names[i].compare(evaluations[j].names[i])!=0){
+          std::cout<<"NAME old eval: <"<<old_model.names[i]<<"> <"<<evaluations[j].names[i]<<">"<<std::endl;
+          return -1;
+        }
       }
     }
   }
 
-  json_t result = evaluate(old_model,new_model, with_evaluation, evaluation_model, evaluation_point);
+  json_t result = evaluate(old_model,new_model, with_evaluation, evaluations, evaluation_point);
   result["input"]["old"] = first_model;
   result["input"]["new"] = second_model;
   if(with_evaluation) {
-    result["input"]["eval"] = evaluation_file;
     result["input"]["eval_config"] = evaluation_point;
   }
   std::cout << result.dump(2) << std::endl;
