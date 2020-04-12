@@ -41,43 +41,42 @@ double calculate(std::string model, json_t & evaluation_point){
 	double coeffterm;
 	iss>>coeffterm;
 	iss>>tmp;
-	char par_c[20];
+	char par_c;
 	float exp;
 	std::string par;
 	bool poly=false;
 	bool log=false;
 	tmp=ReplaceAll(tmp,"size","s");
-	//cout<<tmp<<endl;
 	while(tmp.find("*")!=std::string::npos){
 		int pos=tmp.find("*");
 		tmp.erase(0,pos+1);
-		if (tmp[0]=='l') {sscanf(tmp.c_str(),"log2^%f(%s)",&exp,par_c);log=true;
+		if (tmp[0]=='l') {sscanf(tmp.c_str(),"log2^%f(%c)",&exp,&par_c);log=true;
 			
-			if (p1==par_c)
+			if (p1[0] == par_c)
 				coeffterm*=pow(log2(p1val),exp);
 		
-			if (p2==par_c)
+			if (p2[0] == par_c)
 				coeffterm*=pow(log2(p2val),exp);
 		
 		}
-		if (tmp[0]=='(') {sscanf(tmp.c_str(),"(%s^%f)",par_c,&exp);poly=true;
-		
-			if (p1==par_c)
+		if (tmp[0]=='(') {sscanf(tmp.c_str(),"(%c^%f)",&par_c,&exp);poly=true;
+	
+			if (p1[0] == par_c)
 				coeffterm*=pow(p1val,exp);
 		
-			if (p2==par_c)
+			if (p2[0] == par_c)
 				coeffterm*=pow(p2val,exp);
 		
 		}
 		
-		par=std::string(par_c);
+		//par=std::string(par_c);
 		
-	//	cout<<"EXP: "<<exp<<" PAR: "<<par<<" poly: "<<poly<<" log: "<<log<<endl;
+    //std::cerr<<"EXP: "<<exp<<" PAR: "<<par<<" poly: "<<poly<<" log: "<<log<<std::endl;
 	}
 	//}
-	//cout<<"COEFFTERM: "<<coeffterm<<" "<<tmp<<endl;
 	result+=coeffterm;
 }
+  std::cerr << "Evaluate: " << model << " on " << p1 << "=" << p1val << ", " << p2 << "=" << p2val << " = " << result << std::endl;
 return result;
 }
 
