@@ -141,6 +141,10 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
   int count_equal=0;
   int count_different=0;
   std::vector<int> wins(evaluation.size());
+  // implemented for 2 evaluation points
+  std::vector<std::string> win_lose, lose_win;
+  std::ofstream csv_file("evaluation_data.csv", std::ios::out);
+  csv_file << "name,idx,sample_id,result,old_absolute,old_relative,new_absolute,new_relative" << std::endl;
 
   for(int i=0;i<old_model.names.size();i++)
   {
@@ -156,6 +160,7 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
       } else {
         int idx = 0;
         count_different++;
+        int first_win = -1;
         for(auto & eval : evaluation_point) {
           json_t eval_res;
           // TODO: test and finish
@@ -169,11 +174,13 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
           double relative_error_old =
             std::abs(std::abs(resold) - std::abs(reseval))
             /
-            std::abs(std::max(reseval, resold));
+            std::abs(reseval);
+            //std::abs(std::max(reseval, resold));
           double relative_error_new =
             std::abs(std::abs(resnew) - std::abs(reseval))
             /
-            std::abs(std::max(reseval, resnew));
+            std::abs(reseval);
+            //std::abs(std::max(reseval, resnew));
           json_t new_model_result;
           new_model_result["value"] = resnew;
           new_model_result["absolute"] = absolute_error_new;
@@ -184,12 +191,25 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
           old_model_result["relative"] = relative_error_old;
           eval_res["new"] = new_model_result;
           eval_res["old"] = old_model_result;
+          csv_file << "\"" << old_model.names[i] << "\"," << i << "," << idx;
           if (absolute_error_old > absolute_error_new) {
             wins[idx]++;
             eval_res["result"] = "better";
+            if(first_win < 0)
+              first_win = 1;
+            else if(!first_win)
+              lose_win.push_back(old_model.names[i]);
+            csv_file << ",\"better\",";
           } else {
             eval_res["result"] = "worse";
+            if(first_win < 0)
+              first_win = 0;
+            else if(first_win)
+              win_lose.push_back(old_model.names[i]);
+            csv_file << ",\"worse\",";
           }
+          csv_file << absolute_error_old << "," << relative_error_old << ",";
+          csv_file << absolute_error_new << "," << relative_error_new << std::endl;
           m["eval"].push_back(eval_res);
           ++idx;
         }
@@ -207,6 +227,8 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
   }
   result["summary"]["equal"] = count_equal;
   result["summary"]["different"] = count_different;
+  result["summary"]["lose_win"] = lose_win;
+  result["summary"]["win_lose"] = win_lose;
   if(with_evaluation) {
     json_t res;
     for(int win : wins) { 
