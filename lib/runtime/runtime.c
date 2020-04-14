@@ -282,6 +282,38 @@ void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t cou
     }
 }
 
+/**
+ * Write a label with provided name to a set of variables.
+ * The function first identifies if label with specific name exists and only
+ * then allocates a new label.
+ * Safe to be called multiple timed in a program with the same name.
+ **/
+void __dfsw_EXTRAP_WRITE_LABELS(const char * name, size_t count, va_list args)
+{
+  dfsan_label lab = 0;
+  int32_t param_idx = 0;
+  size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+    + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+  for(size_t i = 0; i < param_count; ++i) {
+    if(!strcmp(__EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i], name)) {
+      lab = __EXTRAP_INSTRUMENTATION_LABELS[i];
+      param_idx = i;
+      break;
+    }
+  }
+  if(!lab) {
+    lab = dfsan_create_label(name, NULL);
+    param_idx = __dfsw_EXTRAP_VAR_ID();
+    __EXTRAP_INSTRUMENTATION_LABELS[param_idx] = lab;
+    __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[param_idx] = name;
+  }
+  for (size_t i = 0; i < count; ++i) {
+    void * addr = va_arg(args, void*);
+    size_t size = va_arg(args, size_t);
+    dfsan_set_label(lab, addr, size);
+  }
+}
+
 void __dfsw_EXTRAP_STORE_LABEL(int8_t * addr, size_t size, int32_t param_idx, const char * name);
 void __dfsw_EXTRAP_WRITE_LABEL(int8_t * addr, size_t size, const char * name)
 {
