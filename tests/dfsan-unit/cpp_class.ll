@@ -165,72 +165,61 @@ define available_externally dso_local i32 @atoi(i8* nonnull) #4 !dbg !128 {
 define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #5 comdat !dbg !370 {
   %3 = alloca i32*, align 8
   %4 = alloca i8*, align 8
-  %5 = alloca i32, align 4
   store i32* %0, i32** %3, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata i32** %3, metadata !376, metadata !DIExpression()), !dbg !381
+  call void @llvm.dbg.declare(metadata i32** %3, metadata !376, metadata !DIExpression()), !dbg !380
   store i8* %1, i8** %4, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata i8** %4, metadata !377, metadata !DIExpression()), !dbg !382
+  call void @llvm.dbg.declare(metadata i8** %4, metadata !377, metadata !DIExpression()), !dbg !381
+  %5 = load i32*, i32** %3, align 8, !dbg !382, !tbaa !329
   %6 = bitcast i32* %5 to i8*, !dbg !383
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #3, !dbg !383
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !378, metadata !DIExpression()), !dbg !384
-  %7 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !385
-  store i32 %7, i32* %5, align 4, !dbg !384, !tbaa !324
-  %8 = load i32*, i32** %3, align 8, !dbg !386, !tbaa !329
-  %9 = bitcast i32* %8 to i8*, !dbg !387
-  %10 = load i32, i32* %5, align 4, !dbg !388, !tbaa !324
-  %11 = add nsw i32 %10, 1, !dbg !388
-  store i32 %11, i32* %5, align 4, !dbg !388, !tbaa !324
-  %12 = load i8*, i8** %4, align 8, !dbg !389, !tbaa !329
-  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %9, i32 4, i32 %10, i8* %12), !dbg !390
-  %13 = bitcast i32* %5 to i8*, !dbg !391
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %13) #3, !dbg !391
-  ret void, !dbg !391
+  %7 = load i8*, i8** %4, align 8, !dbg !384, !tbaa !329
+  call void @__dfsw_EXTRAP_WRITE_LABEL(i8* %6, i32 4, i8* %7), !dbg !385
+  ret void, !dbg !386
 }
 
 ; Function Attrs: nobuiltin
 declare dso_local noalias i8* @_Znwm(i64) #6
 
 ; Function Attrs: uwtable
-define linkonce_odr dso_local void @_ZN4GridC2Eiii(%class.Grid*, i32, i32, i32) unnamed_addr #5 comdat align 2 !dbg !392 {
+define linkonce_odr dso_local void @_ZN4GridC2Eiii(%class.Grid*, i32, i32, i32) unnamed_addr #5 comdat align 2 !dbg !387 {
   %5 = alloca %class.Grid*, align 8
   %6 = alloca i32, align 4
   %7 = alloca i32, align 4
   %8 = alloca i32, align 4
   store %class.Grid* %0, %class.Grid** %5, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %5, metadata !394, metadata !DIExpression()), !dbg !398
+  call void @llvm.dbg.declare(metadata %class.Grid** %5, metadata !389, metadata !DIExpression()), !dbg !393
   store i32 %1, i32* %6, align 4, !tbaa !324
-  call void @llvm.dbg.declare(metadata i32* %6, metadata !395, metadata !DIExpression()), !dbg !399
+  call void @llvm.dbg.declare(metadata i32* %6, metadata !390, metadata !DIExpression()), !dbg !394
   store i32 %2, i32* %7, align 4, !tbaa !324
-  call void @llvm.dbg.declare(metadata i32* %7, metadata !396, metadata !DIExpression()), !dbg !400
+  call void @llvm.dbg.declare(metadata i32* %7, metadata !391, metadata !DIExpression()), !dbg !395
   store i32 %3, i32* %8, align 4, !tbaa !324
-  call void @llvm.dbg.declare(metadata i32* %8, metadata !397, metadata !DIExpression()), !dbg !401
+  call void @llvm.dbg.declare(metadata i32* %8, metadata !392, metadata !DIExpression()), !dbg !396
   %9 = load %class.Grid*, %class.Grid** %5, align 8
-  %10 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 0, !dbg !402
-  %11 = load i32, i32* %6, align 4, !dbg !403, !tbaa !324
-  store i32 %11, i32* %10, align 8, !dbg !402, !tbaa !404
-  %12 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 1, !dbg !406
-  %13 = load i32, i32* %7, align 4, !dbg !407, !tbaa !324
-  store i32 %13, i32* %12, align 4, !dbg !406, !tbaa !408
-  %14 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 2, !dbg !409
-  %15 = load i32, i32* %8, align 4, !dbg !410, !tbaa !324
-  store i32 %15, i32* %14, align 8, !dbg !409, !tbaa !411
-  %16 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 3, !dbg !412
-  %17 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 0, !dbg !413
-  %18 = load i32, i32* %17, align 8, !dbg !413, !tbaa !404
-  %19 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 1, !dbg !414
-  %20 = load i32, i32* %19, align 4, !dbg !414, !tbaa !408
-  %21 = mul nsw i32 %18, %20, !dbg !415
-  %22 = sext i32 %21 to i64, !dbg !413
-  %23 = call { i64, i1 } @llvm.umul.with.overflow.i64(i64 %22, i64 8), !dbg !416
-  %24 = extractvalue { i64, i1 } %23, 1, !dbg !416
-  %25 = extractvalue { i64, i1 } %23, 0, !dbg !416
-  %26 = select i1 %24, i64 -1, i64 %25, !dbg !416
-  %27 = call i8* @_Znam(i64 %26) #12, !dbg !416
-  %28 = bitcast i8* %27 to double*, !dbg !416
-  %29 = bitcast double* %28 to i8*, !dbg !416
-  call void @llvm.memset.p0i8.i64(i8* align 8 %29, i8 0, i64 %26, i1 false), !dbg !416
-  store double* %28, double** %16, align 8, !dbg !412, !tbaa !417
-  ret void, !dbg !418
+  %10 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 0, !dbg !397
+  %11 = load i32, i32* %6, align 4, !dbg !398, !tbaa !324
+  store i32 %11, i32* %10, align 8, !dbg !397, !tbaa !399
+  %12 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 1, !dbg !401
+  %13 = load i32, i32* %7, align 4, !dbg !402, !tbaa !324
+  store i32 %13, i32* %12, align 4, !dbg !401, !tbaa !403
+  %14 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 2, !dbg !404
+  %15 = load i32, i32* %8, align 4, !dbg !405, !tbaa !324
+  store i32 %15, i32* %14, align 8, !dbg !404, !tbaa !406
+  %16 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 3, !dbg !407
+  %17 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 0, !dbg !408
+  %18 = load i32, i32* %17, align 8, !dbg !408, !tbaa !399
+  %19 = getelementptr inbounds %class.Grid, %class.Grid* %9, i32 0, i32 1, !dbg !409
+  %20 = load i32, i32* %19, align 4, !dbg !409, !tbaa !403
+  %21 = mul nsw i32 %18, %20, !dbg !410
+  %22 = sext i32 %21 to i64, !dbg !408
+  %23 = call { i64, i1 } @llvm.umul.with.overflow.i64(i64 %22, i64 8), !dbg !411
+  %24 = extractvalue { i64, i1 } %23, 1, !dbg !411
+  %25 = extractvalue { i64, i1 } %23, 0, !dbg !411
+  %26 = select i1 %24, i64 -1, i64 %25, !dbg !411
+  %27 = call i8* @_Znam(i64 %26) #12, !dbg !411
+  %28 = bitcast i8* %27 to double*, !dbg !411
+  %29 = bitcast double* %28 to i8*, !dbg !411
+  call void @llvm.memset.p0i8.i64(i8* align 8 %29, i8 0, i64 %26, i1 false), !dbg !411
+  store double* %28, double** %16, align 8, !dbg !407, !tbaa !412
+  ret void, !dbg !413
 }
 
 declare dso_local i32 @__gxx_personality_v0(...)
@@ -239,243 +228,243 @@ declare dso_local i32 @__gxx_personality_v0(...)
 declare dso_local void @_ZdlPv(i8*) #7
 
 ; Function Attrs: nounwind uwtable
-define linkonce_odr dso_local void @_ZN4Grid11update_gridEd(%class.Grid*, double) #8 comdat align 2 !dbg !419 {
+define linkonce_odr dso_local void @_ZN4Grid11update_gridEd(%class.Grid*, double) #8 comdat align 2 !dbg !414 {
   %3 = alloca %class.Grid*, align 8
   %4 = alloca double, align 8
   %5 = alloca i32, align 4
   store %class.Grid* %0, %class.Grid** %3, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !421, metadata !DIExpression()), !dbg !425
-  store double %1, double* %4, align 8, !tbaa !426
-  call void @llvm.dbg.declare(metadata double* %4, metadata !422, metadata !DIExpression()), !dbg !428
+  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !416, metadata !DIExpression()), !dbg !420
+  store double %1, double* %4, align 8, !tbaa !421
+  call void @llvm.dbg.declare(metadata double* %4, metadata !417, metadata !DIExpression()), !dbg !423
   %6 = load %class.Grid*, %class.Grid** %3, align 8
-  %7 = bitcast i32* %5 to i8*, !dbg !429
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #3, !dbg !429
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !423, metadata !DIExpression()), !dbg !430
-  store i32 0, i32* %5, align 4, !dbg !430, !tbaa !324
-  br label %8, !dbg !429
+  %7 = bitcast i32* %5 to i8*, !dbg !424
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #3, !dbg !424
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !418, metadata !DIExpression()), !dbg !425
+  store i32 0, i32* %5, align 4, !dbg !425, !tbaa !324
+  br label %8, !dbg !424
 
 8:                                                ; preds = %27, %2
-  %9 = load i32, i32* %5, align 4, !dbg !431, !tbaa !324
-  %10 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 0, !dbg !433
-  %11 = load i32, i32* %10, align 8, !dbg !433, !tbaa !404
-  %12 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 1, !dbg !434
-  %13 = load i32, i32* %12, align 4, !dbg !434, !tbaa !408
-  %14 = mul nsw i32 %11, %13, !dbg !435
-  %15 = icmp slt i32 %9, %14, !dbg !436
-  br i1 %15, label %18, label %16, !dbg !437
+  %9 = load i32, i32* %5, align 4, !dbg !426, !tbaa !324
+  %10 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 0, !dbg !428
+  %11 = load i32, i32* %10, align 8, !dbg !428, !tbaa !399
+  %12 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 1, !dbg !429
+  %13 = load i32, i32* %12, align 4, !dbg !429, !tbaa !403
+  %14 = mul nsw i32 %11, %13, !dbg !430
+  %15 = icmp slt i32 %9, %14, !dbg !431
+  br i1 %15, label %18, label %16, !dbg !432
 
 16:                                               ; preds = %8
-  %17 = bitcast i32* %5 to i8*, !dbg !438
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %17) #3, !dbg !438
+  %17 = bitcast i32* %5 to i8*, !dbg !433
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %17) #3, !dbg !433
   br label %30
 
 18:                                               ; preds = %8
-  %19 = load double, double* %4, align 8, !dbg !439, !tbaa !426
-  %20 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !440
-  %21 = load double*, double** %20, align 8, !dbg !440, !tbaa !417
-  %22 = load i32, i32* %5, align 4, !dbg !441, !tbaa !324
-  %23 = sext i32 %22 to i64, !dbg !440
-  %24 = getelementptr inbounds double, double* %21, i64 %23, !dbg !440
-  %25 = load double, double* %24, align 8, !dbg !442, !tbaa !426
-  %26 = fadd double %25, %19, !dbg !442
-  store double %26, double* %24, align 8, !dbg !442, !tbaa !426
-  br label %27, !dbg !440
+  %19 = load double, double* %4, align 8, !dbg !434, !tbaa !421
+  %20 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !435
+  %21 = load double*, double** %20, align 8, !dbg !435, !tbaa !412
+  %22 = load i32, i32* %5, align 4, !dbg !436, !tbaa !324
+  %23 = sext i32 %22 to i64, !dbg !435
+  %24 = getelementptr inbounds double, double* %21, i64 %23, !dbg !435
+  %25 = load double, double* %24, align 8, !dbg !437, !tbaa !421
+  %26 = fadd double %25, %19, !dbg !437
+  store double %26, double* %24, align 8, !dbg !437, !tbaa !421
+  br label %27, !dbg !435
 
 27:                                               ; preds = %18
-  %28 = load i32, i32* %5, align 4, !dbg !443, !tbaa !324
-  %29 = add nsw i32 %28, 1, !dbg !443
-  store i32 %29, i32* %5, align 4, !dbg !443, !tbaa !324
-  br label %8, !dbg !438, !llvm.loop !444
+  %28 = load i32, i32* %5, align 4, !dbg !438, !tbaa !324
+  %29 = add nsw i32 %28, 1, !dbg !438
+  store i32 %29, i32* %5, align 4, !dbg !438, !tbaa !324
+  br label %8, !dbg !433, !llvm.loop !439
 
 30:                                               ; preds = %16
-  ret void, !dbg !446
+  ret void, !dbg !441
 }
 
 ; Function Attrs: nounwind uwtable
-define linkonce_odr dso_local void @_ZN4Grid15update_constantEd(%class.Grid*, double) #8 comdat align 2 !dbg !447 {
+define linkonce_odr dso_local void @_ZN4Grid15update_constantEd(%class.Grid*, double) #8 comdat align 2 !dbg !442 {
   %3 = alloca %class.Grid*, align 8
   %4 = alloca double, align 8
   %5 = alloca i32, align 4
   store %class.Grid* %0, %class.Grid** %3, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !449, metadata !DIExpression()), !dbg !453
-  store double %1, double* %4, align 8, !tbaa !426
-  call void @llvm.dbg.declare(metadata double* %4, metadata !450, metadata !DIExpression()), !dbg !454
+  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !444, metadata !DIExpression()), !dbg !448
+  store double %1, double* %4, align 8, !tbaa !421
+  call void @llvm.dbg.declare(metadata double* %4, metadata !445, metadata !DIExpression()), !dbg !449
   %6 = load %class.Grid*, %class.Grid** %3, align 8
-  %7 = load double, double* %4, align 8, !dbg !455, !tbaa !426
-  %8 = fmul double 2.000000e+00, %7, !dbg !456
-  %9 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !457
-  %10 = load double*, double** %9, align 8, !dbg !457, !tbaa !417
-  %11 = getelementptr inbounds double, double* %10, i64 0, !dbg !457
-  %12 = load double, double* %11, align 8, !dbg !458, !tbaa !426
-  %13 = fadd double %12, %8, !dbg !458
-  store double %13, double* %11, align 8, !dbg !458, !tbaa !426
-  %14 = bitcast i32* %5 to i8*, !dbg !459
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %14) #3, !dbg !459
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !451, metadata !DIExpression()), !dbg !460
-  store i32 1, i32* %5, align 4, !dbg !460, !tbaa !324
-  br label %15, !dbg !459
+  %7 = load double, double* %4, align 8, !dbg !450, !tbaa !421
+  %8 = fmul double 2.000000e+00, %7, !dbg !451
+  %9 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !452
+  %10 = load double*, double** %9, align 8, !dbg !452, !tbaa !412
+  %11 = getelementptr inbounds double, double* %10, i64 0, !dbg !452
+  %12 = load double, double* %11, align 8, !dbg !453, !tbaa !421
+  %13 = fadd double %12, %8, !dbg !453
+  store double %13, double* %11, align 8, !dbg !453, !tbaa !421
+  %14 = bitcast i32* %5 to i8*, !dbg !454
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %14) #3, !dbg !454
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !446, metadata !DIExpression()), !dbg !455
+  store i32 1, i32* %5, align 4, !dbg !455, !tbaa !324
+  br label %15, !dbg !454
 
 15:                                               ; preds = %29, %2
-  %16 = load i32, i32* %5, align 4, !dbg !461, !tbaa !324
-  %17 = icmp slt i32 %16, 5, !dbg !463
-  br i1 %17, label %20, label %18, !dbg !464
+  %16 = load i32, i32* %5, align 4, !dbg !456, !tbaa !324
+  %17 = icmp slt i32 %16, 5, !dbg !458
+  br i1 %17, label %20, label %18, !dbg !459
 
 18:                                               ; preds = %15
-  %19 = bitcast i32* %5 to i8*, !dbg !465
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %19) #3, !dbg !465
+  %19 = bitcast i32* %5 to i8*, !dbg !460
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %19) #3, !dbg !460
   br label %32
 
 20:                                               ; preds = %15
-  %21 = load double, double* %4, align 8, !dbg !466, !tbaa !426
-  %22 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !467
-  %23 = load double*, double** %22, align 8, !dbg !467, !tbaa !417
-  %24 = load i32, i32* %5, align 4, !dbg !468, !tbaa !324
-  %25 = sext i32 %24 to i64, !dbg !467
-  %26 = getelementptr inbounds double, double* %23, i64 %25, !dbg !467
-  %27 = load double, double* %26, align 8, !dbg !469, !tbaa !426
-  %28 = fadd double %27, %21, !dbg !469
-  store double %28, double* %26, align 8, !dbg !469, !tbaa !426
-  br label %29, !dbg !467
+  %21 = load double, double* %4, align 8, !dbg !461, !tbaa !421
+  %22 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !462
+  %23 = load double*, double** %22, align 8, !dbg !462, !tbaa !412
+  %24 = load i32, i32* %5, align 4, !dbg !463, !tbaa !324
+  %25 = sext i32 %24 to i64, !dbg !462
+  %26 = getelementptr inbounds double, double* %23, i64 %25, !dbg !462
+  %27 = load double, double* %26, align 8, !dbg !464, !tbaa !421
+  %28 = fadd double %27, %21, !dbg !464
+  store double %28, double* %26, align 8, !dbg !464, !tbaa !421
+  br label %29, !dbg !462
 
 29:                                               ; preds = %20
-  %30 = load i32, i32* %5, align 4, !dbg !470, !tbaa !324
-  %31 = add nsw i32 %30, 1, !dbg !470
-  store i32 %31, i32* %5, align 4, !dbg !470, !tbaa !324
-  br label %15, !dbg !465, !llvm.loop !471
+  %30 = load i32, i32* %5, align 4, !dbg !465, !tbaa !324
+  %31 = add nsw i32 %30, 1, !dbg !465
+  store i32 %31, i32* %5, align 4, !dbg !465, !tbaa !324
+  br label %15, !dbg !460, !llvm.loop !466
 
 32:                                               ; preds = %18
-  ret void, !dbg !473
+  ret void, !dbg !468
 }
 
 ; Function Attrs: nounwind uwtable
-define linkonce_odr dso_local void @_ZN4Grid11update_dataEd(%class.Grid*, double) #8 comdat align 2 !dbg !474 {
+define linkonce_odr dso_local void @_ZN4Grid11update_dataEd(%class.Grid*, double) #8 comdat align 2 !dbg !469 {
   %3 = alloca %class.Grid*, align 8
   %4 = alloca double, align 8
   %5 = alloca i32, align 4
   store %class.Grid* %0, %class.Grid** %3, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !476, metadata !DIExpression()), !dbg !480
-  store double %1, double* %4, align 8, !tbaa !426
-  call void @llvm.dbg.declare(metadata double* %4, metadata !477, metadata !DIExpression()), !dbg !481
+  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !471, metadata !DIExpression()), !dbg !475
+  store double %1, double* %4, align 8, !tbaa !421
+  call void @llvm.dbg.declare(metadata double* %4, metadata !472, metadata !DIExpression()), !dbg !476
   %6 = load %class.Grid*, %class.Grid** %3, align 8
-  %7 = load double, double* %4, align 8, !dbg !482, !tbaa !426
-  %8 = fmul double 2.000000e+00, %7, !dbg !483
-  %9 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !484
-  %10 = load double*, double** %9, align 8, !dbg !484, !tbaa !417
-  %11 = getelementptr inbounds double, double* %10, i64 0, !dbg !484
-  %12 = load double, double* %11, align 8, !dbg !485, !tbaa !426
-  %13 = fadd double %12, %8, !dbg !485
-  store double %13, double* %11, align 8, !dbg !485, !tbaa !426
-  %14 = bitcast i32* %5 to i8*, !dbg !486
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %14) #3, !dbg !486
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !478, metadata !DIExpression()), !dbg !487
-  %15 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !488
-  %16 = load double*, double** %15, align 8, !dbg !488, !tbaa !417
-  %17 = getelementptr inbounds double, double* %16, i64 0, !dbg !488
-  %18 = load double, double* %17, align 8, !dbg !488, !tbaa !426
-  %19 = fptosi double %18 to i32, !dbg !488
-  store i32 %19, i32* %5, align 4, !dbg !487, !tbaa !324
-  br label %20, !dbg !486
+  %7 = load double, double* %4, align 8, !dbg !477, !tbaa !421
+  %8 = fmul double 2.000000e+00, %7, !dbg !478
+  %9 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !479
+  %10 = load double*, double** %9, align 8, !dbg !479, !tbaa !412
+  %11 = getelementptr inbounds double, double* %10, i64 0, !dbg !479
+  %12 = load double, double* %11, align 8, !dbg !480, !tbaa !421
+  %13 = fadd double %12, %8, !dbg !480
+  store double %13, double* %11, align 8, !dbg !480, !tbaa !421
+  %14 = bitcast i32* %5 to i8*, !dbg !481
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %14) #3, !dbg !481
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !473, metadata !DIExpression()), !dbg !482
+  %15 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !483
+  %16 = load double*, double** %15, align 8, !dbg !483, !tbaa !412
+  %17 = getelementptr inbounds double, double* %16, i64 0, !dbg !483
+  %18 = load double, double* %17, align 8, !dbg !483, !tbaa !421
+  %19 = fptosi double %18 to i32, !dbg !483
+  store i32 %19, i32* %5, align 4, !dbg !482, !tbaa !324
+  br label %20, !dbg !481
 
 20:                                               ; preds = %34, %2
-  %21 = load i32, i32* %5, align 4, !dbg !489, !tbaa !324
-  %22 = icmp slt i32 %21, 5, !dbg !491
-  br i1 %22, label %25, label %23, !dbg !492
+  %21 = load i32, i32* %5, align 4, !dbg !484, !tbaa !324
+  %22 = icmp slt i32 %21, 5, !dbg !486
+  br i1 %22, label %25, label %23, !dbg !487
 
 23:                                               ; preds = %20
-  %24 = bitcast i32* %5 to i8*, !dbg !493
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %24) #3, !dbg !493
+  %24 = bitcast i32* %5 to i8*, !dbg !488
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %24) #3, !dbg !488
   br label %37
 
 25:                                               ; preds = %20
-  %26 = load double, double* %4, align 8, !dbg !494, !tbaa !426
-  %27 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !495
-  %28 = load double*, double** %27, align 8, !dbg !495, !tbaa !417
-  %29 = load i32, i32* %5, align 4, !dbg !496, !tbaa !324
-  %30 = sext i32 %29 to i64, !dbg !495
-  %31 = getelementptr inbounds double, double* %28, i64 %30, !dbg !495
-  %32 = load double, double* %31, align 8, !dbg !497, !tbaa !426
-  %33 = fadd double %32, %26, !dbg !497
-  store double %33, double* %31, align 8, !dbg !497, !tbaa !426
-  br label %34, !dbg !495
+  %26 = load double, double* %4, align 8, !dbg !489, !tbaa !421
+  %27 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !490
+  %28 = load double*, double** %27, align 8, !dbg !490, !tbaa !412
+  %29 = load i32, i32* %5, align 4, !dbg !491, !tbaa !324
+  %30 = sext i32 %29 to i64, !dbg !490
+  %31 = getelementptr inbounds double, double* %28, i64 %30, !dbg !490
+  %32 = load double, double* %31, align 8, !dbg !492, !tbaa !421
+  %33 = fadd double %32, %26, !dbg !492
+  store double %33, double* %31, align 8, !dbg !492, !tbaa !421
+  br label %34, !dbg !490
 
 34:                                               ; preds = %25
-  %35 = load i32, i32* %5, align 4, !dbg !498, !tbaa !324
-  %36 = add nsw i32 %35, 1, !dbg !498
-  store i32 %36, i32* %5, align 4, !dbg !498, !tbaa !324
-  br label %20, !dbg !493, !llvm.loop !499
+  %35 = load i32, i32* %5, align 4, !dbg !493, !tbaa !324
+  %36 = add nsw i32 %35, 1, !dbg !493
+  store i32 %36, i32* %5, align 4, !dbg !493, !tbaa !324
+  br label %20, !dbg !488, !llvm.loop !494
 
 37:                                               ; preds = %23
-  ret void, !dbg !501
+  ret void, !dbg !496
 }
 
 ; Function Attrs: nounwind uwtable
-define linkonce_odr dso_local void @_ZN4Grid8update_zEd(%class.Grid*, double) #8 comdat align 2 !dbg !502 {
+define linkonce_odr dso_local void @_ZN4Grid8update_zEd(%class.Grid*, double) #8 comdat align 2 !dbg !497 {
   %3 = alloca %class.Grid*, align 8
   %4 = alloca double, align 8
   %5 = alloca i32, align 4
   store %class.Grid* %0, %class.Grid** %3, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !504, metadata !DIExpression()), !dbg !508
-  store double %1, double* %4, align 8, !tbaa !426
-  call void @llvm.dbg.declare(metadata double* %4, metadata !505, metadata !DIExpression()), !dbg !509
+  call void @llvm.dbg.declare(metadata %class.Grid** %3, metadata !499, metadata !DIExpression()), !dbg !503
+  store double %1, double* %4, align 8, !tbaa !421
+  call void @llvm.dbg.declare(metadata double* %4, metadata !500, metadata !DIExpression()), !dbg !504
   %6 = load %class.Grid*, %class.Grid** %3, align 8
-  %7 = bitcast i32* %5 to i8*, !dbg !510
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #3, !dbg !510
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !506, metadata !DIExpression()), !dbg !511
-  store i32 0, i32* %5, align 4, !dbg !511, !tbaa !324
-  br label %8, !dbg !510
+  %7 = bitcast i32* %5 to i8*, !dbg !505
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* %7) #3, !dbg !505
+  call void @llvm.dbg.declare(metadata i32* %5, metadata !501, metadata !DIExpression()), !dbg !506
+  store i32 0, i32* %5, align 4, !dbg !506, !tbaa !324
+  br label %8, !dbg !505
 
 8:                                                ; preds = %24, %2
-  %9 = load i32, i32* %5, align 4, !dbg !512, !tbaa !324
-  %10 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 2, !dbg !514
-  %11 = load i32, i32* %10, align 8, !dbg !514, !tbaa !411
-  %12 = icmp slt i32 %9, %11, !dbg !515
-  br i1 %12, label %15, label %13, !dbg !516
+  %9 = load i32, i32* %5, align 4, !dbg !507, !tbaa !324
+  %10 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 2, !dbg !509
+  %11 = load i32, i32* %10, align 8, !dbg !509, !tbaa !406
+  %12 = icmp slt i32 %9, %11, !dbg !510
+  br i1 %12, label %15, label %13, !dbg !511
 
 13:                                               ; preds = %8
-  %14 = bitcast i32* %5 to i8*, !dbg !517
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %14) #3, !dbg !517
+  %14 = bitcast i32* %5 to i8*, !dbg !512
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* %14) #3, !dbg !512
   br label %27
 
 15:                                               ; preds = %8
-  %16 = load double, double* %4, align 8, !dbg !518, !tbaa !426
-  %17 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !519
-  %18 = load double*, double** %17, align 8, !dbg !519, !tbaa !417
-  %19 = load i32, i32* %5, align 4, !dbg !520, !tbaa !324
-  %20 = sext i32 %19 to i64, !dbg !519
-  %21 = getelementptr inbounds double, double* %18, i64 %20, !dbg !519
-  %22 = load double, double* %21, align 8, !dbg !521, !tbaa !426
-  %23 = fadd double %22, %16, !dbg !521
-  store double %23, double* %21, align 8, !dbg !521, !tbaa !426
-  br label %24, !dbg !519
+  %16 = load double, double* %4, align 8, !dbg !513, !tbaa !421
+  %17 = getelementptr inbounds %class.Grid, %class.Grid* %6, i32 0, i32 3, !dbg !514
+  %18 = load double*, double** %17, align 8, !dbg !514, !tbaa !412
+  %19 = load i32, i32* %5, align 4, !dbg !515, !tbaa !324
+  %20 = sext i32 %19 to i64, !dbg !514
+  %21 = getelementptr inbounds double, double* %18, i64 %20, !dbg !514
+  %22 = load double, double* %21, align 8, !dbg !516, !tbaa !421
+  %23 = fadd double %22, %16, !dbg !516
+  store double %23, double* %21, align 8, !dbg !516, !tbaa !421
+  br label %24, !dbg !514
 
 24:                                               ; preds = %15
-  %25 = load i32, i32* %5, align 4, !dbg !522, !tbaa !324
-  %26 = add nsw i32 %25, 1, !dbg !522
-  store i32 %26, i32* %5, align 4, !dbg !522, !tbaa !324
-  br label %8, !dbg !517, !llvm.loop !523
+  %25 = load i32, i32* %5, align 4, !dbg !517, !tbaa !324
+  %26 = add nsw i32 %25, 1, !dbg !517
+  store i32 %26, i32* %5, align 4, !dbg !517, !tbaa !324
+  br label %8, !dbg !512, !llvm.loop !518
 
 27:                                               ; preds = %13
-  ret void, !dbg !525
+  ret void, !dbg !520
 }
 
 ; Function Attrs: nounwind uwtable
-define linkonce_odr dso_local void @_ZN4GridD2Ev(%class.Grid*) unnamed_addr #8 comdat align 2 !dbg !526 {
+define linkonce_odr dso_local void @_ZN4GridD2Ev(%class.Grid*) unnamed_addr #8 comdat align 2 !dbg !521 {
   %2 = alloca %class.Grid*, align 8
   store %class.Grid* %0, %class.Grid** %2, align 8, !tbaa !329
-  call void @llvm.dbg.declare(metadata %class.Grid** %2, metadata !528, metadata !DIExpression()), !dbg !529
+  call void @llvm.dbg.declare(metadata %class.Grid** %2, metadata !523, metadata !DIExpression()), !dbg !524
   %3 = load %class.Grid*, %class.Grid** %2, align 8
-  %4 = getelementptr inbounds %class.Grid, %class.Grid* %3, i32 0, i32 3, !dbg !530
-  %5 = load double*, double** %4, align 8, !dbg !530, !tbaa !417
-  %6 = icmp eq double* %5, null, !dbg !532
-  br i1 %6, label %9, label %7, !dbg !532
+  %4 = getelementptr inbounds %class.Grid, %class.Grid* %3, i32 0, i32 3, !dbg !525
+  %5 = load double*, double** %4, align 8, !dbg !525, !tbaa !412
+  %6 = icmp eq double* %5, null, !dbg !527
+  br i1 %6, label %9, label %7, !dbg !527
 
 7:                                                ; preds = %1
-  %8 = bitcast double* %5 to i8*, !dbg !532
-  call void @_ZdaPv(i8* %8) #13, !dbg !532
-  br label %9, !dbg !532
+  %8 = bitcast double* %5 to i8*, !dbg !527
+  call void @_ZdaPv(i8* %8) #13, !dbg !527
+  br label %9, !dbg !527
 
 9:                                                ; preds = %7, %1
-  ret void, !dbg !533
+  ret void, !dbg !528
 }
 
 ; Function Attrs: argmemonly nounwind
@@ -496,9 +485,7 @@ declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) 
 ; Function Attrs: nobuiltin nounwind
 declare dso_local void @_ZdaPv(i8*) #7
 
-declare dso_local i32 @__dfsw_EXTRAP_VAR_ID() #10
-
-declare dso_local void @__dfsw_EXTRAP_STORE_LABEL(i8*, i32, i32, i8*) #10
+declare dso_local void @__dfsw_EXTRAP_WRITE_LABEL(i8*, i32, i8*) #10
 
 attributes #0 = { norecurse uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }
@@ -889,167 +876,162 @@ attributes #13 = { builtin nounwind }
 !367 = !DILocation(line: 363, column: 24, scope: !128)
 !368 = !DILocation(line: 363, column: 16, scope: !128)
 !369 = !DILocation(line: 363, column: 3, scope: !128)
-!370 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !371, file: !371, line: 14, type: !372, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, templateParams: !379, retainedNodes: !375)
+!370 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !371, file: !371, line: 15, type: !372, scopeLine: 16, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, templateParams: !378, retainedNodes: !375)
 !371 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !372 = !DISubroutineType(types: !373)
 !373 = !{null, !374, !125}
 !374 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !4, size: 64)
-!375 = !{!376, !377, !378}
-!376 = !DILocalVariable(name: "ptr", arg: 1, scope: !370, file: !371, line: 14, type: !374)
-!377 = !DILocalVariable(name: "name", arg: 2, scope: !370, file: !371, line: 14, type: !125)
-!378 = !DILocalVariable(name: "param_id", scope: !370, file: !371, line: 16, type: !24)
-!379 = !{!380}
-!380 = !DITemplateTypeParameter(name: "T", type: !4)
-!381 = !DILocation(line: 14, column: 28, scope: !370)
-!382 = !DILocation(line: 14, column: 46, scope: !370)
-!383 = !DILocation(line: 16, column: 5, scope: !370)
-!384 = !DILocation(line: 16, column: 13, scope: !370)
-!385 = !DILocation(line: 16, column: 24, scope: !370)
-!386 = !DILocation(line: 17, column: 57, scope: !370)
-!387 = !DILocation(line: 17, column: 31, scope: !370)
-!388 = !DILocation(line: 18, column: 21, scope: !370)
-!389 = !DILocation(line: 18, column: 25, scope: !370)
-!390 = !DILocation(line: 17, column: 5, scope: !370)
-!391 = !DILocation(line: 19, column: 1, scope: !370)
-!392 = distinct !DISubprogram(name: "Grid", linkageName: "_ZN4GridC2Eiii", scope: !304, file: !1, line: 11, type: !312, scopeLine: 16, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !311, retainedNodes: !393)
-!393 = !{!394, !395, !396, !397}
-!394 = !DILocalVariable(name: "this", arg: 1, scope: !392, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!395 = !DILocalVariable(name: "_x", arg: 2, scope: !392, file: !1, line: 11, type: !4)
-!396 = !DILocalVariable(name: "_y", arg: 3, scope: !392, file: !1, line: 11, type: !4)
-!397 = !DILocalVariable(name: "_z", arg: 4, scope: !392, file: !1, line: 11, type: !4)
-!398 = !DILocation(line: 0, scope: !392)
-!399 = !DILocation(line: 11, column: 14, scope: !392)
-!400 = !DILocation(line: 11, column: 22, scope: !392)
-!401 = !DILocation(line: 11, column: 30, scope: !392)
-!402 = !DILocation(line: 12, column: 9, scope: !392)
-!403 = !DILocation(line: 12, column: 11, scope: !392)
-!404 = !{!405, !325, i64 0}
-!405 = !{!"_ZTS4Grid", !325, i64 0, !325, i64 4, !325, i64 8, !330, i64 16}
-!406 = !DILocation(line: 13, column: 9, scope: !392)
-!407 = !DILocation(line: 13, column: 11, scope: !392)
-!408 = !{!405, !325, i64 4}
-!409 = !DILocation(line: 14, column: 9, scope: !392)
-!410 = !DILocation(line: 14, column: 11, scope: !392)
-!411 = !{!405, !325, i64 8}
-!412 = !DILocation(line: 15, column: 9, scope: !392)
-!413 = !DILocation(line: 15, column: 25, scope: !392)
-!414 = !DILocation(line: 15, column: 27, scope: !392)
-!415 = !DILocation(line: 15, column: 26, scope: !392)
-!416 = !DILocation(line: 15, column: 14, scope: !392)
-!417 = !{!405, !330, i64 16}
-!418 = !DILocation(line: 16, column: 10, scope: !392)
-!419 = distinct !DISubprogram(name: "update_grid", linkageName: "_ZN4Grid11update_gridEd", scope: !304, file: !1, line: 23, type: !319, scopeLine: 24, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !318, retainedNodes: !420)
-!420 = !{!421, !422, !423}
-!421 = !DILocalVariable(name: "this", arg: 1, scope: !419, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!422 = !DILocalVariable(name: "shift", arg: 2, scope: !419, file: !1, line: 23, type: !124)
-!423 = !DILocalVariable(name: "i", scope: !424, file: !1, line: 25, type: !4)
-!424 = distinct !DILexicalBlock(scope: !419, file: !1, line: 25, column: 9)
-!425 = !DILocation(line: 0, scope: !419)
-!426 = !{!427, !427, i64 0}
-!427 = !{!"double", !326, i64 0}
-!428 = !DILocation(line: 23, column: 29, scope: !419)
-!429 = !DILocation(line: 25, column: 13, scope: !424)
-!430 = !DILocation(line: 25, column: 17, scope: !424)
-!431 = !DILocation(line: 25, column: 24, scope: !432)
-!432 = distinct !DILexicalBlock(scope: !424, file: !1, line: 25, column: 9)
-!433 = !DILocation(line: 25, column: 28, scope: !432)
-!434 = !DILocation(line: 25, column: 30, scope: !432)
-!435 = !DILocation(line: 25, column: 29, scope: !432)
-!436 = !DILocation(line: 25, column: 26, scope: !432)
-!437 = !DILocation(line: 25, column: 9, scope: !424)
-!438 = !DILocation(line: 25, column: 9, scope: !432)
-!439 = !DILocation(line: 26, column: 24, scope: !432)
-!440 = !DILocation(line: 26, column: 13, scope: !432)
-!441 = !DILocation(line: 26, column: 18, scope: !432)
-!442 = !DILocation(line: 26, column: 21, scope: !432)
-!443 = !DILocation(line: 25, column: 32, scope: !432)
-!444 = distinct !{!444, !437, !445}
-!445 = !DILocation(line: 26, column: 24, scope: !424)
-!446 = !DILocation(line: 27, column: 5, scope: !419)
-!447 = distinct !DISubprogram(name: "update_constant", linkageName: "_ZN4Grid15update_constantEd", scope: !304, file: !1, line: 30, type: !319, scopeLine: 31, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !321, retainedNodes: !448)
-!448 = !{!449, !450, !451}
-!449 = !DILocalVariable(name: "this", arg: 1, scope: !447, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!450 = !DILocalVariable(name: "shift", arg: 2, scope: !447, file: !1, line: 30, type: !124)
-!451 = !DILocalVariable(name: "i", scope: !452, file: !1, line: 33, type: !4)
-!452 = distinct !DILexicalBlock(scope: !447, file: !1, line: 33, column: 9)
-!453 = !DILocation(line: 0, scope: !447)
-!454 = !DILocation(line: 30, column: 33, scope: !447)
-!455 = !DILocation(line: 32, column: 22, scope: !447)
-!456 = !DILocation(line: 32, column: 21, scope: !447)
-!457 = !DILocation(line: 32, column: 9, scope: !447)
-!458 = !DILocation(line: 32, column: 17, scope: !447)
-!459 = !DILocation(line: 33, column: 13, scope: !452)
-!460 = !DILocation(line: 33, column: 17, scope: !452)
-!461 = !DILocation(line: 33, column: 24, scope: !462)
-!462 = distinct !DILexicalBlock(scope: !452, file: !1, line: 33, column: 9)
-!463 = !DILocation(line: 33, column: 26, scope: !462)
-!464 = !DILocation(line: 33, column: 9, scope: !452)
-!465 = !DILocation(line: 33, column: 9, scope: !462)
-!466 = !DILocation(line: 34, column: 24, scope: !462)
-!467 = !DILocation(line: 34, column: 13, scope: !462)
-!468 = !DILocation(line: 34, column: 18, scope: !462)
-!469 = !DILocation(line: 34, column: 21, scope: !462)
-!470 = !DILocation(line: 33, column: 30, scope: !462)
-!471 = distinct !{!471, !464, !472}
-!472 = !DILocation(line: 34, column: 24, scope: !452)
-!473 = !DILocation(line: 35, column: 5, scope: !447)
-!474 = distinct !DISubprogram(name: "update_data", linkageName: "_ZN4Grid11update_dataEd", scope: !304, file: !1, line: 38, type: !319, scopeLine: 39, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !322, retainedNodes: !475)
-!475 = !{!476, !477, !478}
-!476 = !DILocalVariable(name: "this", arg: 1, scope: !474, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!477 = !DILocalVariable(name: "shift", arg: 2, scope: !474, file: !1, line: 38, type: !124)
-!478 = !DILocalVariable(name: "i", scope: !479, file: !1, line: 41, type: !4)
-!479 = distinct !DILexicalBlock(scope: !474, file: !1, line: 41, column: 9)
-!480 = !DILocation(line: 0, scope: !474)
-!481 = !DILocation(line: 38, column: 29, scope: !474)
-!482 = !DILocation(line: 40, column: 22, scope: !474)
-!483 = !DILocation(line: 40, column: 21, scope: !474)
-!484 = !DILocation(line: 40, column: 9, scope: !474)
-!485 = !DILocation(line: 40, column: 17, scope: !474)
-!486 = !DILocation(line: 41, column: 13, scope: !479)
-!487 = !DILocation(line: 41, column: 17, scope: !479)
-!488 = !DILocation(line: 41, column: 21, scope: !479)
-!489 = !DILocation(line: 41, column: 30, scope: !490)
-!490 = distinct !DILexicalBlock(scope: !479, file: !1, line: 41, column: 9)
-!491 = !DILocation(line: 41, column: 32, scope: !490)
-!492 = !DILocation(line: 41, column: 9, scope: !479)
-!493 = !DILocation(line: 41, column: 9, scope: !490)
-!494 = !DILocation(line: 42, column: 24, scope: !490)
-!495 = !DILocation(line: 42, column: 13, scope: !490)
-!496 = !DILocation(line: 42, column: 18, scope: !490)
-!497 = !DILocation(line: 42, column: 21, scope: !490)
-!498 = !DILocation(line: 41, column: 36, scope: !490)
-!499 = distinct !{!499, !492, !500}
-!500 = !DILocation(line: 42, column: 24, scope: !479)
-!501 = !DILocation(line: 43, column: 5, scope: !474)
-!502 = distinct !DISubprogram(name: "update_z", linkageName: "_ZN4Grid8update_zEd", scope: !304, file: !1, line: 46, type: !319, scopeLine: 47, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !323, retainedNodes: !503)
-!503 = !{!504, !505, !506}
-!504 = !DILocalVariable(name: "this", arg: 1, scope: !502, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!505 = !DILocalVariable(name: "shift", arg: 2, scope: !502, file: !1, line: 46, type: !124)
-!506 = !DILocalVariable(name: "i", scope: !507, file: !1, line: 48, type: !4)
-!507 = distinct !DILexicalBlock(scope: !502, file: !1, line: 48, column: 9)
-!508 = !DILocation(line: 0, scope: !502)
-!509 = !DILocation(line: 46, column: 26, scope: !502)
-!510 = !DILocation(line: 48, column: 13, scope: !507)
-!511 = !DILocation(line: 48, column: 17, scope: !507)
-!512 = !DILocation(line: 48, column: 24, scope: !513)
-!513 = distinct !DILexicalBlock(scope: !507, file: !1, line: 48, column: 9)
-!514 = !DILocation(line: 48, column: 28, scope: !513)
-!515 = !DILocation(line: 48, column: 26, scope: !513)
-!516 = !DILocation(line: 48, column: 9, scope: !507)
-!517 = !DILocation(line: 48, column: 9, scope: !513)
-!518 = !DILocation(line: 49, column: 24, scope: !513)
-!519 = !DILocation(line: 49, column: 13, scope: !513)
-!520 = !DILocation(line: 49, column: 18, scope: !513)
-!521 = !DILocation(line: 49, column: 21, scope: !513)
-!522 = !DILocation(line: 48, column: 30, scope: !513)
-!523 = distinct !{!523, !516, !524}
-!524 = !DILocation(line: 49, column: 24, scope: !507)
-!525 = !DILocation(line: 50, column: 5, scope: !502)
-!526 = distinct !DISubprogram(name: "~Grid", linkageName: "_ZN4GridD2Ev", scope: !304, file: !1, line: 17, type: !316, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !315, retainedNodes: !527)
-!527 = !{!528}
-!528 = !DILocalVariable(name: "this", arg: 1, scope: !526, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
-!529 = !DILocation(line: 0, scope: !526)
-!530 = !DILocation(line: 19, column: 18, scope: !531)
-!531 = distinct !DILexicalBlock(scope: !526, file: !1, line: 18, column: 5)
-!532 = !DILocation(line: 19, column: 9, scope: !531)
-!533 = !DILocation(line: 20, column: 5, scope: !526)
+!375 = !{!376, !377}
+!376 = !DILocalVariable(name: "ptr", arg: 1, scope: !370, file: !371, line: 15, type: !374)
+!377 = !DILocalVariable(name: "name", arg: 2, scope: !370, file: !371, line: 15, type: !125)
+!378 = !{!379}
+!379 = !DITemplateTypeParameter(name: "T", type: !4)
+!380 = !DILocation(line: 15, column: 28, scope: !370)
+!381 = !DILocation(line: 15, column: 46, scope: !370)
+!382 = !DILocation(line: 20, column: 55, scope: !370)
+!383 = !DILocation(line: 20, column: 29, scope: !370)
+!384 = !DILocation(line: 20, column: 72, scope: !370)
+!385 = !DILocation(line: 20, column: 3, scope: !370)
+!386 = !DILocation(line: 21, column: 1, scope: !370)
+!387 = distinct !DISubprogram(name: "Grid", linkageName: "_ZN4GridC2Eiii", scope: !304, file: !1, line: 11, type: !312, scopeLine: 16, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !311, retainedNodes: !388)
+!388 = !{!389, !390, !391, !392}
+!389 = !DILocalVariable(name: "this", arg: 1, scope: !387, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!390 = !DILocalVariable(name: "_x", arg: 2, scope: !387, file: !1, line: 11, type: !4)
+!391 = !DILocalVariable(name: "_y", arg: 3, scope: !387, file: !1, line: 11, type: !4)
+!392 = !DILocalVariable(name: "_z", arg: 4, scope: !387, file: !1, line: 11, type: !4)
+!393 = !DILocation(line: 0, scope: !387)
+!394 = !DILocation(line: 11, column: 14, scope: !387)
+!395 = !DILocation(line: 11, column: 22, scope: !387)
+!396 = !DILocation(line: 11, column: 30, scope: !387)
+!397 = !DILocation(line: 12, column: 9, scope: !387)
+!398 = !DILocation(line: 12, column: 11, scope: !387)
+!399 = !{!400, !325, i64 0}
+!400 = !{!"_ZTS4Grid", !325, i64 0, !325, i64 4, !325, i64 8, !330, i64 16}
+!401 = !DILocation(line: 13, column: 9, scope: !387)
+!402 = !DILocation(line: 13, column: 11, scope: !387)
+!403 = !{!400, !325, i64 4}
+!404 = !DILocation(line: 14, column: 9, scope: !387)
+!405 = !DILocation(line: 14, column: 11, scope: !387)
+!406 = !{!400, !325, i64 8}
+!407 = !DILocation(line: 15, column: 9, scope: !387)
+!408 = !DILocation(line: 15, column: 25, scope: !387)
+!409 = !DILocation(line: 15, column: 27, scope: !387)
+!410 = !DILocation(line: 15, column: 26, scope: !387)
+!411 = !DILocation(line: 15, column: 14, scope: !387)
+!412 = !{!400, !330, i64 16}
+!413 = !DILocation(line: 16, column: 10, scope: !387)
+!414 = distinct !DISubprogram(name: "update_grid", linkageName: "_ZN4Grid11update_gridEd", scope: !304, file: !1, line: 23, type: !319, scopeLine: 24, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !318, retainedNodes: !415)
+!415 = !{!416, !417, !418}
+!416 = !DILocalVariable(name: "this", arg: 1, scope: !414, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!417 = !DILocalVariable(name: "shift", arg: 2, scope: !414, file: !1, line: 23, type: !124)
+!418 = !DILocalVariable(name: "i", scope: !419, file: !1, line: 25, type: !4)
+!419 = distinct !DILexicalBlock(scope: !414, file: !1, line: 25, column: 9)
+!420 = !DILocation(line: 0, scope: !414)
+!421 = !{!422, !422, i64 0}
+!422 = !{!"double", !326, i64 0}
+!423 = !DILocation(line: 23, column: 29, scope: !414)
+!424 = !DILocation(line: 25, column: 13, scope: !419)
+!425 = !DILocation(line: 25, column: 17, scope: !419)
+!426 = !DILocation(line: 25, column: 24, scope: !427)
+!427 = distinct !DILexicalBlock(scope: !419, file: !1, line: 25, column: 9)
+!428 = !DILocation(line: 25, column: 28, scope: !427)
+!429 = !DILocation(line: 25, column: 30, scope: !427)
+!430 = !DILocation(line: 25, column: 29, scope: !427)
+!431 = !DILocation(line: 25, column: 26, scope: !427)
+!432 = !DILocation(line: 25, column: 9, scope: !419)
+!433 = !DILocation(line: 25, column: 9, scope: !427)
+!434 = !DILocation(line: 26, column: 24, scope: !427)
+!435 = !DILocation(line: 26, column: 13, scope: !427)
+!436 = !DILocation(line: 26, column: 18, scope: !427)
+!437 = !DILocation(line: 26, column: 21, scope: !427)
+!438 = !DILocation(line: 25, column: 32, scope: !427)
+!439 = distinct !{!439, !432, !440}
+!440 = !DILocation(line: 26, column: 24, scope: !419)
+!441 = !DILocation(line: 27, column: 5, scope: !414)
+!442 = distinct !DISubprogram(name: "update_constant", linkageName: "_ZN4Grid15update_constantEd", scope: !304, file: !1, line: 30, type: !319, scopeLine: 31, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !321, retainedNodes: !443)
+!443 = !{!444, !445, !446}
+!444 = !DILocalVariable(name: "this", arg: 1, scope: !442, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!445 = !DILocalVariable(name: "shift", arg: 2, scope: !442, file: !1, line: 30, type: !124)
+!446 = !DILocalVariable(name: "i", scope: !447, file: !1, line: 33, type: !4)
+!447 = distinct !DILexicalBlock(scope: !442, file: !1, line: 33, column: 9)
+!448 = !DILocation(line: 0, scope: !442)
+!449 = !DILocation(line: 30, column: 33, scope: !442)
+!450 = !DILocation(line: 32, column: 22, scope: !442)
+!451 = !DILocation(line: 32, column: 21, scope: !442)
+!452 = !DILocation(line: 32, column: 9, scope: !442)
+!453 = !DILocation(line: 32, column: 17, scope: !442)
+!454 = !DILocation(line: 33, column: 13, scope: !447)
+!455 = !DILocation(line: 33, column: 17, scope: !447)
+!456 = !DILocation(line: 33, column: 24, scope: !457)
+!457 = distinct !DILexicalBlock(scope: !447, file: !1, line: 33, column: 9)
+!458 = !DILocation(line: 33, column: 26, scope: !457)
+!459 = !DILocation(line: 33, column: 9, scope: !447)
+!460 = !DILocation(line: 33, column: 9, scope: !457)
+!461 = !DILocation(line: 34, column: 24, scope: !457)
+!462 = !DILocation(line: 34, column: 13, scope: !457)
+!463 = !DILocation(line: 34, column: 18, scope: !457)
+!464 = !DILocation(line: 34, column: 21, scope: !457)
+!465 = !DILocation(line: 33, column: 30, scope: !457)
+!466 = distinct !{!466, !459, !467}
+!467 = !DILocation(line: 34, column: 24, scope: !447)
+!468 = !DILocation(line: 35, column: 5, scope: !442)
+!469 = distinct !DISubprogram(name: "update_data", linkageName: "_ZN4Grid11update_dataEd", scope: !304, file: !1, line: 38, type: !319, scopeLine: 39, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !322, retainedNodes: !470)
+!470 = !{!471, !472, !473}
+!471 = !DILocalVariable(name: "this", arg: 1, scope: !469, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!472 = !DILocalVariable(name: "shift", arg: 2, scope: !469, file: !1, line: 38, type: !124)
+!473 = !DILocalVariable(name: "i", scope: !474, file: !1, line: 41, type: !4)
+!474 = distinct !DILexicalBlock(scope: !469, file: !1, line: 41, column: 9)
+!475 = !DILocation(line: 0, scope: !469)
+!476 = !DILocation(line: 38, column: 29, scope: !469)
+!477 = !DILocation(line: 40, column: 22, scope: !469)
+!478 = !DILocation(line: 40, column: 21, scope: !469)
+!479 = !DILocation(line: 40, column: 9, scope: !469)
+!480 = !DILocation(line: 40, column: 17, scope: !469)
+!481 = !DILocation(line: 41, column: 13, scope: !474)
+!482 = !DILocation(line: 41, column: 17, scope: !474)
+!483 = !DILocation(line: 41, column: 21, scope: !474)
+!484 = !DILocation(line: 41, column: 30, scope: !485)
+!485 = distinct !DILexicalBlock(scope: !474, file: !1, line: 41, column: 9)
+!486 = !DILocation(line: 41, column: 32, scope: !485)
+!487 = !DILocation(line: 41, column: 9, scope: !474)
+!488 = !DILocation(line: 41, column: 9, scope: !485)
+!489 = !DILocation(line: 42, column: 24, scope: !485)
+!490 = !DILocation(line: 42, column: 13, scope: !485)
+!491 = !DILocation(line: 42, column: 18, scope: !485)
+!492 = !DILocation(line: 42, column: 21, scope: !485)
+!493 = !DILocation(line: 41, column: 36, scope: !485)
+!494 = distinct !{!494, !487, !495}
+!495 = !DILocation(line: 42, column: 24, scope: !474)
+!496 = !DILocation(line: 43, column: 5, scope: !469)
+!497 = distinct !DISubprogram(name: "update_z", linkageName: "_ZN4Grid8update_zEd", scope: !304, file: !1, line: 46, type: !319, scopeLine: 47, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !323, retainedNodes: !498)
+!498 = !{!499, !500, !501}
+!499 = !DILocalVariable(name: "this", arg: 1, scope: !497, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!500 = !DILocalVariable(name: "shift", arg: 2, scope: !497, file: !1, line: 46, type: !124)
+!501 = !DILocalVariable(name: "i", scope: !502, file: !1, line: 48, type: !4)
+!502 = distinct !DILexicalBlock(scope: !497, file: !1, line: 48, column: 9)
+!503 = !DILocation(line: 0, scope: !497)
+!504 = !DILocation(line: 46, column: 26, scope: !497)
+!505 = !DILocation(line: 48, column: 13, scope: !502)
+!506 = !DILocation(line: 48, column: 17, scope: !502)
+!507 = !DILocation(line: 48, column: 24, scope: !508)
+!508 = distinct !DILexicalBlock(scope: !502, file: !1, line: 48, column: 9)
+!509 = !DILocation(line: 48, column: 28, scope: !508)
+!510 = !DILocation(line: 48, column: 26, scope: !508)
+!511 = !DILocation(line: 48, column: 9, scope: !502)
+!512 = !DILocation(line: 48, column: 9, scope: !508)
+!513 = !DILocation(line: 49, column: 24, scope: !508)
+!514 = !DILocation(line: 49, column: 13, scope: !508)
+!515 = !DILocation(line: 49, column: 18, scope: !508)
+!516 = !DILocation(line: 49, column: 21, scope: !508)
+!517 = !DILocation(line: 48, column: 30, scope: !508)
+!518 = distinct !{!518, !511, !519}
+!519 = !DILocation(line: 49, column: 24, scope: !502)
+!520 = !DILocation(line: 50, column: 5, scope: !497)
+!521 = distinct !DISubprogram(name: "~Grid", linkageName: "_ZN4GridD2Ev", scope: !304, file: !1, line: 17, type: !316, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0, declaration: !315, retainedNodes: !522)
+!522 = !{!523}
+!523 = !DILocalVariable(name: "this", arg: 1, scope: !521, type: !303, flags: DIFlagArtificial | DIFlagObjectPointer)
+!524 = !DILocation(line: 0, scope: !521)
+!525 = !DILocation(line: 19, column: 18, scope: !526)
+!526 = distinct !DILexicalBlock(scope: !521, file: !1, line: 18, column: 5)
+!527 = !DILocation(line: 19, column: 9, scope: !526)
+!528 = !DILocation(line: 20, column: 5, scope: !521)

@@ -1653,34 +1653,21 @@ define available_externally dso_local i32 @atoi(i8* nonnull) #5 !dbg !60 {
 define linkonce_odr dso_local void @_Z17register_variableIiEvPT_PKc(i32*, i8*) #6 comdat !dbg !1146 {
   %3 = alloca i32*, align 8
   %4 = alloca i8*, align 8
-  %5 = alloca i32, align 4
   store i32* %0, i32** %3, align 8, !tbaa !1099
-  call void @llvm.dbg.declare(metadata i32** %3, metadata !1152, metadata !DIExpression()), !dbg !1157
+  call void @llvm.dbg.declare(metadata i32** %3, metadata !1152, metadata !DIExpression()), !dbg !1156
   store i8* %1, i8** %4, align 8, !tbaa !1099
-  call void @llvm.dbg.declare(metadata i8** %4, metadata !1153, metadata !DIExpression()), !dbg !1158
+  call void @llvm.dbg.declare(metadata i8** %4, metadata !1153, metadata !DIExpression()), !dbg !1157
+  %5 = load i32*, i32** %3, align 8, !dbg !1158, !tbaa !1099
   %6 = bitcast i32* %5 to i8*, !dbg !1159
-  call void @llvm.lifetime.start.p0i8(i64 4, i8* %6) #4, !dbg !1159
-  call void @llvm.dbg.declare(metadata i32* %5, metadata !1154, metadata !DIExpression()), !dbg !1160
-  %7 = call i32 @__dfsw_EXTRAP_VAR_ID(), !dbg !1161
-  store i32 %7, i32* %5, align 4, !dbg !1160, !tbaa !311
-  %8 = load i32*, i32** %3, align 8, !dbg !1162, !tbaa !1099
-  %9 = bitcast i32* %8 to i8*, !dbg !1163
-  %10 = load i32, i32* %5, align 4, !dbg !1164, !tbaa !311
-  %11 = add nsw i32 %10, 1, !dbg !1164
-  store i32 %11, i32* %5, align 4, !dbg !1164, !tbaa !311
-  %12 = load i8*, i8** %4, align 8, !dbg !1165, !tbaa !1099
-  call void @__dfsw_EXTRAP_STORE_LABEL(i8* %9, i32 4, i32 %10, i8* %12), !dbg !1166
-  %13 = bitcast i32* %5 to i8*, !dbg !1167
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* %13) #4, !dbg !1167
-  ret void, !dbg !1167
+  %7 = load i8*, i8** %4, align 8, !dbg !1160, !tbaa !1099
+  call void @__dfsw_EXTRAP_WRITE_LABEL(i8* %6, i32 4, i8* %7), !dbg !1161
+  ret void, !dbg !1162
 }
 
 ; Function Attrs: nounwind
 declare dso_local i64 @strtol(i8*, i8**, i32) #7
 
-declare dso_local i32 @__dfsw_EXTRAP_VAR_ID() #8
-
-declare dso_local void @__dfsw_EXTRAP_STORE_LABEL(i8*, i32, i32, i8*) #8
+declare dso_local void @__dfsw_EXTRAP_WRITE_LABEL(i8*, i32, i8*) #8
 
 attributes #0 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind readnone speculatable }
@@ -2843,25 +2830,20 @@ attributes #9 = { nounwind readonly }
 !1143 = !DILocation(line: 363, column: 24, scope: !60)
 !1144 = !DILocation(line: 363, column: 16, scope: !60)
 !1145 = !DILocation(line: 363, column: 3, scope: !60)
-!1146 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !1147, file: !1147, line: 14, type: !1148, scopeLine: 15, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !1155, retainedNodes: !1151)
+!1146 = distinct !DISubprogram(name: "register_variable<int>", linkageName: "_Z17register_variableIiEvPT_PKc", scope: !1147, file: !1147, line: 15, type: !1148, scopeLine: 16, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, templateParams: !1154, retainedNodes: !1151)
 !1147 = !DIFile(filename: "include/ExtraPInstrumenter.hpp", directory: "/home/mcopik/projects/ETH/extrap/rebuild/perf-taint")
 !1148 = !DISubroutineType(types: !1149)
 !1149 = !{null, !1150, !57}
 !1150 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !6, size: 64)
-!1151 = !{!1152, !1153, !1154}
-!1152 = !DILocalVariable(name: "ptr", arg: 1, scope: !1146, file: !1147, line: 14, type: !1150)
-!1153 = !DILocalVariable(name: "name", arg: 2, scope: !1146, file: !1147, line: 14, type: !57)
-!1154 = !DILocalVariable(name: "param_id", scope: !1146, file: !1147, line: 16, type: !229)
-!1155 = !{!1156}
-!1156 = !DITemplateTypeParameter(name: "T", type: !6)
-!1157 = !DILocation(line: 14, column: 28, scope: !1146)
-!1158 = !DILocation(line: 14, column: 46, scope: !1146)
-!1159 = !DILocation(line: 16, column: 5, scope: !1146)
-!1160 = !DILocation(line: 16, column: 13, scope: !1146)
-!1161 = !DILocation(line: 16, column: 24, scope: !1146)
-!1162 = !DILocation(line: 17, column: 57, scope: !1146)
-!1163 = !DILocation(line: 17, column: 31, scope: !1146)
-!1164 = !DILocation(line: 18, column: 21, scope: !1146)
-!1165 = !DILocation(line: 18, column: 25, scope: !1146)
-!1166 = !DILocation(line: 17, column: 5, scope: !1146)
-!1167 = !DILocation(line: 19, column: 1, scope: !1146)
+!1151 = !{!1152, !1153}
+!1152 = !DILocalVariable(name: "ptr", arg: 1, scope: !1146, file: !1147, line: 15, type: !1150)
+!1153 = !DILocalVariable(name: "name", arg: 2, scope: !1146, file: !1147, line: 15, type: !57)
+!1154 = !{!1155}
+!1155 = !DITemplateTypeParameter(name: "T", type: !6)
+!1156 = !DILocation(line: 15, column: 28, scope: !1146)
+!1157 = !DILocation(line: 15, column: 46, scope: !1146)
+!1158 = !DILocation(line: 20, column: 55, scope: !1146)
+!1159 = !DILocation(line: 20, column: 29, scope: !1146)
+!1160 = !DILocation(line: 20, column: 72, scope: !1146)
+!1161 = !DILocation(line: 20, column: 3, scope: !1146)
+!1162 = !DILocation(line: 21, column: 1, scope: !1146)

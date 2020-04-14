@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/dfsan-unit/bug_multipath_loops.cpp",
       "func_idx": 0,
-      "line": 26,
+      "line": 31,
       "loops": [
         {
           "callstacks": [
@@ -123,7 +123,7 @@
     "_Z25call_interesting_functionii": {
       "file": "tests/dfsan-unit/bug_multipath_loops.cpp",
       "func_idx": 1,
-      "line": 18,
+      "line": 23,
       "loops": [
         {
           "callstacks": [
