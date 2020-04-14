@@ -370,9 +370,9 @@ void __dfsw_EXTRAP_INIT()
 void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t function_idx,
         uint16_t nested_loop_idx, uint16_t implicit_label_idx)
 {
-    int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
-    offset += nested_loop_idx;
-    uint16_t found_params = (1 << (implicit_label_idx));
-    __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
+  int32_t offset = __EXTRAP_LOOPS_STRUCTURE_PER_FUNC_OFFSETS[function_idx];
+  offset += nested_loop_idx;
+  uint16_t found_params = (1 << (implicit_label_idx));
+  __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
 }
 
