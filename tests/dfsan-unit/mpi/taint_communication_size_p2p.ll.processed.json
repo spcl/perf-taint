@@ -1,0 +1,355 @@
+{
+  "functions": {
+    "MPI_Irecv": {
+      "file": null,
+      "func_idx": 2,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    },
+    "MPI_Isend": {
+      "file": null,
+      "func_idx": 5,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    },
+    "MPI_Recv": {
+      "file": null,
+      "func_idx": 3,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    },
+    "MPI_Send": {
+      "file": null,
+      "func_idx": 6,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    },
+    "MPI_Wait": {
+      "file": null,
+      "func_idx": 4,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7,
+              0
+            ],
+            [
+              7,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    },
+    "_Z3rcviiPi": {
+      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "func_idx": 1,
+      "line": 24,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "param"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "param"
+            ],
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z4sendiiPi": {
+      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "func_idx": 0,
+      "line": 9,
+      "loops": [
+        {
+          "callstack": [
+            [
+              7
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "param"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "param"
+            ],
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "send(int, int, int*)",
+    "rcv(int, int, int*)",
+    "MPI_Irecv",
+    "MPI_Recv",
+    "MPI_Wait",
+    "MPI_Isend",
+    "MPI_Send",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z4sendiiPi",
+    "_Z3rcviiPi",
+    "MPI_Irecv",
+    "MPI_Recv",
+    "MPI_Wait",
+    "MPI_Isend",
+    "MPI_Send",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "send",
+    "rcv",
+    "MPI_Irecv",
+    "MPI_Recv",
+    "MPI_Wait",
+    "MPI_Isend",
+    "MPI_Send",
+    "main",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "param",
+    "p"
+  ]
+}
