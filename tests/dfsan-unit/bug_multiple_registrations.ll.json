@@ -1,0 +1,76 @@
+{
+  "functions": {
+    "_Z1iiii": {
+      "file": "tests/dfsan-unit/bug_multiple_registrations.cpp",
+      "func_idx": 0,
+      "line": 23,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ],
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ],
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "i(int, int, int)",
+    "main",
+    "setup(int, char**, int&, int&)",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1iiii",
+    "main",
+    "_Z5setupiPPcRiS1_",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "i",
+    "main",
+    "setup",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
