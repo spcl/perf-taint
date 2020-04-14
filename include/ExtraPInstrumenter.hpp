@@ -4,8 +4,9 @@
 #include <cstdint>
 
 extern "C"{
-    void __dfsw_EXTRAP_STORE_LABEL(int8_t *, int32_t, int32_t, const char*);
-    int32_t __dfsw_EXTRAP_VAR_ID();
+  //void __dfsw_EXTRAP_STORE_LABEL(int8_t *, int32_t, int32_t, const char*);
+  //int32_t __dfsw_EXTRAP_VAR_ID();
+  void __dfsw_EXTRAP_WRITE_LABEL(int8_t *, int32_t, const char*);
 }
 
 #define EXTRAP __attribute__(( annotate("extrap") ))
@@ -13,9 +14,10 @@ extern "C"{
 template<typename T>
 void register_variable(T * ptr, const char * name)
 {
-    int32_t param_id = __dfsw_EXTRAP_VAR_ID();
-    __dfsw_EXTRAP_STORE_LABEL(reinterpret_cast<int8_t*>(ptr), sizeof(T),
-            param_id++, name);
+    //int32_t param_id = __dfsw_EXTRAP_VAR_ID();
+    //__dfsw_EXTRAP_STORE_LABEL(reinterpret_cast<int8_t*>(ptr), sizeof(T),
+     //       param_id++, name);
+  __dfsw_EXTRAP_WRITE_LABEL(reinterpret_cast<int8_t*>(ptr), sizeof(T), name);
 }
 
 #endif

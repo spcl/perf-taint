@@ -9,6 +9,8 @@ extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
 
 void __dfsw_EXTRAP_STORE_LABEL(int8_t *, int32_t, int32_t,const char*);
 void __dfsw_EXTRAP_STORE_LABELS(const char * name, int32_t param_idx, size_t, va_list);
+void __dfsw_EXTRAP_WRITE_LABEL(int8_t *, int32_t, const char*);
+void __dfsw_EXTRAP_WRITE_LABELS(const char * name, size_t, va_list);
 int32_t __dfsw_EXTRAP_VAR_ID();
 
 #define EXTRAP __attribute__(( annotate("extrap") ))
@@ -16,9 +18,10 @@ int32_t __dfsw_EXTRAP_VAR_ID();
 
 void register_variable(void * ptr, size_t size, const char * name)
 {
-    int32_t param_id = __dfsw_EXTRAP_VAR_ID();
+    //int32_t param_id = __dfsw_EXTRAP_VAR_ID();
     fprintf(stderr, "Register variable\n");
-    __dfsw_EXTRAP_STORE_LABEL((int8_t*) ptr, size, param_id++, name);
+    //__dfsw_EXTRAP_STORE_LABEL((int8_t*) ptr, size, param_id++, name);
+    __dfsw_EXTRAP_WRITE_LABEL((int8_t*) ptr, size, name);
 }
 
 //void store_variable(void * ptr, size_t size, const char * name)
@@ -47,9 +50,10 @@ void register_variables(const char * name, size_t count, ...)
     //    fprintf(stderr, "Register %p of size %d\n", addr, size);
     //}
     va_start(args, count);
-    int32_t param_id = __dfsw_EXTRAP_VAR_ID();
+    //int32_t param_id = __dfsw_EXTRAP_VAR_ID();
     fprintf(stderr, "Register %zu variables\n", count);
-    __dfsw_EXTRAP_STORE_LABELS(name, param_id, count, args);
+    //__dfsw_EXTRAP_STORE_LABELS(name, param_id, count, args);
+    __dfsw_EXTRAP_WRITE_LABELS(name, count, args);
     //va_end(args);
 }
 //void register_variables(const char * name, size_t count, void * ptr1, size_t size1,
