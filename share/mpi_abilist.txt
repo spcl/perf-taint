@@ -13,44 +13,24 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
-        ],
-        "loops" : {
-         "0" :  {
-              "level" : 1,
-              "params" : [
-                "n"
-              ]
-            }
-        }
-      },
-      "params" : {
-        "n" : {
-          "type" : "arg",
-          "pos" : 2
-        }
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 2
+          }
+        ]
       }
     },
     "MPI_Allreduce" : {
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
-        ],
-        "loops" : {
-         "0" :  {
-              "level" : 1,
-              "params" : [
-                "n"
-              ]
-            }
-        }
-      },
-      "params" : {
-        "n" : {
-          "type" : "arg",
-          "pos" : 2
-        }
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 2
+          }
+        ]
       }
     },
     "MPI_Barrier" : {
@@ -65,7 +45,11 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 2
+          }
         ]
       }
     },
@@ -73,7 +57,15 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          },
+          {
+            "type" : "arg",
+            "pos" : 4
+          }
         ]
       }
     },
@@ -81,7 +73,15 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          },
+          {
+            "type" : "arg",
+            "pos" : 4
+          }
         ]
       }
     },
@@ -97,7 +97,11 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          }
         ]
       }
     },
