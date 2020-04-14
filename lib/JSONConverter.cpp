@@ -380,41 +380,43 @@ json_t convert(json_t & input, bool generate_full_data)
     std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
     std::set<int> important_indices{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
-        important_indices.insert( (it.value()["func_idx"].get<int>()));
+      int idx = it.value()["func_idx"].get<int>();
+      if(is_important(it.value()["loops"])) {
+        important_indices.insert(idx);
+        bool is_mangled =
+          input["functions_demangled_names"][idx].get<std::string>() !=
+            input["functions_mangled_names"][idx].get<std::string>();
+        if(is_mangled) {
+          std::string name = input["functions_names"][idx].get<std::string>();
+          std::string demangled_name = input["functions_demangled_names"][idx].get<std::string>();
+          size_t pos = demangled_name.rfind(name);
+          assert(pos != std::string::npos);
+          size_t l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
+          //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
+          if(l_pos == std::string::npos)
+            l_pos = 0;
+          // if the name includes namespace, we don't add a space in front.
+          // otherwise we might miss constructos since score-p will not match
+          // space + name::name()
+          // having space is beneficial for other functions since we avoid
+          // incorrect matching with some prefix
+          // e.g. rule *x(* matching for function f_x()
+          std::string parsed_name = demangled_name.substr(l_pos, pos + name.size());
+          bool contains_namespace = parsed_name.find("::") != std::string::npos;
+
+          //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
+          of << "INCLUDE *";
+          if(!contains_namespace)
+            of << "\\ ";
+          of << parsed_name << "(*\n";
+        } else
+          of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
+      } else
+        std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
     }
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
         int idx = it.value()["func_idx"].get<int>();
-        if(is_important(it.value()["loops"])) {
-          bool is_mangled =
-            input["functions_demangled_names"][idx].get<std::string>() !=
-              input["functions_mangled_names"][idx].get<std::string>();
-          if(is_mangled) {
-            std::string name = input["functions_names"][idx].get<std::string>();
-            std::string demangled_name = input["functions_demangled_names"][idx].get<std::string>();
-            size_t pos = demangled_name.rfind(name);
-            assert(pos != std::string::npos);
-            size_t l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
-            //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
-            if(l_pos == std::string::npos)
-              l_pos = 0;
-            // if the name includes namespace, we don't add a space in front.
-            // otherwise we might miss constructos since score-p will not match
-            // space + name::name()
-            // having space is beneficial for other functions since we avoid
-            // incorrect matching with some prefix
-            // e.g. rule *x(* matching for function f_x()
-            std::string parsed_name = demangled_name.substr(l_pos, pos + name.size());
-            bool contains_namespace = parsed_name.find("::") != std::string::npos;
-
-            //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
-            of << "INCLUDE *";
-            if(!contains_namespace)
-              of << "\\ ";
-            of << parsed_name << "(*\n";
-          } else
-            of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
-        }
         std::string name = input["functions_names"][idx].get<std::string>();
         //std::cout << "Name: " << it.key() << '\n';
         json_t & loops = it.value()["loops"];
@@ -462,11 +464,11 @@ json_t convert(json_t & input, bool generate_full_data)
                     // push update_u -> update_h :( old hack around ScoreP filtering
                     if(important_indices.count(v.get<int>())
                         //update_h
-                        || v.get<int>() == 418
+                        //|| v.get<int>() == 418
                         //setup_output_gauge_file
-                        || v.get<int>() == 352
+                        //|| v.get<int>() == 352
                         //cleanup_gathers 
-                        || v.get<int>() == 345
+                        //|| v.get<int>() == 345
                         || input["functions_names"][v.get<int>()] == "main")
                       new_callstack.push_back(v);
                 }
