@@ -49,6 +49,8 @@ json_t & __dfsw_json_get(int func_idx)
 {
   static json_t * funcs = new json_t[__EXTRAP_INSTRUMENTATION_FUNCS_COUNT
       + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT]();
+  if(func_idx >= __EXTRAP_INSTRUMENTATION_FUNCS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT)
+    exit(5);
   return funcs[func_idx];
 }
 
@@ -143,7 +145,7 @@ json_t __dfsw_json_write_single_loop(dependencies * deps)
     return params;
 }
 
-json_t __dfsw_json_write_loop(int, int32_t * loop_data,
+json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
         int32_t * loop_structure, dependencies * deps, int & nested_loop_idx,
         nested_call *& begin, nested_call * end)
 {
@@ -161,10 +163,18 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
 
     json_t ** prev_iteration = new json_t*[1]();
     prev_iteration[0] = &loop;
+    //bool print_out = false;
+    //if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 0 && function_idx == 36) {
+    //  if(__EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-2] == 309 && __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-3] == 58)
+    //    print_out = true;
+    //}
+    //if(print_out)
+    //  std::cerr << "Begin " << loop_structure << " loop_structure " << *loop_structure << std::endl;
     for(int level = 1; level < depth; ++level) {
 
         // number of loops on this level
         int parent_idx = 0, loop_idx = 0, processed_loops = 0;
+        int32_t * original_loop_structure = loop_structure;
         json_t ** cur_iteration = new json_t*[level_size];
         for(int loop = 0; loop < level_size; ++loop) {
 
@@ -180,6 +190,8 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
                 loop_idx = 0;
                 processed_loops = 0;
             }
+            //if(print_out)
+            //  std::cerr << "Begin level " << level << " loop " << loop << " structure_ptr " << loop_structure << " loop_structure " << *loop_structure << std::endl;
             json_t loop_level;
             loop_level["level"] = level;
             json_t params = __dfsw_json_write_single_loop(deps++);
@@ -202,24 +214,20 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
               begin++;
             }
             (*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)] = loop_level;
-            cur_iteration[loop] = &(*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)];
             loop_idx++;
-            //int nested_loop = 0;
-            //for(; nested_loop < *loop_structure; ++nested_loop) {
-
-            //    //json_t params = __dfsw_json_write_single_loop(deps++);
-            //    //if(!params.empty()) {
-            //    //    loop_level["loops"][std::to_string(loop)] = params;
-            //    //}
-            //}
-            //loop += *loop_structure;
-            //fprintf(stderr, "Func: %s Level %d NumberOfLoops %d Loop %d Value %d\n", __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[function_idx], level, level_size, loop, val);
-            //std::cout << level << " " << *loop_structure << std::endl;
-            //next_level_size += *loop_structure++;
-            //(*cur_iteration)
-            //auto & prev_loops = (*prev_iteration)["loops"];
-            //auto it = prev_loops.find( std::to_string(
         }
+        loop_idx = 0; parent_idx = 0;
+        for(int loop = 0; loop < level_size; ++loop) {
+          while(loop_idx >= *original_loop_structure) {
+            parent_idx++;
+            original_loop_structure++;
+            loop_idx = 0;
+          }
+          cur_iteration[loop] = &(*prev_iteration[parent_idx])["loops"][std::to_string(loop_idx)];
+          loop_idx++;
+        }
+        //if(print_out)
+        //  std::cerr << "End level " << level << " loop " << loop << " structure_ptr " << loop_structure << " loop_structure " << *loop_structure << std::endl;
         // Skip loop structure entries corresponding to entry parents that
         // were not updated
         for(int j = parent_idx + 1; j < prev_level_size; ++j)
@@ -228,6 +236,8 @@ json_t __dfsw_json_write_loop(int, int32_t * loop_data,
         loop_structure++;
         for(int i = 0; i < level_size; ++i)
             next_level_size += *(loop_structure + i);
+        //if(print_out)
+        //  std::cerr << "End skip level " << level << " loop " << loop << " structure_ptr " << loop_structure << " loop_structure " << *loop_structure << " next level size " << next_level_size << std::endl;
         prev_level_size = level_size;
         std::swap(level_size, next_level_size);
         std::swap(prev_iteration, cur_iteration);
@@ -295,8 +305,6 @@ void __dfsw_json_loop_committed(uint16_t function_idx, size_t pos)
 
 bool __dfsw_json_write_loop(int function_idx, int calls_count)
 {
-    std::vector<json_t> params;
-
     bool non_empty = false;
     int nested_loop_idx = 0;
 
@@ -313,6 +321,11 @@ bool __dfsw_json_write_loop(int function_idx, int calls_count)
             structure_offset
         ];
     json_t output;
+    ///bool print_out = false;
+    ///if(__EXTRAP_INSTRUMENTATION_MPI_RANK == 0 && function_idx == 36) {
+    ///  if(__EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-2] == 309 && __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len-3] == 58)
+    ///    print_out = true;
+    ///}
 
     // Use the fact that entries should be sorted
     // First, nested loop indices in an increasing order
