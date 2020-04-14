@@ -178,9 +178,9 @@ namespace extrap {
                 //notinstrumented_functions.push_back(t.first);
                 Function & f = t.second.getValue();
                 for(auto t : f.implicit_loops) {
-                    auto it = implicit_functions.find(std::get<1>(t));
+                    auto it = implicit_functions.find(t.called_function);
                     if(it == implicit_functions.end()) {
-                        implicit_functions[std::get<1>(t)] = instrumented_functions_counter++;
+                        implicit_functions[t.called_function] = instrumented_functions_counter++;
                     }
                 }
             }
@@ -657,15 +657,14 @@ namespace extrap {
 
             for(auto implicit_call : func.implicit_loops) {
 
-                // TODO: nested calls as well
-                // TODO: more parameters
-                instr.callImplicitLoop(std::get<0>(implicit_call),
-                        func.function_idx(),
-                        implicit_functions.at(std::get<1>(implicit_call)),
-                        nested_loop_idx,
-                        std::get<2>(implicit_call));
-                loop_idx++;
-                nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
+              instr.callImplicitLoop(
+                implicit_call,
+                func.function_idx(),
+                implicit_functions.at(implicit_call.called_function),
+                nested_loop_idx
+              );
+              loop_idx++;
+              nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             }
 
             // Now find calls outside of the loop
@@ -776,16 +775,35 @@ namespace extrap {
           });
     }
 
-    void Instrumenter::callImplicitLoop(llvm::Instruction * instr, int func_idx,
-            int called_func_idx, int nested_loop_idx, int param_idx)
+
+    void Instrumenter::callImplicitLoop(ImplicitCall & call, int func_idx,
+            int called_func_idx, int nested_loop_idx)
     {
-        builder.SetInsertPoint(instr);
-        builder.CreateCall(mark_implicit_label,
-                {builder.getInt16(func_idx),
-                builder.getInt16(nested_loop_idx),
-                builder.getInt16(param_idx)});
-        builder.CreateCall(call_implicit_function,
-                {builder.getInt16(called_func_idx)});
+      // TODO: nested calls as well
+      builder.SetInsertPoint(call.call);
+      for(int arg : call.args) {
+        if(arg >= 0) {
+          builder.CreateCall(mark_implicit_label,
+            {
+              builder.getInt16(func_idx),
+              builder.getInt16(nested_loop_idx),
+              builder.getInt16(arg)
+            }
+          );
+        } else {
+          int arg_pos = -arg - 1;
+          llvm::Value * label = getLabel(call.call->getArgOperand(arg_pos));
+          builder.CreateCall(label_loop_function,
+            {
+              label,
+              builder.getInt32(nested_loop_idx),
+              builder.getInt32(func_idx)
+            }
+          );
+        }
+      }
+      builder.CreateCall(call_implicit_function,
+              {builder.getInt16(called_func_idx)});
     }
 
     template<typename Vector, typename FuncIter, typename FuncIter2, typename FuncIter3>
@@ -1311,6 +1329,18 @@ namespace extrap {
             );
     }
 
+    llvm::Value * Instrumenter::getLabel(llvm::Value * val)
+    {
+      if(val->getType()->isIntegerTy()) {
+        llvm::Value * input = builder.CreateZExtOrTrunc(
+          val,
+          builder.getInt64Ty()
+        );
+        return builder.CreateCall(dfsan_get_label, {input});
+      } else
+        throw std::runtime_error("unimplemented");
+    }
+
     void Instrumenter::setLabel(Parameters::id_t param, const llvm::Value * val)
     {
         assert(glob_labels);
@@ -1471,6 +1501,10 @@ namespace extrap {
         //m.getOrInsertFunction("__dfsw_EXTRAP_CHECK_LABEL", func_t);
         //label_function = m.getFunction("__dfsw_EXTRAP_CHECK_LABEL");
         //assert(label_function);
+        func_t = llvm::FunctionType::get(i16_t, {builder.getInt64Ty()}, false);
+        m.getOrInsertFunction("dfsan_get_label", func_t);
+        dfsan_get_label = m.getFunction("dfsan_get_label");
+        assert(store_function);
 
         // void store_label(int8_t *, int32_t, int32_t, int8_t*)
         func_t = llvm::FunctionType::get(void_t,

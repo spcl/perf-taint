@@ -105,7 +105,22 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          }
+        ]
+      }
+    },
+    "MPI_Isend" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          {
+            "type" : "arg",
+            "pos" : 1
+          }
         ]
       }
     },
@@ -113,7 +128,22 @@
       "loops" : {
         "level" : 0,
         "params" : [
-          "p"
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          }
+        ]
+      }
+    },
+    "MPI_Irecv" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          {
+            "type" : "arg",
+            "pos" : 1
+          }
         ]
       }
     },

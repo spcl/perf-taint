@@ -8,8 +8,22 @@
 
 #include <string>
 #include <vector>
+#include <variant>
 
 namespace perf_taint {
+
+  struct ImplicitCall
+  {
+    llvm::CallBase * call;  
+    std::string called_function;
+    // value > 0 -> index of implicit parameter
+    // value < 0 -> arg_position + 1
+    llvm::SmallVector<int, 10> args;
+
+    ImplicitCall(llvm::CallBase * _call, const std::string & _func):
+      call(_call), called_function(_func)
+      {}
+  };
 
   struct Function
   {
@@ -21,7 +35,7 @@ namespace perf_taint {
     std::vector<int> loops_structures;
     std::vector<int> loops_sizes;
     // call + index of parameter
-    std::vector<std::tuple<llvm::Instruction*, std::string, int>> implicit_loops;
+    llvm::SmallVector<ImplicitCall, 10> implicit_loops;
     typedef std::vector< std::vector<int> > vec_t;
 
     Function(int _idx, llvm::StringRef _name, bool _overriden = false):

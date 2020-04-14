@@ -120,27 +120,40 @@ namespace perf_taint {
       llvm::CallBase * base = llvm::dyn_cast<llvm::CallBase>(call_i);
       assert(base);
       std::string name = base->getCalledFunction()->getName();
+
+      //TODO: this currently does not support multiple loops
+      ImplicitCall implicit_call{base, name};
       while(cur) {
-          //TODO: multiple params
-          for(auto & v : (*cur)["params"]) {
-              std::string param_name = v.get<std::string>();
-              auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
-                      [&](const auto & v) { return v.name == param_name; });
-              // TODO: here implement non-implicit params
-              if(it != implicit_parameters.end()) {
-                  func.implicit_loops.emplace_back(call_i, name, (*it).param_idx);
-              }
-          }
-          auto subloop = cur->find("loops");
-          if(subloop != cur->end()) {
-              loop_data.emplace_back(1, (*subloop).size());
-              // TODO: multiple loops
-              cur = &(*subloop).front();
+        for(auto & v : (*cur)["params"]) {
+          // a string name of an implicit parameter
+          if(!v.is_object()) {
+            std::string param_name = v.get<std::string>();
+            auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
+                    [&](const auto & v) { return v.name == param_name; });
+            // TODO: remove after removing leftovers of non-implicit params from mpi abilist
+            if(it != implicit_parameters.end())
+              implicit_call.args.push_back((*it).param_idx);
           } else {
-              loop_data.emplace_back(1, 0);
-              cur = nullptr;
+            std::string type = v["type"].get<std::string>();
+            //TODO: retval?
+            if(type == "arg") {
+              int pos = v["pos"].get<int>();
+              implicit_call.args.push_back( -(pos + 1) );
+            } else
+              throw std::runtime_error("Not implemented");
           }
+        }
+        auto subloop = cur->find("loops");
+        if(subloop != cur->end()) {
+          loop_data.emplace_back(1, (*subloop).size());
+          // TODO: multiple loops
+          cur = &(*subloop).front();
+        } else {
+          loop_data.emplace_back(1, 0);
+          cur = nullptr;
+        }
       }
+      func.implicit_loops.push_back(implicit_call);
       //llvm::errs() << "Insert for function " << f->getName() << '\n';
       //llvm::errs() << "Depth " << loop_data.size() << '\n';
       //for(int i = 0; i < loop_data.size(); ++i) {

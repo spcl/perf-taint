@@ -30,11 +30,13 @@ namespace llvm {
 
 namespace perf_taint {
   struct Function;
+  struct ImplicitCall;
 }
 
 //TODO: remove after refactor
 using perf_taint::json_t;
 using perf_taint::Function;
+using perf_taint::ImplicitCall;
 using perf_taint::FunctionDatabase;
 using perf_taint::Statistics;
 
@@ -177,6 +179,9 @@ namespace extrap {
         static constexpr const char * glob_loops_number_name
             = "__EXTRAP_NUMBER_OF_LOOPS";
 
+        // i16 @dfsan_get_label(i64)
+        llvm::Function * dfsan_get_label;
+
         // __EXTRAP_CHECK_LOAD(int * addr, size_t size, function_idx)
         llvm::Function * load_function;
         // __EXTRAP_CHECK_LABEL(uint16_t label, function_idx)
@@ -270,6 +275,7 @@ namespace extrap {
                 size_t size, llvm::Value * load_addr);
         void checkLoopRetval(int loop_idx, int function_idx,
                 llvm::CallBase * cast);
+        llvm::Value* getLabel(llvm::Value*);
 
         void annotateParams(const std::vector< std::tuple<const llvm::Value *, Parameters::id_t> > & params);
         void setLabel(Parameters::id_t param, const llvm::Value * val);
@@ -285,8 +291,8 @@ namespace extrap {
         void removeLoopCalls(llvm::Function & f, size_t size);
         void saveCurrentCall(llvm::Function & f);
 
-        void callImplicitLoop(llvm::Instruction *, int func_idx, int called_func_idx,
-                int nested_loop_idx, int param_idx);
+        void callImplicitLoop(ImplicitCall &, int func_idx, int called_func_idx,
+                int nested_loop_idx);
         void callImplicitFunction(int func_idx);
         void writeParameter(llvm::Instruction * instr, llvm::Value * dest, int parameter_idx);
         void findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns);
