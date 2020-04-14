@@ -1,13 +1,55 @@
 {
   "functions": {
-    "MPI_Wait": {
-      "func_idx": 1,
+    "MPI_Irecv": {
+      "func_idx": 3,
       "loops": [
         {
           "callstacks": [
             [
-              2,
+              5,
               0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                "p"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Isend": {
+      "func_idx": 4,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                "p"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Wait": {
+      "func_idx": 2,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              1
             ]
           ],
           "instance": {
@@ -23,13 +65,13 @@
     },
     "_Z4waitP14ompi_request_tS0_": {
       "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
-      "func_idx": 0,
+      "func_idx": 1,
       "line": 15,
       "loops": [
         {
           "callstacks": [
             [
-              2
+              5
             ]
           ],
           "instance": {
@@ -55,24 +97,37 @@
     }
   },
   "functions_demangled_names": [
+    "prepare(int, int*, int*, ompi_request_t**, ompi_request_t**)",
     "wait(ompi_request_t*, ompi_request_t*)",
     "MPI_Wait",
-    "main",
-    "prepare(int, int*, int*, ompi_request_t**, ompi_request_t**)"
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
   ],
   "functions_mangled_names": [
+    "_Z7prepareiPiS_PP14ompi_request_tS2_",
     "_Z4waitP14ompi_request_tS0_",
     "MPI_Wait",
-    "main",
-    "_Z7prepareiPiS_PP14ompi_request_tS2_"
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
   ],
   "functions_names": [
+    "prepare",
     "wait",
     "MPI_Wait",
-    "main",
-    "prepare"
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
   ],
   "parameters": [
     "p"
-  ]
+  ],
+  "unimportant_functions": {
+    "_Z7prepareiPiS_PP14ompi_request_tS2_": {
+      "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
+      "func_idx": 0,
+      "line": 9
+    }
+  }
 }
