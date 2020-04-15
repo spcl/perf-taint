@@ -1190,12 +1190,6 @@
                 "entry_id": 0,
                 "function_idx": 29
               }
-            ],
-            "7": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
             ]
           }
         },
@@ -1250,12 +1244,6 @@
               {
                 "entry_id": 0,
                 "function_idx": 29
-              }
-            ],
-            "7": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
               }
             ]
           }
@@ -1312,12 +1300,6 @@
               {
                 "entry_id": 0,
                 "function_idx": 29
-              }
-            ],
-            "7": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
               }
             ]
           }
@@ -1595,12 +1577,6 @@
                 "entry_id": 0,
                 "function_idx": 25
               }
-            ],
-            "3": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
             ]
           }
         },
@@ -1631,12 +1607,6 @@
               {
                 "entry_id": 0,
                 "function_idx": 25
-              }
-            ],
-            "3": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
               }
             ]
           }
@@ -2684,331 +2654,6 @@
               "params": [
                 [
                   "regions"
-                ]
-              ]
-            },
-            "47": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "48": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "49": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "50": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "51": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "52": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "53": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "54": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "58": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "59": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "60": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "61": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "62": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "63": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "64": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "65": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "66": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "67": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "68": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "69": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "70": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "71": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "72": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "73": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "74": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "76": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "77": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "78": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "79": [
-              {
-                "entry_id": 0,
-                "function_idx": 45
-              }
-            ],
-            "80": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "81": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "82": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "83": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "84": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "85": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "86": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "87": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "88": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "89": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "90": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "91": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ],
-            "92": [
-              {
-                "entry_id": 0,
-                "function_idx": 24
-              }
-            ]
-          }
-        }
-      ]
-    },
-    "_ZNSt3__113__vector_baseIdNS_9allocatorIdEEE17__destruct_at_endEPd": {
-      "func_idx": 24,
-      "line": 422,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              0,
-              85,
-              131,
-              20,
-              228,
-              229,
-              230
-            ],
-            [
-              0,
-              85,
-              131,
-              26,
-              254,
-              229,
-              230
-            ],
-            [
-              0,
-              51,
-              349,
-              350,
-              230
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "size",
-                  "p"
-                ]
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "_ZNSt3__113__vector_baseIiNS_9allocatorIiEEE17__destruct_at_endEPi": {
-      "func_idx": 45,
-      "line": 422,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              0,
-              51,
-              351,
-              352,
-              353
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
                 ]
               ]
             }
@@ -4387,6 +4032,14 @@
       "file": "lulesh-init.cc",
       "func_idx": 52,
       "line": 272
+    },
+    "_ZNSt3__113__vector_baseIdNS_9allocatorIdEEE17__destruct_at_endEPd": {
+      "func_idx": 24,
+      "line": 422
+    },
+    "_ZNSt3__113__vector_baseIiNS_9allocatorIiEEE17__destruct_at_endEPi": {
+      "func_idx": 45,
+      "line": 422
     },
     "_ZNSt3__114__split_bufferIdRNS_9allocatorIdEEE17__destruct_at_endEPdNS_17integral_constantIbLb0EEE": {
       "func_idx": 23,
