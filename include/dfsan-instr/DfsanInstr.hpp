@@ -270,7 +270,7 @@ namespace extrap {
         void checkCFRetval(int function_idx, llvm::CallBase * cast);
 
         void checkLoop(int loop_idx, int function_idx,
-                const llvm::Instruction * inst);
+                llvm::Instruction * inst);
         void checkLoopLoad(int loop_idx, int function_idx,
                 size_t size, llvm::Value * load_addr);
         void checkLoopRetval(int loop_idx, int function_idx,
