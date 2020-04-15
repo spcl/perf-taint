@@ -1,47 +1,5 @@
 {
   "functions": {
-    "MPI_Irecv": {
-      "func_idx": 3,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              5,
-              0
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                "p"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "MPI_Isend": {
-      "func_idx": 4,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              5,
-              0
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                "p"
-              ]
-            }
-          }
-        }
-      ]
-    },
     "MPI_Wait": {
       "func_idx": 2,
       "loops": [
@@ -56,7 +14,9 @@
             "0": {
               "level": 0,
               "params": [
-                "p"
+                [
+                  "p"
+                ]
               ]
             }
           }
@@ -124,6 +84,12 @@
     "p"
   ],
   "unimportant_functions": {
+    "MPI_Irecv": {
+      "func_idx": 3
+    },
+    "MPI_Isend": {
+      "func_idx": 4
+    },
     "_Z7prepareiPiS_PP14ompi_request_tS2_": {
       "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
       "func_idx": 0,
