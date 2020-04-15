@@ -403,7 +403,6 @@ json_t convert(json_t & input, bool generate_full_data)
           std::string parsed_name = demangled_name.substr(l_pos, pos + name.size());
           bool contains_namespace = parsed_name.find("::") != std::string::npos;
 
-          //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
           of << "INCLUDE *";
           if(!contains_namespace)
             of << "\\ ";
@@ -482,10 +481,8 @@ json_t convert(json_t & input, bool generate_full_data)
                   converted_callstacks.push_back(new_callstack);
             }
             callstack_data = std::move(converted_callstacks);
-            std::cerr << callstack_data << std::endl;
 
             json_t converted = convert_loop_set(callstack["instance"]);
-            std::cerr << converted<< std::endl;
             if(converted.empty())
                 continue;
             std::vector<uint32_t> loop_data = parse(converted, params);
