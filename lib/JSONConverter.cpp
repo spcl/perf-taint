@@ -392,7 +392,6 @@ json_t convert(json_t & input, bool generate_full_data)
           size_t pos = demangled_name.rfind(name);
           assert(pos != std::string::npos);
           size_t l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
-          //std::cerr << name << " " << demangled_name << " " << l_pos << " " << pos << std::endl;
           if(l_pos == std::string::npos)
             l_pos = 0;
           // if the name includes namespace, we don't add a space in front.
@@ -411,8 +410,11 @@ json_t convert(json_t & input, bool generate_full_data)
           of << parsed_name << "(*\n";
         } else
           of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
-      } else
+      } else {
+        // TODO: OLD DATA HACK - ICS 2019
+        important_indices.insert(idx);
         std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
+      }
     }
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
@@ -464,19 +466,26 @@ json_t convert(json_t & input, bool generate_full_data)
                     // push update_u -> update_h :( old hack around ScoreP filtering
                     if(important_indices.count(v.get<int>())
                         //update_h
-                        //|| v.get<int>() == 418
+                        || v.get<int>() == 418
                         //setup_output_gauge_file
-                        //|| v.get<int>() == 352
+                        || v.get<int>() == 352
                         //cleanup_gathers 
-                        //|| v.get<int>() == 345
+                        || v.get<int>() == 345
                         || input["functions_names"][v.get<int>()] == "main")
                       new_callstack.push_back(v);
                 }
-                converted_callstacks.push_back(new_callstack);
+                bool found = false;
+                for(json_t & prev_callstack : converted_callstacks)
+                  if(prev_callstack == new_callstack)
+                    found = true;
+                if(!found)
+                  converted_callstacks.push_back(new_callstack);
             }
             callstack_data = std::move(converted_callstacks);
+            std::cerr << callstack_data << std::endl;
 
             json_t converted = convert_loop_set(callstack["instance"]);
+            std::cerr << converted<< std::endl;
             if(converted.empty())
                 continue;
             std::vector<uint32_t> loop_data = parse(converted, params);
