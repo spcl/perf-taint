@@ -1521,7 +1521,7 @@ namespace extrap {
         func_t = llvm::FunctionType::get(i16_t, {builder.getInt64Ty()}, false);
         m.getOrInsertFunction("dfsan_get_label", func_t);
         dfsan_get_label = m.getFunction("dfsan_get_label");
-        assert(store_function);
+        assert(dfsan_get_label);
 
         // void store_label(int8_t *, int32_t, int32_t, int8_t*)
         func_t = llvm::FunctionType::get(void_t,
