@@ -64,9 +64,10 @@ void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
   __EXTRAP_CALLSTACK.stack[__EXTRAP_CALLSTACK.len++] = idx;
 }
 
-void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t function_idx)
+void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(int function_idx, int calling_function_idx,
+    uint16_t loop_idx, int nested_loop_idx)
 {
-    __dfsw_implicit_call(function_idx);
+  __dfsw_implicit_call(function_idx, calling_function_idx, loop_idx, nested_loop_idx);
 }
 
 void __dfsw_EXTRAP_POP_CALL_FUNCTION(uint16_t idx)

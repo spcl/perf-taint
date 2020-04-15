@@ -142,7 +142,7 @@ extern int16_t __EXTRAP_LOOPS_DEPS_OFFSETS[];
 
 EXTERN void __dfsw_dump_json_output();
 EXTERN void __dfsw_json_initialize();
-EXTERN void __dfsw_implicit_call(int);
+EXTERN void __dfsw_implicit_call(int, int, uint16_t, int);
 EXTERN bool __dfsw_json_write_loop(int function_idx, int calls_count);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,

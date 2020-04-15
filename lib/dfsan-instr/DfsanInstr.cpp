@@ -662,6 +662,7 @@ namespace extrap {
                 implicit_call,
                 func.function_idx(),
                 implicit_functions.at(implicit_call.called_function),
+                loop_idx,
                 nested_loop_idx
               );
               loop_idx++;
@@ -778,7 +779,7 @@ namespace extrap {
 
 
     void Instrumenter::callImplicitLoop(ImplicitCall & call, int func_idx,
-            int called_func_idx, int nested_loop_idx)
+            int called_func_idx, int loop_idx, int nested_loop_idx)
     {
       // TODO: nested calls as well
       builder.SetInsertPoint(call.call);
@@ -804,7 +805,13 @@ namespace extrap {
         }
       }
       builder.CreateCall(call_implicit_function,
-              {builder.getInt16(called_func_idx)});
+        {
+          builder.getInt32(called_func_idx),
+          builder.getInt32(func_idx),
+          builder.getInt16(loop_idx),
+          builder.getInt32(nested_loop_idx)
+        }
+      );
     }
 
     template<typename Vector, typename FuncIter, typename FuncIter2, typename FuncIter3>
@@ -1593,8 +1600,8 @@ namespace extrap {
         mark_implicit_label = m.getFunction("__dfsw_EXTRAP_MARK_IMPLICIT_LABEL");
         assert(mark_implicit_label);
 
-        // void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(uint16_t)
-        func_t = llvm::FunctionType::get(void_t, {i16_t}, false);
+        // void __dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION(int, int, uint16_t, int)
+        func_t = llvm::FunctionType::get(void_t, {idx_t,idx_t, i16_t,idx_t}, false);
         m.getOrInsertFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION", func_t);
         call_implicit_function = m.getFunction("__dfsw_EXTRAP_CALL_IMPLICIT_FUNCTION");
         assert(call_implicit_function);
