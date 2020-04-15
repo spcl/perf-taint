@@ -1739,19 +1739,11 @@ namespace extrap {
                 return;
             processed_loads.insert(&load);
         }
-
-        if(load.getType()->isPointerTy()) {
-            instr.setInsertPoint(*load.getNextNode());
-            uint64_t size = instr.size_of(&load);
-            load_function(size, &load);
-        } else {
-            // we perform verification close to the original load
-            // branches
-            instr.setInsertPoint(load);
-            uint64_t size = instr.size_of(load.getPointerOperand());
-            //instr.callCheckLabel(function_idx, size, load.getPointerOperand());
-            load_function(size, load.getPointerOperand());
-        }
+      // we perform verification close to the original load
+      // branches
+      instr.setInsertPoint(load);
+      uint64_t size = instr.size_of(load.getPointerOperand());
+      load_function(size, load.getPointerOperand());
     }
 
     llvm::Instruction * to_instr(llvm::Value * val)
