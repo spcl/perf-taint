@@ -1283,7 +1283,10 @@ namespace extrap {
         //);
         //// TODO: why instvisit is not for const instruction?
         //vis.visit( const_cast<llvm::Instruction*>(inst) );
-      builder.SetInsertPoint(inst->getNextNode());
+      llvm::Instruction * insert_point = inst->getNextNode();
+      while(llvm::isa<llvm::PHINode>(insert_point))
+        insert_point = insert_point->getNextNode();
+      builder.SetInsertPoint(insert_point);
       llvm::Value * label = getLabel(inst);
       builder.CreateCall(label_loop_function,
         {
