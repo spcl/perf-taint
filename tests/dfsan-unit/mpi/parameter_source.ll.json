@@ -16,10 +16,8 @@
               "level": 0,
               "params": [
                 [
+                  "param",
                   "p"
-                ],
-                [
-                  "param"
                 ]
               ]
             }

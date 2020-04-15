@@ -23,18 +23,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x2",
-                    "x1"
-                  ]
-                }
-              ]
             }
           ],
           "deps": [
