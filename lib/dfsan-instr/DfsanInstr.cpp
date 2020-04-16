@@ -341,6 +341,14 @@ namespace extrap {
           scev_analyzed_constant, has_nonconstant_loop);
     }
 
+    int loop_size(llvm::Loop * l)
+    {
+      int loops = 1;
+      for(llvm::Loop * subloop : l->getSubLoops())
+        loops += loop_size(subloop);
+      return loops;
+    }
+
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
             llvm::CallGraphNode * cg_node, int override_counter)
     {
@@ -395,7 +403,8 @@ namespace extrap {
           stats.function_statistics(function_name, "loops",
               "scev_analyzed_nonconstant", scev_analyzed_nonconstant);
         } else {
-          loop_count = std::distance(linfo->begin(), linfo->end());
+          for(llvm::Loop * l : *linfo)
+            loop_count += loop_size(l);
           has_nonconstant_loop = loop_count;
         }
         stats.function_statistics(function_name, "loops", "count", loop_count);
