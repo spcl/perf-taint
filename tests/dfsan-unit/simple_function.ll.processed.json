@@ -1,0 +1,89 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/dfsan-unit/simple_function.cpp",
+      "func_idx": 0,
+      "line": 8,
+      "loops": [
+        {
+          "callstack": [
+            [
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ],
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
