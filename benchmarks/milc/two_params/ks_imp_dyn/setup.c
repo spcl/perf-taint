@@ -336,7 +336,7 @@ readin(int prompt)
     
     /* maximum no. of conjugate gradient restarts */
     IF_OK status += get_i(stdin, prompt,"max_cg_restarts", &par_buf.nrestart );
-    
+
     /* error per site for conjugate gradient */
     IF_OK status += get_f(stdin, prompt,"error_per_site", &x );
     IF_OK par_buf.rsqmin = x*x;   /* rsqmin is r**2 in conjugate gradient */
