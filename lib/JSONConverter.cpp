@@ -6,6 +6,8 @@
 
 typedef nlohmann::json json_t;
 
+#define ENABLE_FIX_ICS_2019_RESULTS FALSE
+
 // loop_idx -> loop
 typedef std::map<std::string, std::vector<const json_t*>> set_t;
 json_t convert_loop_set(const json_t & loop_set);
@@ -410,8 +412,9 @@ json_t convert(json_t & input, bool generate_full_data)
         } else
           of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
       } else {
-        // TODO: OLD DATA HACK - ICS 2019
-        important_indices.insert(idx);
+        #if ENABLE_FIX_ICS_2019_RESULTS
+          important_indices.insert(idx);
+        #endif
         std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
       }
     }
@@ -464,12 +467,17 @@ json_t convert(json_t & input, bool generate_full_data)
 
                     // push update_u -> update_h :( old hack around ScoreP filtering
                     if(important_indices.count(v.get<int>())
-                        //update_h
-                        || v.get<int>() == 418
-                        //setup_output_gauge_file
-                        || v.get<int>() == 352
-                        //cleanup_gathers 
-                        || v.get<int>() == 345
+                        #if ENABLE_FIX_ICS_2019_RESULTS
+                          //update_h
+                          || v.get<int>() == 418
+                          || v.get<int>() == 420
+                          //setup_output_gauge_file
+                          || v.get<int>() == 352
+                          || v.get<int>() == 354
+                          //cleanup_gathers 
+                          || v.get<int>() == 345
+                          || v.get<int>() == 347
+                        #endif
                         || input["functions_names"][v.get<int>()] == "main")
                       new_callstack.push_back(v);
                 }
