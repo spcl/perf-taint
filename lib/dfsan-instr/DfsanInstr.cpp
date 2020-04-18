@@ -584,7 +584,7 @@ namespace extrap {
                                 if(callsImportantFunction(call)) {
                                         // TODO: optimize by checking if this call could
                                         // produce any loop - in case we know function
-                                        calls.emplace_back(call, internal_nested_index,
+                                        calls.emplace_back(call, nested_loop_idx,
                                                 subloops.size() + calls_count++);
                                 }
                             }
