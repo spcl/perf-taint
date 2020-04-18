@@ -473,15 +473,32 @@ json_t convert(json_t & input, bool generate_full_data)
             for(const std::string & param2 : (*it).second) {
               if(param2 != param) {
                 if(param < param2) {
+                  for(const std::string & param3 : (*it).second)
+                    if(param2 != param3)
+                      if(param2 < param3)
+                        loops_params[param + "_" + param2 + "_" + param3]++;
                   loops_params[param + "_" + param2]++;
-                  params.insert(param);
+                  //params.insert(param);
                 }
               }
             }
           }
         }
-        for(const std::string & name : params)
-          functions_params[name]++;
+        for(const std::string & param : params) {
+          functions_params[param]++;
+          for(const std::string & param2 : params) {
+            if(param2 != param) {
+              if(param < param2) {
+                for(const std::string & param3 : params)
+                  if(param2 != param3)
+                    if(param2 < param3)
+                      functions_params[param + "_" + param2 + "_" + param3]++;
+                functions_params[param + "_" + param2]++;
+                //params.insert(param);
+              }
+            }
+          }
+        }
         dynamic_loops += loops.size();
         //std::cerr << "FUNC: " << name << " " << loops.size() << std::endl;
         //for(auto it = loops_params.begin(); it != loops_params.end(); ++it)
