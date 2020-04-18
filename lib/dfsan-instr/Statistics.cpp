@@ -49,7 +49,7 @@ namespace perf_taint {
     stats["statistics"]["functions"]["pruned"] = pruned_functions;
     stats["statistics"]["functions"]["instrumented"] = instrumented_functions;
 
-    int loop_count = 0, static_analyzed = 0, static_instrumented = 0;
+    int loop_count = 0, static_analyzed = 0, static_instrumented = 0, implicit = 0;
     bool with_scev_stats = false;
     if(stats["functions"].begin().value()["loops"].count("scev_analyzed_constant"))
       with_scev_stats = true;
@@ -59,8 +59,12 @@ namespace perf_taint {
         static_analyzed += func["loops"]["scev_analyzed_constant"].get<int>();
         static_instrumented += func["loops"]["scev_analyzed_nonconstant"].get<int>();
       }
+      auto it = func["loops"].find("implicit");
+      if(it != func["loops"].end())
+        implicit += (*it).get<int>();
     }
     stats["statistics"]["loops"]["total"] = loop_count;
+    stats["statistics"]["loops"]["implicit"] = implicit;
     stats["statistics"]["loops"]["static_analyzed"] = static_analyzed;
     stats["statistics"]["loops"]["static_instrumented"] = static_instrumented;
 

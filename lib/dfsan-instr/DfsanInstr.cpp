@@ -431,11 +431,14 @@ namespace extrap {
                 func.loops_sizes.push_back(loop_count);
             }
 
+            int implicit_loops = 0;
             for(auto t : library_calls) {
-                std::vector< std::vector<int> > data;
-                database.processLoop(std::get<0>(t), std::get<1>(t), func, data);
-                //func.addImplicitLoop(std::get<1>(t), data);
+              std::vector< std::vector<int> > data;
+              implicit_loops += database.processLoop(
+                std::get<0>(t), std::get<1>(t), func, data
+              );
             }
+            stats.function_statistics(function_name, "loops", "implicit", implicit_loops);
 
             if(has_nonconstant_loop)
               stats.instrumented_function(f.getName(), "loops");
