@@ -181,6 +181,7 @@ namespace perf_taint {
           std::copy(vec.begin(), vec.end(),
                   std::back_inserter(func.loops_structures));
       }
+      implicit_loops += loop_count;
       structure_size = func.loops_structures.size() - structure_size;
       func.loops_sizes.push_back(depth);
       func.loops_sizes.push_back(structure_size);

@@ -665,15 +665,9 @@ namespace extrap {
                 loop_idx++;
             }
 
+            int loop_idx_implicit = loop_idx, nested_loop_idx_implicit = nested_loop_idx;
             for(auto implicit_call : func.implicit_loops) {
-
-              instr.callImplicitLoop(
-                implicit_call,
-                func.function_idx(),
-                implicit_functions.at(implicit_call.called_function),
-                loop_idx,
-                nested_loop_idx
-              );
+              calls.emplace_back(implicit_call.call, -1, loop_idx);
               loop_idx++;
               nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             }
@@ -702,6 +696,18 @@ namespace extrap {
             }
 
             // Handle implicit calls
+            for(auto implicit_call : func.implicit_loops) {
+
+              instr.callImplicitLoop(
+                implicit_call,
+                func.function_idx(),
+                implicit_functions.at(implicit_call.called_function),
+                loop_idx_implicit,
+                nested_loop_idx_implicit
+              );
+              loop_idx_implicit++;
+              nested_loop_idx_implicit += func.loops_sizes[3*loop_idx_implicit + 2];
+            }
 
             // Leaving order:
             // 1) revert previous registered call
