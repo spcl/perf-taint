@@ -666,6 +666,7 @@ namespace extrap {
             }
 
             int loop_idx_implicit = loop_idx, nested_loop_idx_implicit = nested_loop_idx;
+            // FIXME: register calls to catch implicit functions.
             for(auto implicit_call : func.implicit_loops) {
               calls.emplace_back(implicit_call.call, -1, loop_idx);
               loop_idx++;
