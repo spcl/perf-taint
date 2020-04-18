@@ -115,6 +115,7 @@ add_dependencies(ScorePGenerator nlohmann_json)
 
 add_executable(JSONConverter lib/JSONConverter.cpp)
 set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
+set_target_properties(JSONConverter PROPERTIES COMPILE_FLAGS "-g")
 add_dependencies(JSONConverter nlohmann_json)
 #target_link_libraries(JSONConverter PRIVATE nlohmann_json::nlohmann_json)
 
