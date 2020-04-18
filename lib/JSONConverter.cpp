@@ -316,7 +316,7 @@ bool replace(const json_t & input, json_t & instance)
   return replaced;
 }
 
-bool is_important_instance(const json_t & instance)
+bool is_important_instance(const json_t & instance, const json_t & names)
 {
   bool is_important = false;
   for(auto loop_it  = instance.begin(); loop_it != instance.end(); ++loop_it) {
@@ -328,7 +328,15 @@ bool is_important_instance(const json_t & instance)
       }
       auto subloops = loop.find("loops");
       if(subloops != loop.end())
-        is_important |= is_important_instance(subloops.value());
+        is_important |= is_important_instance(subloops.value(), names);
+    }
+    //FIXME: temporary fix to handle implicit calls to MPI functions
+    else {
+      for(const json_t & entry : loop) {
+        std::string name = names[entry["function_idx"].get<int>()];
+        if(name.find("MPI_") == 0)
+          is_important = true;
+      }
     }
     // as soon as we find an important subloop then we're done
     if(is_important)
@@ -337,14 +345,37 @@ bool is_important_instance(const json_t & instance)
   return false;
 }
 
-bool is_important(const json_t & func)
+bool is_important(const json_t & func, const json_t & names)
 {
   for(auto it = func.begin(); it != func.end(); ++it) {
     const json_t & instance = it.value()["instance"];
-    if(is_important_instance(instance))
+    if(is_important_instance(instance, names))
       return true;
   }
   return false;
+}
+
+int count_loops(json_t & loop, std::map<int, std::set<std::string>> & loops)
+{
+  for(auto it = loop.begin(); it != loop.end(); ++it) {
+    //std::cerr << it.key() << " " << *it << std::endl;
+    auto it_params = (*it).find("params");
+    if(it_params != (*it).end()) {
+      for(json_t & params: (*it_params)) {
+        int loop_idx = (*it)["level"].get<int>()*100 + std::stoi(it.key());
+        //std::cerr << params << loop_idx << std::endl;
+        for(const std::string & name : params) {
+          std::set<std::string> & loops_deps = loops[loop_idx];
+          loops_deps.insert(name);
+        }
+      }
+    }
+    auto it_loop = (*it).find("loops");
+    if(it_loop != (*it).end()) {
+      count_loops(*it_loop, loops);
+    }
+  }
+  return 0;
 }
 
 json_t convert(json_t & input, bool generate_full_data)
@@ -380,10 +411,10 @@ json_t convert(json_t & input, bool generate_full_data)
     of << "SCOREP_REGION_NAMES_BEGIN\n";
     of << "EXCLUDE *\n";
     std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
-    std::set<int> important_indices{1, 0};
+    std::set<int> important_indices;//{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
       int idx = it.value()["func_idx"].get<int>();
-      if(is_important(it.value()["loops"])) {
+      if(is_important(it.value()["loops"], input["functions_names"])) {
         important_indices.insert(idx);
         bool is_mangled =
           input["functions_demangled_names"][idx].get<std::string>() !=
@@ -418,8 +449,55 @@ json_t convert(json_t & input, bool generate_full_data)
         std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
       }
     }
-    for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
 
+    // before replacing and after finding out what's important
+    std::map<std::string, int> loops_params;
+    std::map<std::string, int> functions_params;
+    int dynamic_loops = 0;
+    for(int func_idx : important_indices)
+    {
+      std::string name = input["functions_mangled_names"][func_idx].get<std::string>();
+      if(name.find("MPI_") == 0) {
+      } else {
+        json_t & entry = functions[name];
+        //std::cerr << name << " " << entry << std::endl;
+        std::map<int, std::set<std::string>> loops;
+        for(json_t & instance : entry["loops"]) {
+          count_loops(instance["instance"], loops);
+        }
+        std::set<std::string> params;
+        for(auto it = loops.begin(); it != loops.end(); ++it) {
+          for(const std::string & param : (*it).second) {
+            loops_params[param]++;
+            params.insert(param);
+            for(const std::string & param2 : (*it).second) {
+              if(param2 != param) {
+                if(param < param2) {
+                  loops_params[param + "_" + param2]++;
+                  params.insert(param);
+                }
+              }
+            }
+          }
+        }
+        for(const std::string & name : params)
+          functions_params[name]++;
+        dynamic_loops += loops.size();
+        //std::cerr << "FUNC: " << name << " " << loops.size() << std::endl;
+        //for(auto it = loops_params.begin(); it != loops_params.end(); ++it)
+        //  std::cerr << it->first << " " << it->second << " ";
+        //std::cerr << std::endl;
+      }
+    }
+    json_t loops_out;
+    loops_out["functions"] = functions_params;
+    loops_out["loops"] = dynamic_loops;
+    for(auto it = loops_params.begin(); it != loops_params.end(); ++it)
+      loops_out["param"][it->first] = it->second;
+    std::cerr << loops_out.dump(2) << std::endl;
+
+
+    for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
         int idx = it.value()["func_idx"].get<int>();
         std::string name = input["functions_names"][idx].get<std::string>();
         //std::cout << "Name: " << it.key() << '\n';
@@ -587,10 +665,14 @@ int main(int argc, char ** argv)
     in >> input;
     in.close();
     bool generate_full_data = false;
-    if(argc > 2)
-      generate_full_data = atoi(argv[2]);
+    if(argc > 3)
+      generate_full_data = atoi(argv[3]);
 
     json_t converted = convert(input, generate_full_data);
-    std::cout << converted.dump(2);
+    if(argc > 2) {
+      std::ofstream out(argv[2]);
+      out << converted.dump(2);
+    } else
+      std::cout << converted.dump(2);
     return 0;
 }
