@@ -54,9 +54,12 @@ namespace perf_taint {
         return_value(nullptr) {}
     };
 
+    FunctionDatabase(): implicit_loops(0) {}
+
     std::unordered_map<std::string, DataBaseEntry> functions;
     std::unordered_map<std::string, ParameterSource> parameter_sources;
     llvm::SmallVector<ImplicitParameter, 5> implicit_parameters;
+    int implicit_loops;
 
     void read(std::ifstream &);
     bool contains(llvm::Function * f);
