@@ -87,7 +87,6 @@ struct AnnotationAnalyzer
                     // stripPointerCasts() since it also removes zero GEPs
                     // Such appear when accessing the first field of structure
                     // Thus, we get a value referencing the structure, not the GEP to first field
-                    llvm::errs() << llvm::isa<llvm::ConstantExpr>(call->getOperand(0)) << ' ' << *call->getOperand(0) << '\n';
                     const llvm::Value * value = nullptr;
                     if(const llvm::BitCastInst * cast =
                         llvm::dyn_cast<llvm::BitCastInst>( call->getOperand(0) )){
