@@ -295,7 +295,10 @@ namespace extrap {
                 int loop_idx, int nested_loop_idx);
         void callImplicitFunction(int func_idx);
         void writeParameter(llvm::Instruction * instr, llvm::Value * dest, int parameter_idx);
-        void findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns);
+        void findTerminator(llvm::Function & f,
+            llvm::SmallVector<llvm::ReturnInst*, 5> &,
+            llvm::SmallVector<llvm::UnreachableInst*, 5> &
+        );
         llvm::Function * getAtExit();
         uint64_t size_of(llvm::Value * val);
     };

@@ -113,6 +113,8 @@ namespace extrap {
         //PM.add(llvm::createDemoteRegisterToMemoryPass());
         // loop-simplify
         PM.add(llvm::createLoopSimplifyPass());
+        // cfg-simplify
+        PM.add(llvm::createCFGSimplificationPass());
         PM.run(m);
       }
 
@@ -354,7 +356,6 @@ namespace extrap {
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end()) << '\n';
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
@@ -387,9 +388,6 @@ namespace extrap {
 
           llvm::ScalarEvolution & scev = getAnalysis<llvm::ScalarEvolutionWrapperPass>(*analyzed_f).getSE();
           llvm::LoopInfo * analyzed_linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(*analyzed_f).getLoopInfo();
-          //llvm::errs() << "SCEV: " << function_name << " " << std::distance(analyzed_linfo->begin(), analyzed_linfo->end()) << '\n';
-          //if(function_name == "load_fatlinks_cpu")
-            //llvm::errs() << *analyzed_f << '\n';
           // Process loops
           for(llvm::Loop * l : *analyzed_linfo) {
             auto ret = analyzeLoopSCEV(l, scev);
@@ -471,7 +469,6 @@ namespace extrap {
         if(it != instrumented_functions.end())
             return (*it).second.hasValue();
         //TODO: debug
-        llvm::errs() << "Analyzing function: " << f.getName() << '\n';
         stats.found_function(f.getName());
         llvm::CallGraphNode * f_node = (*cgraph)[&f];
         ParameterFinder finder(f);
@@ -608,7 +605,6 @@ namespace extrap {
                 l->getExitingBlocks(exit_blocks);
                 for(llvm::BasicBlock * bb : exit_blocks) {
                     llvm::Instruction * inst = bb->getTerminator();
-                    //llvm::errs() << *inst << '\n';
                     const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
                     if(br && br->isConditional()) {
                         llvm::Instruction * inst =
@@ -640,21 +636,15 @@ namespace extrap {
             Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
-        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end())<< '\n';
         assert(linfo);
 
-        //TODO: debug
         llvm::errs() << "Instrumenting function: " << f.getName()
           << " is_overriden: " << func.is_overriden() << '\n';
         if(!func.is_overriden()){
             std::set<llvm::BasicBlock*> loop_blocks;
             int loop_idx = 0, nested_loop_idx = 0;
             call_vec_t calls;
-            llvm::errs() << "Instrumenting function: " << f.getName()
-              << " loop: " << linfo->empty() << '\n';
             for(llvm::Loop * l : *linfo) {
-                llvm::errs() << "Instrumenting function: " << f.getName()
-                  << " loop: " << *l << '\n';
                 instrumentLoop(func, *l, nested_loop_idx, calls, instr);
 
                 for(auto & call: calls) {
@@ -743,13 +733,14 @@ namespace extrap {
         //    }
         //}
 
-        int idx = 0;
-        for(llvm::Value * callsite : func.callsites) {
-            llvm::Instruction * s = llvm::dyn_cast<llvm::Instruction>(callsite);
-            llvm::CallBase * call = llvm::dyn_cast<llvm::CallBase>(s);
-            assert(call);
-            //instr.checkCall(func.function_idx(), idx++, call);
-        }
+        //int idx = 0;
+        //for(llvm::Value * callsite : func.callsites) {
+        //  llvm::errs() << callsite << '\n';
+        //  llvm::Instruction * s = llvm::dyn_cast<llvm::Instruction>(callsite);
+        //  llvm::CallBase * call = llvm::dyn_cast<llvm::CallBase>(s);
+        //  assert(call);
+        //  //instr.checkCall(func.function_idx(), idx++, call);
+        //}
 
         //stats.label_function(labels);
     }
@@ -1422,14 +1413,24 @@ namespace extrap {
 
     void Instrumenter::commitLoops(llvm::Function & f, int func_idx, int calls_count)
     {
-        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
-        findTerminator(f, returns);
-        for(llvm::ReturnInst * ret : returns) {
-            builder.SetInsertPoint(ret);
-            builder.CreateCall(commit_loop_function,
-                {builder.getInt32(func_idx), builder.getInt32(calls_count)}
-            );
-        }
+      llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+      llvm::SmallVector<llvm::UnreachableInst*, 5> unreachable;
+      findTerminator(f, returns, unreachable);
+      for(llvm::ReturnInst * ret : returns) {
+        builder.SetInsertPoint(ret);
+        builder.CreateCall(commit_loop_function,
+          {builder.getInt32(func_idx), builder.getInt32(calls_count)}
+        );
+      }
+      for(llvm::UnreachableInst * ret : unreachable) {
+        if(ret->getPrevNode())
+          builder.SetInsertPoint(ret->getPrevNode());
+        else
+          builder.SetInsertPoint(ret);
+        builder.CreateCall(commit_loop_function,
+          {builder.getInt32(func_idx), builder.getInt32(calls_count)}
+        );
+      }
     }
 
     llvm::Instruction * Instrumenter::instrumentLoopCall(llvm::Function & f, llvm::CallBase * call,
@@ -1474,49 +1475,57 @@ namespace extrap {
 
     void Instrumenter::removeLoopCalls(llvm::Function & f, size_t size)
     {
-        //llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
-        //l.getExitBlocks(exit_blocks);
-        //for(llvm::BasicBlock * bb : exit_blocks) {
-        //    // after loop commit
-        //    builder.SetInsertPoint(&bb->back());
-        //    builder.CreateCall(remove_calls_function,
-        //        { builder.getInt16(size)}
-        //        );
-        //}
-        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
-        findTerminator(f, returns);
-        for(llvm::ReturnInst * ret : returns) {
-            builder.SetInsertPoint(ret);
-            builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
-        }
+      llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+      llvm::SmallVector<llvm::UnreachableInst*, 5> unreachable;
+      findTerminator(f, returns, unreachable);
+      for(llvm::ReturnInst * ret : returns) {
+        builder.SetInsertPoint(ret);
+        builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
+      }
+      for(llvm::UnreachableInst* ret : unreachable) {
+        if(ret->getPrevNode())
+          builder.SetInsertPoint(ret->getPrevNode());
+        else
+          builder.SetInsertPoint(ret);
+        builder.CreateCall(remove_calls_function, {builder.getInt16(size)});
+      }
     }
 
-    void Instrumenter::findTerminator(llvm::Function & f, llvm::SmallVector<llvm::ReturnInst*, 5> & returns)
+    void Instrumenter::findTerminator(llvm::Function & f,
+      llvm::SmallVector<llvm::ReturnInst*, 5> & returns,
+      llvm::SmallVector<llvm::UnreachableInst*, 5> & unreachables)
     {
-        bool found_unreachable = false;
-        for(llvm::BasicBlock & bb : f) {
-            llvm::Instruction * instr = bb.getTerminator();
-            if(llvm::ReturnInst * ret = llvm::dyn_cast<llvm::ReturnInst>(instr)) {
-                returns.push_back(ret);
-            } else if(llvm::UnreachableInst * unreachable = llvm::dyn_cast<llvm::UnreachableInst>(instr))
-                found_unreachable = true;
+      for(llvm::BasicBlock & bb : f) {
+        llvm::Instruction * instr = bb.getTerminator();
+        if(llvm::ReturnInst * ret = llvm::dyn_cast<llvm::ReturnInst>(instr)) {
+          returns.push_back(ret);
+        } else if(llvm::UnreachableInst * unreachable = llvm::dyn_cast<llvm::UnreachableInst>(instr)) {
+          unreachables.push_back(unreachable);
         }
-        // TODO: more generic solution where there are unreachable blocks
-        assert(found_unreachable || returns.size());
+      }
+      assert(unreachables.size() > 0 || returns.size() > 0);
     }
 
     void Instrumenter::saveCurrentCall(llvm::Function & f)
     {
-        builder.SetInsertPoint(&f.front().front());
-        llvm::Value * last_val = builder.CreateCall(
-                get_current_call_function,
-                {});
-        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
-        findTerminator(f, returns);
-        for(llvm::ReturnInst * ret : returns) {
-            builder.SetInsertPoint(ret);
-            builder.CreateCall(set_current_call_function, {last_val});
-        }
+      builder.SetInsertPoint(&f.front().front());
+      llvm::Value * last_val = builder.CreateCall(
+              get_current_call_function,
+              {});
+      llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+      llvm::SmallVector<llvm::UnreachableInst*, 5> unreachable;
+      findTerminator(f, returns, unreachable);
+      for(llvm::ReturnInst * ret : returns) {
+        builder.SetInsertPoint(ret);
+        builder.CreateCall(set_current_call_function, {last_val});
+      }
+      for(llvm::UnreachableInst* ret : unreachable) {
+        if(ret->getPrevNode())
+          builder.SetInsertPoint(ret->getPrevNode());
+        else
+          builder.SetInsertPoint(ret);
+        builder.CreateCall(set_current_call_function, {last_val});
+      }
     }
 
     void Instrumenter::declareFunctions()
@@ -1668,15 +1677,23 @@ namespace extrap {
 
     void Instrumenter::enterFunction(llvm::Function & f, size_t idx)
     {
-        builder.SetInsertPoint(&f.front().front());
-        builder.CreateCall(push_function,
-                { builder.getInt16(idx) });
-        llvm::SmallVector<llvm::ReturnInst*, 5> returns;
-        findTerminator(f, returns);
-        for(llvm::ReturnInst * ret : returns) {
-            builder.SetInsertPoint(ret);
-            builder.CreateCall(pop_function, {builder.getInt16(idx)});
-        }
+      builder.SetInsertPoint(&f.front().front());
+      builder.CreateCall(push_function,
+              { builder.getInt16(idx) });
+      llvm::SmallVector<llvm::ReturnInst*, 5> returns;
+      llvm::SmallVector<llvm::UnreachableInst*, 5> unreachable;
+      findTerminator(f, returns, unreachable);
+      for(llvm::ReturnInst * ret : returns) {
+        builder.SetInsertPoint(ret);
+        builder.CreateCall(pop_function, {builder.getInt16(idx)});
+      }
+      for(llvm::UnreachableInst * ret : unreachable) {
+        if(ret->getPrevNode())
+          builder.SetInsertPoint(ret->getPrevNode());
+        else
+          builder.SetInsertPoint(ret);
+        builder.CreateCall(pop_function, {builder.getInt16(idx)});
+      }
     }
 
     void Instrumenter::setInsertPoint(llvm::Instruction & instr)
