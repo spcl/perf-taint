@@ -352,16 +352,20 @@ readin(int prompt)
     
     /* error per site for conjugate gradient */
     IF_OK status += get_f(stdin, prompt,"error_per_site", &x );
+    register_variable(&x, sizeof(x), "error_per_site");
     IF_OK par_buf.rsqmin = x*x;   /* rsqmin is r**2 in conjugate gradient */
     /* New conjugate gradient normalizes rsqmin by norm of source */
     
     /* error for propagator conjugate gradient */
     IF_OK status += get_f(stdin, prompt,"error_for_propagator", &x );
+    register_variable(&x, sizeof(x), "error_for_propagator");
     IF_OK par_buf.rsqprop = x*x;
     
     /* number of random sources npbp_reps */
     IF_OK status += get_i(stdin, prompt,"npbp_reps", &par_buf.npbp_reps_in );
     IF_OK status += get_i(stdin, prompt,"prec_pbp", &par_buf.prec_pbp );
+    register_variable(&par_buf.npbp_reps_in, sizeof(par_buf.npbp_reps_in), "npbp_reps_in");
+    register_variable(&par_buf.prec_pbp, sizeof(par_buf.prec_pbp), "prec_pbp");
     
 #ifdef SPECTRUM
     /* request list for spectral measurments */
