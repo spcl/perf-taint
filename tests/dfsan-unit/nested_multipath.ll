@@ -1,4 +1,4 @@
-; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 | diff -w %s.json -
+; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 10 > %t2.json && diff -w %s.json %t2.json
 ; RUN: %jsonconvert %s.json 2> /dev/null | diff -w %s.processed.json -
 ; ModuleID = 'tests/dfsan-unit/nested_multipath.cpp'
 source_filename = "tests/dfsan-unit/nested_multipath.cpp"

@@ -1,4 +1,4 @@
-; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 | diff -w %s.json -
+; RUN: opt %dfsan -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams %t2 10 10 > %t2.json && diff -w %s.json %t2.json
 ; RUN: %jsonconvert %s.json 2> /dev/null | diff -w %s.processed.json -
 ; ModuleID = 'tests/dfsan-unit/function_call_nested.cpp'
 source_filename = "tests/dfsan-unit/function_call_nested.cpp"
@@ -1164,8 +1164,8 @@ attributes #9 = { nounwind readonly }
 !769 = !DILocation(line: 46, column: 21, scope: !753)
 !770 = !DILocation(line: 47, column: 5, scope: !753)
 !771 = !DILocation(line: 47, column: 9, scope: !753)
-!772 = !DILocation(line: 47, column: 25, scope: !753)
-!773 = !DILocation(line: 47, column: 20, scope: !753)
+!772 = !DILocation(line: 47, column: 26, scope: !753)
+!773 = !DILocation(line: 47, column: 21, scope: !753)
 !774 = !DILocation(line: 48, column: 5, scope: !753)
 !775 = !DILocation(line: 49, column: 5, scope: !753)
 !776 = !DILocation(line: 50, column: 5, scope: !753)
