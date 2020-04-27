@@ -1,0 +1,1 @@
+; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 8 %t2 -s 5 && diff -w %s.json %t4_0.json
