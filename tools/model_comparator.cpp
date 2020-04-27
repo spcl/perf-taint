@@ -91,6 +91,7 @@ struct model
   std::vector<std::string> names;
   std::vector<std::string> model;
   std::vector<double> average_quality;
+  std::vector<double> max_quality;
 
   static struct model read(const std::string & file_name)
   {
@@ -125,7 +126,9 @@ struct model
         m.model.push_back(lineString);	
         // compute quality
         double sum = std::accumulate(quality.begin(), quality.end(), 0.0);
+        auto it = std::max_element(quality.begin(), quality.end());
         m.average_quality.push_back(sum / quality.size());
+        m.max_quality.push_back(*it);
         quality.clear();
       }
 
@@ -159,7 +162,7 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
   // implemented for 2 evaluation points
   std::vector<std::string> win_lose, lose_win;
   std::ofstream csv_file("evaluation_data.csv", std::ios::out);
-  csv_file << "name,idx,sample_id,result,old_cv,old_absolute,old_relative,new_cv,new_absolute,new_relative" << std::endl;
+  csv_file << "name,idx,sample_id,result,old_cv,old_cv_max,old_absolute,old_relative,new_cv,new_cv_max,new_absolute,new_relative" << std::endl;
 
   for(int i=0;i<old_model.names.size();i++)
   {
@@ -231,8 +234,8 @@ json_t evaluate(model & old_model, model & new_model, bool with_evaluation,
               worse[idx].push_back(std::move(res));
             }
           }
-          csv_file << old_model.average_quality[i] << "," << absolute_error_old << "," << relative_error_old << ",";
-          csv_file << new_model.average_quality[i] << "," << absolute_error_new << "," << relative_error_new << std::endl;
+          csv_file << old_model.average_quality[i] << "," << old_model.max_quality[i] << "," << absolute_error_old << "," << relative_error_old << ",";
+          csv_file << new_model.average_quality[i] << "," << new_model.max_quality[i] << "," << absolute_error_new << "," << relative_error_new << std::endl;
           m["eval"].push_back(eval_res);
           ++idx;
         }
