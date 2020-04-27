@@ -1,0 +1,87 @@
+diff --git a/lulesh.cc b/lulesh.cc
+index 3e881c5..2773d68 100644
+--- a/lulesh.cc
++++ b/lulesh.cc
+@@ -2672,15 +2672,13 @@ void LagrangeLeapFrog(Domain& domain)
+ #endif   
+ }
+ 
+-
+ /******************************************/
+-
+ int main(int argc, char *argv[])
+ {
+   Domain *locDom ;
+-   Int_t numRanks ;
++   Int_t numRanks EXTRAP;
+    Int_t myRank ;
+-   struct cmdLineOpts opts;
++   struct cmdLineOpts opts EXTRAP;
+ 
+ #if USE_MPI   
+    Domain_member fieldData ;
+@@ -2708,7 +2706,7 @@ int main(int argc, char *argv[])
+ 
+    /* Set defaults that can be overridden by command line opts */
+    opts.its = 9999999;
+-   opts.nx  = 30;
++   opts.nx = 30;
+    opts.numReg = 11;
+    opts.numFiles = (int)(numRanks+10)/9;
+    opts.showProg = 0;
+@@ -2718,6 +2716,20 @@ int main(int argc, char *argv[])
+    opts.cost = 1;
+ 
+    ParseCommandLineOptions(argc, argv, myRank, &opts);
++#if defined(WITH_EXTRAP)
++   register_variable(&opts.its, "iters");
++   register_variable(&opts.cost, "cost");
++   register_variable(&opts.balance, "balance");
++   register_variable(&opts.nx, "size");
++   register_variable(&opts.numReg, "regions");
++   register_variable(&numRanks, "p");
++#endif
++
++
++
++
++
++
+ 
+    if ((myRank == 0) && (opts.quiet == 0)) {
+       printf("Running problem size %d^3 per domain until completion\n", opts.nx);
+diff --git a/lulesh.h b/lulesh.h
+index 9058a70..fbbfc2e 100644
+--- a/lulesh.h
++++ b/lulesh.h
+@@ -18,6 +18,9 @@
+ 
+ #include <math.h>
+ #include <vector>
++#if defined(WITH_EXTRAP)
++#include "ExtraPInstrumenter.hpp"
++#endif
+ 
+ //**************************************************
+ // Allow flexibility for arithmetic representations 
+@@ -571,15 +574,15 @@ class Domain {
+ typedef Real_t &(Domain::* Domain_member )(Index_t) ;
+ 
+ struct cmdLineOpts {
+-   Int_t its; // -i 
+-   Int_t nx;  // -s 
+-   Int_t numReg; // -r 
++   Int_t its EXTRAP; // -i
++   Int_t nx EXTRAP;  // -s
++   Int_t numReg EXTRAP; // -r
+    Int_t numFiles; // -f
+    Int_t showProg; // -p
+    Int_t quiet; // -q
+    Int_t viz; // -v 
+-   Int_t cost; // -c
+-   Int_t balance; // -b
++   Int_t cost EXTRAP; // -c
++   Int_t balance EXTRAP; // -b
+ };
+ 
+ 

@@ -1,14 +1,14 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/function_call.cpp",
+      "file": "tests/dfsan-unit/simple_function.cpp",
       "func_idx": 0,
-      "line": 11,
+      "line": 8,
       "loops": [
         {
           "callstacks": [
             [
-              3
+              1
             ]
           ],
           "instance": {
@@ -17,32 +17,7 @@
               "params": [
                 [
                   "x1",
-                  "global"
-                ]
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "_Z1hi": {
-      "file": "tests/dfsan-unit/function_call.cpp",
-      "func_idx": 1,
-      "line": 19,
-      "loops": [
-        {
-          "callstacks": [
-            [
-              3,
-              6
-            ]
-          ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "global"
+                  "x2"
                 ]
               ]
             }
@@ -51,7 +26,7 @@
         {
           "callstacks": [
             [
-              3
+              1
             ]
           ],
           "instance": {
@@ -59,23 +34,16 @@
               "level": 0,
               "params": [
                 [
-                  "x2"
+                  "x1"
                 ]
               ]
             }
           }
-        }
-      ]
-    },
-    "_Z1iiii": {
-      "file": "tests/dfsan-unit/function_call.cpp",
-      "func_idx": 2,
-      "line": 32,
-      "loops": [
+        },
         {
           "callstacks": [
             [
-              3
+              1
             ]
           ],
           "instance": {
@@ -83,7 +51,6 @@
               "level": 0,
               "params": [
                 [
-                  "x1",
                   "x2"
                 ]
               ]
@@ -95,34 +62,24 @@
   },
   "functions_demangled_names": [
     "f(int, int)",
-    "h(int)",
-    "i(int, int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
-    "g(int)"
+    "void register_variable<int>(int*, char const*)"
   ],
   "functions_mangled_names": [
     "_Z1fii",
-    "_Z1hi",
-    "_Z1iiii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
-    "_Z1gi"
+    "_Z17register_variableIiEvPT_PKc"
   ],
   "functions_names": [
     "f",
-    "h",
-    "i",
     "main",
     "atoi",
-    "register_variable<int>",
-    "g"
+    "register_variable<int>"
   ],
   "parameters": [
     "x1",
-    "x2",
-    "global"
+    "x2"
   ]
 }

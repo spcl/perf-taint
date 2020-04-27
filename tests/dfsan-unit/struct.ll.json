@@ -16,9 +16,7 @@
               "level": 0,
               "params": [
                 [
-                  "params.ranks"
-                ],
-                [
+                  "params.ranks",
                   "params.problem_size"
                 ]
               ]
@@ -43,9 +41,7 @@
               "level": 0,
               "params": [
                 [
-                  "params.problem_size"
-                ],
-                [
+                  "params.problem_size",
                   "global_params.ranks"
                 ]
               ]

@@ -18,8 +18,8 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "global",
-                    "x1"
+                    "x1",
+                    "global"
                   ]
                 },
                 {
@@ -80,8 +80,8 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "global",
-                    "x2"
+                    "x2",
+                    "global"
                   ]
                 },
                 {
@@ -293,9 +293,9 @@
                 {
                   "dependency": "unknown",
                   "operands": [
+                    "x1",
                     "x2",
-                    "global",
-                    "x1"
+                    "global"
                   ]
                 },
                 {
@@ -307,8 +307,8 @@
                         {
                           "dependency": "unknown",
                           "operands": [
-                            "global",
-                            "x2"
+                            "x2",
+                            "global"
                           ]
                         },
                         {

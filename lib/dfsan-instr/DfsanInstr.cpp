@@ -109,8 +109,8 @@ namespace extrap {
         //PM.add(llvm::createMetaRenamerPass());
         PM.add(llvm::createCorrelatedValuePropagationPass());
         // mem2reg pass
-        //PM.add(llvm::createPromoteMemoryToRegisterPass());
-        PM.add(llvm::createDemoteRegisterToMemoryPass());
+        PM.add(llvm::createPromoteMemoryToRegisterPass());
+        //PM.add(llvm::createDemoteRegisterToMemoryPass());
         // loop-simplify
         PM.add(llvm::createLoopSimplifyPass());
         PM.run(m);
@@ -341,6 +341,14 @@ namespace extrap {
           scev_analyzed_constant, has_nonconstant_loop);
     }
 
+    int loop_size(llvm::Loop * l)
+    {
+      int loops = 1;
+      for(llvm::Loop * subloop : l->getSubLoops())
+        loops += loop_size(subloop);
+      return loops;
+    }
+
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
             llvm::CallGraphNode * cg_node, int override_counter)
     {
@@ -395,7 +403,8 @@ namespace extrap {
           stats.function_statistics(function_name, "loops",
               "scev_analyzed_nonconstant", scev_analyzed_nonconstant);
         } else {
-          loop_count = std::distance(linfo->begin(), linfo->end());
+          for(llvm::Loop * l : *linfo)
+            loop_count += loop_size(l);
           has_nonconstant_loop = loop_count;
         }
         stats.function_statistics(function_name, "loops", "count", loop_count);
@@ -595,16 +604,16 @@ namespace extrap {
                 llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
                 l->getExitingBlocks(exit_blocks);
                 for(llvm::BasicBlock * bb : exit_blocks) {
-                    const llvm::Instruction * inst = bb->getTerminator();
+                    llvm::Instruction * inst = bb->getTerminator();
                     //llvm::errs() << *inst << '\n';
                     const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
                     if(br && br->isConditional()) {
-                        const llvm::Instruction * inst =
+                        llvm::Instruction * inst =
                             llvm::dyn_cast<llvm::Instruction>(br->getCondition());
                         assert(inst);
                         instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
                     } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
-                        const llvm::Instruction * inst =
+                        llvm::Instruction * inst =
                             llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
                         assert(inst);
                         instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
@@ -1268,21 +1277,33 @@ namespace extrap {
     }
 
     void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
-            const llvm::Instruction * inst)
+            llvm::Instruction * inst)
     {
         // insert call before branch
-        InstrumenterVisiter vis(*this,
-            [this, nested_loop_idx, function_idx]
-            (uint64_t size, llvm::Value * ptr) {
-                checkLoopLoad(nested_loop_idx, function_idx, size, ptr);
-            },
-            [this, nested_loop_idx, function_idx]
-            (llvm::CallBase * ptr) {
-                checkLoopRetval(nested_loop_idx, function_idx, ptr);
-            }
-        );
-        // TODO: why instvisit is not for const instruction?
-        vis.visit( const_cast<llvm::Instruction*>(inst) );
+        //InstrumenterVisiter vis(*this,
+        //    [this, nested_loop_idx, function_idx]
+        //    (uint64_t size, llvm::Value * ptr) {
+        //        checkLoopLoad(nested_loop_idx, function_idx, size, ptr);
+        //    },
+        //    [this, nested_loop_idx, function_idx]
+        //    (llvm::CallBase * ptr) {
+        //        checkLoopRetval(nested_loop_idx, function_idx, ptr);
+        //    }
+        //);
+        //// TODO: why instvisit is not for const instruction?
+        //vis.visit( const_cast<llvm::Instruction*>(inst) );
+      llvm::Instruction * insert_point = inst->getNextNode();
+      while(llvm::isa<llvm::PHINode>(insert_point))
+        insert_point = insert_point->getNextNode();
+      builder.SetInsertPoint(insert_point);
+      llvm::Value * label = getLabel(inst);
+      builder.CreateCall(label_loop_function,
+        {
+          label,
+          builder.getInt32(nested_loop_idx),
+          builder.getInt32(function_idx)
+        }
+      );
     }
 
     void Instrumenter::checkLoopLoad(int nested_loop_idx, int function_idx,

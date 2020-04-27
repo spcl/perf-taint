@@ -16,9 +16,7 @@
               "level": 0,
               "params": [
                 [
-                  "size_x"
-                ],
-                [
+                  "size_x",
                   "size_y"
                 ]
               ]

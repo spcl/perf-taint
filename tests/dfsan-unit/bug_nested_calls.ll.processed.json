@@ -80,8 +80,8 @@
                                 {
                                   "dependency": "unknown",
                                   "operands": [
-                                    "x2",
-                                    "x1"
+                                    "x1",
+                                    "x2"
                                   ]
                                 }
                               ]
@@ -170,18 +170,6 @@
                   "operands": [
                     "x1",
                     "x2"
-                  ]
-                }
-              ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x2",
-                    "x1"
                   ]
                 }
               ]
