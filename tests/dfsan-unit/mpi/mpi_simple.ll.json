@@ -71,14 +71,12 @@
                 ]
               ]
             },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 5
+              }
+            ]
           }
         }
       ]
@@ -121,14 +119,12 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 5
+              }
+            ]
           }
         }
       ]
@@ -176,14 +172,12 @@
             null
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 6
+              }
+            ],
             "1": [
               {
                 "entry_id": 0,

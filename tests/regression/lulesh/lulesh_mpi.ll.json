@@ -345,62 +345,48 @@
                 }
               }
             },
-            "27": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "29": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "31": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "35": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "36": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "37": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "51": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "27": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "29": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "31": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "35": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "36": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "37": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "51": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ]
           }
         }
       ]
@@ -582,62 +568,48 @@
                 }
               }
             },
-            "27": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "29": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "31": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "35": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "36": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "37": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "51": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "27": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "29": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "31": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "35": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "36": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "37": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "51": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ]
           }
         }
       ]
@@ -665,54 +637,42 @@
             ]
           ],
           "instance": {
-            "10": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "11": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "12": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "4": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "6": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            }
+            "10": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "11": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "12": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "4": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "6": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ]
           }
         },
         {
@@ -725,30 +685,24 @@
             ]
           ],
           "instance": {
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "4": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "6": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            }
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "4": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ],
+            "6": [
+              {
+                "entry_id": 0,
+                "function_idx": 54
+              }
+            ]
           }
         }
       ]
@@ -869,62 +823,48 @@
                 }
               }
             },
-            "28": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "30": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "32": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "36": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "37": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "38": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "53": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "28": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "30": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "32": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "36": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "37": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "38": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "53": [
+              {
+                "entry_id": 0,
+                "function_idx": 56
+              }
+            ]
           }
         },
         {
@@ -936,14 +876,12 @@
             ]
           ],
           "instance": {
-            "53": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "53": [
+              {
+                "entry_id": 0,
+                "function_idx": 56
+              }
+            ]
           }
         },
         {
@@ -1015,38 +953,30 @@
                 }
               }
             },
-            "28": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "30": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "32": {
-              "level": 0,
-              "params": [
-                [
-                  "size"
-                ]
-              ]
-            },
-            "53": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "28": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "30": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "32": [
+              {
+                "entry_id": 0,
+                "function_idx": 55
+              }
+            ],
+            "53": [
+              {
+                "entry_id": 0,
+                "function_idx": 56
+              }
+            ]
           }
         }
       ]
@@ -1079,14 +1009,12 @@
                 }
               }
             },
-            "11": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
+            "11": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
             "2": {
               "level": 0,
               "loops": {
@@ -1113,22 +1041,18 @@
                 }
               }
             },
-            "7": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "9": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "7": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ],
+            "9": [
+              {
+                "entry_id": 0,
+                "function_idx": 53
+              }
+            ]
           }
         }
       ]
@@ -1318,14 +1242,12 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 57
+              }
+            ]
           }
         }
       ]
@@ -1347,14 +1269,6 @@
           "instance": {
             "0": {
               "level": 0,
-              "loops": {
-                "5": [
-                  {
-                    "entry_id": 0,
-                    "function_idx": 33
-                  }
-                ]
-              },
               "params": [
                 [
                   "regions"
@@ -1403,7 +1317,13 @@
                       "regions"
                     ]
                   ]
-                }
+                },
+                "5": [
+                  {
+                    "entry_id": 0,
+                    "function_idx": 33
+                  }
+                ]
               }
             },
             "2": [
@@ -2871,22 +2791,18 @@
                 ]
               }
             },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 58
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 59
+              }
+            ],
             "4": [
               {
                 "entry_id": 0,

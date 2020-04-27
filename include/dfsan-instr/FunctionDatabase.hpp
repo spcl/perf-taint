@@ -61,7 +61,7 @@ namespace perf_taint {
     void read(std::ifstream &);
     bool contains(llvm::Function * f);
     typedef std::vector< std::vector<int> > vec_t;
-    void processLoop(llvm::Function * f, llvm::Value *, Function &, vec_t &);
+    int processLoop(llvm::Function * f, llvm::Value *, Function &, vec_t &);
     size_t parameters_count() const;
     const std::string & parameter_name(size_t idx) const;
     const ImplicitParameter * find_parameter(const std::string & name) const;

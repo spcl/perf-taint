@@ -431,11 +431,14 @@ namespace extrap {
                 func.loops_sizes.push_back(loop_count);
             }
 
+            int implicit_loops = 0;
             for(auto t : library_calls) {
-                std::vector< std::vector<int> > data;
-                database.processLoop(std::get<0>(t), std::get<1>(t), func, data);
-                //func.addImplicitLoop(std::get<1>(t), data);
+              std::vector< std::vector<int> > data;
+              implicit_loops += database.processLoop(
+                std::get<0>(t), std::get<1>(t), func, data
+              );
             }
+            stats.function_statistics(function_name, "loops", "implicit", implicit_loops);
 
             if(has_nonconstant_loop)
               stats.instrumented_function(f.getName(), "loops");
@@ -593,7 +596,7 @@ namespace extrap {
                                 if(callsImportantFunction(call)) {
                                         // TODO: optimize by checking if this call could
                                         // produce any loop - in case we know function
-                                        calls.emplace_back(call, internal_nested_index,
+                                        calls.emplace_back(call, nested_loop_idx,
                                                 subloops.size() + calls_count++);
                                 }
                             }
@@ -665,15 +668,10 @@ namespace extrap {
                 loop_idx++;
             }
 
+            int loop_idx_implicit = loop_idx, nested_loop_idx_implicit = nested_loop_idx;
+            // FIXME: register calls to catch implicit functions.
             for(auto implicit_call : func.implicit_loops) {
-
-              instr.callImplicitLoop(
-                implicit_call,
-                func.function_idx(),
-                implicit_functions.at(implicit_call.called_function),
-                loop_idx,
-                nested_loop_idx
-              );
+              calls.emplace_back(implicit_call.call, -1, loop_idx);
               loop_idx++;
               nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
             }
@@ -702,6 +700,18 @@ namespace extrap {
             }
 
             // Handle implicit calls
+            for(auto implicit_call : func.implicit_loops) {
+
+              instr.callImplicitLoop(
+                implicit_call,
+                func.function_idx(),
+                implicit_functions.at(implicit_call.called_function),
+                loop_idx_implicit,
+                nested_loop_idx_implicit
+              );
+              loop_idx_implicit++;
+              nested_loop_idx_implicit += func.loops_sizes[3*loop_idx_implicit + 2];
+            }
 
             // Leaving order:
             // 1) revert previous registered call

@@ -101,9 +101,19 @@
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -176,9 +186,19 @@
               "dependency": "additive",
               "operands": [
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -231,9 +251,19 @@
                               "dependency": "additive",
                               "operands": [
                                 {
-                                  "dependency": "unknown",
+                                  "dependency": "additive",
                                   "operands": [
-                                    "p"
+                                    {
+                                      "dependency": "additive",
+                                      "operands": [
+                                        {
+                                          "dependency": "unknown",
+                                          "operands": [
+                                            "p"
+                                          ]
+                                        }
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -272,9 +302,19 @@
               "dependency": "additive",
               "operands": [
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
@@ -308,9 +348,19 @@
                           ]
                         },
                         {
-                          "dependency": "unknown",
+                          "dependency": "additive",
                           "operands": [
-                            "p"
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "p"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
                         }
                       ]
@@ -343,9 +393,19 @@
                                       "dependency": "additive",
                                       "operands": [
                                         {
-                                          "dependency": "unknown",
+                                          "dependency": "additive",
                                           "operands": [
-                                            "p"
+                                            {
+                                              "dependency": "additive",
+                                              "operands": [
+                                                {
+                                                  "dependency": "unknown",
+                                                  "operands": [
+                                                    "p"
+                                                  ]
+                                                }
+                                              ]
+                                            }
                                           ]
                                         }
                                       ]

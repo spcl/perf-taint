@@ -199,7 +199,8 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 
 void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx, int calls_count)
 {
-  if(__EXTRAP_LOOP_DEPENDENCIES) {
+  //FIXME: temporary fix to register functions with implicit calls
+  if(__EXTRAP_LOOP_DEPENDENCIES || calls_count > 0) {
     //fprintf(stderr, "Idx %d CallsCount %d\n", function_idx, calls_count);
     __dfsw_json_write_loop(function_idx, calls_count);
   }

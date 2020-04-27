@@ -366,25 +366,18 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 6
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 6
+              }
+            ]
           }
         }
       ]
@@ -401,25 +394,18 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 7
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 7
+              }
+            ]
           }
         }
       ]
@@ -436,25 +422,18 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 8
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 8
+              }
+            ]
           }
         }
       ]
@@ -471,50 +450,30 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param2"
-                ]
-              ]
-            },
-            "3": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ],
-                [
-                  "param2"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 9
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 9
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 9
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 9
+              }
+            ]
           }
         }
       ]
@@ -531,50 +490,30 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param2"
-                ]
-              ]
-            },
-            "3": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ],
-                [
-                  "param2"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 10
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 10
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 10
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 10
+              }
+            ]
           }
         }
       ]
@@ -591,25 +530,18 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 11
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 11
+              }
+            ]
           }
         }
       ]

@@ -300,7 +300,7 @@ void __dfsw_json_loop_committed(uint16_t function_idx, size_t pos)
     last_call.capacity += 5;
     last_call.data = static_cast<nested_call_data*>(realloc(last_call.data, sizeof(nested_call_data) *
       last_call.capacity));
- }
+  }
   last_call.data[last_call.len].function_idx = function_idx;
   last_call.data[last_call.len++].pos = pos;
 }
@@ -758,7 +758,7 @@ void __dfsw_implicit_call(int function_idx, int calling_function_idx,
   //only a single loop
   dependencies * deps = &__EXTRAP_LOOP_DEPENDENCIES[deps_offset];
   json_t loop = __dfsw_json_write_loop(function_idx, loop_data,
-     loop_structure, deps, nested_loop_idx, begin, end, false);
+     loop_structure, deps, nested_loop_idx, begin, end, true);
   if(!loop.is_null() && !loop.empty()) {
     json_t callstack;
     for(size_t i = 0; i <  __EXTRAP_CALLSTACK.len; ++i)
@@ -779,6 +779,7 @@ void __dfsw_implicit_call(int function_idx, int calling_function_idx,
             break;
           }
         }
+        __dfsw_json_loop_committed(function_idx, cur_idx);
         if(!callstack_found) {
           prev["callstacks"].push_back( std::move(callstack) );
         }
@@ -792,6 +793,7 @@ void __dfsw_implicit_call(int function_idx, int calling_function_idx,
       instance["callstacks"].push_back(callstack);
       instance["instance"] = output;
       (*func)["loops"].push_back( std::move(instance) );
+      __dfsw_json_loop_committed(function_idx, (*func)["loops"].size() - 1);
     }
   }
 }

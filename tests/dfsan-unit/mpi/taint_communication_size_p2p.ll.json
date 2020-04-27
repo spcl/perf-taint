@@ -173,49 +173,36 @@
             ]
           ],
           "instance": {
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "param"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "3": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            },
-            "4": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "5": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 3
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 1,
+                "function_idx": 3
+              }
+            ],
+            "4": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ],
+            "5": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ]
           }
         }
       ]
@@ -232,49 +219,36 @@
             ]
           ],
           "instance": {
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "param"
-                ]
-              ]
-            },
-            "2": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "3": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ],
-                [
-                  "param"
-                ]
-              ]
-            },
-            "4": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "5": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 5
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 6
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 1,
+                "function_idx": 6
+              }
+            ],
+            "4": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ],
+            "5": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ]
           }
         }
       ]

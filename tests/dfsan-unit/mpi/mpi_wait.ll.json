@@ -35,22 +35,18 @@
             ]
           ],
           "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            },
-            "1": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
-              ]
-            }
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ]
           }
         }
       ]

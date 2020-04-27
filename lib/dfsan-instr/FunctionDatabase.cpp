@@ -107,7 +107,7 @@ namespace perf_taint {
     }
   }
 
-  void FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,
+  int FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,
           Function & func, vec_t & loop_data)
   {
       auto it = functions.find(f->getName());
@@ -186,6 +186,7 @@ namespace perf_taint {
       func.loops_sizes.push_back(structure_size);
       func.loops_sizes.push_back(loop_count);
       // obtain nested_loop_idx
+    return loop_count;
   }
 
 }
