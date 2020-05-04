@@ -32,6 +32,8 @@ BUILD_DIR="@CMAKE_CURRENT_BINARY_DIR@"
 MPI_LINK_FLAG="@CMAKE_MPI_LINK_FLAGS@"
 LIBCXX_PATH="@CMAKE_LIBCXX_PATH@/lib"
 
+cfsan_switch=$([ "@LLVM_WITH_CFSAN@" == "TRUE" ] && echo "-dfsan-cfsan-enable" || echo "")
+
 IR_FILES=()
 OBJECT_FILES=()
 for f in "${INPUT[@]}"; do
@@ -43,6 +45,7 @@ for f in "${INPUT[@]}"; do
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -extrap-extractor-out-name=${tmp_file}\
         -dfsan\
+        "${cfsan_switch}"\
         -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
         < ${f}\
         > ${ir_file_name}
@@ -51,6 +54,7 @@ for f in "${INPUT[@]}"; do
         -extrap-extractor\
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -dfsan\
+        "${cfsan_switch}"\
         -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
         < ${f}\
         > ${ir_file_name}
