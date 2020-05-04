@@ -17,6 +17,7 @@ include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_INCLUDE_PATH ${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
+set(LLVM_WITH_CFSAN FALSE CACHE BOOL "Use control-flow tainting in LLVM's dfsan") 
 set(PASS_COMPILER_FLAGS "" CACHE STRING "Additional compiler flags for libraries and tools.")
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
 set(OMP_PATH "" CACHE STRING "Path to OpenMP installation")
@@ -42,6 +43,10 @@ endif()
 
 if( NOT JSONCPP_PATH STREQUAL "")
   set(nlohmann_json_DIR "${JSONCPP_PATH}/lib/cmake/nlohmann_json")
+endif()
+
+if( LLVM_WITH_CFSAN )
+  set(PERF_TAINT_WITH_CFSAN TRUE)
 endif()
 
 # No need for Polly anymore
