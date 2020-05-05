@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 include(ExternalProject)
+project(perf-taint)
 
-
-project(loop_extractor.cpp)
 # dirty hack to remove NDEBUG
 string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -12,12 +11,21 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
+# Verify that the compiler used is the same as in LLVM instrumentation
+# Otherwise there might be an ABI incompatibility between our pass and runtime
+# library and LLVM.
+# TODO:
+set(LLVM_OPT "opt")
+set(LLVM_LLC "llc")
+set(CLANG ${CMAKE_C_COMPILER})
+set(CLANGXX ${CMAKE_CXX_COMPILER})
+
 find_package(MPI REQUIRED)
 include_directories(${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_INCLUDE_PATH ${MPI_C_INCLUDE_PATH})
 SET(CMAKE_MPI_LINK_FLAGS ${MPI_C_LIBRARIES})
 
-set(LLVM_WITH_CFSAN FALSE CACHE BOOL "Use control-flow tainting in LLVM's dfsan") 
+option(LLVM_WITH_CFSAN "Use control-flow tainting in LLVM's dfsan" OFF)
 set(PASS_COMPILER_FLAGS "" CACHE STRING "Additional compiler flags for libraries and tools.")
 set(LIBCXX_PATH "" CACHE STRING "Path to libcxx and libcxxabi installation")
 set(OMP_PATH "" CACHE STRING "Path to OpenMP installation")
@@ -129,11 +137,10 @@ set_property(TARGET model_comparator PROPERTY CXX_STANDARD 14)
 add_dependencies(model_comparator nlohmann_json)
 set_target_properties(model_comparator PROPERTIES COMPILE_FLAGS "-g")
 
+configure_file(benchmarks/rebuild_benchmarks.sh.in benchmarks/rebuild_benchmarks.sh @ONLY)
 configure_file(tests/lit.cfg.in tests/lit.cfg @ONLY)
 configure_file(tools/rebuild_tests.sh.in tools/rebuild_tests.sh @ONLY)
 configure_file(bin/perf-taint.in bin/perf-taint @ONLY)
 configure_file(bin/clang++.in bin/clang++ @ONLY)
 configure_file(bin/clang.in bin/clang @ONLY)
-
-configure_file(benchmarks/rebuild_benchmarks.sh.in benchmarks/rebuild_benchmarks.sh @ONLY)
 
