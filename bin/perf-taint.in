@@ -29,7 +29,7 @@ CLANG="@CMAKE_C_COMPILER@"
 CXXLANG="@CMAKE_CXX_COMPILER@"
 SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
 BUILD_DIR="@CMAKE_CURRENT_BINARY_DIR@"
-MPI_LINK_FLAG="@CMAKE_MPI_LINK_FLAGS@"
+MPI_LINK_FLAG="@MPI_LINK_FLAGS@"
 LIBCXX_PATH="@CMAKE_LIBCXX_PATH@/lib"
 
 cfsan_switch=$([ "@PERF_TAINT_WITH_CF_TAINTING@" == "TRUE" ] && echo "-dfsan-cfsan-enable" || echo "")
@@ -45,7 +45,7 @@ for f in "${INPUT[@]}"; do
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -extrap-extractor-out-name=${tmp_file}\
         -dfsan\
-        "${cfsan_switch}"\
+        ${cfsan_switch}\
         -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
         < ${f}\
         > ${ir_file_name}
@@ -54,7 +54,7 @@ for f in "${INPUT[@]}"; do
         -extrap-extractor\
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -dfsan\
-        "${cfsan_switch}"\
+        ${cfsan_switch}\
         -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
         < ${f}\
         > ${ir_file_name}
