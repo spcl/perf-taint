@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z10nest_constii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 0,
       "line": 22,
       "loops": [
@@ -25,7 +25,7 @@
       ]
     },
     "_Z11nest_tripleii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 3,
       "line": 94,
       "loops": [
@@ -194,7 +194,7 @@
       ]
     },
     "_Z11three_loopsii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 5,
       "line": 177,
       "loops": [
@@ -271,7 +271,7 @@
       ]
     },
     "_Z12nest_partialii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 1,
       "line": 34,
       "loops": [
@@ -321,7 +321,7 @@
       ]
     },
     "_Z18double_nest_tripleii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 4,
       "line": 121,
       "loops": [
@@ -461,7 +461,7 @@
       ]
     },
     "_Z19double_nest_partialii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 2,
       "line": 56,
       "loops": [

@@ -90,7 +90,17 @@ endif()
 ###
 set(PASS_COMPILER_FLAGS "" CACHE STRING "Additional compiler flags for libraries and tools.")
 option(WITH_UNIT_TESTS ON)
+if( WITH_UNIT_TESTS )
+  set(PERF_TAINT_WITH_UNIT_TESTS FALSE)
+else()
+  set(PERF_TAINT_WITH_UNIT_TESTS FALSE)
+endif()
 option(WITH_REGRESSION_TESTS OFF)
+if( WITH_REGRESSION_TESTS )
+  set(PERF_TAINT_WITH_REGRESSION_TESTS FALSE)
+else()
+  set(PERF_TAINT_WITH_REGRESSION_TESTS FALSE)
+endif()
 
 ###
 # External dependencies

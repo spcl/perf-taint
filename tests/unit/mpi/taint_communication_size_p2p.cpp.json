@@ -162,7 +162,7 @@
       ]
     },
     "_Z3rcviiPi": {
-      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 1,
       "line": 41,
       "loops": [
@@ -208,7 +208,7 @@
       ]
     },
     "_Z4sendiiPi": {
-      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 0,
       "line": 26,
       "loops": [

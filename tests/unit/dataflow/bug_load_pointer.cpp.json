@@ -20,7 +20,7 @@
   "parameters": null,
   "unimportant_functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/bug_load_pointer.cpp",
+      "file": "tests/unit/dataflow/bug_load_pointer.cpp",
       "func_idx": 0,
       "line": 27
     }

@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z11double_nestii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 2,
       "line": 49,
       "loops": [
@@ -43,7 +43,7 @@
       ]
     },
     "_Z11single_nestii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 0,
       "line": 37,
       "loops": [
@@ -85,7 +85,7 @@
       ]
     },
     "_Z14aggregate_nestii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 7,
       "line": 95,
       "loops": [
@@ -129,7 +129,7 @@
       ]
     },
     "_Z14multipath_nestii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 5,
       "line": 70,
       "loops": [
@@ -175,7 +175,7 @@
       ]
     },
     "_Z14multipath_nestiii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 6,
       "line": 83,
       "loops": [
@@ -242,7 +242,7 @@
       ]
     },
     "_Z19double_nest_outsideii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 4,
       "line": 60,
       "loops": [
@@ -282,7 +282,7 @@
       ]
     },
     "_Z1fi": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 1,
       "line": 20,
       "loops": [
@@ -375,7 +375,7 @@
       ]
     },
     "_Z1gi": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 3,
       "line": 28,
       "loops": [
@@ -473,7 +473,7 @@
       ]
     },
     "_Z25call_unimportant_functionii": {
-      "file": "tests/dfsan-unit/nested_function_call.cpp",
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 8,
       "line": 112,
       "loops": [

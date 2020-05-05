@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z1hii": {
-      "file": "tests/dfsan-unit/function_retval.cpp",
+      "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 1,
       "line": 58,
       "loops": [
@@ -25,7 +25,7 @@
       ]
     },
     "_Z1iP4test": {
-      "file": "tests/dfsan-unit/function_retval.cpp",
+      "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 2,
       "line": 69,
       "loops": [
@@ -91,7 +91,7 @@
   ],
   "unimportant_functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/function_retval.cpp",
+      "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 0,
       "line": 47
     }

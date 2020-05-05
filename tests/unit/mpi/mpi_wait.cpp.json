@@ -24,7 +24,7 @@
       ]
     },
     "_Z4waitP14ompi_request_tS0_": {
-      "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
+      "file": "tests/unit/mpi/mpi_wait.cpp",
       "func_idx": 1,
       "line": 32,
       "loops": [
@@ -87,7 +87,7 @@
       "func_idx": 4
     },
     "_Z7prepareiPiS_PP14ompi_request_tS2_": {
-      "file": "tests/dfsan-unit/mpi/mpi_wait.cpp",
+      "file": "tests/unit/mpi/mpi_wait.cpp",
       "func_idx": 0,
       "line": 26
     }

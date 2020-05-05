@@ -1,1 +1,0 @@
-; RUN: opt %dfsan -perf-taint-scev -perf-taint-pass-stats=scev.json -S < %s 2> /dev/null && diff %s.pass.json scev.json

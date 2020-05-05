@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/simple_function.cpp",
+      "file": "tests/unit/dataflow/simple_function.cpp",
       "func_idx": 0,
       "line": 21,
       "loops": [

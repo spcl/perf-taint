@@ -1,7 +1,7 @@
 {
   "functions": {
     "create_matrix": {
-      "file": "tests/dfsan-unit/matmul.c",
+      "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 0,
       "line": 29,
       "loops": [
@@ -44,7 +44,7 @@
       ]
     },
     "mat_mul": {
-      "file": "tests/dfsan-unit/matmul.c",
+      "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 1,
       "line": 43,
       "loops": [

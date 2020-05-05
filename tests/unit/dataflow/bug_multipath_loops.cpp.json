@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/bug_multipath_loops.cpp",
+      "file": "tests/unit/dataflow/bug_multipath_loops.cpp",
       "func_idx": 0,
       "line": 44,
       "loops": [
@@ -121,7 +121,7 @@
       ]
     },
     "_Z25call_interesting_functionii": {
-      "file": "tests/dfsan-unit/bug_multipath_loops.cpp",
+      "file": "tests/unit/dataflow/bug_multipath_loops.cpp",
       "func_idx": 1,
       "line": 36,
       "loops": [

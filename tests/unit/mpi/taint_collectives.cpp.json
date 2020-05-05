@@ -355,7 +355,7 @@
       ]
     },
     "_Z4scanii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 3,
       "line": 68,
       "loops": [
@@ -383,7 +383,7 @@
       ]
     },
     "_Z5bcastii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 0,
       "line": 26,
       "loops": [
@@ -411,7 +411,7 @@
       ]
     },
     "_Z6reduceii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 4,
       "line": 80,
       "loops": [
@@ -439,7 +439,7 @@
       ]
     },
     "_Z8alltoalliii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 1,
       "line": 36,
       "loops": [
@@ -479,7 +479,7 @@
       ]
     },
     "_Z9allgatheriii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 2,
       "line": 52,
       "loops": [
@@ -519,7 +519,7 @@
       ]
     },
     "_Z9allreduceii": {
-      "file": "tests/dfsan-unit/mpi/taint_collectives.cpp",
+      "file": "tests/unit/mpi/taint_collectives.cpp",
       "func_idx": 5,
       "line": 92,
       "loops": [

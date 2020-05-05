@@ -51,7 +51,7 @@
       ]
     },
     "_Z16h_multiple_loopsPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 2,
       "line": 34,
       "loops": [
@@ -82,7 +82,7 @@
       ]
     },
     "_Z1fPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 1,
       "line": 26,
       "loops": [
@@ -107,7 +107,7 @@
       ]
     },
     "_Z1hPd": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 4,
       "line": 43,
       "loops": [
@@ -130,7 +130,7 @@
       ]
     },
     "_Z8h_nestedPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 3,
       "line": 50,
       "loops": [
@@ -163,7 +163,7 @@
       ]
     },
     "main": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+      "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 0,
       "line": 57,
       "loops": [

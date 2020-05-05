@@ -1,7 +1,7 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/function_call_nested.cpp",
+      "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 0,
       "line": 32,
       "loops": [
@@ -74,7 +74,7 @@
       ]
     },
     "_Z1gi": {
-      "file": "tests/dfsan-unit/function_call_nested.cpp",
+      "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 2,
       "line": 40,
       "loops": [
@@ -104,7 +104,7 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-unit/function_call_nested.cpp",
+      "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 1,
       "line": 24,
       "loops": [
@@ -173,7 +173,7 @@
       ]
     },
     "_Z1iiii": {
-      "file": "tests/dfsan-unit/function_call_nested.cpp",
+      "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 3,
       "line": 48,
       "loops": [
