@@ -24,7 +24,7 @@ if config.with_cfsan:
   config.cfsan_flag = '-dfsan-cfsan-enable'
 else:
   config.cfsan_flag = ''
-  confi.excludes.add('cfsan')
+  config.excludes.add('cfsan')
 
 config.with_mpi = True #'@PERF_TAINT_WITH_MPI@' == 'TRUE'
 if config.with_mpi:
