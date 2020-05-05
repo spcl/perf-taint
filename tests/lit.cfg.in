@@ -26,7 +26,7 @@ else:
   config.cfsan_flag = ''
   config.excludes.add('cfsan')
 
-config.with_mpi = True #'@PERF_TAINT_WITH_MPI@' == 'TRUE'
+config.with_mpi = '@PERF_TAINT_WITH_MPI@' == 'TRUE'
 if config.with_mpi:
   config.mpi_include_flags = ''
   for mpi_path in '@MPI_C_INCLUDE_PATH@'.split(';'):
@@ -35,7 +35,7 @@ if config.with_mpi:
 else:
   config.mpi_include_flags = ''
   config.mpi_link_flags = ''
-  confi.excludes.add('mpi')
+  config.excludes.add('mpi')
 
 config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
 if config.with_omp:
