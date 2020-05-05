@@ -22,7 +22,7 @@
     "_Z1fii": {
       "file": "tests/dfsan-unit/bug_load_pointer.cpp",
       "func_idx": 0,
-      "line": 21
+      "line": 27
     }
   },
   "unused_parameters": [
