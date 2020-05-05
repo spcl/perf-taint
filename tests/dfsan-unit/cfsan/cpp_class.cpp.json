@@ -1,0 +1,103 @@
+{
+  "functions": {
+    "_ZN4Grid11update_dataEd": {
+      "file": "tests/dfsan-unit/cfsan/cpp_class.cpp",
+      "func_idx": 2,
+      "line": 45,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "size_x",
+                  "size_y"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_ZN4Grid11update_gridEd": {
+      "file": "tests/dfsan-unit/cfsan/cpp_class.cpp",
+      "func_idx": 0,
+      "line": 30,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "size_x",
+                  "size_y"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "Grid::update_grid(double)",
+    "Grid::update_constant(double)",
+    "Grid::update_data(double)",
+    "Grid::update_z(double)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "Grid::Grid(int, int, int)",
+    "Grid::~Grid()"
+  ],
+  "functions_mangled_names": [
+    "_ZN4Grid11update_gridEd",
+    "_ZN4Grid15update_constantEd",
+    "_ZN4Grid11update_dataEd",
+    "_ZN4Grid8update_zEd",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_ZN4GridC2Eiii",
+    "_ZN4GridD2Ev"
+  ],
+  "functions_names": [
+    "update_grid",
+    "update_constant",
+    "update_data",
+    "update_z",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "Grid",
+    "~Grid"
+  ],
+  "parameters": [
+    "size_x",
+    "size_y"
+  ],
+  "unimportant_functions": {
+    "_ZN4Grid15update_constantEd": {
+      "file": "tests/dfsan-unit/cfsan/cpp_class.cpp",
+      "func_idx": 1,
+      "line": 37
+    },
+    "_ZN4Grid8update_zEd": {
+      "file": "tests/dfsan-unit/cfsan/cpp_class.cpp",
+      "func_idx": 3,
+      "line": 53
+    }
+  }
+}
