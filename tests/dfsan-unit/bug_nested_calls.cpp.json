@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/dfsan-unit/bug_nested_calls.cpp",
       "func_idx": 0,
-      "line": 53,
+      "line": 66,
       "loops": [
         {
           "callstacks": [
@@ -69,7 +69,7 @@
     "_Z2f2ii": {
       "file": "tests/dfsan-unit/bug_nested_calls.cpp",
       "func_idx": 2,
-      "line": 20,
+      "line": 33,
       "loops": [
         {
           "callstacks": [
@@ -120,7 +120,7 @@
     "_Z2f3ii": {
       "file": "tests/dfsan-unit/bug_nested_calls.cpp",
       "func_idx": 3,
-      "line": 27,
+      "line": 40,
       "loops": [
         {
           "callstacks": [
@@ -207,7 +207,7 @@
     "_Z2f1ii": {
       "file": "tests/dfsan-unit/bug_nested_calls.cpp",
       "func_idx": 1,
-      "line": 13
+      "line": 26
     }
   }
 }

@@ -3,7 +3,7 @@
     "_Z11double_nestii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 2,
-      "line": 37,
+      "line": 49,
       "loops": [
         {
           "callstacks": [
@@ -45,7 +45,7 @@
     "_Z11single_nestii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 0,
-      "line": 25,
+      "line": 37,
       "loops": [
         {
           "callstacks": [
@@ -87,7 +87,7 @@
     "_Z14aggregate_nestii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 7,
-      "line": 83,
+      "line": 95,
       "loops": [
         {
           "callstacks": [
@@ -131,7 +131,7 @@
     "_Z14multipath_nestii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 5,
-      "line": 58,
+      "line": 70,
       "loops": [
         {
           "callstacks": [
@@ -177,7 +177,7 @@
     "_Z14multipath_nestiii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 6,
-      "line": 71,
+      "line": 83,
       "loops": [
         {
           "callstacks": [
@@ -244,7 +244,7 @@
     "_Z19double_nest_outsideii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 4,
-      "line": 48,
+      "line": 60,
       "loops": [
         {
           "callstacks": [
@@ -284,7 +284,7 @@
     "_Z1fi": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 1,
-      "line": 8,
+      "line": 20,
       "loops": [
         {
           "callstacks": [
@@ -377,7 +377,7 @@
     "_Z1gi": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 3,
-      "line": 16,
+      "line": 28,
       "loops": [
         {
           "callstacks": [
@@ -475,7 +475,7 @@
     "_Z25call_unimportant_functionii": {
       "file": "tests/dfsan-unit/nested_function_call.cpp",
       "func_idx": 8,
-      "line": 100,
+      "line": 112,
       "loops": [
         {
           "callstacks": [

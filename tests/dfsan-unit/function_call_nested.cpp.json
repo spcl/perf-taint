@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 0,
-      "line": 20,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
@@ -76,7 +76,7 @@
     "_Z1gi": {
       "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 2,
-      "line": 28,
+      "line": 40,
       "loops": [
         {
           "callstacks": [
@@ -106,7 +106,7 @@
     "_Z1hi": {
       "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 1,
-      "line": 12,
+      "line": 24,
       "loops": [
         {
           "callstacks": [
@@ -175,7 +175,7 @@
     "_Z1iiii": {
       "file": "tests/dfsan-unit/function_call_nested.cpp",
       "func_idx": 3,
-      "line": 36,
+      "line": 48,
       "loops": [
         {
           "callstacks": [

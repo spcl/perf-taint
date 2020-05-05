@@ -1,9 +1,9 @@
 {
   "functions": {
-    "_Z12print_paramsP6Params": {
-      "file": "tests/dfsan-unit/struct.cpp",
+    "_Z1fii": {
+      "file": "tests/dfsan-unit/function_call.cpp",
       "func_idx": 0,
-      "line": 23,
+      "line": 24,
       "loops": [
         {
           "callstacks": [
@@ -16,8 +16,8 @@
               "level": 0,
               "params": [
                 [
-                  "params.ranks",
-                  "params.problem_size"
+                  "x1",
+                  "global"
                 ]
               ]
             }
@@ -25,15 +25,16 @@
         }
       ]
     },
-    "_Z6do_sthii": {
-      "file": "tests/dfsan-unit/struct.cpp",
+    "_Z1hi": {
+      "file": "tests/dfsan-unit/function_call.cpp",
       "func_idx": 1,
-      "line": 33,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
             [
-              3
+              3,
+              6
             ]
           ],
           "instance": {
@@ -41,8 +42,7 @@
               "level": 0,
               "params": [
                 [
-                  "params.problem_size",
-                  "global_params.ranks"
+                  "global"
                 ]
               ]
             }
@@ -51,8 +51,7 @@
         {
           "callstacks": [
             [
-              3,
-              7
+              3
             ]
           ],
           "instance": {
@@ -60,8 +59,32 @@
               "level": 0,
               "params": [
                 [
-                  "params.ranks",
-                  "params.problem_size"
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1iiii": {
+      "file": "tests/dfsan-unit/function_call.cpp",
+      "func_idx": 2,
+      "line": 45,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
                 ]
               ]
             }
@@ -71,48 +94,35 @@
     }
   },
   "functions_demangled_names": [
-    "print_params(Params*)",
-    "do_sth(int, int)",
-    "do_sth2(double, int)",
+    "f(int, int)",
+    "h(int)",
+    "i(int, int, int)",
     "main",
     "atoi",
-    "atof",
     "void register_variable<int>(int*, char const*)",
-    "do_sth3(Params&)"
+    "g(int)"
   ],
   "functions_mangled_names": [
-    "_Z12print_paramsP6Params",
-    "_Z6do_sthii",
-    "_Z7do_sth2di",
+    "_Z1fii",
+    "_Z1hi",
+    "_Z1iiii",
     "main",
     "atoi",
-    "atof",
     "_Z17register_variableIiEvPT_PKc",
-    "_Z7do_sth3R6Params"
+    "_Z1gi"
   ],
   "functions_names": [
-    "print_params",
-    "do_sth",
-    "do_sth2",
+    "f",
+    "h",
+    "i",
     "main",
     "atoi",
-    "atof",
     "register_variable<int>",
-    "do_sth3"
+    "g"
   ],
   "parameters": [
-    "params.ranks",
-    "params.problem_size",
-    "global_params.ranks"
-  ],
-  "unimportant_functions": {
-    "_Z7do_sth2di": {
-      "file": "tests/dfsan-unit/struct.cpp",
-      "func_idx": 2,
-      "line": 44
-    }
-  },
-  "unused_parameters": [
-    "global_params.problem_size"
+    "x1",
+    "x2",
+    "global"
   ]
 }

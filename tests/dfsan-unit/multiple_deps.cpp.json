@@ -1,14 +1,39 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/simple_function.cpp",
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
       "func_idx": 0,
-      "line": 8,
+      "line": 43,
       "loops": [
         {
           "callstacks": [
             [
-              1
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1gii": {
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
+      "func_idx": 1,
+      "line": 53,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
             ]
           ],
           "instance": {
@@ -26,7 +51,7 @@
         {
           "callstacks": [
             [
-              1
+              3
             ]
           ],
           "instance": {
@@ -39,11 +64,18 @@
               ]
             }
           }
-        },
+        }
+      ]
+    },
+    "_Z1hP4test": {
+      "file": "tests/dfsan-unit/multiple_deps.cpp",
+      "func_idx": 2,
+      "line": 63,
+      "loops": [
         {
           "callstacks": [
             [
-              1
+              3
             ]
           ],
           "instance": {
@@ -51,6 +83,7 @@
               "level": 0,
               "params": [
                 [
+                  "x1",
                   "x2"
                 ]
               ]
@@ -62,24 +95,42 @@
   },
   "functions_demangled_names": [
     "f(int, int)",
+    "g(int, int)",
+    "h(test*)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "void register_variable<int>(int*, char const*)",
+    "test::test(int, int, int)",
+    "mul(int, int)",
+    "test::length()"
   ],
   "functions_mangled_names": [
     "_Z1fii",
+    "_Z1gii",
+    "_Z1hP4test",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "_Z17register_variableIiEvPT_PKc",
+    "_ZN4testC2Eiii",
+    "_Z3mulii",
+    "_ZN4test6lengthEv"
   ],
   "functions_names": [
     "f",
+    "g",
+    "h",
     "main",
     "atoi",
-    "register_variable<int>"
+    "register_variable<int>",
+    "test",
+    "mul",
+    "length"
   ],
   "parameters": [
     "x1",
     "x2"
+  ],
+  "unused_parameters": [
+    "global"
   ]
 }

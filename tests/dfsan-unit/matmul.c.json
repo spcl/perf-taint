@@ -3,7 +3,7 @@
     "create_matrix": {
       "file": "tests/dfsan-unit/matmul.c",
       "func_idx": 0,
-      "line": 17,
+      "line": 29,
       "loops": [
         {
           "callstacks": [
@@ -46,7 +46,7 @@
     "mat_mul": {
       "file": "tests/dfsan-unit/matmul.c",
       "func_idx": 1,
-      "line": 31,
+      "line": 43,
       "loops": [
         {
           "callstacks": [

@@ -1,3 +1,6 @@
+// RUN: %clangxx %cxx_flags %s -emit-llvm -o %t1.bc
+// RUN: %opt %opt_flags -perf-taint-scev -perf-taint-pass-stats=%t1.scev.json %t1.bc 2> /dev/null > %t1.tainted.bc
+// RUN: diff -w %s.pass.json %t1.scev.json
 
 #include <cstdlib>
 
