@@ -13,9 +13,11 @@ link_directories(${LLVM_LIBRARY_DIRS})
 # Verify that the compiler used is the same as in LLVM instrumentation
 # Otherwise there might be an ABI incompatibility between our pass and runtime
 # library and LLVM.
-# TODO:
-set(LLVM_OPT "opt")
-set(LLVM_LLC "llc")
+find_program(LLVM_OPT "opt" PATHS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH)
+message(STATUS "Using LLVM opt in ${LLVM_OPT}")
+find_program(LLVM_LLC "llc" PATHS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH)
+message(STATUS "Using LLVM llc in ${LLVM_LLC}")
+# TODO: allow using a different compiler?
 set(CLANG ${CMAKE_C_COMPILER})
 set(CLANGXX ${CMAKE_CXX_COMPILER})
 
@@ -57,7 +59,7 @@ else()
   SET(MPI_INCLUDE_PATH "")
   SET(MPI_LINK_FLAGS "")
 endif()
-message(STATUS "Building with MPI: ${PERF_TAINT_WITH_CF_TAINTING}")
+message(STATUS "Building with MPI: ${PERF_TAINT_WITH_MPI}")
 
 ###
 # Optional: Use OpenMP function database and link against OpenMP.
@@ -103,8 +105,10 @@ if(NOT nlohmann_json_FOUND)
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     CMAKE_ARGS -DJSON_BuildTests=Off -DJSON_MultipleHeaders=ON -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install
     PREFIX ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/build
-    UPDATE_DISCONNECTED 1
-    BUILD_ALWAYS 1
+    UPDATE_DISCONNECTED 0
+    # Disable update in every build
+    UPDATE_COMMAND ""
+    BUILD_ALWAYS 0
     INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install
   )
   set(JSONCPP_INCLUDE_DIRS ${EXTERNAL_INSTALL_LOCATION}/nlohmann_json/install/include)

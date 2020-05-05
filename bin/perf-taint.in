@@ -40,7 +40,7 @@ for f in "${INPUT[@]}"; do
   ir_file_name="${f%.*}.dfsan.bc"
   object_file_name="${f%.*}.dfsan.o"
   if [[ -n "${tmp_file}" ]]; then
-    opt -load ${BUILD_DIR}/libDfsanInstrument.so\
+    @LLVM_OPT@ -load ${BUILD_DIR}/libDfsanInstrument.so\
         -extrap-extractor\
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -extrap-extractor-out-name=${tmp_file}\
@@ -50,7 +50,7 @@ for f in "${INPUT[@]}"; do
         < ${f}\
         > ${ir_file_name}
   else
-    opt -load ${BUILD_DIR}/libDfsanInstrument.so\
+    @LLVM_OPT@ -load ${BUILD_DIR}/libDfsanInstrument.so\
         -extrap-extractor\
         -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
         -dfsan\
