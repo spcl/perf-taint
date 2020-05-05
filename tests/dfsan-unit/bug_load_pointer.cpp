@@ -5,6 +5,12 @@
 // RUN: %execparams %t1.exe 10 10 > %t1.json
 // RUN: diff -w %s.json %t1.json
 
+// RUN: %opt %opt_flags %opt_cfsan < %t1.bc 2> /dev/null > %t2.tainted.bc
+// RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
+// RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe
+// RUN: %execparams %t2.exe 10 10 > %t2.json
+// RUN: diff -w %s.json %t2.json
+
 #include <cmath>
 #include <cstdlib>
 

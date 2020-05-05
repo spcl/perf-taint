@@ -12,21 +12,34 @@ config.exec_root = '@CMAKE_CURRENT_BINARY_DIR@'
 config.test_source_root = os.path.join(config.source_root, 'tests')
 config.test_exec_root = os.path.join(config.exec_root, 'tests')
 
-# Help variable used to locate compiled library
 config.perf_taint_include_path = os.path.join(config.source_root, 'include')
-config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
 config.libcxx_include_path = os.path.join(
   '@CMAKE_LIBCXX_PATH@', 'include', 'c++', 'v1'
 )
 config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
-config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
-config.with_cfsan = '@PERF_TAINT_WITH_CFSAN@' == 'TRUE'
-if config.with_omp:
-  config.libomp = '@OpenMP_C_LIBRARIES@'
-else:
-  config.excludes = ['openmp']
 
-config.suffixes = ['.cpp']
+
+config.with_cfsan = '@PERF_TAINT_WITH_CFSAN@' == 'TRUE'
+if config.with_cfsan:
+  config.cfsan_flag = '-dfsan-cfsan-enable'
+else:
+  config.cfsan_flag = ''
+
+config.with_mpi = True #'@PERF_TAINT_WITH_MPI@' == 'TRUE'
+if config.with_mpi:
+  config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
+else:
+  config.mpi_link_flags = ''
+  confi.excludes.add('mpi')
+
+config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
+if config.with_omp:
+  config.omp_link_flags = '@OpenMP_C_LIBRARIES@'
+else:
+  config.omp_link_flags = ''
+  config.excludes.add('openmp')
+
+config.suffixes = ['.cpp', '.c']
 config.test_format = lit.formats.ShTest(True)
 
 # the substring of clangxx must be declared later to avoid `%clangxx` being
@@ -58,6 +71,9 @@ config.substitutions.append( ('%opt_flags',
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
   )
 )
+config.substitutions.append( ('%opt_cfsan',
+    config.cfsan_flag
+) )
 config.substitutions.append( ('%opt', config.opt) )
 
 # LLVM's LLC generation of machine code
