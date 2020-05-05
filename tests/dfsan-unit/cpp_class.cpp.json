@@ -3,7 +3,7 @@
     "_ZN4Grid11update_gridEd": {
       "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 0,
-      "line": 23,
+      "line": 30,
       "loops": [
         {
           "callstacks": [
@@ -67,17 +67,17 @@
     "_ZN4Grid11update_dataEd": {
       "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 2,
-      "line": 38
+      "line": 45
     },
     "_ZN4Grid15update_constantEd": {
       "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 1,
-      "line": 30
+      "line": 37
     },
     "_ZN4Grid8update_zEd": {
       "file": "tests/dfsan-unit/cpp_class.cpp",
       "func_idx": 3,
-      "line": 46
+      "line": 53
     }
   }
 }

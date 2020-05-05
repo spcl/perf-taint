@@ -3,7 +3,7 @@
     "_Z1hii": {
       "file": "tests/dfsan-unit/function_retval.cpp",
       "func_idx": 1,
-      "line": 47,
+      "line": 58,
       "loops": [
         {
           "callstacks": [
@@ -27,7 +27,7 @@
     "_Z1iP4test": {
       "file": "tests/dfsan-unit/function_retval.cpp",
       "func_idx": 2,
-      "line": 58,
+      "line": 69,
       "loops": [
         {
           "callstacks": [
@@ -93,7 +93,7 @@
     "_Z1fii": {
       "file": "tests/dfsan-unit/function_retval.cpp",
       "func_idx": 0,
-      "line": 36
+      "line": 47
     }
   },
   "unused_parameters": [
