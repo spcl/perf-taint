@@ -2,46 +2,105 @@ import lit.util
 import lit.formats
 
 config.name = 'perf-taint'
+config.opt = '@LLVM_OPT@'
+config.llc = '@LLVM_LLC@'
+config.clang = '@CLANG@'
+config.clangxx = '@CLANGXX@'
 config.source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
-config.test_source_root = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'tests')
-# Path to test suite in build directory where tests are executed
 config.exec_root = '@CMAKE_CURRENT_BINARY_DIR@'
-config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
+# Path to test suite in build directory where tests are executed
+config.test_source_root = os.path.join(config.source_root, 'tests')
+config.test_exec_root = os.path.join(config.exec_root, 'tests')
+
 # Help variable used to locate compiled library
-config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
+config.perf_taint_include_path = os.path.join(config.source_root, 'include')
 config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
+config.libcxx_include_path = os.path.join(
+  '@CMAKE_LIBCXX_PATH@', 'include', 'c++', 'v1'
+)
 config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
 config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
+config.with_cfsan = '@PERF_TAINT_WITH_CFSAN@' == 'TRUE'
 if config.with_omp:
   config.libomp = '@OpenMP_C_LIBRARIES@'
 else:
   config.excludes = ['openmp']
-config.suffixes = ['.ll']
+
+config.suffixes = ['.cpp']
 config.test_format = lit.formats.ShTest(True)
-# TODO: make it configurable
 
-config.substitutions.append( ('%loadpass', '-load '
-    + config.lib_dir
-    + '/libStaticExtractor.so'
-    + ' -extrap-extractor'
-    ))
+# the substring of clangxx must be declared later to avoid `%clangxx` being
+# translated as `%clang` + 'xx'
+config.substitutions.append( ('%clangxx', config.clangxx) )
+config.substitutions.append( ('%clang', config.clang) )
 
-config.substitutions.append( ('%dfsan', '-load '
-    + config.lib_dir
-    + '/libDfsanInstrument.so'
-    + ' -extrap-extractor'
-    + ' -dfsan'
-    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
-    )
+# Use debug-prefix-map to obtain debug paths relative to source directory.
+config.substitutions.append( ('%c_flags',
+    '-I%s ' % config.perf_taint_include_path
+    + '-c -g -O2 -mllvm -disable-llvm-optzns '
+    + '-fdebug-prefix-map=%s/=' % config.source_root
+  )
 )
 
-config.substitutions.append( ('%mpidfsan', '-load '
-    + config.lib_dir
-    + '/libDfsanInstrument.so'
+config.substitutions.append( ('%cxx_flags',
+    '-I%s ' % config.libcxx_include_path
+    + '-I%s ' % config.perf_taint_include_path
+    + '-stdlib=libc++ -c -g -O2 -mllvm -disable-llvm-optzns '
+    + '-fdebug-prefix-map=%s/=' % config.source_root
+  )
+)
+
+# LLVM's opt flag: execute our perf-taint pass and then dfsan
+config.substitutions.append( ('%opt_flags',
+    '-load ' + os.path.join(config.exec_root, 'libDfsanInstrument.so')
     + ' -extrap-extractor'
-    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
     + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
+  )
+)
+config.substitutions.append( ('%opt', config.opt) )
+
+# LLVM's LLC generation of machine code
+config.substitutions.append( ('%llc_flags',
+    '-relocation-model=pic'
+    + ' -filetype=obj'
+  )
+)
+config.substitutions.append( ('%llc', config.llc) )
+
+# Compile LLVM IR and link with dfsan runtime, our runtime and libc++.
+config.substitutions.append( ('%link_flags',
+    ' -stdlib=libc++'
+    + ' -fsanitize=dataflow'
+    + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
+    + ' -L%s' % config.libcxx_path
+    + ' -Wl,--start-group,-lc++abi '
+    + ' %s ' % config.mpi_link_flags
+    + os.path.join(config.exec_root, 'libdfsan_runtime.a')
+  )
+)
+#+ 
+
+basic_substition = ('-load '
+    + config.exec_root
+    + '/libDfsanInstrument.so'
+    + ' -extrap-extractor'
+    + ' -dfsan'
+    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
+)
+
+config.substitutions.append( ('%dfsan', basic_substition) )
+config.substitutions.append( ('%cfsan', basic_substition
+    + ' -dfsan-cfsan-enable'
+    )
+)
+config.substitutions.append( ('%mpidfsan', basic_substition
+    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
+    )
+)
+config.substitutions.append( ('%mpicfsan', basic_substition
+    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
+    + ' -dfsan-cfsan-enable'
     )
 )
 
@@ -81,7 +140,7 @@ else:
   config.substitutions.append(('%omplink',''))
 
 config.substitutions.append( ('%jsonconvert',
-    config.lib_dir
+    config.exec_root
     + '/JSONConverter'
     )
 )
