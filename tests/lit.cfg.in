@@ -27,8 +27,12 @@ else:
 
 config.with_mpi = True #'@PERF_TAINT_WITH_MPI@' == 'TRUE'
 if config.with_mpi:
+  config.mpi_include_flags = ''
+  for mpi_path in '@MPI_C_INCLUDE_PATH@'.split(';'):
+    config.mpi_include_flags += ' -I%s ' % mpi_path
   config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
 else:
+  config.mpi_include_flags = ''
   config.mpi_link_flags = ''
   confi.excludes.add('mpi')
 
@@ -54,12 +58,15 @@ config.substitutions.append( ('%c_flags',
     + '-fdebug-prefix-map=%s/=' % config.source_root
   )
 )
-
 config.substitutions.append( ('%cxx_flags',
     '-I%s ' % config.libcxx_include_path
     + '-I%s ' % config.perf_taint_include_path
     + '-stdlib=libc++ -c -g -O2 -mllvm -disable-llvm-optzns '
     + '-fdebug-prefix-map=%s/=' % config.source_root
+  )
+)
+config.substitutions.append( ('%mpi_flags',
+    config.mpi_include_flags
   )
 )
 
@@ -73,6 +80,9 @@ config.substitutions.append( ('%opt_flags',
 )
 config.substitutions.append( ('%opt_cfsan',
     config.cfsan_flag
+) )
+config.substitutions.append( ('%opt_mpi',
+    '-extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
 ) )
 config.substitutions.append( ('%opt', config.opt) )
 
@@ -95,7 +105,6 @@ config.substitutions.append( ('%link_flags',
     + os.path.join(config.exec_root, 'libdfsan_runtime.a')
   )
 )
-#+ 
 
 basic_substition = ('-load '
     + config.exec_root
@@ -120,11 +129,6 @@ config.substitutions.append( ('%mpicfsan', basic_substition
     )
 )
 
-config.substitutions.append( ('%llcparams',
-    '-relocation-model=pic'
-    + ' -filetype=obj'
-    )
-)
 
 config.substitutions.append( ('%link',
     '-stdlib=libc++'

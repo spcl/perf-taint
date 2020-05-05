@@ -164,7 +164,7 @@
     "_Z3rcviiPi": {
       "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 1,
-      "line": 24,
+      "line": 41,
       "loops": [
         {
           "callstacks": [
@@ -210,7 +210,7 @@
     "_Z4sendiiPi": {
       "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 0,
-      "line": 9,
+      "line": 26,
       "loops": [
         {
           "callstacks": [
