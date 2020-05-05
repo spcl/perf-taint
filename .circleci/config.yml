@@ -1,7 +1,7 @@
  
 version: 2
 jobs:
- perf-taint-bare:
+ build-perf-taint-bare:
    docker:
      - image: mcopik/perf-taint:base-9.0
        user: docker
@@ -23,7 +23,7 @@ jobs:
      - run:
         name: Run unit tests
         command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/dfsan-unit'
- perf-taint-mpi:
+ build-perf-taint-mpi:
    docker:
      - image: mcopik/perf-taint:base-9.0
        user: docker
