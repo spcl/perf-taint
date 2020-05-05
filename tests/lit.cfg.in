@@ -19,7 +19,7 @@ config.libcxx_include_path = os.path.join(
 config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
 
 
-config.with_cfsan = '@PERF_TAINT_WITH_CFSAN@' == 'TRUE'
+config.with_cfsan = '@PERF_TAINT_WITH_CF_TAINTING@' == 'TRUE'
 if config.with_cfsan:
   config.cfsan_flag = '-dfsan-cfsan-enable'
 else:
@@ -31,7 +31,7 @@ if config.with_mpi:
   config.mpi_include_flags = ''
   for mpi_path in '@MPI_C_INCLUDE_PATH@'.split(';'):
     config.mpi_include_flags += ' -I%s ' % mpi_path
-  config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
+  config.mpi_link_flags = '@MPI_LINK_FLAGS@'
 else:
   config.mpi_include_flags = ''
   config.mpi_link_flags = ''

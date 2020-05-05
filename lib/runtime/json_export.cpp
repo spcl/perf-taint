@@ -8,16 +8,6 @@
 
 typedef nlohmann::json json_t;
 
-//#define DEBUG
-
-#define DEBUG2 true
-
-#define debug_print(fmt, ...) \
-  do {\
-    if (DEBUG2 && __EXTRAP_INSTRUMENTATION_MPI_RANK <= 0)\
-      fprintf(stderr, fmt, __VA_ARGS__);\
-  } while (0)
-
 json_t * __dfsw_json_get()
 {
   static json_t out;
@@ -704,14 +694,18 @@ void __dfsw_dump_json_output()
     out["functions_demangled_names"] = std::move(functions_demangled_names);
     if(strcmp(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME, "")) {
       std::string file_name;
+#if defined(PERF_TAINT_WITH_MPI)
       if(__EXTRAP_INSTRUMENTATION_MPI_RANK != -1) {
         file_name = __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME
           + std::string("_")
           + std::to_string(__EXTRAP_INSTRUMENTATION_MPI_RANK)
           + ".json";
       } else {
+#endif
         file_name = __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME + std::string(".json");
+#if defined(PERF_TAINT_WITH_MPI)
       }
+#endif
       fprintf(stderr, "Write to %s\n", file_name.c_str());
       std::ofstream file(file_name, std::ofstream::out);
       file << out.dump(2) << std::endl;

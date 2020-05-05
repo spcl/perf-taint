@@ -32,7 +32,7 @@ BUILD_DIR="@CMAKE_CURRENT_BINARY_DIR@"
 MPI_LINK_FLAG="@CMAKE_MPI_LINK_FLAGS@"
 LIBCXX_PATH="@CMAKE_LIBCXX_PATH@/lib"
 
-cfsan_switch=$([ "@PERF_TAINT_WITH_CFSAN@" == "TRUE" ] && echo "-dfsan-cfsan-enable" || echo "")
+cfsan_switch=$([ "@PERF_TAINT_WITH_CF_TAINTING@" == "TRUE" ] && echo "-dfsan-cfsan-enable" || echo "")
 
 IR_FILES=()
 OBJECT_FILES=()

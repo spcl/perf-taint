@@ -78,7 +78,21 @@ extern const char * __EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME;
 
 extern bool __EXTRAP_INSTRUMENTATION_CALLSITES_RESULTS[];
 extern int __EXTRAP_INSTRUMENTATION_CALLSITES_OFFSETS[];
-extern int __EXTRAP_INSTRUMENTATION_MPI_RANK;
+
+#if defined(PERF_TAINT_WITH_MPI)
+  #define debug_print(fmt, ...) \
+    do {\
+      if (DEBUG && __EXTRAP_INSTRUMENTATION_MPI_RANK <= 0)\
+        fprintf(stderr, fmt, __VA_ARGS__);\
+    } while (0)
+  extern int __EXTRAP_INSTRUMENTATION_MPI_RANK;
+#else
+  #define debug_print(fmt, ...) \
+    do {\
+      if (DEBUG)\
+        fprintf(stderr, fmt, __VA_ARGS__);\
+    } while (0)
+#endif
 
 //uint16_t * __dfsw_EXTRAP_CALLSTACK();
 extern callstack __EXTRAP_CALLSTACK;
