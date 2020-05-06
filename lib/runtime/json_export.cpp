@@ -1,10 +1,12 @@
+
+#include <perf-taint/runtime/runtime.h>
+
 #include <iostream>
 #include <fstream>
 #include <tuple>
 
 #include <nlohmann/json.hpp>
 
-#include "runtime.h"
 
 typedef nlohmann::json json_t;
 

@@ -1,6 +1,8 @@
+
+#include <perf-taint/runtime/runtime.h>
+
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -11,11 +13,7 @@
 
 #include <sanitizer/dfsan_interface.h>
 
-#include "runtime.h"
-
 #define DEBUG false
-
-
 
 //extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 //extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];

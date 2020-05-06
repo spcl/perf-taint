@@ -1,10 +1,11 @@
 
-#ifndef __JSON_EXPORT_
-#define __JSON_EXPORT_
+#ifndef __PERF_TAINT_RUNTIME_H__
+#define __PERF_TAINT_RUNTIME_H__
 
 #include <stdint.h>
+#include <stddef.h>
 #ifndef __cplusplus
-    #include <stdbool.h>
+  #include <stdbool.h>
 #endif
 
 #ifdef __cplusplus
@@ -163,3 +164,4 @@ EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
         int32_t function_idx);
 
 #endif
+
