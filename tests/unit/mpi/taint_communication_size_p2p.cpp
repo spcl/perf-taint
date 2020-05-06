@@ -21,7 +21,7 @@
 //https://github.com/open-mpi/ompi/blob/master/ompi/include/mpi.h.in#L2749
 #include <mpi.h>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 void send(int rank, int size, int * send_value)
 {

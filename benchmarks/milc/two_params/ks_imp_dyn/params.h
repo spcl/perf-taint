@@ -4,7 +4,7 @@
 #include "../include/macros.h"  /* For MAXFILENAME */
 #include "defines.h"
 
-#include "ExtraPInstrumenter.h"
+#include "perf-taint/PerfTaint.h"
 /* structure for passing simulation parameters to each node */
 typedef struct EXTRAP {
 	int stopflag;   /* 1 if it is time to stop */

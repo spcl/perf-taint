@@ -13,7 +13,7 @@
 
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 int global = 100;
 

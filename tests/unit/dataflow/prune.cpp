@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 int global EXTRAP = 100;
 double global2 EXTRAP = 3.14;

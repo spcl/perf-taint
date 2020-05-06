@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 class Grid
 {

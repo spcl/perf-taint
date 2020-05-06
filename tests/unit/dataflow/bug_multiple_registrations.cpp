@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // This test explores a scenario where variable registration is called multiple
 // times. Originally it happens in MILC's setup.c file where we register variables

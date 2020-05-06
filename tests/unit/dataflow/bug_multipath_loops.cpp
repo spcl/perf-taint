@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // Test reproducing a bug where a call to an important function is not registered
 // inside a deeply nested loop. This corresponds to function `imp_gauge_force_cpu`

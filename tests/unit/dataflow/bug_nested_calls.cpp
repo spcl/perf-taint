@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // Test reproducing a bug where multiple nested calls appear in the same function.
 // When a series of calls to important functions is made, the order of call

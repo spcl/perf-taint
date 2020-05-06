@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include "ExtraPInstrumenter.h"
+#include "perf-taint/PerfTaint.h"
 
 typedef struct _matrix
 {

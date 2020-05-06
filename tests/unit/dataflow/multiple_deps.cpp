@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 int global EXTRAP = 100;
 

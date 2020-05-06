@@ -57,7 +57,7 @@ index 9058a70..587e853 100644
  #include <math.h>
  #include <vector>
 +#if defined(WITH_EXTRAP)
-+#include "ExtraPInstrumenter.hpp"
++#include "perf-taint/PerfTaint.hpp"
 +#endif
  
  //**************************************************

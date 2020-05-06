@@ -3,7 +3,7 @@
 
 #include <omp.h>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 class Grid
 {

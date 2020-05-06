@@ -8,7 +8,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // With cfsan, the return value of `g` now has the taint of both `x` and `y`.
 

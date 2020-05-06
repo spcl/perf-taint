@@ -16,7 +16,7 @@
 #include <random>
 #include <iostream>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 #define BLOCK_SIZE 64
 

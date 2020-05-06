@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // This test verifies that functions are correctly pruned and we
 // detect each callstack seperately.

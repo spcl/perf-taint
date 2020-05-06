@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ExtraPInstrumenter.hpp"
+#include "perf-taint/PerfTaint.hpp"
 
 // This test case reproduces a bug where loop is incorrectly marked
 // as tainted in a pointer-based comparison.
