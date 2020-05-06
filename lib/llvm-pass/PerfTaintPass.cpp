@@ -85,19 +85,6 @@ namespace perf_taint {
 
     bool DfsanInstr::runOnModule(llvm::Module &m)
     {
-      if(EnableSCEV) {
-        analyzed_module = llvm::CloneModule(m);
-        llvm::legacy::PassManager PM;
-        // correlated-propagation
-        PM.add(llvm::createInstructionNamerPass());
-        //PM.add(llvm::createMetaRenamerPass());
-        PM.add(llvm::createCorrelatedValuePropagationPass());
-        // mem2reg pass
-        PM.add(llvm::createPromoteMemoryToRegisterPass());
-        // loop-simplify
-        PM.add(llvm::createLoopSimplifyPass());
-        PM.run(*analyzed_module);
-      }
       {
         llvm::legacy::PassManager PM;
         // correlated-propagation
@@ -372,22 +359,18 @@ namespace perf_taint {
 
         int loop_count = 0;
         // Count if SCEV helped with pruning some loops or scev helped
-        // with prunning all loops. False if empty since SCEV didn't help at all.
+        // with prunning all loops.
         int scev_analyzed_constant = 0;
         int scev_analyzed_nonconstant = 0;
         bool has_nonconstant_loop = false;
         const std::string & function_name = f.getName();
 
         if(EnableSCEV) {
-          llvm::Function* analyzed_f = (*analyzed_module).getFunction(function_name);
 
-          llvm::ScalarEvolution & scev = getAnalysis<llvm::ScalarEvolutionWrapperPass>(*analyzed_f).getSE();
-          llvm::LoopInfo * analyzed_linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(*analyzed_f).getLoopInfo();
-          //llvm::errs() << "SCEV: " << function_name << " " << std::distance(analyzed_linfo->begin(), analyzed_linfo->end()) << '\n';
-          //if(function_name == "load_fatlinks_cpu")
-            //llvm::errs() << *analyzed_f << '\n';
+          llvm::ScalarEvolution & scev
+            = getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
           // Process loops
-          for(llvm::Loop * l : *analyzed_linfo) {
+          for(llvm::Loop * l : *linfo) {
             auto ret = analyzeLoopSCEV(l, scev);
             loop_count += std::get<0>(ret);
             scev_analyzed_nonconstant += std::get<1>(ret);
