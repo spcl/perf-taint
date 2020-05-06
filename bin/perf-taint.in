@@ -33,32 +33,22 @@ MPI_LINK_FLAG="@MPI_LINK_FLAGS@"
 LIBCXX_PATH="@CMAKE_LIBCXX_PATH@/lib"
 
 cfsan_switch=$([ "@PERF_TAINT_WITH_CF_TAINTING@" == "TRUE" ] && echo "-dfsan-cfsan-enable" || echo "")
+out_name_flag=$([ -n "${tmp_file}" ] && echo "-perf-taint-out-name=${tmp_file}" || echo "")
 
 IR_FILES=()
 OBJECT_FILES=()
 for f in "${INPUT[@]}"; do
   ir_file_name="${f%.*}.dfsan.bc"
   object_file_name="${f%.*}.dfsan.o"
-  if [[ -n "${tmp_file}" ]]; then
-    @LLVM_OPT@ -load ${BUILD_DIR}/lib/libPerfTaintPass.so\
-        -perf-taint\
-        -perf-taint-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
-        -perf-taint-out-name=${tmp_file}\
-        -dfsan\
-        ${cfsan_switch}\
-        -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
-        < ${f}\
-        > ${ir_file_name}
-  else
-    @LLVM_OPT@ -load ${BUILD_DIR}/libDfsanInstrument.so\
-        -extrap-extractor\
-        -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
-        -dfsan\
-        ${cfsan_switch}\
-        -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
-        < ${f}\
-        > ${ir_file_name}
-  fi
+  @LLVM_OPT@ -load ${BUILD_DIR}/lib/libPerfTaintPass.so\
+    -perf-taint\
+    -perf-taint-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
+    ${out_name_flag}\
+    -dfsan\
+    ${cfsan_switch}\
+    -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
+    < ${f}\
+    > ${ir_file_name}
   echo "Taint instrumentation of ${f}, processed IR file ${ir_file_name}"
   IR_FILES+=(${ir_file_name})
   OBJECT_FILES+=(${object_file_name})
