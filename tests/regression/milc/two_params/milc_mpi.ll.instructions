@@ -1,1 +1,6 @@
-; RUN: opt %mpidfsan -extrap-extractor-out-name=%t4 -S < %s 2> /dev/null | llc %llcparams - -o %t1 && clang++ %link %t1 -o %t2 && %execparams mpiexec -n 2 %t2 %s.input > %t2.out 2>&1 && diff -w %s.json %t4_0.json
+; RUN: %opt %opt_flags %opt_mpi -extrap-extractor-out-name=%t2 < %s \
+; RUN:     2> /dev/null > %t1.tainted.bc
+; RUN: %llc %llc_flags < %t1.tainted.bc > %t1.tainted.o
+; RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
+; RUN: %execparams mpiexec -n 2 %t1.exe %s.input > %t1.out 2>&1
+; RUN: diff -w %s.json %t2_0.json
