@@ -1,5 +1,5 @@
 // RUN: %clangxx %cxx_flags %mpi_flags %s -emit-llvm -o %t1.bc
-// RUN: %opt %opt_flags %opt_mpi -extrap-extractor-out-name=%t3 < %t1.bc \
+// RUN: %opt %opt_flags %opt_mpi -perf-taint-out-name=%t3 < %t1.bc \
 // RUN:     2> /dev/null > %t1.tainted.bc
 // RUN: %llc %llc_flags < %t1.tainted.bc > %t1.tainted.o
 // RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
@@ -7,7 +7,7 @@
 // RUN: diff -w %s.json %t3_0.json
 // RUN: diff -w %s.json %t3_1.json
 
-// RUN: %opt %opt_flags %opt_mpi %opt_cfsan -extrap-extractor-out-name=%t4 \
+// RUN: %opt %opt_flags %opt_mpi %opt_cfsan -perf-taint-out-name=%t4 \
 // RUN:     < %t1.bc 2> /dev/null > %t2.tainted.bc
 // RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
 // RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe

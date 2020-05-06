@@ -85,8 +85,8 @@ config.substitutions.append( ('%mpi_flags',
 
 # LLVM's opt flag: execute our perf-taint pass and then dfsan
 config.substitutions.append( ('%opt_flags',
-    '-load ' + os.path.join(config.exec_root, 'libDfsanInstrument.so')
-    + ' -extrap-extractor'
+    '-load ' + os.path.join(config.exec_root, 'lib', 'libPerfTaintPass.so')
+    + ' -perf-taint'
     + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
   )
@@ -95,7 +95,7 @@ config.substitutions.append( ('%opt_cfsan',
     config.cfsan_flag
 ) )
 config.substitutions.append( ('%opt_mpi',
-    '-extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
+    '-perf-taint-func-database=%s/share/mpi_abilist.txt' % config.source_root
 ) )
 config.substitutions.append( ('%opt', config.opt) )
 
@@ -117,29 +117,6 @@ config.substitutions.append( ('%link_flags',
     + ' %s ' % config.mpi_link_flags
     + os.path.join(config.exec_root, 'libdfsan_runtime.a')
   )
-)
-
-basic_substition = ('-load '
-    + config.exec_root
-    + '/libDfsanInstrument.so'
-    + ' -extrap-extractor'
-    + ' -dfsan'
-    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
-)
-
-config.substitutions.append( ('%dfsan', basic_substition) )
-config.substitutions.append( ('%cfsan', basic_substition
-    + ' -dfsan-cfsan-enable'
-    )
-)
-config.substitutions.append( ('%mpidfsan', basic_substition
-    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
-    )
-)
-config.substitutions.append( ('%mpicfsan', basic_substition
-    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
-    + ' -dfsan-cfsan-enable'
-    )
 )
 
 config.substitutions.append( ('%execparams',
