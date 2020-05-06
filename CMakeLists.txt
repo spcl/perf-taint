@@ -91,21 +91,22 @@ endif()
 set(PASS_COMPILER_FLAGS "" CACHE STRING "Additional compiler flags for libraries and tools.")
 option(WITH_UNIT_TESTS ON)
 if( WITH_UNIT_TESTS )
-  set(PERF_TAINT_WITH_UNIT_TESTS FALSE)
+  set(PERF_TAINT_WITH_UNIT_TESTS TRUE)
 else()
   set(PERF_TAINT_WITH_UNIT_TESTS FALSE)
 endif()
+message(STATUS "Building with unit tests: ${PERF_TAINT_WITH_UNIT_TESTS}")
 option(WITH_REGRESSION_TESTS OFF)
 if( WITH_REGRESSION_TESTS )
-  set(PERF_TAINT_WITH_REGRESSION_TESTS FALSE)
+  set(PERF_TAINT_WITH_REGRESSION_TESTS TRUE)
 else()
   set(PERF_TAINT_WITH_REGRESSION_TESTS FALSE)
 endif()
+message(STATUS "Building with regression tests: ${PERF_TAINT_WITH_REGRESSION_TESTS}")
 
 ###
 # External dependencies
 ###
-
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 # JsonCPP
 find_package(nlohmann_json QUIET)
