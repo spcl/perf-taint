@@ -2,6 +2,7 @@
 
 CLANG=@CMAKE_C_COMPILER@
 CXXLANG=@CMAKE_CXX_COMPILER@
+CMAKE_BUILD_DIR="@CMAKE_CURRENT_BINARY_DIR@"
 INCLUDE_PATH="-I@CMAKE_CURRENT_SOURCE_DIR@/include/"
 CXX_INCLUDE_PATH="-I@LIBCXX_PATH@/include/c++/v1"
 OMP_INCLUDE_PATH="-I@OpenMP_C_INCLUDE_DIRS@"
@@ -20,13 +21,21 @@ for f in tests/dfsan-unit/*.cpp tests/dfsan-unit/**/*.cpp; do
   echo "Rebuilding ${f%.*}"
   test_name="${f%.*}.ll"
   instr_name="${test_name}.instructions"
+  directory=$(dirname ${f})
+  generated_test="${CMAKE_BUILD_DIR}/${test_name}"
+
+  mkdir -p "${CMAKE_BUILD_DIR}/${directory}"
 
   # Generate LLVM IR file.
-  ${CXXLANG} "${INCLUDE_PATH}" "${OMP_INCLUDE_PATH}" "${MPI_INCLUDE[@]}" "${CXX_INCLUDE_PATH}" -stdlib=libc++ -fopenmp=libiomp5 -g -O2 -mllvm -disable-llvm-optzns -S -emit-llvm $f -o ${test_name}
+  ${CXXLANG} "${INCLUDE_PATH}" "${OMP_INCLUDE_PATH}" "${MPI_INCLUDE[@]}"\
+    "${CXX_INCLUDE_PATH}" -stdlib=libc++ -fopenmp=libiomp5\
+    -g -O2 -mllvm -disable-llvm-optzns -S -emit-llvm\
+    $f\
+    -o ${generated_test}
 
   # Append instructions to the beginning of the file.
   echo "$(cat ${instr_name})
-$(cat ${test_name})" > ${test_name}
+$(cat ${generated_test})" > ${generated_test}
 done
 
 for f in tests/dfsan-unit/*.c; do

@@ -161,20 +161,23 @@ add_dependencies(dfsan_runtime nlohmann_json)
 # Tools
 ###
 
-add_executable(ScorePGenerator lib/ScorePGenerator.cpp)
+add_executable(ScorePGenerator tools/ScorePGenerator.cpp)
 set_property(TARGET ScorePGenerator PROPERTY CXX_STANDARD 14)
 add_dependencies(ScorePGenerator nlohmann_json)
 set_target_properties(ScorePGenerator PROPERTIES COMPILE_FLAGS "-g -Wall")
+set_target_properties(ScorePGenerator PROPERTIES RUNTIME_OUTPUT_DIRECTORY tools)
 
-add_executable(JSONConverter lib/JSONConverter.cpp)
+add_executable(JSONConverter tools/JSONConverter.cpp)
 set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
 set_target_properties(JSONConverter PROPERTIES COMPILE_FLAGS "-g -Wall")
 add_dependencies(JSONConverter nlohmann_json)
+set_target_properties(JSONConverter PROPERTIES RUNTIME_OUTPUT_DIRECTORY tools)
 
 add_executable(model_comparator tools/model_comparator.cpp)
 set_property(TARGET model_comparator PROPERTY CXX_STANDARD 14)
 add_dependencies(model_comparator nlohmann_json)
 set_target_properties(model_comparator PROPERTIES COMPILE_FLAGS "-g -Wall")
+set_target_properties(model_comparator PROPERTIES RUNTIME_OUTPUT_DIRECTORY tools)
 
 configure_file(benchmarks/rebuild_benchmarks.sh.in benchmarks/rebuild_benchmarks.sh @ONLY)
 configure_file(bin/perf-taint.in bin/perf-taint @ONLY)
