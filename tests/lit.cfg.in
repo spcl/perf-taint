@@ -50,7 +50,7 @@ else:
   config.omp_link_flags = ''
   config.excludes.add('openmp')
 
-config.suffixes = ['.cpp', '.c']
+config.suffixes = ['.cpp', '.c', '.ll']
 config.test_format = lit.formats.ShTest(True)
 
 # the substring of clangxx must be declared later to avoid `%clangxx` being
@@ -136,35 +136,10 @@ config.substitutions.append( ('%mpicfsan', basic_substition
     )
 )
 
-
-config.substitutions.append( ('%link',
-    '-stdlib=libc++'
-    + ' -fsanitize=dataflow'
-    + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
-    + ' -L%s' % config.libcxx_path
-    + ' -Wl,--start-group,-lc++abi'
-    + ' %s' % config.mpi_link_flags
-    + ' %s/libdfsan_runtime.a' % config.exec_root
-    )
-)
-
-config.substitutions.append( ('%testdir',
-    config.test_exec_root
-    )
-)
-
 config.substitutions.append( ('%execparams',
     'DFSAN_OPTIONS=warn_unimplemented=0'
     )
 )
-
-if config.with_omp:
-  config.substitutions.append( ('%omplink',
-      '%s' % config.libomp
-      )
-  )
-else:
-  config.substitutions.append(('%omplink',''))
 
 config.substitutions.append( ('%jsonconvert',
     config.exec_root
