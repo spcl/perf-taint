@@ -21,8 +21,6 @@ namespace llvm {
 
 namespace extrap {
 
-    class CallSite;
-
     struct Parameters
     {
         typedef int32_t id_t;
@@ -90,7 +88,6 @@ namespace extrap {
         llvm::SmallVector< std::tuple<const llvm::Value *, Parameters::id_t>, 5> locals;
 
         // create an instance for a new function from the callsite
-        FunctionParameters(llvm::Function & f, CallSite &);
         // empty arguments
         FunctionParameters();
 

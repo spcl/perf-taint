@@ -1,8 +1,6 @@
 #include "AnnotationAnalyzer.hpp"
 #include "DebugInfo.hpp"
 #include "ParameterFinder.hpp"
-// callsite
-#include "static-extractor/FunctionAnalysis.hpp"
 
 #include <tuple>
 
@@ -218,19 +216,6 @@ namespace extrap {
             return s.get_field(field, is_global);
     }
     
-    FunctionParameters::FunctionParameters(llvm::Function & f, CallSite & callsite)
-    {
-        // from call pos -> ids
-        // to llvm::Value-> ids
-        for(const CallSite::call_arg_t & call : callsite.parameters)
-        {
-            int position = std::get<0>(call);
-            auto it = f.arg_begin();
-            std::advance(it, position);
-            arguments[ &*it ] = std::get<1>(call);
-        }
-    }
-
     FunctionParameters::FunctionParameters() {}
 
     void FunctionParameters::add(const llvm::Value * val, id_t id)
