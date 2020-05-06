@@ -1,10 +1,13 @@
 
 
+#include <perf-taint/llvm-pass/FunctionDatabase.hpp>
+
+// TODO: remove -> instrumenter into a different file
+#include <perf-taint/llvm-pass/PerfTaintPass.hpp>
+
 #include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Function.h>
 
-#include <dfsan-instr/FunctionDatabase.hpp>
-#include <dfsan-instr/DfsanInstr.hpp>
 
 namespace perf_taint {
 
@@ -21,7 +24,7 @@ namespace perf_taint {
   void FunctionDatabase::read(std::ifstream & input)
   {
       json_t json;
-      json << input;
+      input >> json;
 
       int param_idx = 0;
       for(auto & param : json["parameters"]) {
@@ -68,7 +71,7 @@ namespace perf_taint {
     return it != implicit_parameters.end() ? &(*it) : nullptr;
   }
 
-  void FunctionDatabase::setInstrumenter(extrap::Instrumenter * _instr)
+  void FunctionDatabase::setInstrumenter(perf_taint::Instrumenter * _instr)
   {
     this->instrumenter = _instr;
   }

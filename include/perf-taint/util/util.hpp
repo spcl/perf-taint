@@ -1,9 +1,6 @@
-//
-// Created by mcopik on 5/7/18.
-//
 
-#ifndef LOOP_EXTRACTOR_CPP_UTIL_HPP
-#define LOOP_EXTRACTOR_CPP_UTIL_HPP
+#ifndef __UTIL_HPP__
+#define __UTIL_HPP__
 
 #include <string>
 #include <cstring>
@@ -130,4 +127,5 @@ std::string llvm_to_str(T * obj)
 
 std::string debug_info(llvm::Loop * l);
 
-#endif //LOOP_EXTRACTOR_CPP_UTIL_HPP
+#endif
+

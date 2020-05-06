@@ -1,6 +1,8 @@
-#include "AnnotationAnalyzer.hpp"
-#include "DebugInfo.hpp"
-#include "ParameterFinder.hpp"
+
+#include <perf-taint/llvm-pass/ParameterFinder.hpp>
+
+#include <perf-taint/llvm-pass/AnnotationAnalyzer.hpp>
+#include <perf-taint/llvm-pass/DebugInfo.hpp>
 
 #include <tuple>
 
@@ -43,7 +45,7 @@ namespace llvm {
     }
 }
 
-namespace extrap {
+namespace perf_taint {
 
     std::vector< const llvm::GlobalVariable * > Parameters::globals;
     std::vector< std::string > Parameters::globals_names;

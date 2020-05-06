@@ -1,13 +1,13 @@
 
 
-#ifndef DFSAN_INSTR_PASS_HPP
-#define DFSAN_INSTR_PASS_HPP
+#ifndef __PERF_TAINT_PASS_HPP__
+#define __PERF_TAINT_PASS_HPP__
 
-#include "ParameterFinder.hpp"
-#include "DebugInfo.hpp"
-#include <dfsan-instr/FunctionDatabase.hpp>
-#include <dfsan-instr/common.hpp>
-#include <dfsan-instr/Statistics.hpp>
+#include <perf-taint/llvm-pass/ParameterFinder.hpp>
+#include <perf-taint/llvm-pass/DebugInfo.hpp>
+#include <perf-taint/llvm-pass/FunctionDatabase.hpp>
+#include <perf-taint/llvm-pass/common.hpp>
+#include <perf-taint/llvm-pass/Statistics.hpp>
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/IRBuilder.h>
@@ -29,18 +29,9 @@ namespace llvm {
 }
 
 namespace perf_taint {
+
   struct Function;
   struct ImplicitCall;
-}
-
-//TODO: remove after refactor
-using perf_taint::json_t;
-using perf_taint::Function;
-using perf_taint::ImplicitCall;
-using perf_taint::FunctionDatabase;
-using perf_taint::Statistics;
-
-namespace extrap {
 
     struct FileIndex
     {
@@ -424,3 +415,4 @@ namespace extrap {
 }
 
 #endif
+

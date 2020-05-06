@@ -1,7 +1,10 @@
 
-#include <map>
+#ifndef __PERF_TAINT_STATISTICS_HPP__
+#define __PERF_TAINT_STATISTICS_HPP__
 
-#include <dfsan-instr/common.hpp>
+#include <perf-taint/llvm-pass/common.hpp>
+
+#include <map>
 
 namespace perf_taint {
 
@@ -38,3 +41,6 @@ namespace perf_taint {
   };
 
 }
+
+#endif
+

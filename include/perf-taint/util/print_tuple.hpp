@@ -1,12 +1,11 @@
 
 
-#ifndef LOOP_EXTRACTOR_CPP_PRINT_TUPLE_HPP
-#define LOOP_EXTRACTOR_CPP_PRINT_TUPLE_HPP
+#ifndef __PRINT_TUPLE_HPP__
+#define __PRINT_TUPLE_HPP__
 
 #include <iostream>
 #include <type_traits>
 #include <tuple>
-
 
 namespace {
 
@@ -35,4 +34,5 @@ std::ostream & operator<<(std::ostream & out, const std::tuple<Args...> & t)
   return print_tuple(out, t, int_const< sizeof...(Args) >{});
 }
 
-#endif //LOOP_EXTRACTOR_CPP_PRINT_TUPLE_HPP
+#endif
+

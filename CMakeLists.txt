@@ -136,15 +136,15 @@ include_directories(include)
 ###
 # Main pass: build C++14, PIC and no RTTI
 ###
-file(GLOB DfsanInstrument
-    "lib/dfsan-instr/*.cpp"
+file(GLOB PerfTaintPassFiles
+    "lib/llvm-pass/*.cpp"
 )
-add_library(DfsanInstrument MODULE ${DfsanInstrument} lib/ParameterFinder.cpp)
-set_property(TARGET DfsanInstrument PROPERTY CXX_STANDARD 14)
-set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "-fno-rtti")
-set_target_properties(DfsanInstrument PROPERTIES POSITION_INDEPENDENT_CODE On)
-set_target_properties(DfsanInstrument PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti -g")
-add_dependencies(DfsanInstrument nlohmann_json)
+add_library(PerfTaintPass MODULE ${PerfTaintPassFiles})
+set_property(TARGET PerfTaintPass PROPERTY CXX_STANDARD 14)
+set_target_properties(PerfTaintPass PROPERTIES POSITION_INDEPENDENT_CODE On)
+set_target_properties(PerfTaintPass PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti -g")
+set_target_properties(PerfTaintPass PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
+add_dependencies(PerfTaintPass nlohmann_json)
 
 ###
 # Runtime library: link to JSON, build C++14, PIC

@@ -1,9 +1,9 @@
 
-#ifndef DFSAN_INSTR_FUNCTION_DATABASE_HPP
-#define DFSAN_INSTR_FUNCTION_DATABASE_HPP
+#ifndef __PERF_TAINT_FUNCTION_DATABASE_HPP__
+#define __PERF_TAINT_FUNCTION_DATABASE_HPP__
 
-#include <dfsan-instr/common.hpp>
-#include <dfsan-instr/Function.hpp>
+#include <perf-taint/llvm-pass/common.hpp>
+#include <perf-taint/llvm-pass/Function.hpp>
 
 #include <fstream>
 #include <string>
@@ -18,16 +18,13 @@ namespace llvm {
 
 }
   
-namespace extrap {
-  struct Instrumenter;
-}
-
 namespace perf_taint {
 
+  struct Instrumenter;
 
   struct FunctionDatabase
   {
-    extrap::Instrumenter * instrumenter;
+    Instrumenter * instrumenter;
     llvm::GlobalVariable * glob_indices;
 
     struct DataBaseEntry
@@ -65,7 +62,7 @@ namespace perf_taint {
     size_t parameters_count() const;
     const std::string & parameter_name(size_t idx) const;
     const ImplicitParameter * find_parameter(const std::string & name) const;
-    void setInstrumenter(extrap::Instrumenter * _instr);
+    void setInstrumenter(Instrumenter * _instr);
     void annotateParameters(llvm::Function * called_function,
         llvm::Value * call) const;
   };

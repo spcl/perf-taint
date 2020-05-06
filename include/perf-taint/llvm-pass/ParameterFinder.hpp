@@ -19,7 +19,7 @@ namespace llvm {
     class StructType;
 }
 
-namespace extrap {
+namespace perf_taint {
 
     struct Parameters
     {

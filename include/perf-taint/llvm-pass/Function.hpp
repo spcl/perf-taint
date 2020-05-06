@@ -1,6 +1,6 @@
 
-#ifndef DFSAN_INSTR_FUNCTION_HPP
-#define DFSAN_INSTR_FUNCTION_HPP
+#ifndef __PERF_TAINT_FUNCTION_HPP__
+#define __PERF_TAINT_FUNCTION_HPP__
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/Instruction.h>
@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 #include <variant>
+
+namespace llvm {
+  class CallBase;
+}
 
 namespace perf_taint {
 

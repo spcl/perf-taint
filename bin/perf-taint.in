@@ -40,10 +40,10 @@ for f in "${INPUT[@]}"; do
   ir_file_name="${f%.*}.dfsan.bc"
   object_file_name="${f%.*}.dfsan.o"
   if [[ -n "${tmp_file}" ]]; then
-    @LLVM_OPT@ -load ${BUILD_DIR}/libDfsanInstrument.so\
-        -extrap-extractor\
-        -extrap-extractor-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
-        -extrap-extractor-out-name=${tmp_file}\
+    @LLVM_OPT@ -load ${BUILD_DIR}/lib/libPerfTaintPass.so\
+        -perf-taint\
+        -perf-taint-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
+        -perf-taint-out-name=${tmp_file}\
         -dfsan\
         ${cfsan_switch}\
         -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\

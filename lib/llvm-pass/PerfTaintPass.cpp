@@ -1,11 +1,12 @@
 
-#include <dfsan-instr/DfsanInstr.hpp>
-#include <dfsan-instr/Function.hpp>
-#include <dfsan-instr/FunctionDatabase.hpp>
-#include "AnnotationAnalyzer.hpp"
-#include "DebugInfo.hpp"
-#include "ParameterFinder.hpp"
-#include "util/util.hpp"
+#include <perf-taint/llvm-pass/PerfTaintPass.hpp>
+
+#include <perf-taint/llvm-pass/AnnotationAnalyzer.hpp>
+#include <perf-taint/llvm-pass/DebugInfo.hpp>
+#include <perf-taint/llvm-pass/Function.hpp>
+#include <perf-taint/llvm-pass/FunctionDatabase.hpp>
+#include <perf-taint/llvm-pass/ParameterFinder.hpp>
+#include <perf-taint/util/util.hpp>
 
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/LoopInfo.h>
@@ -31,22 +32,22 @@
 #include <cxxabi.h>
 #include <cstdio>
 
-static llvm::cl::opt<std::string> LogFileName("extrap-extractor-log-name",
+static llvm::cl::opt<std::string> LogFileName("perf-taint-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
                                         llvm::cl::init("unknown"),
                                         llvm::cl::value_desc("filename"));
 
-static llvm::cl::opt<std::string> LogDirName("extrap-extractor-out-dir",
+static llvm::cl::opt<std::string> LogDirName("perf-taint-out-dir",
                                        llvm::cl::desc("Specify directory for output logs"),
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
-static llvm::cl::opt<std::string> OutputFileName("extrap-extractor-out-name",
+static llvm::cl::opt<std::string> OutputFileName("perf-taint-out-name",
                                        llvm::cl::desc("Specify name for output file."),
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
 
-static llvm::cl::opt<std::string> FunctionDatabaseName("extrap-extractor-func-database",
+static llvm::cl::opt<std::string> FunctionDatabaseName("perf-taint-func-database",
                                        llvm::cl::desc("Input database with functions."),
                                        llvm::cl::init(""),
                                        llvm::cl::value_desc("filename"));
@@ -61,17 +62,12 @@ static llvm::cl::opt<bool> EnableSCEV("perf-taint-scev",
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("boolean flag"));
 
-static llvm::cl::opt<std::string> JSONOutputToFile("extrap-extractor-json-output-file",
-                                       llvm::cl::desc("Enable Polly Scalar Evolution"),
-                                       llvm::cl::init(""),
-                                       llvm::cl::value_desc("boolean flag"));
-
-static llvm::cl::opt<bool> GenerateStats("extrap-extractor-export-stats",
+static llvm::cl::opt<bool> GenerateStats("perf-taint-export-stats",
                                        llvm::cl::desc("Specify directory for output logs"),
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("filename"));
 
-namespace extrap {
+namespace perf_taint {
 
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
 
@@ -1918,17 +1914,18 @@ namespace extrap {
     }
 }
 
-char extrap::DfsanInstr::ID = 0;
-static llvm::RegisterPass<extrap::DfsanInstr> register_pass(
-    "extrap-extractor",
-    "Extract loop information",
-    true /* Only looks at CFG */,
-    false /* Analysis Pass */);
+char perf_taint::DfsanInstr::ID = 0;
+static llvm::RegisterPass<perf_taint::DfsanInstr> register_pass(
+  "perf-taint",
+  "Apply taint-based loop modeling",
+  true /* Only looks at CFG */,
+  false /* Analysis Pass */
+);
 
 // Allow running dynamically through frontend such as Clang
 void addDfsanInstr(const llvm::PassManagerBuilder &Builder,
                         llvm::legacy::PassManagerBase &PM) {
-  PM.add(new extrap::DfsanInstr());
+  PM.add(new perf_taint::DfsanInstr());
 }
 
 // run after optimizations
