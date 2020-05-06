@@ -18,21 +18,28 @@ config.libcxx_include_path = os.path.join(
 )
 config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
 
-config.with_unit = '@PERF_TAINT_WITH_UNIT_TESTS@'
-config.with_regression = '@PERF_TAINT_WITH_REGRESSION_TESTS@'
+config.with_unit = '@PERF_TAINT_WITH_UNIT_TESTS@' == 'TRUE'
+config.with_regression = '@PERF_TAINT_WITH_REGRESSION_TESTS@' == 'TRUE'
+config.with_cfsan = '@PERF_TAINT_WITH_CF_TAINTING@' == 'TRUE'
+config.with_mpi = '@PERF_TAINT_WITH_MPI@' == 'TRUE'
+config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
+
+# Dependencies
+# Regression tests require MPI support
+if not config.with_mpi:
+  config.with_regression = False
+
 if not config.with_unit:
   config.excludes.add('unit')
 if not config.with_regression:
   config.excludes.add('regression')
 
-config.with_cfsan = '@PERF_TAINT_WITH_CF_TAINTING@' == 'TRUE'
 if config.with_cfsan:
   config.cfsan_flag = '-dfsan-cfsan-enable'
 else:
   config.cfsan_flag = ''
   config.excludes.add('control-flow')
 
-config.with_mpi = '@PERF_TAINT_WITH_MPI@' == 'TRUE'
 if config.with_mpi:
   config.mpi_include_flags = ''
   for mpi_path in '@MPI_C_INCLUDE_PATH@'.split(';'):
@@ -43,7 +50,6 @@ else:
   config.mpi_link_flags = ''
   config.excludes.add('mpi')
 
-config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
 if config.with_omp:
   config.omp_link_flags = '@OpenMP_C_LIBRARIES@'
 else:
