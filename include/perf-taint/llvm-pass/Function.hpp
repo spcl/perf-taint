@@ -2,6 +2,8 @@
 #ifndef __PERF_TAINT_FUNCTION_HPP__
 #define __PERF_TAINT_FUNCTION_HPP__
 
+#include <perf-taint/llvm-pass/Loop.hpp>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Value.h>
@@ -38,6 +40,8 @@ namespace perf_taint {
     // # of entries = loop_depths.size()
     std::vector<int> loops_structures;
     std::vector<int> loops_sizes;
+    // natural loops in the function
+    std::vector<Loop> loops;
     // call + index of parameter
     llvm::SmallVector<ImplicitCall, 10> implicit_loops;
     typedef std::vector< std::vector<int> > vec_t;

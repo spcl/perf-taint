@@ -2,6 +2,7 @@
 #define __DEBUG_INFO_HPP__  
 
 #include <llvm/ADT/Optional.h>
+#include <llvm/Analysis/LoopInfo.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/IntrinsicInst.h>
@@ -61,6 +62,11 @@ namespace perf_taint {
                 ));
       else
         return opt_t();
+    }
+
+    int getLoopLocation(const llvm::Loop & l)
+    {
+      return l.getStartLoc().getLine();
     }
 
     template<typename F>

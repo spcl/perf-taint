@@ -291,46 +291,6 @@ namespace perf_taint {
         }
         return loop_count;
     }
-    
-    std::tuple<int, int, int, bool> DfsanInstr::analyzeLoopSCEV(llvm::Loop *l, llvm::ScalarEvolution & scev)
-    {
-      int loop_count = 1, scev_analyzed_nonconstant = 0, scev_analyzed_constant = 0;
-      bool has_nonconstant_loop =false;
-      if(scev.hasLoopInvariantBackedgeTakenCount(l)) {
-        const llvm::SCEV * backedge_count = scev.getBackedgeTakenCount(l);
-        // Unknown count? SCEV failed, function is instrumented
-        if(llvm::isa<llvm::SCEVCouldNotCompute>(backedge_count)) {
-          has_nonconstant_loop = true;
-        // Non-constant count? SCEV succeeded, function is instrumented
-        } else if(!llvm::isa<llvm::SCEVConstant>(backedge_count)) {
-          has_nonconstant_loop = true;
-          ++scev_analyzed_nonconstant;
-        // Constant count? SCEV succeeded, function maybe not instrumented
-        } else {
-          ++scev_analyzed_constant;
-        }
-      // Not known? SCEV failed, function is instrumented
-      } else {
-        has_nonconstant_loop = true;
-      }
-      for(llvm::Loop * subloop : l->getSubLoops()) {
-        auto ret = analyzeLoopSCEV(subloop, scev);
-        loop_count += std::get<0>(ret);
-        scev_analyzed_nonconstant += std::get<1>(ret);
-        scev_analyzed_constant += std::get<2>(ret);
-        has_nonconstant_loop |= std::get<3>(ret);
-      }
-      return std::make_tuple(loop_count, scev_analyzed_nonconstant,
-          scev_analyzed_constant, has_nonconstant_loop);
-    }
-
-    int loop_size(llvm::Loop * l)
-    {
-      int loops = 1;
-      for(llvm::Loop * subloop : l->getSubLoops())
-        loops += loop_size(subloop);
-      return loops;
-    }
 
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
             llvm::CallGraphNode * cg_node, int override_counter)
@@ -365,27 +325,29 @@ namespace perf_taint {
         bool has_nonconstant_loop = false;
         const std::string & function_name = f.getName();
 
+        std::vector<Loop> loops; 
+        for(llvm::Loop * l : *linfo) {
+          loops.emplace_back(f, l);
+          loop_count += loops.back().loops_count();
+        }
         if(EnableSCEV) {
-
           llvm::ScalarEvolution & scev
             = getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
-          // Process loops
-          for(llvm::Loop * l : *linfo) {
-            auto ret = analyzeLoopSCEV(l, scev);
-            loop_count += std::get<0>(ret);
-            scev_analyzed_nonconstant += std::get<1>(ret);
-            scev_analyzed_constant += std::get<2>(ret);
-            has_nonconstant_loop |= std::get<3>(ret);
+          for(Loop & loop : loops) {
+            loop.analyzeSCEV(scev);
+            scev_analyzed_constant += loop.scev_analyzed_constant;
+            scev_analyzed_nonconstant += loop.scev_analyzed_nonconstant;
+            has_nonconstant_loop |= !loop.is_constant();
           }
           stats.function_statistics(function_name, "loops",
               "scev_analyzed_constant", scev_analyzed_constant);
           stats.function_statistics(function_name, "loops",
               "scev_analyzed_nonconstant", scev_analyzed_nonconstant);
-        } else {
-          for(llvm::Loop * l : *linfo)
-            loop_count += loop_size(l);
-          has_nonconstant_loop = loop_count;
         }
+        // if no static analysis information is provided,
+        // then we have to assume that any loop is non-constant
+        else
+          has_nonconstant_loop = loops.size();
         stats.function_statistics(function_name, "loops", "count", loop_count);
 
         // Worth instrumenting

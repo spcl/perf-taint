@@ -407,7 +407,6 @@ namespace perf_taint {
         void insertCallsite(llvm::Function & f, llvm::Value * val);
         int analyzeLoop(Function & f, llvm::Loop & l,
                 std::vector<std::vector<int>> & data, int depth);
-        std::tuple<int, int, int, bool> analyzeLoopSCEV(llvm::Loop *l, llvm::ScalarEvolution & scev);
     };
 
 }
