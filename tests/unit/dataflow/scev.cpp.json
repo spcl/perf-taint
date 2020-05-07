@@ -1,0 +1,177 @@
+{
+  "functions": {
+    "_Z10mixed_loopii": {
+      "file": "tests/unit/dataflow/scev.cpp",
+      "func_idx": 3,
+      "line": 38,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "1": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z16mixed_loop_largeiii": {
+      "file": "tests/unit/dataflow/scev.cpp",
+      "func_idx": 4,
+      "line": 68,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "2": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z16nonconstant_loopii": {
+      "file": "tests/unit/dataflow/scev.cpp",
+      "func_idx": 1,
+      "line": 30,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z25nonconstant_loop_variantsii": {
+      "file": "tests/unit/dataflow/scev.cpp",
+      "func_idx": 2,
+      "line": 50,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "2": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "constant_loop(int, int)",
+    "nonconstant_loop(int, int)",
+    "nonconstant_loop_variants(int, int)",
+    "mixed_loop(int, int)",
+    "mixed_loop_large(int, int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "empty_function(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z13constant_loopii",
+    "_Z16nonconstant_loopii",
+    "_Z25nonconstant_loop_variantsii",
+    "_Z10mixed_loopii",
+    "_Z16mixed_loop_largeiii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z14empty_functionii"
+  ],
+  "functions_names": [
+    "constant_loop",
+    "nonconstant_loop",
+    "nonconstant_loop_variants",
+    "mixed_loop",
+    "mixed_loop_large",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "empty_function"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ],
+  "unimportant_functions": {
+    "_Z13constant_loopii": {
+      "file": "tests/unit/dataflow/scev.cpp",
+      "func_idx": 0,
+      "line": 22
+    }
+  }
+}

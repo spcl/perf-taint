@@ -54,6 +54,16 @@
         "scev_analyzed_nonconstant": 1
       }
     },
+    "_Z17register_variableIiEvPT_PKc": {
+      "loops": {
+        "count": 0,
+        "scev_analyzed_constant": 0,
+        "scev_analyzed_nonconstant": 0
+      },
+      "pruned": [
+        "no_performance_critical_code"
+      ]
+    },
     "_Z25nonconstant_loop_variantsii": {
       "instrumented": [
         "loops"
@@ -92,12 +102,12 @@
         "loops": 4
       },
       "pruned": {
-        "no_performance_critical_code": 3,
+        "no_performance_critical_code": 4,
         "scev": 1
       },
-      "total": 8,
+      "total": 9,
       "total_instrumented": 4,
-      "total_pruned": 4
+      "total_pruned": 5
     },
     "loops": {
       "implicit": 0,
