@@ -14,6 +14,7 @@
     "_Z13constant_loopii": {
       "loops": {
         "count": 1,
+        "implicit": 0,
         "scev_analyzed_constant": 1,
         "scev_analyzed_nonconstant": 0
       },
@@ -31,6 +32,17 @@
         "no_performance_critical_code"
       ]
     },
+    "_Z16mixed_loop_largeiii": {
+      "instrumented": [
+        "loops"
+      ],
+      "loops": {
+        "count": 4,
+        "implicit": 0,
+        "scev_analyzed_constant": 1,
+        "scev_analyzed_nonconstant": 3
+      }
+    },
     "_Z16nonconstant_loopii": {
       "instrumented": [
         "loops"
@@ -40,6 +52,17 @@
         "implicit": 0,
         "scev_analyzed_constant": 0,
         "scev_analyzed_nonconstant": 1
+      }
+    },
+    "_Z25nonconstant_loop_variantsii": {
+      "instrumented": [
+        "loops"
+      ],
+      "loops": {
+        "count": 4,
+        "implicit": 0,
+        "scev_analyzed_constant": 1,
+        "scev_analyzed_nonconstant": 3
       }
     },
     "atoi": {
@@ -66,21 +89,21 @@
   "statistics": {
     "functions": {
       "instrumented": {
-        "loops": 2
+        "loops": 4
       },
       "pruned": {
         "no_performance_critical_code": 3,
         "scev": 1
       },
-      "total": 6,
-      "total_instrumented": 2,
+      "total": 8,
+      "total_instrumented": 4,
       "total_pruned": 4
     },
     "loops": {
       "implicit": 0,
-      "static_analyzed": 2,
-      "static_instrumented": 2,
-      "total": 4
+      "static_analyzed": 4,
+      "static_instrumented": 8,
+      "total": 12
     }
   }
 }
