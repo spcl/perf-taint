@@ -389,7 +389,9 @@ namespace perf_taint {
         stats.function_statistics(function_name, "loops", "count", loop_count);
 
         // Worth instrumenting
-        if(has_nonconstant_loop || has_openmp_calls || has_important_call) {
+        // FIXME: still instrument if SCEV discovered constant loops to ensure
+        // that function indices don't change
+        if(has_nonconstant_loop || (!has_nonconstant_loop && scev_analyzed_constant > 0) || has_openmp_calls || has_important_call) {
 
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
@@ -421,6 +423,9 @@ namespace perf_taint {
 
             if(has_nonconstant_loop)
               stats.instrumented_function(f.getName(), "loops");
+            //FIXME: same as above
+            if(!has_nonconstant_loop && scev_analyzed_constant > 0)
+              stats.pruned_function(function_name, "scev");
             if(has_openmp_calls)
               stats.instrumented_function(f.getName(), "openmp_calls");
             // TODO: per-library discovery
