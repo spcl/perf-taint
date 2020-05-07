@@ -32,8 +32,6 @@ namespace perf_taint {
     size_t subloops_count; 
     size_t scev_analyzed_constant;
     size_t scev_analyzed_nonconstant;
-    // loop is constant
-    bool _is_constant;
     // debug information
     std::string file_name, function_name;
     size_t line;
