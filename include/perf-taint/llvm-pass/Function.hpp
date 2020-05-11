@@ -8,12 +8,14 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Value.h>
 
+#include <set>
 #include <string>
 #include <vector>
 #include <variant>
 
 namespace llvm {
   class CallBase;
+  class LoopInfo;
 }
 
 namespace perf_taint {
@@ -64,6 +66,11 @@ namespace perf_taint {
     //std::vector<int> loops_sizes;
     // call + index of parameter
     llvm::SmallVector<ImplicitCall, 10> implicit_loops;
+    // Set of basic blocks that are part of a loop.
+    // We pre-compute this during loop analysis, even though it's needed
+    // only for the instrumentation phase, because LoopInfo somehow releases
+    // the memory even if it's going to be reused.
+    std::set<const llvm::BasicBlock*> loop_blocks;
 
     Function(int _idx, llvm::StringRef _name, bool _overriden = false);
 
@@ -71,7 +78,6 @@ namespace perf_taint {
     void add_callsite(llvm::Value* val);
     size_t callsites_size();
     bool is_overriden();
-
   };
 
 }

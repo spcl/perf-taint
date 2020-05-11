@@ -633,7 +633,7 @@ namespace perf_taint {
               builder.getInt32(number_of_loops),
               glob_loops_number_name);
     }
-    void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
+    //void commitLoop(llvm::Loop &, int function_idx, int loop_idx);
     void commitLoops(llvm::Function &, int function_idx, int calls_count);
     LoopStructure  instrumentLoop(Function & func, const Loop & loop, int nested_loop_idx,
         FunctionCalls & calls);

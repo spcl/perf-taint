@@ -279,9 +279,8 @@ namespace perf_taint {
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
             llvm::CallGraphNode * cg_node, int override_counter)
     {
-        linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
+      llvm::LoopInfo* linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end()) << '\n';
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
@@ -311,6 +310,7 @@ namespace perf_taint {
 
         std::vector<Loop> loops; 
         for(llvm::Loop * l : *linfo) {
+          llvm::errs() << f.getName() << ' ' << l << ' ' << *l << '\n';
           loops.emplace_back(f, l);
           loop_count += loops.back().loops_count();
         }
@@ -354,6 +354,9 @@ namespace perf_taint {
             //  func.loops_sizes.push_back(analyzed_loop.loops_count);
             //}
             func.loops = std::move(loops);
+            for(Loop & loop : func.loops)
+              for(const llvm::BasicBlock * bb : loop.blocks())
+                func.loop_blocks.insert(bb);
 
             //int implicit_loops = 0;
             for(auto t : library_calls) {
@@ -494,25 +497,15 @@ namespace perf_taint {
     void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
             Instrumenter & instr)
     {
-      linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
-      assert(linfo);
-
       //TODO: debug
       if(!func.is_overriden()){
-        std::set<const llvm::BasicBlock*> loop_blocks;
         int loop_idx = 0, nested_loop_idx = 0;
         FunctionCalls calls;
 
         for(Loop & loop : func.loops) {
-          for(const llvm::BasicBlock * bb : loop.loop().blocks())
-            loop_blocks.insert(bb);
-        }
-        for(Loop & loop : func.loops) {
           LoopStructure structure = instr.instrumentLoop(func, loop, nested_loop_idx, calls);
           func.loop_structures.push_back(std::move(structure));
           nested_loop_idx += structure.loops_count;
-          for(const llvm::BasicBlock * bb : loop.loop().blocks())
-            loop_blocks.insert(bb);
           //nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
           loop_idx++;
         }
@@ -531,7 +524,7 @@ namespace perf_taint {
 
         // Now find calls outside of the loop
         for(llvm::BasicBlock & bb : f) {
-          if(loop_blocks.count(&bb))
+          if(func.loop_blocks.count(&bb))
              continue;
           for(llvm::Instruction & instr : bb) {
             if(llvm::CallBase * call =

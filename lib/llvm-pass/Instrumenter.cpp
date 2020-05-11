@@ -164,17 +164,17 @@ namespace perf_taint {
     });
   }
 
-  void Instrumenter::commitLoop(llvm::Loop & l, int func_idx, int loop_idx)
-  {
-    llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
-    l.getExitBlocks(exit_blocks);
-    for(llvm::BasicBlock * bb : exit_blocks) {
-      builder.SetInsertPoint(&bb->front());
-      builder.CreateCall(commit_loop_function,
-        {builder.getInt32(func_idx)}
-      );
-    }
-  }
+  //void Instrumenter::commitLoop(llvm::Loop & l, int func_idx, int loop_idx)
+  //{
+  //  llvm::SmallVector<llvm::BasicBlock*, 5> exit_blocks;
+  //  l.getExitBlocks(exit_blocks);
+  //  for(llvm::BasicBlock * bb : exit_blocks) {
+  //    builder.SetInsertPoint(&bb->front());
+  //    builder.CreateCall(commit_loop_function,
+  //      {builder.getInt32(func_idx)}
+  //    );
+  //  }
+  //}
 
   void Instrumenter::commitLoops(llvm::Function & f, int func_idx, int calls_count)
   {
@@ -457,8 +457,8 @@ namespace perf_taint {
   LoopStructure Instrumenter::instrumentLoop(Function & func, const Loop & l,
     int nested_loop_idx, FunctionCalls & calls)
   {
-    typedef std::vector<const llvm::Loop*> loops_t;
-    loops_t buf_first{1, &l.loop()}, buf_second;
+    typedef std::vector<const Loop*> loops_t;
+    loops_t buf_first{1, &l}, buf_second;
 
     loops_t * cur_loops = &buf_first, * next_loops = &buf_second;
     int internal_nested_index = 0;
@@ -466,12 +466,12 @@ namespace perf_taint {
 
     while(!cur_loops->empty()) {
 
-      for(const llvm::Loop * l : *cur_loops) {
+      for(const Loop * l : *cur_loops) {
 
+        const std::vector<Loop> & subloops = l->subloops();
         llvm::SmallSet<llvm::BasicBlock*, 20> subloops_bb;
-        auto & subloops = l->getSubLoops();
-        for(llvm::Loop * subloop : subloops) {
-          for(llvm::BasicBlock * bb : subloop->blocks())
+        for(const Loop & subloop : subloops) {
+          for(llvm::BasicBlock * bb : subloop.blocks())
             subloops_bb.insert(bb);
         }
 
@@ -494,11 +494,8 @@ namespace perf_taint {
           }
         }
 
-        llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
-        l->getExitingBlocks(exit_blocks);
-        for(llvm::BasicBlock * bb : exit_blocks) {
+        for(llvm::BasicBlock * bb : l->exit_blocks()) {
           llvm::Instruction * inst = bb->getTerminator();
-          //llvm::errs() << *inst << '\n';
           const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
           if(br && br->isConditional()) {
             llvm::Instruction * inst =
@@ -519,7 +516,13 @@ namespace perf_taint {
         }
         nested_loop_idx++;
         internal_nested_index++;
-        std::copy(subloops.begin(), subloops.end(), std::back_inserter(*next_loops));
+        // add adresses of subloops to next iteration storage
+        std::transform(
+            subloops.begin(),
+            subloops.end(),
+            std::back_inserter(*next_loops),
+            [](const Loop & l) { return &l; }
+        );
       }
       std::swap(cur_loops, next_loops);
       next_loops->clear();
