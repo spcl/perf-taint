@@ -20,7 +20,7 @@ namespace perf_taint {
 
   struct ImplicitCall
   {
-    llvm::CallBase * call;  
+    llvm::CallBase * call;
     std::string called_function;
     // value > 0 -> index of implicit parameter
     // value < 0 -> arg_position + 1
@@ -31,48 +31,45 @@ namespace perf_taint {
       {}
   };
 
+  struct FunctionCalls
+  {
+    struct Call
+    {
+      llvm::CallBase* call;
+      int16_t nested_loop_idx;
+      uint16_t loop_idx;
+
+      Call(llvm::CallBase * _c, int16_t n_idx, uint16_t l_idx):
+        call(_c), nested_loop_idx(n_idx), loop_idx(l_idx)
+      {}
+    };
+    llvm::SmallVector<Call, 5> calls;
+
+    size_t size() const;
+  };
+
   struct Function
   {
     int idx;
     llvm::StringRef name;
     bool overriden;
     llvm::SmallVector<llvm::Value*, 10> callsites;
-    // # of entries = loop_depths.size()
-    std::vector<int> loops_structures;
-    std::vector<int> loops_sizes;
     // natural loops in the function
     std::vector<Loop> loops;
+    std::vector<LoopStructure> loop_structures;
+    // # of entries = loop_depths.size()
+    //std::vector<int> loops_structures;
+    //std::vector<int> loops_sizes;
     // call + index of parameter
     llvm::SmallVector<ImplicitCall, 10> implicit_loops;
-    typedef std::vector< std::vector<int> > vec_t;
 
-    Function(int _idx, llvm::StringRef _name, bool _overriden = false):
-      idx(_idx),
-      name(_name),
-      overriden(_overriden)
-    {}
+    Function(int _idx, llvm::StringRef _name, bool _overriden = false);
 
-    int function_idx()
-    {
-      return idx;
-    }
+    int function_idx();
+    void add_callsite(llvm::Value* val);
+    size_t callsites_size();
+    bool is_overriden();
 
-    void add_callsite(llvm::Value* val)
-    {
-      callsites.push_back(val);
-    }
-
-    size_t callsites_size()
-    {
-      return callsites.size();
-    }
-
-    bool is_overriden()
-    {
-      return overriden;
-    }
-
-    void addImplicitLoop(llvm::Value * call, vec_t & loop) {}
   };
 
 }

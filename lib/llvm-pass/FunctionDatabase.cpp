@@ -1,9 +1,7 @@
 
 
 #include <perf-taint/llvm-pass/FunctionDatabase.hpp>
-
-// TODO: remove -> instrumenter into a different file
-#include <perf-taint/llvm-pass/PerfTaintPass.hpp>
+#include <perf-taint/llvm-pass/Instrumenter.hpp>
 
 #include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Function.h>
@@ -157,38 +155,20 @@ namespace perf_taint {
         }
       }
       func.implicit_loops.push_back(implicit_call);
-      //llvm::errs() << "Insert for function " << f->getName() << '\n';
-      //llvm::errs() << "Depth " << loop_data.size() << '\n';
-      //for(int i = 0; i < loop_data.size(); ++i) {
-      //    llvm::errs() << "Level " << i;
-      //    for(int j = 0; j < loop_data[i].size(); ++j)
-      //        llvm::errs() << loop_data[i][j];
-      //    llvm::errs() << '\n';
-      //}
-      //auto & subloops = l.getSubLoops();
-      //if(depth < data.size())
-      //    data[depth].push_back(subloops.size());
-      //else {
-      //    data.emplace_back(1, subloops.size());
-      //}
-      //int loop_count = subloops.size();
-      //for(llvm::Loop * l : subloops) {
-      //    loop_count += analyzeLoop(f, *l, data, depth + 1);
-      //}
-      // TODO: support multipath loops
-      int depth = loop_data.size();
-      int loop_count = 0;
-      int structure_size = func.loops_structures.size();
-      for(auto & vec : loop_data) {
-          loop_count += vec.size();
-          std::copy(vec.begin(), vec.end(),
-                  std::back_inserter(func.loops_structures));
-      }
-      structure_size = func.loops_structures.size() - structure_size;
-      func.loops_sizes.push_back(depth);
-      func.loops_sizes.push_back(structure_size);
-      func.loops_sizes.push_back(loop_count);
-      // obtain nested_loop_idx
+    // TODO: support multipath loops
+    //int depth = loop_data.size();
+    int loop_count = 0;
+    //int structure_size = func.loops_structures.size();
+    //for(auto & vec : loop_data) {
+    //    loop_count += vec.size();
+    //    std::copy(vec.begin(), vec.end(),
+    //            std::back_inserter(func.loops_structures));
+    //}
+    //structure_size = func.loops_structures.size() - structure_size;
+    //func.loops_sizes.push_back(depth);
+    //func.loops_sizes.push_back(structure_size);
+    //func.loops_sizes.push_back(loop_count);
+    //// obtain nested_loop_idx
     return loop_count;
   }
 
