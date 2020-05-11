@@ -25,6 +25,8 @@ namespace perf_taint {
     // value > 0 -> index of implicit parameter
     // value < 0 -> arg_position + 1
     llvm::SmallVector<int, 10> args;
+    //TODO: move to representation of implicit function
+    LoopStructure structure;
 
     ImplicitCall(llvm::CallBase * _call, const std::string & _func):
       call(_call), called_function(_func)

@@ -356,13 +356,11 @@ namespace perf_taint {
             func.loops = std::move(loops);
 
             //int implicit_loops = 0;
-            //for(auto t : library_calls) {
-            //  std::vector< std::vector<int> > data;
-            //  implicit_loops += database.processLoop(
-            //    std::get<0>(t), std::get<1>(t), func, data
-            //  );
-            //}
-            //stats.function_statistics(function_name, "loops", "implicit", implicit_loops);
+            for(auto t : library_calls) {
+              database.processLoop(
+                std::get<0>(t), std::get<1>(t), func
+              );
+            }
             stats.function_statistics(function_name, "loops",
                 "implicit", library_calls.size());
 
@@ -526,6 +524,9 @@ namespace perf_taint {
           loop_idx++;
           //TODO: implicit calls
           //nested_loop_idx += func.loops_sizes[3*loop_idx + 2];
+          //TODO: remove after moving implicit calls to proper class
+          func.loop_structures.push_back(implicit_call.structure);
+          nested_loop_idx += implicit_call.structure.loops_count;
         }
 
         // Now find calls outside of the loop

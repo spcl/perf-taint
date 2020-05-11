@@ -108,56 +108,60 @@ namespace perf_taint {
     }
   }
 
-  int FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,
-          Function & func, vec_t & loop_data)
+  void FunctionDatabase::processLoop(llvm::Function * f, llvm::Value * call,
+          Function & func)
   {
-      auto it = functions.find(f->getName());
-      assert(it != functions.end());
-      json_t & loops_data = (*it).second.loops_data;
-      //TODO: put this into structure to avoid going multiple times through a JSON
-      json_t * cur = &loops_data;
-      llvm::Instruction * call_i = llvm::dyn_cast<llvm::Instruction>(call);
-      assert(call_i);
-      llvm::CallBase * base = llvm::dyn_cast<llvm::CallBase>(call_i);
-      assert(base);
-      std::string name = base->getCalledFunction()->getName();
+    auto it = functions.find(f->getName());
+    assert(it != functions.end());
+    json_t & loops_data = (*it).second.loops_data;
+    //TODO: put this into structure to avoid going multiple times through a JSON
+    json_t * cur = &loops_data;
+    llvm::Instruction * call_i = llvm::dyn_cast<llvm::Instruction>(call);
+    assert(call_i);
+    llvm::CallBase * base = llvm::dyn_cast<llvm::CallBase>(call_i);
+    assert(base);
+    std::string name = base->getCalledFunction()->getName();
 
-      //TODO: this currently does not support multiple loops
-      ImplicitCall implicit_call{base, name};
-      while(cur) {
-        for(auto & v : (*cur)["params"]) {
-          // a string name of an implicit parameter
-          if(!v.is_object()) {
-            std::string param_name = v.get<std::string>();
-            auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
-                    [&](const auto & v) { return v.name == param_name; });
-            // TODO: remove after removing leftovers of non-implicit params from mpi abilist
-            if(it != implicit_parameters.end())
-              implicit_call.args.push_back((*it).param_idx);
-          } else {
-            std::string type = v["type"].get<std::string>();
-            //TODO: retval?
-            if(type == "arg") {
-              int pos = v["pos"].get<int>();
-              implicit_call.args.push_back( -(pos + 1) );
-            } else
-              throw std::runtime_error("Not implemented");
-          }
-        }
-        auto subloop = cur->find("loops");
-        if(subloop != cur->end()) {
-          loop_data.emplace_back(1, (*subloop).size());
-          // TODO: multiple loops
-          cur = &(*subloop).front();
+    //TODO: this currently does not support multiple loops
+    ImplicitCall implicit_call{base, name};
+    int depth = 0;
+    while(cur) {
+      llvm::errs() << "procesLoop: " << cur << '\n';
+      for(auto & v : (*cur)["params"]) {
+        // a string name of an implicit parameter
+        if(!v.is_object()) {
+          std::string param_name = v.get<std::string>();
+          auto it = std::find_if(implicit_parameters.begin(), implicit_parameters.end(),
+                  [&](const auto & v) { return v.name == param_name; });
+          // TODO: remove after removing leftovers of non-implicit params from mpi abilist
+          if(it != implicit_parameters.end())
+            implicit_call.args.push_back((*it).param_idx);
         } else {
-          loop_data.emplace_back(1, 0);
-          cur = nullptr;
+          std::string type = v["type"].get<std::string>();
+          //TODO: retval?
+          if(type == "arg") {
+            int pos = v["pos"].get<int>();
+            implicit_call.args.push_back( -(pos + 1) );
+          } else
+            throw std::runtime_error("Not implemented");
         }
       }
-      func.implicit_loops.push_back(implicit_call);
+      //TODO: multipath loops?
+      implicit_call.structure.loops_count++;
+      auto subloop = cur->find("loops");
+      if(subloop != cur->end()) {
+        cur = &(*subloop).front();
+        ++depth;
+        implicit_call.structure.structure.push_back(cur->size());
+      } else {
+        implicit_call.structure.structure.push_back(0);
+        cur = nullptr;
+      }
+    }
+    implicit_call.structure.depth = depth;
+    func.implicit_loops.push_back(implicit_call);
     // TODO: support multipath loops
     //int depth = loop_data.size();
-    int loop_count = 0;
     //int structure_size = func.loops_structures.size();
     //for(auto & vec : loop_data) {
     //    loop_count += vec.size();
@@ -169,7 +173,6 @@ namespace perf_taint {
     //func.loops_sizes.push_back(structure_size);
     //func.loops_sizes.push_back(loop_count);
     //// obtain nested_loop_idx
-    return loop_count;
   }
 
 }

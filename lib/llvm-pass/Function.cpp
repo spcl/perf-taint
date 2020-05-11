@@ -34,6 +34,4 @@ namespace perf_taint {
     return overriden;
   }
 
-
-
 }
