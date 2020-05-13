@@ -92,13 +92,14 @@ namespace perf_taint {
 
   void Loop::generateSCEV(llvm::SCEVExpander & scev_expander)
   {
-    if(_backedge_count) {
-      llvm::Type * type = _backedge_count->getType();
-      llvm::Instruction * insert_point = preheader()->getFirstNonPHI();
-      _backedge_count_value = scev_expander.expandCodeFor(
-        _backedge_count, type, preheader()->getFirstNonPHIOrDbg()
-      );
-    }
+    // TODO: disable until LLVM problem is fixed
+    //if(_backedge_count) {
+    //  llvm::Type * type = _backedge_count->getType();
+    //  llvm::Instruction * insert_point = preheader()->getFirstNonPHI();
+    //  _backedge_count_value = scev_expander.expandCodeFor(
+    //    _backedge_count, type, preheader()->getFirstNonPHIOrDbg()
+    //  );
+    //}
     for(Loop & subloop : subloops())
       subloop.generateSCEV(scev_expander);
   }
