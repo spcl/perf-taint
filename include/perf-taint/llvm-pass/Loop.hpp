@@ -13,6 +13,8 @@ namespace llvm {
   class Function;
   class SCEV;
   class ScalarEvolution;
+  class SCEVExpander;
+  class Value;
 }
 
 namespace perf_taint {
@@ -33,11 +35,14 @@ namespace perf_taint {
 
   struct Loop {
   private:
-    // Reference is not valid after the first pass over loop.
-    // LoopInfo pass memory is reallocated
+    // These references are not valid after the first pass over loop.
+    // LoopInfo and SCEV pass memory is reallocated
     const llvm::Loop& _loop;
-    const llvm::SCEV* backedge_count;
-    LoopState loop_state;
+    const llvm::SCEV* _backedge_count;
+    // When SCEV is enabled and loop is understood, store the generated
+    // SCEV number of loop iterations.
+    llvm::Value* _backedge_count_value;
+    LoopState _loop_state;
     // we can't use SmallVector because of recursive definition
     // (SmallVector needs a complete type)
     std::vector<Loop> _subloops;
@@ -58,6 +63,7 @@ namespace perf_taint {
     // from the previous run.
     std::vector<llvm::BasicBlock *> _blocks;
     llvm::SmallVector<llvm::BasicBlock*, 5> _exit_blocks;
+    llvm::BasicBlock * _preheader;
 
     void analyze(LoopStructure &, int) const;
   public:
@@ -65,17 +71,20 @@ namespace perf_taint {
 
     LoopStructure analyze() const;
     void analyzeSCEV(llvm::ScalarEvolution & scev);
+    void generateSCEV(llvm::SCEVExpander&);
 
     size_t loops_count() const;
     bool is_constant() const;
+    LoopState loop_state() const;
     int scev_constant() const;
     int scev_nonconstant() const;
     const std::vector<Loop> & subloops() const;
     std::vector<Loop> & subloops();
     const std::vector<llvm::BasicBlock*> & blocks() const;
     const llvm::SmallVector<llvm::BasicBlock*, 5> & exit_blocks() const;
+    llvm::Value* backedge_count() const;
+    llvm::BasicBlock * preheader() const;
   };
-
 
 }
 

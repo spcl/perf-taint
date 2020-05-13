@@ -2,6 +2,8 @@
 #include <perf-taint/llvm-pass/PerfTaintPass.hpp>
 #include <perf-taint/llvm-pass/Instrumenter.hpp>
 
+#include <llvm/Analysis/ScalarEvolution.h>
+
 #include <string>
 #include <cxxabi.h>
 
@@ -52,6 +54,20 @@ namespace perf_taint {
         builder.getInt32(func_idx),
         builder.getInt16(loop_idx),
         builder.getInt32(nested_loop_idx)
+      }
+    );
+  }
+
+  void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
+          llvm::Value* inst, llvm::Instruction * insert_point)
+  {
+    builder.SetInsertPoint(insert_point);
+    llvm::Value * label = getLabel(inst);
+    builder.CreateCall(label_loop_function,
+      {
+        label,
+        builder.getInt32(nested_loop_idx),
+        builder.getInt32(function_idx)
       }
     );
   }
@@ -454,6 +470,14 @@ namespace perf_taint {
     return layout->getTypeStoreSize(ptr->getPointerElementType());
   }
 
+  void Instrumenter::initialize_function(llvm::Function & f, llvm::ScalarEvolution * SE)
+  {
+  }
+
+  void Instrumenter::deinitialize_function()
+  {
+  }
+
   LoopStructure Instrumenter::instrumentLoop(Function & func, const Loop & l,
     int nested_loop_idx, FunctionCalls & calls)
   {
@@ -493,27 +517,46 @@ namespace perf_taint {
             }
           }
         }
+        
+        // Skip instrumentation of constant loops
+        if(!l->is_constant()) {
 
-        for(llvm::BasicBlock * bb : l->exit_blocks()) {
-          llvm::Instruction * inst = bb->getTerminator();
-          const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
-          if(br && br->isConditional()) {
-            llvm::Instruction * inst =
-                llvm::dyn_cast<llvm::Instruction>(br->getCondition());
-            assert(inst);
-            checkLoop(nested_loop_idx, func.function_idx(), inst);
-          } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
-            llvm::Instruction * inst =
-                llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
-            assert(inst);
-            checkLoop(nested_loop_idx, func.function_idx(), inst);
-          } else if(const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst)) {
-              // ignore the exception control flow outside of the loop
-              //const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst);
-          } else {
-            llvm::errs() << "Unknown branch: " << *inst << '\n';
+          // SCEV-optimized loop processing
+          if(enable_scev && l->backedge_count()) {
+            llvm::Value* val = l->backedge_count();
+            if(llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(val))
+              checkLoop(nested_loop_idx, func.function_idx(), inst);
+            else
+              checkLoop(nested_loop_idx, func.function_idx(),
+                  val, l->preheader()->getFirstNonPHI());
           }
+          // Standard solution: instrument each loop branch 
+          else {
+            for(llvm::BasicBlock * bb : l->exit_blocks()) {
+              llvm::Instruction * inst = bb->getTerminator();
+              const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
+              if(br && br->isConditional()) {
+                llvm::Instruction * inst =
+                    llvm::dyn_cast<llvm::Instruction>(br->getCondition());
+                assert(inst);
+                checkLoop(nested_loop_idx, func.function_idx(), inst);
+              } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
+                llvm::Instruction * inst =
+                    llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
+                assert(inst);
+                checkLoop(nested_loop_idx, func.function_idx(), inst);
+              } else if(const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst)) {
+                // ignore the exception control flow outside of the loop
+                //const llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(inst);
+              } else {
+                llvm::errs() << "Unknown branch: " << *inst << '\n';
+                assert(false);
+              }
+            }
+          }
+
         }
+
         nested_loop_idx++;
         internal_nested_index++;
         // add adresses of subloops to next iteration storage

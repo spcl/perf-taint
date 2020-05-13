@@ -86,7 +86,7 @@ namespace perf_taint {
         bool callsImportantFunction(const llvm::CallBase * call);
         bool callsImportantFunction(llvm::Function *, std::set<llvm::Function*> & recursive_calls);
         bool analyzeFunction(llvm::Function & f, llvm::CallGraphNode * cg_node,
-                int override_counter = -1);
+            int override_counter = -1);
         bool runOnModule(llvm::Module & f) override;
         bool is_analyzable(llvm::Module & m, llvm::Function & f);
         bool handleOpenMP(llvm::Function &f, int override_counter = -1);

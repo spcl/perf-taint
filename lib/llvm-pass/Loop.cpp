@@ -5,21 +5,25 @@
 
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/ScalarEvolution.h>
-#include <llvm/Analysis/ScalarEvolutionExpressions.h>
+#include <llvm/Analysis/ScalarEvolutionExpander.h>
 #include <llvm/IR/Function.h>
 
 namespace perf_taint {
 
   Loop::Loop(llvm::Function & f, llvm::Loop *l):
     _loop(*l),
-    backedge_count(nullptr),
-    loop_state(LoopState::NOT_PROCESSED),
+    _backedge_count(nullptr),
+    _backedge_count_value(nullptr),
+    _loop_state(LoopState::NOT_PROCESSED),
     subloops_count(0),
     scev_analyzed_constant(0),
     scev_analyzed_nonconstant(0)
   {
     std::copy(l->block_begin(), l->block_end(), std::back_inserter(_blocks));
     l->getExitingBlocks(_exit_blocks);
+    // Running loop-simplify pass ensures the existence of a preheader
+    _preheader = l->getLoopPreheader();
+    assert(_preheader);
 
     for(llvm::Loop * subloop : l->getSubLoops()) {
       _subloops.emplace_back(f, subloop);
@@ -65,17 +69,17 @@ namespace perf_taint {
       const llvm::SCEV * backedge_count = scev.getBackedgeTakenCount(&_loop);
       // Unknown count? SCEV failed, loop has inefficient instrumentation
       if(llvm::isa<llvm::SCEVCouldNotCompute>(backedge_count)) {
-        loop_state = LoopState::PROCESSED_NONCONSTANT;
+        _loop_state = LoopState::PROCESSED_NONCONSTANT;
       // Non-constant count? SCEV succeeded, loop has improved instrumentation
       } else if(!llvm::isa<llvm::SCEVConstant>(backedge_count)) {
         scev_analyzed_nonconstant = 1;
-        loop_state = LoopState::PROCESSED_NONCONSTANT;
-        this->backedge_count = backedge_count;
+        _loop_state = LoopState::PROCESSED_NONCONSTANT;
+        this->_backedge_count = backedge_count;
       // Constant count? SCEV succeeded, loop is not instrumented
       } else {
-        loop_state = LoopState::PROCESSED_CONSTANT;
+        _loop_state = LoopState::PROCESSED_CONSTANT;
         scev_analyzed_constant = 1;
-        this->backedge_count = backedge_count;
+        this->_backedge_count = backedge_count;
       }
     }
     // if any of loops is non-constant, then the entire object is non constant
@@ -84,6 +88,24 @@ namespace perf_taint {
       scev_analyzed_nonconstant += subloop.scev_analyzed_nonconstant;
       scev_analyzed_constant += subloop.scev_analyzed_constant;
     }
+  }
+
+  void Loop::generateSCEV(llvm::SCEVExpander & scev_expander)
+  {
+    if(_backedge_count) {
+      llvm::Type * type = _backedge_count->getType();
+      llvm::Instruction * insert_point = preheader()->getFirstNonPHI();
+      _backedge_count_value = scev_expander.expandCodeFor(
+        _backedge_count, type, preheader()->getFirstNonPHIOrDbg()
+      );
+    }
+    for(Loop & subloop : subloops())
+      subloop.generateSCEV(scev_expander);
+  }
+
+  LoopState Loop::loop_state() const
+  {
+    return _loop_state;
   }
 
   bool Loop::is_constant() const
@@ -125,5 +147,15 @@ namespace perf_taint {
   const llvm::SmallVector<llvm::BasicBlock*, 5> & Loop::exit_blocks() const
   {
     return _exit_blocks;
+  }
+
+  llvm::Value* Loop::backedge_count() const
+  {
+    return _backedge_count_value;
+  }
+
+  llvm::BasicBlock* Loop::preheader() const
+  {
+    return _preheader;
   }
 }

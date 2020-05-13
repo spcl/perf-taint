@@ -8,6 +8,7 @@
 #include <perf-taint/llvm-pass/Loop.hpp>
 
 #include <llvm/ADT/SmallSet.h>
+#include <llvm/Analysis/ScalarEvolutionExpander.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 
@@ -78,6 +79,8 @@ namespace perf_taint {
     llvm::DataLayout * layout;
     size_t functions_count;
     size_t params_count;
+    bool enable_scev;
+    llvm::Optional<llvm::SCEVExpander> scev_expander;
 
     // __dfsan_retval_tls - thread local global storing return value
     // we need to call check_label on return value from function
@@ -243,6 +246,7 @@ namespace perf_taint {
 
     Instrumenter(DfsanInstr & _pass,
         llvm::Module & _m,
+        bool _enable_scev,
         std::string _output_file_name):
       pass(_pass),
       m(_m),
@@ -250,6 +254,7 @@ namespace perf_taint {
       layout(new llvm::DataLayout(&m)),
       functions_count(0),
       params_count(0),
+      enable_scev(_enable_scev),
       glob_retval_tls(nullptr),
       glob_labels(nullptr),
       glob_files(nullptr),
@@ -643,7 +648,9 @@ namespace perf_taint {
     void checkCFRetval(int function_idx, llvm::CallBase * cast);
 
     void checkLoop(int loop_idx, int function_idx,
-            llvm::Instruction * inst);
+          llvm::Value* inst, llvm::Instruction * insert_point);
+    void checkLoop(int loop_idx, int function_idx,
+            llvm::Instruction*);
     void checkLoopLoad(int loop_idx, int function_idx,
             size_t size, llvm::Value * load_addr);
     void checkLoopRetval(int loop_idx, int function_idx,
@@ -676,6 +683,8 @@ namespace perf_taint {
     bool callsImportantFunction(const llvm::CallBase * call);
     bool callsImportantFunction(const llvm::Function * called_f,
           std::set<llvm::Function*> & recursive_calls);
+    void initialize_function(llvm::Function & f, llvm::ScalarEvolution *);
+    void deinitialize_function();
   };
 }
 

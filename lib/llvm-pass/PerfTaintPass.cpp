@@ -77,7 +77,7 @@ namespace perf_taint {
       // We require loop information
       AU.addRequired<llvm::LoopInfoWrapperPass>();
       if(EnableSCEV)
-          AU.addRequiredTransitive<llvm::ScalarEvolutionWrapperPass>();
+          AU.addRequired<llvm::ScalarEvolutionWrapperPass>();
       // Pass does not modify the input information
       AU.addRequired<llvm::CallGraphWrapperPass>();
       AU.setPreservesAll();
@@ -121,7 +121,10 @@ namespace perf_taint {
           database.read(file);
           file.close();
       }
-      Instrumenter instr(*this, m, OutputFileName.getValue());
+      Instrumenter instr(*this, m,
+        EnableSCEV.getValue(),
+        OutputFileName.getValue()
+      );
       database.setInstrumenter(&instr);
 
       this->m = &m;
@@ -277,7 +280,8 @@ namespace perf_taint {
     }
 
     bool DfsanInstr::analyzeFunction(llvm::Function & f,
-            llvm::CallGraphNode * cg_node, int override_counter)
+            llvm::CallGraphNode * cg_node,
+            int override_counter)
     {
       llvm::LoopInfo* linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
@@ -307,6 +311,7 @@ namespace perf_taint {
         int scev_analyzed_nonconstant = 0;
         bool has_nonconstant_loop = false;
         const std::string & function_name = f.getName();
+        llvm::ScalarEvolution * scev;
 
         std::vector<Loop> loops; 
         for(llvm::Loop * l : *linfo) {
@@ -315,10 +320,10 @@ namespace perf_taint {
           loop_count += loops.back().loops_count();
         }
         if(EnableSCEV) {
-          llvm::ScalarEvolution & scev
-            = getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
+          scev
+            = &getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE();
           for(Loop & loop : loops) {
-            loop.analyzeSCEV(scev);
+            loop.analyzeSCEV(*scev);
             scev_analyzed_constant += loop.scev_constant();
             scev_analyzed_nonconstant += loop.scev_nonconstant();
             has_nonconstant_loop |= !loop.is_constant();
@@ -337,26 +342,30 @@ namespace perf_taint {
         // Worth instrumenting
         // FIXME: still instrument if SCEV discovered constant loops to ensure
         // that function indices don't change
-        if(has_nonconstant_loop || (!has_nonconstant_loop && scev_analyzed_constant > 0) || has_openmp_calls || has_important_call) {
+        if(
+            has_nonconstant_loop ||
+            (!has_nonconstant_loop && scev_analyzed_constant > 0) ||
+            has_openmp_calls ||
+            has_important_call
+        ) {
 
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
-
-            //for(Loop & loop : loops) {
-            //  LoopStructure analyzed_loop = loop.analyze();
-            //  std::copy(
-            //      analyzed_loop.structure.begin(),
-            //      analyzed_loop.structure.end(),
-            //      std::back_inserter(func.loops_structures)
-            //  );
-            //  func.loops_sizes.push_back(analyzed_loop.depth);
-            //  func.loops_sizes.push_back(analyzed_loop.structure.size());
-            //  func.loops_sizes.push_back(analyzed_loop.loops_count);
+            //llvm::Optional<llvm::SCEVExpander> scev_expander;
+            //llvm::SCEVExpander * scev_expander = nullptr;
+            //if(EnableSCEV) {
+            //  scev_expander = new llvm::SCEVExpander(*scev, m->getDataLayout(), "");
             //}
+
             func.loops = std::move(loops);
-            for(Loop & loop : func.loops)
+            for(Loop & loop : func.loops) {
               for(const llvm::BasicBlock * bb : loop.blocks())
                 func.loop_blocks.insert(bb);
+              if(EnableSCEV) {
+                llvm::SCEVExpander scev_expander{*scev, m->getDataLayout(), "perf-taint"};
+                loop.generateSCEV(scev_expander);
+              }
+            }
 
             //int implicit_loops = 0;
             for(auto t : library_calls) {
@@ -391,7 +400,8 @@ namespace perf_taint {
         }
     }
 
-    bool DfsanInstr::runOnFunction(llvm::Function & f, int override_counter)
+    bool DfsanInstr::runOnFunction(llvm::Function & f,
+        int override_counter)
     {
         // ignore declarations
         // TODO: handle instrumentation of unknown functions
@@ -497,6 +507,12 @@ namespace perf_taint {
     void DfsanInstr::modifyFunction(llvm::Function & f, Function & func,
             Instrumenter & instr)
     {
+      if(EnableSCEV)
+        instr.initialize_function(f, 
+          &getAnalysis<llvm::ScalarEvolutionWrapperPass>(f).getSE()
+        );
+      else
+        instr.initialize_function(f, nullptr);
       //TODO: debug
       if(!func.is_overriden()){
         int loop_idx = 0, nested_loop_idx = 0;
@@ -595,7 +611,7 @@ namespace perf_taint {
           assert(call);
           //instr.checkCall(func.function_idx(), idx++, call);
       }
-
+      instr.deinitialize_function();
       //stats.label_function(labels);
     }
 
