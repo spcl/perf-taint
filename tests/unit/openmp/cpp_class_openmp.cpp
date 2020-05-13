@@ -1,3 +1,11 @@
+// RUN: %clangxx %cxx_flags %omp_flags %s -emit-llvm -o %t1.bc
+// RUN: %opt %opt_flags -perf-taint-out-name=%t2 < %t1.bc \
+// RUN:     2> /dev/null > %t1.tainted.bc
+// RUN: %llc %llc_flags < %t1.tainted.bc > %t1.tainted.o
+// RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
+// RUN: OMP_NUM_THREADS=1 %execparams %t1.exe 10 10 10
+// RUN: diff -w %s.json %t2.json
+
 #include <cstdint>
 #include <cstdlib>
 
