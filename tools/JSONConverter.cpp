@@ -450,14 +450,18 @@ json_t convert(json_t & input, bool generate_full_data)
       }
     }
 
+    std::cerr << "Important: " << important_indices.size() << std::endl;
     // before replacing and after finding out what's important
     std::map<std::string, int> loops_params;
     std::map<std::string, int> functions_params;
+    std::map<std::string, std::vector<std::string>> functions_names;
     int dynamic_loops = 0;
+    int count = 0, count_empty_params = 0;
     for(int func_idx : important_indices)
     {
       std::string name = input["functions_mangled_names"][func_idx].get<std::string>();
       if(name.find("MPI_") == 0) {
+        ++count;
       } else {
         json_t & entry = functions[name];
         //std::cerr << name << " " << entry << std::endl;
@@ -484,16 +488,23 @@ json_t convert(json_t & input, bool generate_full_data)
             }
           }
         }
+        std::cerr << "Function: " << name << " params: " << params.size() << std::endl;
+        if(params.size() == 0)
+          count_empty_params++;
         for(const std::string & param : params) {
           functions_params[param]++;
+          functions_names[param].push_back(name);
           for(const std::string & param2 : params) {
             if(param2 != param) {
               if(param < param2) {
                 for(const std::string & param3 : params)
                   if(param2 != param3)
-                    if(param2 < param3)
+                    if(param2 < param3) {
                       functions_params[param + "_" + param2 + "_" + param3]++;
+                      functions_names[param + "_" + param2 + "_" + param3].push_back(name);
+                    }
                 functions_params[param + "_" + param2]++;
+                functions_names[param + "_" + param2].push_back(name);
                 //params.insert(param);
               }
             }
@@ -506,8 +517,10 @@ json_t convert(json_t & input, bool generate_full_data)
         //std::cerr << std::endl;
       }
     }
+    std::cerr << "MPI functions: " << count << "  empty params: " << count_empty_params << std::endl;
     json_t loops_out;
     loops_out["functions"] = functions_params;
+    loops_out["functions_names"] = functions_names;
     loops_out["loops"] = dynamic_loops;
     for(auto it = loops_params.begin(); it != loops_params.end(); ++it)
       loops_out["param"][it->first] = it->second;
