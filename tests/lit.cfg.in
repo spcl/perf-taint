@@ -2,69 +2,121 @@ import lit.util
 import lit.formats
 
 config.name = 'perf-taint'
+config.opt = '@LLVM_OPT@'
+config.llc = '@LLVM_LLC@'
+config.clang = '@CLANG@'
+config.clangxx = '@CLANGXX@'
 config.source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
-config.test_source_root = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'tests')
-# Path to test suite in build directory where tests are executed
 config.exec_root = '@CMAKE_CURRENT_BINARY_DIR@'
-config.test_exec_root = os.path.join('@CMAKE_CURRENT_BINARY_DIR@', 'tests')
-# Help variable used to locate compiled library
-config.lib_dir = '@CMAKE_CURRENT_BINARY_DIR@'
-config.mpi_link_flags = '@CMAKE_MPI_LINK_FLAGS@'
+# Path to test suite in build directory where tests are executed
+config.test_source_root = os.path.join(config.source_root, 'tests')
+config.test_exec_root = os.path.join(config.exec_root, 'tests')
+
+config.perf_taint_include_path = os.path.join(config.source_root, 'include')
+config.libcxx_include_path = os.path.join(
+  '@CMAKE_LIBCXX_PATH@', 'include', 'c++', 'v1'
+)
 config.libcxx_path = os.path.join('@CMAKE_LIBCXX_PATH@', 'lib')
+
+config.with_unit = '@PERF_TAINT_WITH_UNIT_TESTS@' == 'TRUE'
+config.with_regression = '@PERF_TAINT_WITH_REGRESSION_TESTS@' == 'TRUE'
+config.with_cfsan = '@PERF_TAINT_WITH_CF_TAINTING@' == 'TRUE'
+config.with_mpi = '@PERF_TAINT_WITH_MPI@' == 'TRUE'
 config.with_omp = '@PERF_TAINT_WITH_OMP@' == 'TRUE'
-if config.with_omp:
-  config.libomp = '@OpenMP_C_LIBRARIES@'
+
+# Dependencies
+# Regression tests require MPI support
+if not config.with_mpi:
+  config.with_regression = False
+
+if not config.with_unit:
+  config.excludes.add('unit')
+if not config.with_regression:
+  config.excludes.add('regression')
+
+if config.with_cfsan:
+  config.cfsan_flag = '-dfsan-cfsan-enable'
 else:
-  config.excludes = ['openmp']
-config.suffixes = ['.ll']
+  config.cfsan_flag = ''
+  config.excludes.add('control-flow')
+
+if config.with_mpi:
+  config.mpi_include_flags = ''
+  for mpi_path in '@MPI_C_INCLUDE_PATH@'.split(';'):
+    config.mpi_include_flags += ' -I%s ' % mpi_path
+  config.mpi_link_flags = '@MPI_LINK_FLAGS@'
+else:
+  config.mpi_include_flags = ''
+  config.mpi_link_flags = ''
+  config.excludes.add('mpi')
+
+if config.with_omp:
+  config.omp_link_flags = '@OpenMP_C_LIBRARIES@'
+else:
+  config.omp_link_flags = ''
+  config.excludes.add('openmp')
+
+config.suffixes = ['.cpp', '.c', '.ll']
 config.test_format = lit.formats.ShTest(True)
-# TODO: make it configurable
 
-config.substitutions.append( ('%loadpass', '-load '
-    + config.lib_dir
-    + '/libStaticExtractor.so'
-    + ' -extrap-extractor'
-    ))
+# the substring of clangxx must be declared later to avoid `%clangxx` being
+# translated as `%clang` + 'xx'
+config.substitutions.append( ('%clangxx', config.clangxx) )
+config.substitutions.append( ('%clang', config.clang) )
 
-config.substitutions.append( ('%dfsan', '-load '
-    + config.lib_dir
-    + '/libDfsanInstrument.so'
-    + ' -extrap-extractor'
-    + ' -dfsan'
-    + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
-    )
+# Use debug-prefix-map to obtain debug paths relative to source directory.
+config.substitutions.append( ('%c_flags',
+    '-I%s ' % config.perf_taint_include_path
+    + '-c -g -O2 -mllvm -disable-llvm-optzns '
+    + '-fdebug-prefix-map=%s/=' % config.source_root
+  )
+)
+config.substitutions.append( ('%cxx_flags',
+    '-I%s ' % config.libcxx_include_path
+    + '-I%s ' % config.perf_taint_include_path
+    + '-stdlib=libc++ -c -g -O2 -mllvm -disable-llvm-optzns '
+    + '-fdebug-prefix-map=%s/=' % config.source_root
+  )
+)
+config.substitutions.append( ('%mpi_flags',
+    config.mpi_include_flags
+  )
 )
 
-config.substitutions.append( ('%mpidfsan', '-load '
-    + config.lib_dir
-    + '/libDfsanInstrument.so'
-    + ' -extrap-extractor'
-    + ' -extrap-extractor-func-database=%s/share/mpi_abilist.txt' % config.source_root
+# LLVM's opt flag: execute our perf-taint pass and then dfsan
+config.substitutions.append( ('%opt_flags',
+    '-load ' + os.path.join(config.exec_root, 'lib', 'libPerfTaintPass.so')
+    + ' -perf-taint'
     + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
-    )
+  )
 )
+config.substitutions.append( ('%opt_cfsan',
+    config.cfsan_flag
+) )
+config.substitutions.append( ('%opt_mpi',
+    '-perf-taint-func-database=%s/share/mpi_abilist.txt' % config.source_root
+) )
+config.substitutions.append( ('%opt', config.opt) )
 
-config.substitutions.append( ('%llcparams',
+# LLVM's LLC generation of machine code
+config.substitutions.append( ('%llc_flags',
     '-relocation-model=pic'
     + ' -filetype=obj'
-    )
+  )
 )
+config.substitutions.append( ('%llc', config.llc) )
 
-config.substitutions.append( ('%link',
-    '-stdlib=libc++'
+# Compile LLVM IR and link with dfsan runtime, our runtime and libc++.
+config.substitutions.append( ('%link_flags',
+    ' -stdlib=libc++'
     + ' -fsanitize=dataflow'
     + ' -fsanitize-blacklist=%s/share/dfsan_abilist.txt' % config.source_root
     + ' -L%s' % config.libcxx_path
-    + ' -Wl,--start-group,-lc++abi'
-    + ' %s' % config.mpi_link_flags
-    + ' %s/libdfsan_runtime.a' % config.exec_root
-    )
-)
-
-config.substitutions.append( ('%testdir',
-    config.test_exec_root
-    )
+    + ' -Wl,--start-group,-lc++abi '
+    + ' %s ' % config.mpi_link_flags
+    + os.path.join(config.exec_root, 'libdfsan_runtime.a')
+  )
 )
 
 config.substitutions.append( ('%execparams',
@@ -72,16 +124,8 @@ config.substitutions.append( ('%execparams',
     )
 )
 
-if config.with_omp:
-  config.substitutions.append( ('%omplink',
-      '%s' % config.libomp
-      )
-  )
-else:
-  config.substitutions.append(('%omplink',''))
-
 config.substitutions.append( ('%jsonconvert',
-    config.lib_dir
+    config.exec_root
     + '/JSONConverter'
     )
 )

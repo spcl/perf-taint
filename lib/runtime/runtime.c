@@ -1,24 +1,19 @@
+
+#include <perf-taint/runtime/runtime.h>
+
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-#include <mpi.h>
+#if defined(PERF_TAINT_WITH_MPI)
+  #include <mpi.h>
+#endif
 
 #include <sanitizer/dfsan_interface.h>
 
-#include "runtime.h"
-
 #define DEBUG false
-
-#define debug_print(fmt, ...) \
-  do {\
-    if (DEBUG && __EXTRAP_INSTRUMENTATION_MPI_RANK <= 0)\
-      fprintf(stderr, fmt, __VA_ARGS__);\
-  } while (0)
-
 
 //extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 //extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
@@ -30,10 +25,11 @@ extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
 nested_call_vec __EXTRAP_NESTED_CALLS = {0, 0, NULL};
 int16_t __EXTRAP_CURRENT_CALL = 0;
-int __EXTRAP_INSTRUMENTATION_MPI_RANK = -1;
 int __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT = 0;
 dependencies * __EXTRAP_LOOP_DEPENDENCIES = NULL;
 
+#if defined(PERF_TAINT_WITH_MPI)
+int __EXTRAP_INSTRUMENTATION_MPI_RANK = -1;
 void __dfsw_EXTRAP_INIT_MPI()
 {
   int flag;
@@ -43,6 +39,7 @@ void __dfsw_EXTRAP_INIT_MPI()
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   __EXTRAP_INSTRUMENTATION_MPI_RANK = rank;
 }
+#endif
 
 void __dfsw_EXTRAP_PUSH_CALL_FUNCTION(uint16_t idx)
 {

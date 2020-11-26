@@ -95,7 +95,7 @@ void make_3n_gathers();
 #include "params.h"
 params par_buf;
 
-#include "ExtraPInstrumenter.h"
+#include "perf-taint/PerfTaint.h"
 extern int gethostname (char *__name, size_t __len); 
 
 int

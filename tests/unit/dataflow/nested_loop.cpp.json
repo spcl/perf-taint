@@ -1,0 +1,206 @@
+{
+  "functions": {
+    "_Z15perf_nest_constii": {
+      "file": "tests/unit/dataflow/nested_loop.cpp",
+      "func_idx": 1,
+      "line": 30,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z15perf_nest_quadrii": {
+      "file": "tests/unit/dataflow/nested_loop.cpp",
+      "func_idx": 3,
+      "line": 50,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z16perf_nest_linearii": {
+      "file": "tests/unit/dataflow/nested_loop.cpp",
+      "func_idx": 2,
+      "line": 40,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z24perf_nest_multiple_quadrii": {
+      "file": "tests/unit/dataflow/nested_loop.cpp",
+      "func_idx": 4,
+      "line": 61,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "perf_nest_unknown(int, int)",
+    "perf_nest_const(int, int)",
+    "perf_nest_linear(int, int)",
+    "perf_nest_quadr(int, int)",
+    "perf_nest_multiple_quadr(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z17perf_nest_unknownii",
+    "_Z15perf_nest_constii",
+    "_Z16perf_nest_linearii",
+    "_Z15perf_nest_quadrii",
+    "_Z24perf_nest_multiple_quadrii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "perf_nest_unknown",
+    "perf_nest_const",
+    "perf_nest_linear",
+    "perf_nest_quadr",
+    "perf_nest_multiple_quadr",
+    "main",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ],
+  "unimportant_functions": {
+    "_Z17perf_nest_unknownii": {
+      "file": "tests/unit/dataflow/nested_loop.cpp",
+      "func_idx": 0,
+      "line": 20
+    }
+  }
+}

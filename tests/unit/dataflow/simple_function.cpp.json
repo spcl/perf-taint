@@ -1,0 +1,85 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/simple_function.cpp",
+      "func_idx": 0,
+      "line": 21,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "functions": {
+    "_Z11f_not_pruneii": {
+      "file": "tests/unit/dataflow/prune.cpp",
+      "func_idx": 2,
+      "line": 57,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 0
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 0,
+                "function_idx": 1
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 2,
+                "function_idx": 0
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 1,
+                "function_idx": 1
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 4,
+                "function_idx": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z11g_not_prunei": {
+      "file": "tests/unit/dataflow/prune.cpp",
+      "func_idx": 1,
+      "line": 38,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3,
+              7
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "instance": {
+            "2": [
+              {
+                "entry_id": 1,
+                "function_idx": 0
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3,
+              7
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "2": [
+              {
+                "entry_id": 3,
+                "function_idx": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z1hi": {
+      "file": "tests/unit/dataflow/prune.cpp",
+      "func_idx": 0,
+      "line": 24,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3,
+              7,
+              8
+            ],
+            [
+              3,
+              2,
+              8
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "global2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3,
+              7,
+              1
+            ],
+            [
+              3,
+              2,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3,
+              7,
+              8
+            ],
+            [
+              3,
+              2,
+              8
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "global2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3,
+              7,
+              1
+            ],
+            [
+              3,
+              2,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2",
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3,
+              7
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "h(int)",
+    "g_not_prune(int)",
+    "f_not_prune(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "void register_variable<double>(double*, char const*)",
+    "f_prune(int, int)",
+    "g_prune(int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1hi",
+    "_Z11g_not_prunei",
+    "_Z11f_not_pruneii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z17register_variableIdEvPT_PKc",
+    "_Z7f_pruneii",
+    "_Z7g_prunei"
+  ],
+  "functions_names": [
+    "h",
+    "g_not_prune",
+    "f_not_prune",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "register_variable<double>",
+    "f_prune",
+    "g_prune"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global",
+    "global2"
+  ]
+}

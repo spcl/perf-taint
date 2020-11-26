@@ -1,0 +1,555 @@
+{
+  "functions": {
+    "_Z11double_nestii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 2,
+      "line": 49,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": [
+                      {
+                        "entry_id": 0,
+                        "function_idx": 3
+                      }
+                    ]
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z11single_nestii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 0,
+      "line": 37,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": [
+                      {
+                        "entry_id": 0,
+                        "function_idx": 1
+                      }
+                    ]
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z14aggregate_nestii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 7,
+      "line": 95,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": [
+                  {
+                    "entry_id": 1,
+                    "function_idx": 3
+                  },
+                  {
+                    "entry_id": 2,
+                    "function_idx": 3
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z14multipath_nestii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 5,
+      "line": 70,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": [
+                  {
+                    "entry_id": 1,
+                    "function_idx": 3
+                  }
+                ],
+                "2": [
+                  {
+                    "entry_id": 1,
+                    "function_idx": 1
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z14multipath_nestiii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 6,
+      "line": 83,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": [
+                  {
+                    "entry_id": 2,
+                    "function_idx": 3
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z19double_nest_outsideii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 4,
+      "line": 60,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z1fi": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 1,
+      "line": 20,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9,
+              0
+            ],
+            [
+              9,
+              4,
+              3
+            ],
+            [
+              9,
+              5,
+              3
+            ],
+            [
+              9,
+              7,
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              9,
+              2,
+              3
+            ],
+            [
+              9,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              9,
+              6,
+              3
+            ],
+            [
+              9,
+              7,
+              3
+            ],
+            [
+              9,
+              8,
+              12
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1gi": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 3,
+      "line": 28,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": [
+                  {
+                    "entry_id": 1,
+                    "function_idx": 1
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              9,
+              4
+            ],
+            [
+              9,
+              5
+            ],
+            [
+              9,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": [
+                  {
+                    "entry_id": 0,
+                    "function_idx": 1
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              9,
+              6
+            ],
+            [
+              9,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": [
+                  {
+                    "entry_id": 2,
+                    "function_idx": 1
+                  }
+                ]
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z25call_unimportant_functionii": {
+      "file": "tests/unit/dataflow/nested_function_call.cpp",
+      "func_idx": 8,
+      "line": 112,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              9
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 2,
+                "function_idx": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "single_nest(int, int)",
+    "f(int)",
+    "double_nest(int, int)",
+    "g(int)",
+    "double_nest_outside(int, int)",
+    "multipath_nest(int, int)",
+    "multipath_nest(int, int, int)",
+    "aggregate_nest(int, int)",
+    "call_unimportant_function(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "unimportant_function(int)"
+  ],
+  "functions_mangled_names": [
+    "_Z11single_nestii",
+    "_Z1fi",
+    "_Z11double_nestii",
+    "_Z1gi",
+    "_Z19double_nest_outsideii",
+    "_Z14multipath_nestii",
+    "_Z14multipath_nestiii",
+    "_Z14aggregate_nestii",
+    "_Z25call_unimportant_functionii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_Z20unimportant_functioni"
+  ],
+  "functions_names": [
+    "single_nest",
+    "f",
+    "double_nest",
+    "g",
+    "double_nest_outside",
+    "multipath_nest",
+    "multipath_nest",
+    "aggregate_nest",
+    "call_unimportant_function",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "unimportant_function"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

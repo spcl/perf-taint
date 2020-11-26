@@ -1,0 +1,136 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 0,
+      "line": 49,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1hii": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 1,
+      "line": 60,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1iP4test": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 2,
+      "line": 71,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int, int)",
+    "i(test*)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)",
+    "test::test(int, int)",
+    "g(int, int)",
+    "g2(int, int)",
+    "test::length()"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hii",
+    "_Z1iP4test",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc",
+    "_ZN4testC2Eii",
+    "_Z1gii",
+    "_Z2g2ii",
+    "_ZN4test6lengthEv"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i",
+    "main",
+    "atoi",
+    "register_variable<int>",
+    "test",
+    "g",
+    "g2",
+    "length"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

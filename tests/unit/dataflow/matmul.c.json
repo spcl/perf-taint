@@ -1,0 +1,120 @@
+{
+  "functions": {
+    "create_matrix": {
+      "file": "tests/unit/dataflow/matmul.c",
+      "func_idx": 0,
+      "line": 29,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "m",
+                  "n"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "n",
+                  "k"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "mat_mul": {
+      "file": "tests/unit/dataflow/matmul.c",
+      "func_idx": 1,
+      "line": 43,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "n"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "k"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "m"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "atoi",
+    "register_variable",
+    "register_variables"
+  ],
+  "functions_mangled_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "atoi",
+    "register_variable",
+    "register_variables"
+  ],
+  "functions_names": [
+    "create_matrix",
+    "mat_mul",
+    "main",
+    "atoi",
+    "register_variable",
+    "register_variables"
+  ],
+  "parameters": [
+    "m",
+    "n",
+    "k"
+  ]
+}

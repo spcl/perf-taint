@@ -15,6 +15,7 @@ make CXX=${BUILD_DIRECTORY}/bin/clang++ CXXFLAGS="-fno-inline-functions -O2 -mll
 llvm-link *.bc -o lulesh_mpi.bc
 mv lulesh_mpi.bc ..
 make clean && rm *.bc
+git checkout .
 cd ..
 
 cd LULESH\
@@ -25,5 +26,6 @@ make CXX=${BUILD_DIRECTORY}/bin/clang++ CXXFLAGS="-fno-inline-functions -O2 -mll
 llvm-link *.bc -o lulesh_full.bc
 mv lulesh_full.bc ..
 make clean && rm *.bc
+git checkout .
 
 popd > /dev/null

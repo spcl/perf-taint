@@ -1,0 +1,95 @@
+{
+  "functions": {
+    "MPI_Wait": {
+      "func_idx": 2,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z4waitP14ompi_request_tS0_": {
+      "file": "tests/unit/mpi/mpi_wait.cpp",
+      "func_idx": 1,
+      "line": 32,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "prepare(int, int*, int*, ompi_request_t**, ompi_request_t**)",
+    "wait(ompi_request_t*, ompi_request_t*)",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "functions_mangled_names": [
+    "_Z7prepareiPiS_PP14ompi_request_tS2_",
+    "_Z4waitP14ompi_request_tS0_",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "functions_names": [
+    "prepare",
+    "wait",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "parameters": [
+    "p"
+  ],
+  "unimportant_functions": {
+    "MPI_Irecv": {
+      "func_idx": 3
+    },
+    "MPI_Isend": {
+      "func_idx": 4
+    },
+    "_Z7prepareiPiS_PP14ompi_request_tS2_": {
+      "file": "tests/unit/mpi/mpi_wait.cpp",
+      "func_idx": 0,
+      "line": 26
+    }
+  }
+}

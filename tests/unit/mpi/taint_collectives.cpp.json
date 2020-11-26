@@ -1,0 +1,603 @@
+{
+  "functions": {
+    "MPI_Allgather": {
+      "func_idx": 10,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Allreduce": {
+      "func_idx": 11,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Alltoall": {
+      "func_idx": 9,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Bcast": {
+      "func_idx": 7,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "func_idx": 8,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Scan": {
+      "func_idx": 6,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12,
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              12,
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z4scanii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 3,
+      "line": 68,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 6
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 6
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z5bcastii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 0,
+      "line": 26,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 7
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 7
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z6reduceii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 4,
+      "line": 80,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 8
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 8
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z8alltoalliii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 1,
+      "line": 36,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 9
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 9
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 9
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 9
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z9allgatheriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 2,
+      "line": 52,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 10
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 10
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 10
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 10
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z9allreduceii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 5,
+      "line": 92,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              12
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 11
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 11
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "bcast(int, int)",
+    "alltoall(int, int, int)",
+    "allgather(int, int, int)",
+    "scan(int, int)",
+    "reduce(int, int)",
+    "allreduce(int, int)",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Reduce",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z5bcastii",
+    "_Z8alltoalliii",
+    "_Z9allgatheriii",
+    "_Z4scanii",
+    "_Z6reduceii",
+    "_Z9allreduceii",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Reduce",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "bcast",
+    "alltoall",
+    "allgather",
+    "scan",
+    "reduce",
+    "allreduce",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Reduce",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "param",
+    "param2",
+    "p"
+  ]
+}

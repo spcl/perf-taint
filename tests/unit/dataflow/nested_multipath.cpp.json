@@ -1,0 +1,577 @@
+{
+  "functions": {
+    "_Z10nest_constii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 0,
+      "line": 22,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z11nest_tripleii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 3,
+      "line": 94,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1"
+                        ]
+                      ]
+                    }
+                  }
+                },
+                "1": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2
+                    }
+                  }
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              6,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "_Z11three_loopsii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 5,
+      "line": 177,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "3": [
+              {
+                "entry_id": 0,
+                "function_idx": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z12nest_partialii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 1,
+      "line": 34,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ],
+            [
+              6,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z18double_nest_tripleii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 4,
+      "line": 121,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x2"
+                        ]
+                      ]
+                    }
+                  }
+                }
+              },
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            },
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z19double_nest_partialii": {
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
+      "func_idx": 2,
+      "line": 56,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              6
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "level": 1
+                },
+                "1": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                },
+                "2": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "nest_const(int, int)",
+    "nest_partial(int, int)",
+    "double_nest_partial(int, int)",
+    "nest_triple(int, int)",
+    "double_nest_triple(int, int)",
+    "three_loops(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z10nest_constii",
+    "_Z12nest_partialii",
+    "_Z19double_nest_partialii",
+    "_Z11nest_tripleii",
+    "_Z18double_nest_tripleii",
+    "_Z11three_loopsii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "nest_const",
+    "nest_partial",
+    "double_nest_partial",
+    "nest_triple",
+    "double_nest_triple",
+    "three_loops",
+    "main",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
