@@ -50,6 +50,8 @@ typedef struct _nested_call_vec {
   nested_call * data;
 } nested_call_vec;
 
+extern bool __perf_taint_loop_branches_enabled;
+
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];

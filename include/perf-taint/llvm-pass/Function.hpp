@@ -29,6 +29,12 @@ namespace perf_taint {
       {}
   };
 
+  struct LoopBranch
+  {
+    uint32_t nested_loop_idx;
+    llvm::Instruction * branch;
+  };
+
   struct Function
   {
     int idx;
@@ -41,6 +47,8 @@ namespace perf_taint {
     // call + index of parameter
     llvm::SmallVector<ImplicitCall, 10> implicit_loops;
     typedef std::vector< std::vector<int> > vec_t;
+
+    llvm::SmallVector<LoopBranch, 5> loop_cf_branches;
 
     Function(int _idx, llvm::StringRef _name, bool _overriden = false):
       idx(_idx),

@@ -62,6 +62,11 @@ static llvm::cl::opt<bool> EnableSCEV("perf-taint-scev",
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("boolean flag"));
 
+static llvm::cl::opt<bool> EnableBranches("perf-taint-branches-enable",
+                                       llvm::cl::desc("Enable detection of branches inside loops."),
+                                       llvm::cl::init(false),
+                                       llvm::cl::value_desc("boolean flag"));
+
 static llvm::cl::opt<bool> GenerateStats("perf-taint-export-stats",
                                        llvm::cl::desc("Specify directory for output logs"),
                                        llvm::cl::init(false),
@@ -182,6 +187,14 @@ namespace perf_taint {
                 }
             }
         }
+        // sorted instrumented functions
+        std::vector<Function*> functions(parent_functions.size());
+        for(auto & f : instrumented_functions) {
+          if( !f.second.hasValue() || f.second->is_overriden())
+            continue;
+          int f_idx = f.second->function_idx();
+          functions[f_idx] = &f.second.getValue();
+        }
 
         instr.createGlobalStorage(parent_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
@@ -189,12 +202,28 @@ namespace perf_taint {
                 notinstrumented_functions.begin(), notinstrumented_functions.end());
         //instr.annotateParams(found_params);
         size_t params_count = Parameters::globals_names.size() + Parameters::local_names.size();
+        size_t branch_idx = 0;
         for(auto & f : instrumented_functions)
         {
-            if(f.second) {
-                modifyFunction(*f.first, f.second.getValue(), instr);
-            }
+          if(f.second) {
+              modifyFunction(*f.first, f.second.getValue(), instr);
+          }
+
+
         }
+
+        if(EnableBranches) {
+          for(Function * f : functions) {
+            for(auto & branch : f->loop_cf_branches) {
+              llvm::errs() << "BranchInstrument " << f->name << '\n';
+              instr.instrumentLoopBranch(branch.branch, f->idx, branch.nested_loop_idx, branch_idx);
+              ++branch_idx;
+            }
+          }
+        }
+
+
+
         // TODO: also change that we dependent on this vector.
         // we should have all functions - not important, instrumented - in same data structure
         // TODO: why the hell is it parent_functions?
@@ -289,6 +318,65 @@ namespace perf_taint {
             (*it).second->add_callsite(val);
     }
 
+    void DfsanInstr::analyzeLoopBranches(Function & f, llvm::Loop & l, int & nested_loop_idx)
+    {
+      typedef std::vector<llvm::Loop*> loops_t;
+      loops_t buf_first{1, &l}, buf_second;
+
+      loops_t * cur_loops = &buf_first, * next_loops = &buf_second;
+      while(!cur_loops->empty()) {
+
+        for(llvm::Loop * l : *cur_loops) {
+          llvm::SmallVector<llvm::BasicBlock*, 10> exit_blocks;
+          l->getExitingBlocks(exit_blocks);
+          // FIXME: Merge with the same code in instrumentLoop
+          llvm::SmallSet<llvm::BasicBlock*, 20> subloops_bb;
+          auto & subloops = l->getSubLoops();
+          for(llvm::Loop * subloop : subloops) {
+              for(llvm::BasicBlock * bb : subloop->blocks())
+                  subloops_bb.insert(bb);
+          }
+
+          llvm::SmallSet<llvm::Instruction*, 10> cf_branches;
+          for(llvm::BasicBlock * bb : l->blocks()) {
+            // loop basic block that is not a part of subloop
+            if(!subloops_bb.count(bb)) {
+              for(llvm::Instruction & inst : *bb) {
+                //detect all branches
+                llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(&inst);
+                if(br && br->isConditional()) {
+                  cf_branches.insert(&inst);
+                } else if(llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(&inst)) {
+                  cf_branches.erase(br);
+                }
+              }
+            }
+          }
+
+          // now remove branches that are parts of exit
+          for(llvm::BasicBlock * bb : exit_blocks) {
+            llvm::Instruction * inst = bb->getTerminator();
+            llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
+            if(br && br->isConditional()) {
+              cf_branches.erase(br);
+            } else if(llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
+              cf_branches.erase(_switch);
+            }
+          }
+          llvm::errs() << "Done " << cf_branches.size() << '\n';
+          // insert branches for further processing
+          for(llvm::Instruction * br : cf_branches) {
+            f.loop_cf_branches.push_back({static_cast<uint32_t>(nested_loop_idx), br});
+          }
+
+          nested_loop_idx++;
+          std::copy(subloops.begin(), subloops.end(), std::back_inserter(*next_loops));
+        }
+        std::swap(cur_loops, next_loops);
+        next_loops->clear();
+      }
+    }
+
     int DfsanInstr::analyzeLoop(Function & f, llvm::Loop & l,
             std::vector<std::vector<int>> & data, int depth)
     {
@@ -302,6 +390,8 @@ namespace perf_taint {
         for(llvm::Loop * l : subloops) {
             loop_count += analyzeLoop(f, *l, data, depth + 1);
         }
+
+
         return loop_count;
     }
     
@@ -411,6 +501,7 @@ namespace perf_taint {
             foundFunction(f, true, override_counter);
             Function & func = instrumented_functions[&f].getValue();
 
+            int nested_loop_idx = 0;
             // TODO: refactor for general loop interface
             for(llvm::Loop * l : *linfo) {
                 std::vector< std::vector<int> > data;
@@ -425,6 +516,10 @@ namespace perf_taint {
                 func.loops_sizes.push_back(depth);
                 func.loops_sizes.push_back(structure_size);
                 func.loops_sizes.push_back(loop_count);
+
+                // cf-branches
+                if(EnableBranches)
+                  analyzeLoopBranches(func, *l, nested_loop_idx);
             }
 
             int implicit_loops = 0;
@@ -586,6 +681,7 @@ namespace perf_taint {
                     // loop basic block that is not a part of subloop
                     if(!subloops_bb.count(bb)) {
                         for(llvm::Instruction & inst : *bb) {
+
                             // call!
                             if(llvm::CallBase * call =
                                     llvm::dyn_cast<llvm::CallBase>(&inst)) {
@@ -623,6 +719,7 @@ namespace perf_taint {
                         llvm::errs() << "Unknown branch: " << *inst << '\n';
                     }
                 }
+
                 nested_loop_idx++;
                 internal_nested_index++;
                 std::copy(subloops.begin(), subloops.end(), std::back_inserter(*next_loops));
@@ -738,7 +835,6 @@ namespace perf_taint {
         //        }
         //    }
         //}
-
         int idx = 0;
         for(llvm::Value * callsite : func.callsites) {
             llvm::Instruction * s = llvm::dyn_cast<llvm::Instruction>(callsite);
@@ -1280,6 +1376,115 @@ namespace perf_taint {
                 builder.getInt32Ty(), false, llvm::GlobalValue::WeakAnyLinkage,
                 builder.getInt32(number_of_loops),
                 glob_loops_number_name);
+
+      // control-flow branches
+      if(EnableBranches) {
+        std::vector<int> branches_offsets;
+        std::vector<int> branches_counts;
+        branches_counts.push_back(0);
+        int inserted_branches = 0;
+
+        size_t offset = 0;
+        auto b = begin;
+        for(Function * f : functions) {
+
+
+          branches_offsets.push_back(offset);
+          int number_of_loops = 0;
+          int loops = f->loops_sizes.size() / 3;
+          for(int i = 0; i < loops; ++i)
+              number_of_loops += f->loops_sizes[3*i + 2];
+          auto branches_begin = f->loop_cf_branches.begin();
+          auto branches_end = f->loop_cf_branches.end();
+          for(int i = 0; i < number_of_loops; ++i) {
+
+            // Certain number of branches for this particular loop
+            int count = 0;
+            while(branches_begin != branches_end && (*branches_begin).nested_loop_idx == i) {
+              ++count; ++branches_begin;
+            }
+            if(count) {
+              branches_counts.push_back(branches_counts.back() + count);
+              inserted_branches += count;
+            }
+            // No branches - same position as before
+            else {
+              branches_counts.push_back(branches_counts.back());
+            }
+
+          }
+          offset += number_of_loops;
+        }
+
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(), functions_count);
+        std::vector<llvm::Constant*> offsets(branches_offsets.size());
+        std::transform(branches_offsets.begin(), branches_offsets.end(),
+          offsets.begin(),
+          [this](int offset) {
+              return builder.getInt32(offset);
+          }
+        );
+        glob_branches_offsets = new llvm::GlobalVariable(m,
+          array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantArray::get(array_type, offsets),
+          glob_branches_offsets_name
+        );
+
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(), branches_counts.size());
+        std::vector<llvm::Constant*> counts(branches_counts.size());
+        std::transform(branches_counts.begin(), branches_counts.end(),
+          counts.begin(),
+          [this](int offset) {
+              return builder.getInt32(offset);
+          }
+        );
+        glob_branches_counts = new llvm::GlobalVariable(m,
+          array_type, false, llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantArray::get(array_type, counts),
+          glob_branches_counts_name
+        );
+
+        array_type = llvm::ArrayType::get(builder.getInt16Ty(), inserted_branches);
+        glob_branches_data = new llvm::GlobalVariable(m,
+          array_type,
+          false,
+          llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantAggregateZero::get(array_type),
+          glob_branches_data_name);
+
+        new llvm::GlobalVariable(m, builder.getInt1Ty(), false, 
+          llvm::GlobalValue::WeakAnyLinkage,
+          builder.getTrue(),
+          glob_branches_enabled_name
+        );
+          
+      } else {
+        array_type = llvm::ArrayType::get(builder.getInt32Ty(), 0);
+        glob_branches_offsets = new llvm::GlobalVariable(m,
+          array_type,
+          false,
+          llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantAggregateZero::get(array_type),
+          glob_branches_offsets_name);
+        glob_branches_counts = new llvm::GlobalVariable(m,
+          array_type,
+          false,
+          llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantAggregateZero::get(array_type),
+          glob_branches_counts_name);
+        array_type = llvm::ArrayType::get(builder.getInt16Ty(), 0);
+        glob_branches_data = new llvm::GlobalVariable(m,
+          array_type,
+          false,
+          llvm::GlobalValue::WeakAnyLinkage,
+          llvm::ConstantAggregateZero::get(array_type),
+          glob_branches_data_name);
+        new llvm::GlobalVariable(m, builder.getInt1Ty(), false, 
+          llvm::GlobalValue::WeakAnyLinkage,
+          builder.getFalse(),
+          glob_branches_enabled_name
+        );
+      }
     }
 
     void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
@@ -1638,6 +1843,12 @@ namespace perf_taint {
         m.getOrInsertFunction("__dfsw_EXTRAP_WRITE_PARAMETER", func_t);
         write_parameter_function = m.getFunction("__dfsw_EXTRAP_WRITE_PARAMETER");
         assert(write_parameter_function);
+
+        // void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t *, size_t, int32_t)
+        func_t = llvm::FunctionType::get(void_t, {i16_t, idx_t, idx_t, idx_t}, false);
+        m.getOrInsertFunction("__dfsw_perf_taint_branch", func_t);
+        taint_branch_function = m.getFunction("__dfsw_perf_taint_branch");
+        assert(taint_branch_function);
     }
 
     // polly lib/CodeGen/PerfMonitor.cpp
@@ -1757,6 +1968,35 @@ namespace perf_taint {
         assert(ptr);
         assert(layout);
         return layout->getTypeStoreSize(ptr->getPointerElementType());
+    }
+
+    void Instrumenter::instrumentLoopBranch(llvm::Instruction * branch, int32_t function_idx,
+        int32_t nested_loop_idx, int32_t branch_idx)
+    {
+      builder.SetInsertPoint(branch);
+      llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(branch);
+      llvm::Value * label = nullptr;
+      if(br) {
+        llvm::Instruction * inst =
+          llvm::dyn_cast<llvm::Instruction>(br->getCondition());
+        assert(inst);
+        label = getLabel(inst);
+      } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(branch)) {
+        llvm::Instruction * inst =
+          llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
+        assert(inst);
+        label = getLabel(inst);
+      }
+
+      builder.CreateCall(
+        taint_branch_function,
+        {
+          label,
+          builder.getInt32(function_idx),
+          builder.getInt32(nested_loop_idx),
+          builder.getInt32(branch_idx)
+        }
+      );
     }
 
     void InstrumenterVisiter::visitLoadInst(llvm::LoadInst & load)

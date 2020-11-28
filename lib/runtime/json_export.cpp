@@ -184,14 +184,16 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
     bool non_empty = false;
 
     json_t params = __dfsw_json_write_single_loop(deps++, clean);
-    json_t branches = __dfsw_json_write_single_loop_branch(function_idx, nested_loop_idx);
     if(!params.empty()) {
       loop["params"] = params;
       non_empty = true;
     }
-    if(!branches.empty() && !branches.is_null()) {
-      loop["branches"] = branches;
-      non_empty = true;
+    if(__perf_taint_loop_branches_enabled) {
+      json_t branches = __dfsw_json_write_single_loop_branch(function_idx, nested_loop_idx);
+      if(!branches.empty() && !branches.is_null()) {
+        loop["branches"] = branches;
+        non_empty = true;
+      }
     }
     loop["level"] = 0;
     int level_size = *loop_structure, prev_level_size = 0, next_level_size = 0;
@@ -230,14 +232,16 @@ json_t __dfsw_json_write_loop(int function_idx, int32_t * loop_data,
             json_t loop_level;
             loop_level["level"] = level;
             json_t params = __dfsw_json_write_single_loop(deps++, clean);
-            json_t branches = __dfsw_json_write_single_loop_branch(function_idx, nested_loop_idx);
             if(!params.empty()) {
               non_empty = true;
               loop_level["params"] = params;
             }
-            if(!branches.empty() && !branches.is_null()) {
-              loop_level["branches"] = branches;
-              non_empty = true;
+            if(__perf_taint_loop_branches_enabled) {
+              json_t branches = __dfsw_json_write_single_loop_branch(function_idx, nested_loop_idx);
+              if(!branches.empty() && !branches.is_null()) {
+                loop_level["branches"] = branches;
+                non_empty = true;
+              }
             }
             while(begin != end && begin->nested_loop_idx == nested_loop_idx) {
               if(begin->len > 0) {
