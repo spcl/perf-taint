@@ -1,11 +1,15 @@
-FROM mcopik/clang-dfsan:dfsan-9.0
+FROM mcopik/clang-dfsan:cfsan-9.0
+ENV PATH="/opt/llvm/bin:${PATH}"
 
 USER docker
+
+ADD . ${HOME}/perf-taint
+RUN mkdir ${HOME}/build
 
 RUN sudo apt-get update\
   # Basic developer tools
   && sudo apt-get install -y --no-install-recommends\
-        ninja-build\
+        make\
         cmake\
         git\
   # OpenMPI 
@@ -19,4 +23,16 @@ RUN sudo apt-get update\
         python3-pip\
   && pip3 install wheel\
   && pip3 install lit
+
+RUN cd ${HOME}/build && cmake\
+  -DCMAKE_C_COMPILER=clang\
+  -DCMAKE_CXX_COMPILER=clang++\
+  -DLLVM_DIR=/opt/llvm/\
+  -DWITH_MPI=ON\
+  -DLIBCXX_PATH=/opt/llvm/\
+  -DWITH_REGRESSION_TESTS=ON\
+  -DWITH_UNIT_TESTS=On\
+  -DLLVM_WITH_CFSAN=On\
+  -DCMAKE_INSTALL_PREFIX=${HOME}/install\
+  ../perf-taint && make
     
