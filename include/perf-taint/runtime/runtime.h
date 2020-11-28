@@ -163,5 +163,10 @@ EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
         int32_t function_idx);
 
+extern int32_t  __perf_taint_loop_branches_offsets[];
+extern int32_t  __perf_taint_loop_branches_counts[];
+extern int16_t  __perf_taint_loop_branches_data[];
+
+
 #endif
 
