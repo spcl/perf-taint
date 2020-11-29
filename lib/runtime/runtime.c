@@ -15,11 +15,6 @@
 
 #define DEBUG false
 
-//extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
-//extern int8_t * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
-//extern int32_t __EXTRAP_INSTRUMENTATION_FUNCS_COUNT;
-//extern int32_t __EXTRAP_INSTRUMENTATION_PARAMS_COUNT;
-
 extern dfsan_label __EXTRAP_INSTRUMENTATION_LABELS[];
 
 callstack __EXTRAP_CALLSTACK = {0, 0, NULL};
@@ -373,5 +368,21 @@ void __dfsw_EXTRAP_MARK_IMPLICIT_LABEL(uint16_t function_idx,
   offset += nested_loop_idx;
   uint16_t found_params = (1 << (implicit_label_idx));
   __dfsw_add_dep(found_params, &__EXTRAP_LOOP_DEPENDENCIES[offset]);
+}
+
+void __dfsw_perf_taint_branch(uint16_t label, int32_t function_idx, int32_t nested_loop_idx, int32_t branch_idx)
+{
+  if(__perf_taint_loop_branches_enabled) {
+    size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+      + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+    // We iterate only to # of currently known parameters
+    uint16_t found_params = 0;
+    for(size_t i = 0; i < param_count; ++i)
+        if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+            bool has_label = dfsan_has_label(label, __EXTRAP_INSTRUMENTATION_LABELS[i]);
+            found_params |= (has_label << i);
+        }
+    __perf_taint_loop_branches_data[branch_idx] |= found_params;
+  }
 }
 

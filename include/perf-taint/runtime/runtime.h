@@ -50,6 +50,8 @@ typedef struct _nested_call_vec {
   nested_call * data;
 } nested_call_vec;
 
+extern bool __perf_taint_loop_branches_enabled;
+
 extern int32_t __EXTRAP_INSTRUMENTATION_RESULTS[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_NAMES[];
 extern const char * __EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[];
@@ -162,6 +164,11 @@ EXTERN bool __dfsw_json_write_loop(int function_idx, int calls_count);
 EXTERN dependencies * __dfsw_EXTRAP_DEPS_FUNC(int func_idx);
 EXTERN dependencies * __dfsw_EXTRAP_GET_DEPS(int32_t loop_idx, int32_t depth,
         int32_t function_idx);
+
+extern int32_t  __perf_taint_loop_branches_offsets[];
+extern int32_t  __perf_taint_loop_branches_counts[];
+extern int16_t  __perf_taint_loop_branches_data[];
+
 
 #endif
 

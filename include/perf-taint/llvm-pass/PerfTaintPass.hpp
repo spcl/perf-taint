@@ -113,6 +113,19 @@ namespace perf_taint {
         llvm::GlobalVariable * glob_loops_sizes_offsets;
         llvm::GlobalVariable * glob_loops_number;
 
+        // branches
+        llvm::GlobalVariable * glob_branches_offsets;
+        llvm::GlobalVariable * glob_branches_counts;
+        llvm::GlobalVariable * glob_branches_data;
+        static constexpr const char * glob_branches_offsets_name
+            = "__perf_taint_loop_branches_offsets";
+        static constexpr const char * glob_branches_counts_name
+            = "__perf_taint_loop_branches_counts";
+        static constexpr const char * glob_branches_data_name
+            = "__perf_taint_loop_branches_data";
+        static constexpr const char * glob_branches_enabled_name
+            = "__perf_taint_loop_branches_enabled";
+
         static constexpr const char * glob_retval_tls_name
             = "__dfsan_retval_tls";
         static constexpr const char * glob_labels_name
@@ -217,6 +230,9 @@ namespace perf_taint {
         // void __dfsw_EXTRAP_WRITE_PARAMETER(int8_t *, size_t, int32_t)
         llvm::Function * write_parameter_function;
 
+        // void __dfsw_perf_taint_branch(int16, int32, int32, int32)
+        llvm::Function * taint_branch_function;
+
         Instrumenter(llvm::Module & _m):
             m(_m),
             builder(m.getContext()),
@@ -292,6 +308,9 @@ namespace perf_taint {
         );
         llvm::Function * getAtExit();
         uint64_t size_of(llvm::Value * val);
+
+      void instrumentLoopBranch(llvm::Instruction * branch, int32_t function_idx,
+          int32_t nested_loop_idx, int32_t branch_idx);
     };
 
     struct LabelAnnotator : public llvm::InstVisitor<LabelAnnotator, bool>
@@ -376,6 +395,8 @@ namespace perf_taint {
         std::unordered_map<llvm::Function*, bool> calls_important;
 
         std::set<llvm::Function*> recursive_functions;
+
+        void analyzeLoopBranches(Function & f, llvm::Loop & l, int & nested_loop_idx);
 
         DfsanInstr():
             ModulePass(ID),
