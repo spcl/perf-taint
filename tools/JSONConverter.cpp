@@ -564,7 +564,6 @@ json_t convert(json_t & input, bool generate_full_data)
                 json_t new_callstack;
                 //new_callstack.push_back(json_t::array());
                 for(auto v : value) {
-
                     //size_t size = new_callstack.size();
                     //if(!important_indices.count(v.get<int>())) {
                     //  new_callstack.resize(size*2);
@@ -575,19 +574,8 @@ json_t convert(json_t & input, bool generate_full_data)
 
                     // push update_u -> update_h :( old hack around ScoreP filtering
                     if(important_indices.count(v.get<int>())
-                        #if ENABLE_FIX_ICS_2019_RESULTS
-                          //update_h
-                          || v.get<int>() == 418
-                          || v.get<int>() == 420
-                          //setup_output_gauge_file
-                          || v.get<int>() == 352
-                          || v.get<int>() == 354
-                          //cleanup_gathers 
-                          || v.get<int>() == 345
-                          || v.get<int>() == 347
-                        #endif
                         || input["functions_names"][v.get<int>()] == "main")
-                      new_callstack.push_back(v);
+                        new_callstack.push_back(v);
                 }
                 bool found = false;
                 for(json_t & prev_callstack : converted_callstacks)
