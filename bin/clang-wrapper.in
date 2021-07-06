@@ -1,0 +1,28 @@
+#!/bin/bash
+
+SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
+LIBCXX_PATH="@CMAKE_LIBCXX_PATH@"
+MPI_INCLUDE_PATHS="@MPI_INCLUDE_PATH@"
+MPI_LINK_FLAG="@MPI_LINK_FLAGS@"
+COMPILER="@CMAKE_C_COMPILER@"
+
+export IFS=";"
+MPI_INCLUDE=()
+for path in ${MPI_INCLUDE_PATHS}; do
+  if [[ ! -z "$path" ]]; then
+    MPI_INCLUDE+=("-I${path}")
+  fi
+done
+unset IFS
+
+CFLAGS="\
+  -g\
+  -Wall\
+  -DWITH_EXTRAP\
+  -I${SOURCE_DIR}/include\
+  ${MPI_INCLUDE[@]}\
+  "
+echo "Running command: "
+echo "${COMPILER} "$@" "${CFLAGS[@]}" -emit-llvm -c"
+${COMPILER} "$@" "${CFLAGS[@]}" -emit-llvm -c
+
