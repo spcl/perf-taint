@@ -1,5 +1,7 @@
 # perf-taint
 
+**LLVM-based taint analysis framework for HPC performance modeling.**
+
 # Example:
 [![CircleCI](https://circleci.com/gh/spcl/perf-taint.svg?style=shield)](https://circleci.com/ghspcl/perf-taint)
 ![Release](https://img.shields.io/github/v/release/spcl/perf-taint)
@@ -11,10 +13,14 @@ LLVM in version 9.0+ and for analysis of C++ applications, it needs a dataflow-s
 build of [libc++](https://mcopik.github.io/c++/2020/02/24/dataflow/).
 
 When using perf-taint, please cite [our PPoPP'21 paper](https://doi.org/10.1145/3437801.3441613).
-A preprint of our paper is [available on arXiv](https://arxiv.org/abs/2012.15592).
+A preprint of our paper is [available on arXiv](https://arxiv.org/abs/2012.15592), and you can
+find more details about reasearch work [in this paper summary](https://mcopik.github.io/projects/perf_taint/).
 
 ```
-Marcin Copik, Alexandru Calotoiu, Tobias Grosser, Nicolas Wicki, Felix Wolf, and Torsten Hoefler. 2021. Extracting clean performance models from tainted programs. In Proceedings of the 26th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '21). Association for Computing Machinery, New York, NY, USA, 403–417. DOI:https://doi.org/10.1145/3437801.3441613
+Marcin Copik, Alexandru Calotoiu, Tobias Grosser, Nicolas Wicki, Felix Wolf, and Torsten Hoefler. 2021.
+Extracting clean performance models from tainted programs.
+In Proceedings of the 26th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '21).
+Association for Computing Machinery, New York, NY, USA, 403–417. DOI:https://doi.org/10.1145/3437801.3441613
 ```
 
 ## Building
@@ -61,4 +67,4 @@ parameter registration for perf-taint.
 
 * [Marcin Copik, ETH Zurich](https://github.com/mcopik/) - main developer.
 * [Nicolas Wicki, ETH Zurich](https://github.com/nwicki/) - contributed the control-flow tainting in LLVM and perf-taint, in addition to various bug fixes.
-* Alexandru Calotoiu, ETH Zurich and TU Darmstadt - helped with the Extra-P integration.
+* [Alexandru Calotoiu, ETH Zurich and TU Darmstadt](https://github.com/acalotoiu) - helped with the Extra-P integration.
