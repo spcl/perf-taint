@@ -1,5 +1,8 @@
 # perf-taint
 
+# Example:
+[![CircleCI](https://circleci.com/gh/spcl/perf-taint.svg?style=shield)](https://circleci.com/ghspcl/perf-taint)
+
 The implementation of taint analysis for performance modeling. The tool requires
 LLVM in version 9.0+ and for analysis of C++ applications, it needs a dataflow-sanitized
 build of [libc++](https://mcopik.github.io/c++/2020/02/24/dataflow/).
