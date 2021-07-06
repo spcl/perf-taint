@@ -4,6 +4,7 @@ SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
 LIBCXX_PATH="@CMAKE_LIBCXX_PATH@"
 MPI_INCLUDE_PATHS="@MPI_INCLUDE_PATH@"
 MPI_LINK_FLAG="@MPI_LINK_FLAGS@"
+COMPILER="@CMAKE_CXX_COMPILER@"
 source "@CMAKE_CURRENT_SOURCE_DIR@/bin/clang-wrapper-functions.sh"
 
 export IFS=";"
@@ -34,4 +35,5 @@ LINKFLAGS="\
   ${MPI_LINK_FLAG}\
   "
 
-run_compilation "clang++" "$@"
+run_compilation ${COMPILER} "$@"
+

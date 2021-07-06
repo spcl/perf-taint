@@ -1,5 +1,7 @@
 FROM mcopik/clang-dfsan:cfsan-9.0
 ENV PATH="/opt/llvm/bin:${PATH}"
+ENV PERF_TAINT_PATH="${HOME}/build"
+ENV LLVM_PATH="/opt/llvm/"
 
 USER docker
 
