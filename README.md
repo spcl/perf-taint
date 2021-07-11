@@ -8,22 +8,53 @@
 ![GitHub issues](https://img.shields.io/github/issues/spcl/perf-taint)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/spcl/perf-taint)
 
-The implementation of taint analysis for performance modeling. The tool requires
-LLVM in version 9.0+ and for analysis of C++ applications, it needs a dataflow-sanitized
-build of [libc++](https://mcopik.github.io/c++/2020/02/24/dataflow/).
+Perf-taint implements taint-based analysis of the program's performance to find the performance-relevant
+parameters and discover functions that impact the program's performance. Perf-taint generates
+a structured JSON file describing relevant functions. We use that to enhance Extra-P empirical
+performance modeling tool with our new performance analysis and construct
+hybrid, white-box performance models.
+
+The tool consists of two parts: an LLVM compiler pass and a runtime library. The compiler pass
+performs static analysis to determine which functions are definitely not performance-relevant
+and instruments the code with taint propagation. The resulting application is linked with our
+runtime library that aggregates tainted data and constructs [a JSON performance profile](docs/json.md).
+The profile [is passed to Extra-P](docs/extrap.md) to use the program information in the modeling process.
+Our tool supports [parallel MPI programs](docs/mpi.md), and [OpenMP support](docs/openmp.md) is planned for the next release.
+The [documentation](#documentation) describes in detail [the design and implementation of our
+tool](docs/design.md) and provides [a step-by-step explanation](docs/example.md) of our compilation and modeling pipeline.
 
 When using perf-taint, please cite [our PPoPP'21 paper](https://doi.org/10.1145/3437801.3441613).
 A preprint of our paper is [available on arXiv](https://arxiv.org/abs/2012.15592), and you can
-find more details about reasearch work [in this paper summary](https://mcopik.github.io/projects/perf_taint/).
+find more details about research work [in this paper summary](https://mcopik.github.io/projects/perf_taint/).
 
 ```
-Marcin Copik, Alexandru Calotoiu, Tobias Grosser, Nicolas Wicki, Felix Wolf, and Torsten Hoefler. 2021.
-Extracting clean performance models from tainted programs.
-In Proceedings of the 26th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '21).
-Association for Computing Machinery, New York, NY, USA, 403–417. DOI:https://doi.org/10.1145/3437801.3441613
+@inproceedings{10.1145/3437801.3441613,
+  author = {Copik, Marcin and Calotoiu, Alexandru and Grosser, Tobias and Wicki, Nicolas and Wolf, Felix and Hoefler, Torsten},
+  title = {Extracting Clean Performance Models from Tainted Programs},
+  year = {2021},
+  isbn = {9781450382946},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3437801.3441613},
+  doi = {10.1145/3437801.3441613},
+  booktitle = {Proceedings of the 26th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming},
+  pages = {403–417},
+  numpages = {15},
+  keywords = {taint analysis, high-performance computing, LLVM, performance modeling, compiler techniques},
+  location = {Virtual Event, Republic of Korea},
+  series = {PPoPP '21}
+}
 ```
 
-## Building
+## Requirements
+
+* LLVM 9.0 or higher.
+* Alternatively, use our [LLVM fork](https://github.com/nwicki/llvm-project/) to enable control-flow tainting.
+* libc++ 9.0 or higher, built with dfsan tainting - [see instructions](https://mcopik.github.io/blog/2020/dataflow/).
+
+We provide a Docker image `mcopik/clang-dfsan:dfsan-9.0` with `LLVM` and `libcxx` installed.
+
+## Installation
 
 To build, pass clang as the default compiler, and provide paths to installation of LLVM
 and tainted installation of `libc++`.
@@ -34,37 +65,65 @@ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=... -DLIB
 
 The following options are supported:
 
-* `LLVM_DIR` **mandatory** - provides paths to selected LLVM instalations. No
-search in default paths is conducted.
-* `LIBCXX_PATH` **mandatory** - path to an installation of `libc++` built with
-LLVM's DataFlowSanitizer.
-* `LLVM_WITH_CFSAN` **default OFF** - use the control-flow tainting
-feature when available in the LLVM build.
-* `WITH_MPI` **default ON** - build runtime with support for MPI programs.
-* `OMP_PATH` **optional** - path to a tainted installation of OpenMP library. Enables
-support for OpenMP programs.
-* `JSONCPP_PATH` **optional** - path to an existing installation of jsoncpp library.
-When not provided, the library will be downloaded and configured during build.
-* `WITH_UNIT_TESTS` **default ON** - include unit tests.
-* `WITH_REGRESSION_TESTS` **default ON** - include regression tests.
 
-Verify the build by running `llvm-lit tests` in build directory.
+| Arguments         |                                                                         |
+|-------------------|-------------------------------------------------------------------------|
+| **Mandatory**     |                                                                         |
+| `LLVM_DIR`        | Path to the LLVM installation (no search in default paths is conducted). |
+| `LIBCXX_PATH`     | Path to the `libc++` installation built with LLVM's DataFlowSanitizer.  |
+| **Optional**      |                                                                         |
+| `LLVM_WITH_CFSAN` | Use the control-flow tainting provided by LLVM fork (**default OFF**)   |
+| `WITH_MPI`        | Build runtime with support for MPI programs (**default ON**)            |
+| `JSONCPP_PATH`    | Path to a installation of jsoncpp library. When not provided, the library is downloaded and configured during build. |
+| `WITH_UNIT_TESTS` | Enable unit tests (**default ON**)                                      |
+| `WITH_REGRESSION_TESTS` | Enable regression tests (**default ON**)                          |
+| `OMP_PATH`        | Path to a tainted installation of OpenMP library and enables support for OpenMP programs (**experimental**) |
+
+Verify the build by running `llvm-lit tests/unit` in build directory.
+
+## Usage
+
+Our pipeline requires a minor code modification to allow registration and tainting program parameters.
+For each program variable which should be treated as a potentially performance-relevant parameter,
+users should add the `EXTRAP` annotation and a call to the `register_variable` function.
+
+```
+int size EXTRAP = atoi(argv[1]);
+register_variable(&size, "size");
+```
+
+Then, the source code should be compiled into the LLVM IR bitcode.
+We provide wrappers `/build-dir/bin/clang` and `/build-dir/bin/clang++` that are configured
+to use the selected LLVM installation. They behave like regular C/C++ compiler, except
+that our wrappers generate bitcodes from the compilation of translation units. It works
+well when applied to C/C++ projects implemented with Makefiles or CMake. The IR generation
+happens while compiling to object code, so the build process is not interrupted.
 
 The helper script `bin/perf-taint` provides an integrated tool that accepts
-IR files, runs our instrumentation together with dfsan and builds an executable.
-The tool includes a handy wrapper of clang that fills all necessary passes and
+IR files runs our instrumentation together with dfsan, and builds an executable.
+In addition, the tool includes a handy wrapper that fills all necessary passes and
 implements the entire compilation pipeline:
 
 ```
 /build-dir/bin/perf-taint -t ${output_name} ${input_llvm_ir}
 ```
 
-The `benchmarks` directory contains ready-to-use LLVM IR bitcodes for LULESH
-and MILC's su3_rmd benchmarks that have been manually instrumented with
-parameter registration for perf-taint.
+The [documentation](#documentation) provides [a step-by-step explanation](docs/example.md) of our
+compilation and modeling pipeline, and [covers two HPC benchmarks](docs/benchmarks.md): LULESH
+and MILC's su3_rmd.
+
+## Testing
+
+We implement tests as C++ programs with compilation instructions inserted in the header.
+The tests are executed with the help of `llvm-lit`, and their execution can be easily parallelized with `-j$PROC`.
+Tests are split into `regression` tests, which might use multiple cores and few minutes to execute,
+and simple `unit` tests that are sequential and small.
+
+For details on the compilation instructions, please inspect the definitions in [our lit
+configuration file](tests/lit.cfg.in).
 
 ## Authors
 
 * [Marcin Copik, ETH Zurich](https://github.com/mcopik/) - main developer.
 * [Nicolas Wicki, ETH Zurich](https://github.com/nwicki/) - contributed the control-flow tainting in LLVM and perf-taint, in addition to various bug fixes.
-* [Alexandru Calotoiu, ETH Zurich and TU Darmstadt](https://github.com/acalotoiu) - helped with the Extra-P integration.
+* [Alexandru Calotoiu, ETH Zurich and TU Darmstadt](https://github.com/acalotoiu) - worked on the Extra-P integration.
