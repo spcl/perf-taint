@@ -62,14 +62,14 @@ The manual step of our analysis includes annotating program code to indicate whi
 are programs parameters and should be analyzed. MPI's number of ranks is an implicit parameter
 that is automatically added. Thus, we add the following line in `main`:
 
-```
+```c++
 int size EXTRAP = atoi(argv[1]);
 register_variable(&size, "size");
 ```
 
 And we add the necessary include: `#include "perf-taint/PerfTaint.hpp"`.
 
-### perf-taint: parameter pruning
+### Compilation
 
 Now we show how to use perf-taint, either locally or within Docker.
 First, we need to turn the C/C++ code into LLVM IR. For that, `perf-taint` provides
@@ -96,7 +96,7 @@ Details of each step can be found in `bin/perf-taint.in` in program repository.
 An artifact of the compilation is the file `perf-taint-pass.json` summarizing results of
 static analysis (a sample shown here):
 
-```
+```json
 {
   "functions": {
     "_Z17register_variableIiEvPT_PKc": {
@@ -161,6 +161,8 @@ static analysis (a sample shown here):
 As we can see, all functions are considered to be potentially performance
 relevant, except a helper function `register_variable` is not interesting for performance modeling.
 
+### Dynamic Analysis
+
 Finally, we execute the application to perform the dynamic taint analysis and later we process results:
 
 ```
@@ -171,7 +173,6 @@ After the application finishes, the JSON files `mpi_simple_{0,1,2,3}.json` conta
 for each MPI rank. To extract information into a summary and prepare the results
 for modeling, we use a dedicated tool:
 
-Local:
 ```
 ${PERF_TAINT_PATH}/tools/JSONConverter mpi_simple_0.json mpi_simple.ll.json 2> analysis.txt
 ```
@@ -181,7 +182,7 @@ are performance relevant, the latter doesn't depend on the number of MPi ranks `
 Finally, `f_const` is correctly identified as performance irrelevant and `h` contains a call
 to important MPI routine (position 1 in "instance").
 
-```
+```json
 "_Z1hPdm": {
   "file": "mpi_simple_annotated.cpp",
   "func_idx": 4,
@@ -266,7 +267,7 @@ to important MPI routine (position 1 in "instance").
 
 Finally we inspect the summarized results of an analysis:
 
-```
+```json
 Analyze 1 unimportant and 6 important functions
 Important: 6
 Function: main params: 0
