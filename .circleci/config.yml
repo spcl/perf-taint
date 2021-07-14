@@ -23,6 +23,29 @@ jobs:
      - run:
         name: Run unit tests
         command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
+ perf-taint-cfsan:
+   docker:
+     - image: mcopik/perf-taint:base-9.0
+       user: docker
+   steps:
+     - checkout
+     - run:
+        name: Run CMake configuration
+        command: 'mkdir build && cd build &&
+                  cmake -G "Ninja"
+                    -DCMAKE_C_COMPILER=clang
+                    -DCMAKE_CXX_COMPILER=clang++
+                    -DLLVM_WITH_CFSAN=On
+                    -DWITH_MPI=Off
+                    -DLLVM_DIR=/opt/llvm/
+                    -DLIBCXX_PATH=/opt/llvm/
+                    ..'
+     - run:
+        name: Run CMake build
+        command: 'cd build && ninja nlohmann_json && ninja '
+     - run:
+        name: Run unit tests
+        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
  perf-taint-mpi:
    docker:
      - image: mcopik/perf-taint:base-9.0
