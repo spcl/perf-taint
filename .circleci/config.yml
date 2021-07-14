@@ -22,7 +22,7 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run unit tests
-        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
+        command: '~/.local/bin/lit -v build/tests/'
  perf-taint-cfsan:
    docker:
      - image: spcleth/perf-taint:base-cfsan-9.0
@@ -45,7 +45,7 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run unit tests
-        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
+        command: '~/.local/bin/lit -v build/tests/'
  perf-taint-mpi:
    docker:
      - image: spcleth/perf-taint:base-dfsan-9.0
@@ -67,7 +67,7 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run unit tests
-        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
+        command: '~/.local/bin/lit -v build/tests/'
  perf-taint-mpi-cfsan:
    docker:
      - image: spcleth/perf-taint:base-cfsan-9.0
@@ -90,7 +90,7 @@ jobs:
         command: 'cd build && ninja nlohmann_json && ninja '
      - run:
         name: Run unit tests
-        command: 'python3 ~/.local/lib/python3.6/site-packages/lit/main.py -v build/tests/'
+        command: '~/.local/bin/lit -v build/tests/'
 workflows:
   version: 2
   build:
