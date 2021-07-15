@@ -20,8 +20,11 @@ and instruments the code with taint propagation. The resulting application is li
 runtime library that aggregates tainted data and constructs [a JSON performance profile](docs/json.md).
 The profile [is passed to Extra-P](docs/extrap.md) to use the program information in the modeling process.
 Our tool supports [parallel MPI programs](docs/mpi.md), and [OpenMP support](docs/openmp.md) is planned for the next release.
-The [documentation](#documentation) describes in detail [the design and implementation of our
+The documentation describes in detail [the design and implementation of our
 tool](docs/design.md) and provides [a step-by-step explanation](docs/example.md) of our compilation and modeling pipeline.
+
+perf-taint can be used with our Docker image `spcleth/perf-taint:latest`, or the tool
+can be [installed locally](#installation).
 
 When using perf-taint, please cite [our PPoPP'21 paper](https://doi.org/10.1145/3437801.3441613).
 A preprint of our paper is [available on arXiv](https://arxiv.org/abs/2012.15592), and you can
@@ -108,9 +111,11 @@ implements the entire compilation pipeline:
 /build-dir/bin/perf-taint -t ${output_name} ${input_llvm_ir}
 ```
 
-The [documentation](#documentation) provides [a step-by-step explanation](docs/example.md) of our
+The documentation provides [a step-by-step explanation](docs/example.md) of our
 compilation and modeling pipeline, and [covers two HPC benchmarks](docs/benchmarks.md): LULESH
 and MILC's su3_rmd.
+
+## Docker
 
 ## Testing
 
