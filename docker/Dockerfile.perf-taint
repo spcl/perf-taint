@@ -1,30 +1,18 @@
-FROM mcopik/clang-dfsan:cfsan-9.0
+FROM spcleth/perf-taint:base-cfsan-9.0
 ENV PATH="/opt/llvm/bin:${PATH}"
+ENV BUILD_DIR=/opt/perf-taint
 
-USER docker
+USER root
+RUN mkdir ${BUILD_DIR}
+RUN useradd docker_user
+WORKDIR /home/docker_user
+RUN chown -R docker_user:docker_user /home/docker_user && chown -R docker_user:docker_user ${BUILD_DIR}
+USER docker_user
 
 ADD . ${HOME}/perf-taint
-RUN mkdir ${HOME}/build
 
-RUN sudo apt-get update\
-  # Basic developer tools
-  && sudo apt-get install -y --no-install-recommends\
-        make\
-        cmake\
-        git\
-  # OpenMPI 
-        ssh\
-        libopenmpi-dev\
-        openmpi-bin\
-  # libstdc++ to easily build the project itself
-        libstdc++-7-dev \
-  # Necessary python deps to install LLVM lit
-        python3-setuptools\
-        python3-pip\
-  && pip3 install wheel\
-  && pip3 install lit
-
-RUN cd ${HOME}/build && cmake\
+RUN cd ${BUILD_DIR} && cmake\
+  -G "Ninja"\
   -DCMAKE_C_COMPILER=clang\
   -DCMAKE_CXX_COMPILER=clang++\
   -DLLVM_DIR=/opt/llvm/\
@@ -33,6 +21,5 @@ RUN cd ${HOME}/build && cmake\
   -DWITH_REGRESSION_TESTS=ON\
   -DWITH_UNIT_TESTS=On\
   -DLLVM_WITH_CFSAN=On\
-  -DCMAKE_INSTALL_PREFIX=${HOME}/install\
-  ../perf-taint && make
+  ${HOME}/perf-taint && ninja
     

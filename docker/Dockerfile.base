@@ -2,8 +2,6 @@ ARG BASE
 FROM mcopik/clang-dfsan:${BASE}
 ENV PATH="/opt/llvm/bin:${PATH}"
 
-USER docker
-
 RUN sudo apt-get update\
   # Basic developer tools
   && sudo apt-get install -y --no-install-recommends\
