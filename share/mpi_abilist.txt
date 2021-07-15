@@ -53,6 +53,38 @@
         ]
       }
     },
+    "MPI_Scatter" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          },
+          {
+            "type" : "arg",
+            "pos" : 4
+          }
+        ]
+      }
+    },
+    "MPI_Gather" : {
+      "loops" : {
+        "level" : 0,
+        "params" : [
+          "p",
+          {
+            "type" : "arg",
+            "pos" : 1
+          },
+          {
+            "type" : "arg",
+            "pos" : 4
+          }
+        ]
+      }
+    },
     "MPI_Allgather" : {
       "loops" : {
         "level" : 0,

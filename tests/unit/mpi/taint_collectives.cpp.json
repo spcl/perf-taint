@@ -1,13 +1,13 @@
 {
   "functions": {
     "MPI_Allgather": {
-      "func_idx": 10,
+      "func_idx": 14,
       "loops": [
         {
           "callstacks": [
             [
-              12,
-              2
+              16,
+              3
             ]
           ],
           "instance": {
@@ -24,8 +24,8 @@
         {
           "callstacks": [
             [
-              12,
-              2
+              16,
+              3
             ]
           ],
           "instance": {
@@ -45,8 +45,8 @@
         {
           "callstacks": [
             [
-              12,
-              2
+              16,
+              3
             ]
           ],
           "instance": {
@@ -66,8 +66,8 @@
         {
           "callstacks": [
             [
-              12,
-              2
+              16,
+              3
             ]
           ],
           "instance": {
@@ -90,13 +90,13 @@
       ]
     },
     "MPI_Allreduce": {
-      "func_idx": 11,
+      "func_idx": 15,
       "loops": [
         {
           "callstacks": [
             [
-              12,
-              5
+              16,
+              6
             ]
           ],
           "instance": {
@@ -113,8 +113,8 @@
         {
           "callstacks": [
             [
-              12,
-              5
+              16,
+              6
             ]
           ],
           "instance": {
@@ -134,13 +134,13 @@
       ]
     },
     "MPI_Alltoall": {
-      "func_idx": 9,
+      "func_idx": 13,
       "loops": [
         {
           "callstacks": [
             [
-              12,
-              1
+              16,
+              2
             ]
           ],
           "instance": {
@@ -157,8 +157,8 @@
         {
           "callstacks": [
             [
-              12,
-              1
+              16,
+              2
             ]
           ],
           "instance": {
@@ -178,8 +178,8 @@
         {
           "callstacks": [
             [
-              12,
-              1
+              16,
+              2
             ]
           ],
           "instance": {
@@ -199,8 +199,8 @@
         {
           "callstacks": [
             [
-              12,
-              1
+              16,
+              2
             ]
           ],
           "instance": {
@@ -223,12 +223,12 @@
       ]
     },
     "MPI_Bcast": {
-      "func_idx": 7,
+      "func_idx": 9,
       "loops": [
         {
           "callstacks": [
             [
-              12,
+              16,
               0
             ]
           ],
@@ -246,7 +246,7 @@
         {
           "callstacks": [
             [
-              12,
+              16,
               0
             ]
           ],
@@ -266,14 +266,14 @@
         }
       ]
     },
-    "MPI_Reduce": {
-      "func_idx": 8,
+    "MPI_Gather": {
+      "func_idx": 10,
       "loops": [
         {
           "callstacks": [
             [
-              12,
-              4
+              16,
+              1
             ]
           ],
           "instance": {
@@ -290,8 +290,97 @@
         {
           "callstacks": [
             [
-              12,
-              4
+              16,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "func_idx": 11,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              16,
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              5
             ]
           ],
           "instance": {
@@ -311,13 +400,13 @@
       ]
     },
     "MPI_Scan": {
-      "func_idx": 6,
+      "func_idx": 8,
       "loops": [
         {
           "callstacks": [
             [
-              12,
-              3
+              16,
+              4
             ]
           ],
           "instance": {
@@ -334,8 +423,8 @@
         {
           "callstacks": [
             [
-              12,
-              3
+              16,
+              4
             ]
           ],
           "instance": {
@@ -354,28 +443,117 @@
         }
       ]
     },
-    "_Z4scanii": {
-      "file": "tests/unit/mpi/taint_collectives.cpp",
-      "func_idx": 3,
-      "line": 68,
+    "MPI_Scatter": {
+      "func_idx": 12,
       "loops": [
         {
           "callstacks": [
             [
-              12
+              16,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              16,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ],
+                [
+                  "param"
+                ],
+                [
+                  "param2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z4scanii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 4,
+      "line": 84,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 6
+                "function_idx": 8
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 6
+                "function_idx": 8
               }
             ]
           }
@@ -390,20 +568,60 @@
         {
           "callstacks": [
             [
-              12
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 7
+                "function_idx": 9
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 7
+                "function_idx": 9
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z6gatheriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 1,
+      "line": 52,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              16
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 10
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 10
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 10
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 10
               }
             ]
           }
@@ -412,26 +630,66 @@
     },
     "_Z6reduceii": {
       "file": "tests/unit/mpi/taint_collectives.cpp",
-      "func_idx": 4,
-      "line": 80,
+      "func_idx": 5,
+      "line": 96,
       "loops": [
         {
           "callstacks": [
             [
-              12
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 8
+                "function_idx": 11
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 8
+                "function_idx": 11
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z7scatteriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 7,
+      "line": 120,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              16
+            ]
+          ],
+          "instance": {
+            "0": [
+              {
+                "entry_id": 0,
+                "function_idx": 12
+              }
+            ],
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 12
+              }
+            ],
+            "2": [
+              {
+                "entry_id": 2,
+                "function_idx": 12
+              }
+            ],
+            "3": [
+              {
+                "entry_id": 3,
+                "function_idx": 12
               }
             ]
           }
@@ -440,38 +698,38 @@
     },
     "_Z8alltoalliii": {
       "file": "tests/unit/mpi/taint_collectives.cpp",
-      "func_idx": 1,
+      "func_idx": 2,
       "line": 36,
       "loops": [
         {
           "callstacks": [
             [
-              12
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 9
+                "function_idx": 13
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 9
+                "function_idx": 13
               }
             ],
             "2": [
               {
                 "entry_id": 2,
-                "function_idx": 9
+                "function_idx": 13
               }
             ],
             "3": [
               {
                 "entry_id": 3,
-                "function_idx": 9
+                "function_idx": 13
               }
             ]
           }
@@ -480,38 +738,38 @@
     },
     "_Z9allgatheriii": {
       "file": "tests/unit/mpi/taint_collectives.cpp",
-      "func_idx": 2,
-      "line": 52,
+      "func_idx": 3,
+      "line": 68,
       "loops": [
         {
           "callstacks": [
             [
-              12
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 10
+                "function_idx": 14
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 10
+                "function_idx": 14
               }
             ],
             "2": [
               {
                 "entry_id": 2,
-                "function_idx": 10
+                "function_idx": 14
               }
             ],
             "3": [
               {
                 "entry_id": 3,
-                "function_idx": 10
+                "function_idx": 14
               }
             ]
           }
@@ -520,26 +778,26 @@
     },
     "_Z9allreduceii": {
       "file": "tests/unit/mpi/taint_collectives.cpp",
-      "func_idx": 5,
-      "line": 92,
+      "func_idx": 6,
+      "line": 108,
       "loops": [
         {
           "callstacks": [
             [
-              12
+              16
             ]
           ],
           "instance": {
             "0": [
               {
                 "entry_id": 0,
-                "function_idx": 11
+                "function_idx": 15
               }
             ],
             "1": [
               {
                 "entry_id": 1,
-                "function_idx": 11
+                "function_idx": 15
               }
             ]
           }
@@ -549,14 +807,18 @@
   },
   "functions_demangled_names": [
     "bcast(int, int)",
+    "gather(int, int, int)",
     "alltoall(int, int, int)",
     "allgather(int, int, int)",
     "scan(int, int)",
     "reduce(int, int)",
     "allreduce(int, int)",
+    "scatter(int, int, int)",
     "MPI_Scan",
     "MPI_Bcast",
+    "MPI_Gather",
     "MPI_Reduce",
+    "MPI_Scatter",
     "MPI_Alltoall",
     "MPI_Allgather",
     "MPI_Allreduce",
@@ -565,14 +827,18 @@
   ],
   "functions_mangled_names": [
     "_Z5bcastii",
+    "_Z6gatheriii",
     "_Z8alltoalliii",
     "_Z9allgatheriii",
     "_Z4scanii",
     "_Z6reduceii",
     "_Z9allreduceii",
+    "_Z7scatteriii",
     "MPI_Scan",
     "MPI_Bcast",
+    "MPI_Gather",
     "MPI_Reduce",
+    "MPI_Scatter",
     "MPI_Alltoall",
     "MPI_Allgather",
     "MPI_Allreduce",
@@ -581,14 +847,18 @@
   ],
   "functions_names": [
     "bcast",
+    "gather",
     "alltoall",
     "allgather",
     "scan",
     "reduce",
     "allreduce",
+    "scatter",
     "MPI_Scan",
     "MPI_Bcast",
+    "MPI_Gather",
     "MPI_Reduce",
+    "MPI_Scatter",
     "MPI_Alltoall",
     "MPI_Allgather",
     "MPI_Allreduce",

@@ -49,6 +49,22 @@ void alltoall(int rank, int size, int size2)
   MPI_Alltoall(send_data, size + 1, MPI_INT, rcv_data, size2 + 1, MPI_INT, MPI_COMM_WORLD);
 }
 
+void gather(int rank, int size, int size2)
+{
+  int send_data[] = {rank};
+  int rcv_data[] = {0, 0, 0, 0};
+  int s = 1;
+
+  // no dependency
+  MPI_Gather(send_data, s, MPI_INT, !rank ? rcv_data : nullptr, s, MPI_INT, 0, MPI_COMM_WORLD);
+  // send buffer dep
+  MPI_Gather(send_data, size, MPI_INT, !rank ? rcv_data : nullptr, s, MPI_INT, 0, MPI_COMM_WORLD);
+  // rcv buffer dep
+  MPI_Gather(send_data, s, MPI_INT, !rank ? rcv_data : nullptr, size2, MPI_INT, 0, MPI_COMM_WORLD);
+  // send, rcv buffer dep
+  MPI_Gather(send_data, size, MPI_INT, !rank? rcv_data : nullptr, size2, MPI_INT, 0, MPI_COMM_WORLD);
+}
+
 void allgather(int rank, int size, int size2)
 {
   int send_data[] = {0};
@@ -101,6 +117,20 @@ void allreduce(int rank, int size)
   MPI_Allreduce(send_data, rcv_data, size, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 }
 
+void scatter(int rank, int size, int size2)
+{
+  int send_rcv_data[] = {100};
+  int s = 1;
+
+  // no dependency
+  MPI_Scatter(!rank ? send_rcv_data : nullptr, s, MPI_INT, send_rcv_data, s, MPI_INT, 0, MPI_COMM_WORLD);
+  // send buffer dep
+  MPI_Scatter(!rank ? send_rcv_data : nullptr, size, MPI_INT, send_rcv_data, s, MPI_INT, 0, MPI_COMM_WORLD);
+  // rcv buffer dep
+  MPI_Scatter(!rank ? send_rcv_data : nullptr, s, MPI_INT, send_rcv_data, size2, MPI_INT, 0, MPI_COMM_WORLD);
+  // send, rcv buffer dep
+  MPI_Scatter(!rank ? send_rcv_data : nullptr, size, MPI_INT, send_rcv_data, size2, MPI_INT, 0, MPI_COMM_WORLD);
+}
 
 int main(int argc, char ** argv)
 {
@@ -113,11 +143,13 @@ int main(int argc, char ** argv)
   register_variable(&param2, "param2");
 
   bcast(rank_id, param);
+  gather(rank_id, param, param2);
   alltoall(rank_id, param, param2);
   allgather(rank_id, param, param2);
   scan(rank_id, param);
   reduce(rank_id, param);
   allreduce(rank_id, param);
+  scatter(rank_id, param, param2);
 
   MPI_Finalize();
   return 0;
