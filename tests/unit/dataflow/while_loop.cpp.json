@@ -1,0 +1,147 @@
+{
+  "functions": {
+    "_Z10while_loopii": {
+      "file": "tests/unit/dataflow/while_loop.cpp",
+      "func_idx": 0,
+      "line": 21,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z14while_infiniteii": {
+      "file": "tests/unit/dataflow/while_loop.cpp",
+      "func_idx": 1,
+      "line": 32,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "while_loop(int, int)",
+    "while_infinite(int, int)",
+    "main",
+    "atoi",
+    "void register_variable<int>(int*, char const*)"
+  ],
+  "functions_mangled_names": [
+    "_Z10while_loopii",
+    "_Z14while_infiniteii",
+    "main",
+    "atoi",
+    "_Z17register_variableIiEvPT_PKc"
+  ],
+  "functions_names": [
+    "while_loop",
+    "while_infinite",
+    "main",
+    "atoi",
+    "register_variable<int>"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
