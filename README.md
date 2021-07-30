@@ -115,6 +115,15 @@ The documentation provides [a step-by-step explanation](docs/example.md) of our
 compilation and modeling pipeline, and [covers two HPC benchmarks](docs/benchmarks.md): LULESH
 and MILC's su3_rmd.
 
+## Limitations
+
+While `perf-taint` supports a wide set of C++, HPC, and MPI applications, it does have few limitations:
+* OpenMP support is experimental and might not work as expected.
+* Multithreaded applications are not supported at the moment. MPI applications with a single thread per process are fine.
+* Recursive functions are not supported and they're not detected as a part of computational complexity (#16).
+* Taint labels can be propagated in MPI messages, but this not supported at the moment - so far we have not found this limitation to be problematic.
+* When discovering the taint dependency in MPI calls, we support only trivial MPI datatypes. Derived datatypes are not supported.
+
 ## Docker
 
 ## Testing
