@@ -410,7 +410,43 @@ bool __dfsw_perf_taint_has_label(int8_t * ptr, int32_t size, const char* label)
   return dfsan_has_label(dfsan_read_label(ptr, size), found_label);
 }
 
+// Dfsan does not offer a native way to delete a label.
+// We don't want to introduce a dependency on the label storage format
+// Thus, we only use options offered by the dfsan API
+// perf-taint stores all user-defined labels in its memory.
+//
+// Algorithm
+// (1) Read current label
+// (2) Reset label to 0
+// (3) Iterate over all labels defined by a user
+// (3a) if the label is meant for deletion, then skip it
+// (3b) if the label was present in the original label, readd it
+// (3c) otherwise, skip it
 void __dfsw_perf_taint_delete_label(int8_t * ptr, int32_t size, const char* label)
 {
+  // read current label
+  dfsan_label cur_label = dfsan_read_label(ptr, size);
+
+  // reset current label
+  dfsan_set_label(0, ptr, size);
+
+  // We iterate only to # of currently known parameters
+  size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+    + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+  for(size_t i = 0; i < param_count; ++i) {
+
+    // Skip non-exising labels (not defined yet)
+    if(!__EXTRAP_INSTRUMENTATION_LABELS[i])
+      continue;
+
+    // skip the label set for deletion
+    if(!strcmp(label, __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i]))
+      continue;
+
+    // check if the label was originally there.
+    // if yes, then add it again
+    if(dfsan_has_label(cur_label, __EXTRAP_INSTRUMENTATION_LABELS[i]))
+      dfsan_add_label(__EXTRAP_INSTRUMENTATION_LABELS[i], ptr, size);
+  }
 }
 
