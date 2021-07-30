@@ -2,9 +2,9 @@
 
 **LLVM-based taint analysis framework for HPC performance modeling.**
 
-# Example:
-[![CircleCI](https://circleci.com/gh/spcl/perf-taint.svg?style=shield)](https://circleci.com/ghspcl/perf-taint)
+[![CircleCI](https://circleci.com/gh/spcl/perf-taint.svg?style=shield)](https://circleci.com/gh/spcl/perf-taint)
 ![Release](https://img.shields.io/github/v/release/spcl/perf-taint)
+![Docker Image](https://img.shields.io/docker/v/spcleth/perf-taint/latest?label=Docker)
 ![GitHub issues](https://img.shields.io/github/issues/spcl/perf-taint)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/spcl/perf-taint)
 
