@@ -386,3 +386,31 @@ void __dfsw_perf_taint_branch(uint16_t label, int32_t function_idx, int32_t nest
   }
 }
 
+bool __dfsw_perf_taint_has_label(int8_t * ptr, int32_t size, const char* label)
+{
+  // We iterate only to # of currently known parameters
+  size_t param_count = __EXTRAP_INSTRUMENTATION_EXPLICIT_PARAMS_COUNT
+    + __EXTRAP_INSTRUMENTATION_IMPLICIT_PARAMS_COUNT;
+  // We store locally the label corresponding to the name,
+  // which helps us to simplify the search
+  int i = 0;
+  for(; i < param_count; ++i) {
+    if(__EXTRAP_INSTRUMENTATION_LABELS[i]) {
+      if(!strcmp(label, __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i])) {
+        // we found the dfsan label we needed
+        break;
+      }
+    }
+  }
+  // We don't have such label
+  if(i == param_count)
+    return false;
+  dfsan_label found_label = __EXTRAP_INSTRUMENTATION_LABELS[i];
+  // Read dfsan label and query the system
+  return dfsan_has_label(dfsan_read_label(ptr, size), found_label);
+}
+
+void __dfsw_perf_taint_delete_label(int8_t * ptr, int32_t size, const char* label)
+{
+}
+
