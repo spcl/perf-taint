@@ -558,6 +558,10 @@ namespace perf_taint {
         // TODO: handle instrumentation of unknown functions
         if(!is_analyzable(*m, f))
             return false;
+        // perf-taint library functions
+        // don't include them in the analysis
+        if(f.getName().startswith("perf_taint"))
+          return false;
         auto it = instrumented_functions.find(&f);
         if(it != instrumented_functions.end())
             return (*it).second.hasValue();
