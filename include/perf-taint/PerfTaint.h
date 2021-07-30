@@ -13,6 +13,7 @@
 void __dfsw_EXTRAP_WRITE_LABEL(int8_t *, int32_t, const char*);
 void __dfsw_EXTRAP_WRITE_LABELS(const char *, size_t, va_list);
 bool __dfsw_perf_taint_has_label(int8_t *, int32_t, const char*);
+void __dfsw_perf_taint_delete_label(int8_t *, int32_t, const char*);
 
 #define EXTRAP __attribute__(( annotate("extrap") ))
 #define VARIABLE_NAME(var) #var
@@ -40,6 +41,11 @@ void register_variables(const char * name, size_t count, ...)
 bool perf_taint_has_label(void * ptr, size_t size, const char * label)
 {
   return __dfsw_perf_taint_has_label((int8_t*) ptr, size, label);
+}
+
+bool perf_taint_delete_label(void * ptr, size_t size, const char * label)
+{
+  __dfsw_perf_taint_delete_label((int8_t*) ptr, size, label);
 }
 
 #endif
