@@ -6,22 +6,32 @@
       "line": 47,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               4
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "size_x",
-                  "size_y"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "size_x",
+                    "size_y"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "size_x",
+              "size_y"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     },
@@ -31,22 +41,32 @@
       "line": 32,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               4
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "size_x",
-                  "size_y"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "size_x",
+                    "size_y"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "size_x",
+              "size_y"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     }
@@ -84,17 +104,5 @@
   "parameters": [
     "size_x",
     "size_y"
-  ],
-  "unimportant_functions": {
-    "_ZN4Grid15update_constantEd": {
-      "file": "tests/unit/control-flow/cpp_class.cpp",
-      "func_idx": 1,
-      "line": 39
-    },
-    "_ZN4Grid8update_zEd": {
-      "file": "tests/unit/control-flow/cpp_class.cpp",
-      "func_idx": 3,
-      "line": 55
-    }
-  }
+  ]
 }

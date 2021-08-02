@@ -1,0 +1,165 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 0,
+      "line": 51,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ],
+            [
+              "x1",
+              "global"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1hii": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 1,
+      "line": 62,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1",
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z1iP4test": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 2,
+      "line": 73,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ]
+          ],
+          "not_found_params": [
+            "x2",
+            "global"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "h(int, int)",
+    "i(test*)",
+    "main",
+    "atoi",
+    "test::test(int, int)",
+    "g(int, int)",
+    "g2(int, int)",
+    "test::length()"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1hii",
+    "_Z1iP4test",
+    "main",
+    "atoi",
+    "_ZN4testC2Eii",
+    "_Z1gii",
+    "_Z2g2ii",
+    "_ZN4test6lengthEv"
+  ],
+  "functions_names": [
+    "f",
+    "h",
+    "i",
+    "main",
+    "atoi",
+    "test",
+    "g",
+    "g2",
+    "length"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}
