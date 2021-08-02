@@ -7,6 +7,14 @@
 // RUN: %jsonconvert %t1.json > %t2.json
 // RUN: diff -w %s.processed.json %t2.json
 
+// RUN: %opt %opt_flags %opt_cfsan < %t1.bc 2> /dev/null > %t2.tainted.bc
+// RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
+// RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe
+// RUN: %execparams %t2.exe 10 10 10 > %t3.json
+// RUN: diff -w %s.cfsan.json %t3.json
+// RUN: %jsonconvert %t3.json > %t4.json
+// RUN: diff -w %s.processed.cfsan.json %t4.json
+
 #include <cstdint>
 #include <cstdlib>
 
@@ -44,6 +52,7 @@ public:
     }
 
     // not important - data is not influenced by label
+    // but it will show up in the cfsan version
     void update_data(double shift)
     {
         data[0] += 2*shift;

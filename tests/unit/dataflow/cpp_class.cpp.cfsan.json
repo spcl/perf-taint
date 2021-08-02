@@ -1,5 +1,30 @@
 {
   "functions": {
+    "_ZN4Grid11update_dataEd": {
+      "file": "tests/unit/dataflow/cpp_class.cpp",
+      "func_idx": 2,
+      "line": 56,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "size_x",
+                  "size_y"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
     "_ZN4Grid11update_gridEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 0,
@@ -61,11 +86,6 @@
     "size_y"
   ],
   "unimportant_functions": {
-    "_ZN4Grid11update_dataEd": {
-      "file": "tests/unit/dataflow/cpp_class.cpp",
-      "func_idx": 2,
-      "line": 56
-    },
     "_ZN4Grid15update_constantEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 1,
