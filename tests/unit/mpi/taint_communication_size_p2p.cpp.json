@@ -164,7 +164,7 @@
     "_Z3rcviiPi": {
       "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 1,
-      "line": 41,
+      "line": 45,
       "loops": [
         {
           "callstacks": [
@@ -210,7 +210,7 @@
     "_Z4sendiiPi": {
       "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 0,
-      "line": 26,
+      "line": 30,
       "loops": [
         {
           "callstacks": [
@@ -262,8 +262,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "void register_variable<int>(int*, char const*)"
+    "main"
   ],
   "functions_mangled_names": [
     "_Z4sendiiPi",
@@ -273,8 +272,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "_Z17register_variableIiEvPT_PKc"
+    "main"
   ],
   "functions_names": [
     "send",
@@ -284,8 +282,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "register_variable<int>"
+    "main"
   ],
   "parameters": [
     "param",

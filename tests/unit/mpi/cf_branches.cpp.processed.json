@@ -2,13 +2,14 @@
   "functions": {
     "MPI_Barrier": {
       "file": null,
-      "func_idx": 6,
+      "func_idx": 4,
       "line": null,
       "loops": [
         {
           "callstack": [
             [
-              0
+              5,
+              2
             ]
           ],
           "data": [
@@ -30,27 +31,22 @@
             ]
           ],
           "not_found_params": [
-            "size",
-            "ranks"
+            "x1",
+            "x2"
           ]
         }
       ]
     },
     "MPI_Reduce": {
       "file": null,
-      "func_idx": 5,
+      "func_idx": 3,
       "line": null,
       "loops": [
         {
           "callstack": [
             [
-              0,
-              2
-            ],
-            [
-              0,
-              3,
-              4
+              5,
+              0
             ]
           ],
           "data": [
@@ -72,21 +68,21 @@
             ]
           ],
           "not_found_params": [
-            "size",
-            "ranks"
+            "x1",
+            "x2"
           ]
         }
       ]
     },
-    "_Z16h_multiple_loopsPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
-      "func_idx": 2,
-      "line": 17,
+    "_Z1fiii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
+      "func_idx": 0,
+      "line": 28,
       "loops": [
         {
           "callstack": [
             [
-              0
+              5
             ]
           ],
           "data": [
@@ -96,8 +92,60 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "size",
-                    "ranks"
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
                   ]
                 },
                 {
@@ -121,8 +169,14 @@
           ],
           "deps": [
             [
-              "size",
-              "ranks"
+              "x1"
+            ],
+            [
+              "x2"
+            ],
+            [
+              "x1",
+              "x2"
             ],
             [
               "p"
@@ -132,99 +186,15 @@
         }
       ]
     },
-    "_Z1fPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
+    "_Z1giii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
       "func_idx": 1,
-      "line": 9,
+      "line": 49,
       "loops": [
         {
           "callstack": [
             [
-              0
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "size",
-                    "ranks"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "size",
-              "ranks"
-            ]
-          ],
-          "not_found_params": [
-            "p"
-          ]
-        }
-      ]
-    },
-    "_Z1hPd": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
-      "func_idx": 4,
-      "line": 26,
-      "loops": [
-        {
-          "callstack": [
-            [
-              0,
-              3
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "p"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "p"
-            ]
-          ],
-          "not_found_params": [
-            "size",
-            "ranks"
-          ]
-        }
-      ]
-    },
-    "_Z8h_nestedPdm": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
-      "func_idx": 3,
-      "line": 33,
-      "loops": [
-        {
-          "callstack": [
-            [
-              0
+              5
             ]
           ],
           "data": [
@@ -237,37 +207,24 @@
                     {
                       "dependency": "unknown",
                       "operands": [
-                        "size",
-                        "ranks"
+                        "x1",
+                        "x2"
                       ]
                     },
                     {
                       "dependency": "additive",
                       "operands": [
                         {
-                          "dependency": "additive",
+                          "dependency": "unknown",
                           "operands": [
-                            {
-                              "dependency": "additive",
-                              "operands": [
-                                {
-                                  "dependency": "additive",
-                                  "operands": [
-                                    {
-                                      "dependency": "additive",
-                                      "operands": [
-                                        {
-                                          "dependency": "unknown",
-                                          "operands": [
-                                            "p"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
+                            "x1"
+                          ]
+                        },
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "x2"
                           ]
                         }
                       ]
@@ -279,28 +236,78 @@
           ],
           "deps": [
             [
-              "size",
-              "ranks",
-              "p"
+              "x1",
+              "x2"
             ]
           ],
-          "not_found_params": null
+          "not_found_params": [
+            "p"
+          ]
         }
       ]
     },
-    "main": {
-      "file": "tests/dfsan-unit/mpi/mpi_simple.cpp",
-      "func_idx": 0,
-      "line": 40,
+    "_Z1miii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
+      "func_idx": 2,
+      "line": 70,
       "loops": [
         {
           "callstack": [
-            null
+            [
+              5
+            ]
           ],
           "data": [
             {
               "dependency": "additive",
               "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "x1",
+                        "x2"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "x2"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                },
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
                 {
                   "dependency": "additive",
                   "operands": [
@@ -316,60 +323,22 @@
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
                 {
-                  "dependency": "additive",
+                  "dependency": "multiplicative",
                   "operands": [
                     {
-                      "dependency": "additive",
+                      "dependency": "unknown",
                       "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "size",
-                            "ranks"
-                          ]
-                        }
+                        "x1",
+                        "x2"
                       ]
-                    }
-                  ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "size",
-                            "ranks"
-                          ]
-                        },
-                        {
-                          "dependency": "additive",
-                          "operands": [
-                            {
-                              "dependency": "additive",
-                              "operands": [
-                                {
-                                  "dependency": "unknown",
-                                  "operands": [
-                                    "p"
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
+                    },
                     {
                       "dependency": "additive",
                       "operands": [
@@ -379,41 +348,44 @@
                             {
                               "dependency": "unknown",
                               "operands": [
-                                "size",
-                                "ranks"
+                                "x2"
                               ]
                             },
                             {
                               "dependency": "additive",
                               "operands": [
                                 {
-                                  "dependency": "additive",
+                                  "dependency": "unknown",
                                   "operands": [
-                                    {
-                                      "dependency": "additive",
-                                      "operands": [
-                                        {
-                                          "dependency": "additive",
-                                          "operands": [
-                                            {
-                                              "dependency": "additive",
-                                              "operands": [
-                                                {
-                                                  "dependency": "unknown",
-                                                  "operands": [
-                                                    "p"
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
+                                    "x1",
+                                    "x2"
+                                  ]
+                                },
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
                                   ]
                                 }
                               ]
                             }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
                           ]
                         }
                       ]
@@ -425,15 +397,10 @@
           ],
           "deps": [
             [
-              "size",
-              "ranks"
+              "x1",
+              "x2"
             ],
             [
-              "p"
-            ],
-            [
-              "size",
-              "ranks",
               "p"
             ]
           ],
@@ -443,41 +410,35 @@
     }
   },
   "functions_demangled_names": [
-    "main",
-    "f(double*, unsigned long)",
-    "h_multiple_loops(double*, unsigned long)",
-    "h_nested(double*, unsigned long)",
-    "h(double*)",
+    "f(int, int, int)",
+    "g(int, int, int)",
+    "m(int, int, int)",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "main",
+    "atoi"
   ],
   "functions_mangled_names": [
-    "main",
-    "_Z1fPdm",
-    "_Z16h_multiple_loopsPdm",
-    "_Z8h_nestedPdm",
-    "_Z1hPd",
+    "_Z1fiii",
+    "_Z1giii",
+    "_Z1miii",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "main",
+    "atoi"
   ],
   "functions_names": [
-    "main",
     "f",
-    "h_multiple_loops",
-    "h_nested",
-    "h",
+    "g",
+    "m",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "register_variable<int>"
+    "main",
+    "atoi"
   ],
   "parameters": [
-    "size",
-    "ranks",
+    "x1",
+    "x2",
     "p"
   ]
 }

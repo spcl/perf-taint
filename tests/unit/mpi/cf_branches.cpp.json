@@ -1,0 +1,367 @@
+{
+  "functions": {
+    "MPI_Barrier": {
+      "func_idx": 4,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              2
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "func_idx": 3,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              0
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "p"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1fiii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
+      "func_idx": 0,
+      "line": 28,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            },
+            "1": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "2": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "3": [
+              {
+                "entry_id": 0,
+                "function_idx": 3
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            },
+            "1": {
+              "branches": {
+                "0": [
+                  "x1"
+                ]
+              },
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "2": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "3": [
+              {
+                "entry_id": 0,
+                "function_idx": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_Z1giii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
+      "func_idx": 1,
+      "line": 49,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "branches": {
+                "0": [
+                  "x2"
+                ]
+              },
+              "level": 0,
+              "loops": {
+                "0": {
+                  "branches": {
+                    "0": [
+                      "x1"
+                    ]
+                  },
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1"
+                    ]
+                  ]
+                },
+                "1": {
+                  "level": 1,
+                  "params": [
+                    [
+                      "x1",
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "_Z1miii": {
+      "file": "tests/unit/mpi/cf_branches.cpp",
+      "func_idx": 2,
+      "line": 70,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "branches": {
+                    "0": [
+                      "x2"
+                    ]
+                  },
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "branches": {
+                        "1": [
+                          "x1"
+                        ]
+                      },
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ]
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "loops": {
+                "0": {
+                  "branches": {
+                    "0": [
+                      "x2"
+                    ]
+                  },
+                  "level": 1,
+                  "loops": {
+                    "0": {
+                      "branches": {
+                        "0": [
+                          "x1",
+                          "x2"
+                        ],
+                        "1": [
+                          "x1"
+                        ]
+                      },
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    },
+                    "1": {
+                      "level": 2,
+                      "params": [
+                        [
+                          "x1",
+                          "x2"
+                        ]
+                      ]
+                    }
+                  },
+                  "params": [
+                    [
+                      "x2"
+                    ]
+                  ]
+                }
+              },
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 4
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int, int)",
+    "g(int, int, int)",
+    "m(int, int, int)",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "main",
+    "atoi"
+  ],
+  "functions_mangled_names": [
+    "_Z1fiii",
+    "_Z1giii",
+    "_Z1miii",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "main",
+    "atoi"
+  ],
+  "functions_names": [
+    "f",
+    "g",
+    "m",
+    "MPI_Reduce",
+    "MPI_Barrier",
+    "main",
+    "atoi"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "p"
+  ]
+}

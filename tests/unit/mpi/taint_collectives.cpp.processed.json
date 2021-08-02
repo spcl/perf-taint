@@ -1,0 +1,1306 @@
+{
+  "functions": {
+    "MPI_Allgather": {
+      "file": null,
+      "func_idx": 14,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param",
+                    "param2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "MPI_Allreduce": {
+      "file": null,
+      "func_idx": 15,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              6
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "MPI_Alltoall": {
+      "file": null,
+      "func_idx": 13,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param",
+                    "param2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "MPI_Bcast": {
+      "file": null,
+      "func_idx": 9,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              0
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "MPI_Gather": {
+      "file": null,
+      "func_idx": 10,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param",
+                    "param2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "MPI_Reduce": {
+      "file": null,
+      "func_idx": 11,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              5
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "MPI_Scan": {
+      "file": null,
+      "func_idx": 8,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "MPI_Scatter": {
+      "file": null,
+      "func_idx": 12,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16,
+              7
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param",
+                    "param2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z4scanii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 4,
+      "line": 88,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "_Z5bcastii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 0,
+      "line": 30,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "_Z6gatheriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 1,
+      "line": 56,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z6reduceii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 5,
+      "line": 100,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    },
+    "_Z7scatteriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 7,
+      "line": 124,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z8alltoalliii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 2,
+      "line": 40,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z9allgatheriii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 3,
+      "line": 72,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param",
+                            "param2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ],
+            [
+              "param2",
+              "p"
+            ],
+            [
+              "param",
+              "param2",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z9allreduceii": {
+      "file": "tests/unit/mpi/taint_collectives.cpp",
+      "func_idx": 6,
+      "line": 112,
+      "loops": [
+        {
+          "callstack": [
+            [
+              16
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ],
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param2"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "bcast(int, int)",
+    "gather(int, int, int)",
+    "alltoall(int, int, int)",
+    "allgather(int, int, int)",
+    "scan(int, int)",
+    "reduce(int, int)",
+    "allreduce(int, int)",
+    "scatter(int, int, int)",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Gather",
+    "MPI_Reduce",
+    "MPI_Scatter",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main"
+  ],
+  "functions_mangled_names": [
+    "_Z5bcastii",
+    "_Z6gatheriii",
+    "_Z8alltoalliii",
+    "_Z9allgatheriii",
+    "_Z4scanii",
+    "_Z6reduceii",
+    "_Z9allreduceii",
+    "_Z7scatteriii",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Gather",
+    "MPI_Reduce",
+    "MPI_Scatter",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main"
+  ],
+  "functions_names": [
+    "bcast",
+    "gather",
+    "alltoall",
+    "allgather",
+    "scan",
+    "reduce",
+    "allreduce",
+    "scatter",
+    "MPI_Scan",
+    "MPI_Bcast",
+    "MPI_Gather",
+    "MPI_Reduce",
+    "MPI_Scatter",
+    "MPI_Alltoall",
+    "MPI_Allgather",
+    "MPI_Allreduce",
+    "main"
+  ],
+  "parameters": [
+    "param",
+    "param2",
+    "p"
+  ]
+}

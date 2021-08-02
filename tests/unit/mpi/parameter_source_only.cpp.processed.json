@@ -6,21 +6,30 @@
       "line": 37,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               2
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     },
@@ -30,21 +39,30 @@
       "line": 46,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               2
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "p"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     }
