@@ -78,17 +78,24 @@ namespace perf_taint {
 
     std::string demangle(llvm::StringRef name)
     {
-        int status = 0;
-        char * demangled_name =
-            abi::__cxa_demangle(name.data(), 0, 0, &status);
-        std::string str_name; if(status == 0)
-            str_name = demangled_name;
-        else if(status == -2)
-            str_name = name;
-        else
-            assert(false);
-        free( static_cast<void*>(demangled_name) );
-        return str_name;
+      // For non-mangled names (C), the mangling can return incorrect values
+      // For example, `f` might be translated to `float`
+      // This is a temporary fix for the problem.
+      // See: https://reviews.llvm.org/D22939
+      // Another: https://reviews.llvm.org/D23001
+      if(!(name.data()[0] == '_' && name.data()[1] == 'Z'))
+        return name.str();
+      int status = 0;
+      char * demangled_name = abi::__cxa_demangle(name.data(), 0, 0, &status);
+      std::string str_name;
+      if(status == 0)
+          str_name = demangled_name;
+      else if(status == -2)
+          str_name = name;
+      else
+          assert(false);
+      free( static_cast<void*>(demangled_name) );
+      return str_name;
     }
 
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
@@ -455,7 +462,6 @@ namespace perf_taint {
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
         assert(linfo);
-        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end()) << '\n';
         // TODO: replace with a database
         bool has_openmp_calls = handleOpenMP(f, override_counter);
 
@@ -578,7 +584,7 @@ namespace perf_taint {
         // don't include them in the analysis
         if(f.getName().startswith("perf_taint"))
           return false;
-        // perf-taint C++ library functions
+        // perf-taint C++ library function
         if(demangle(f.getName()).find("perf_taint::") != std::string::npos)
           return false;
 
@@ -757,7 +763,6 @@ namespace perf_taint {
             Instrumenter & instr)
     {
         linfo = &getAnalysis<llvm::LoopInfoWrapperPass>(f).getLoopInfo();
-        llvm::errs() << f.getName() << ' ' << std::distance(linfo->begin(), linfo->end())<< '\n';
         assert(linfo);
 
         //TODO: debug
@@ -1043,6 +1048,7 @@ namespace perf_taint {
             llvm::StringRef mangled_name = func->getName();
             mangled_function_names[f_idx] =
                 builder.CreateGlobalStringPtr(mangled_name);
+            auto s = demangle(mangled_name);
             demangled_function_names[f_idx] = builder.CreateGlobalStringPtr(
                     demangle(mangled_name));
             function_names[f_idx] = fname;
