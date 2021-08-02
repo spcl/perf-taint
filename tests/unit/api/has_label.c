@@ -27,9 +27,9 @@ int main(int argc, char ** argv)
   int x1 EXTRAP = atoi(argv[1]);
   int x2 EXTRAP = 2*atoi(argv[2]);
   int x3 EXTRAP = atoi(argv[1]);
-  register_variable(&x1, sizeof(x1), VARIABLE_NAME(x1));
-  register_variable(&x2, sizeof(x2), VARIABLE_NAME(x2));
-  register_variable(&x3, sizeof(x3), VARIABLE_NAME(x3));
+  perf_taint_register_variable(&x1, sizeof(x1), VARIABLE_NAME(x1));
+  perf_taint_register_variable(&x2, sizeof(x2), VARIABLE_NAME(x2));
+  perf_taint_register_variable(&x3, sizeof(x3), VARIABLE_NAME(x3));
 
   int x1_x2 = x1 + x2;
   int x2_x3 = x2 + x3;
