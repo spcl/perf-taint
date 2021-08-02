@@ -34,12 +34,12 @@ index 3e881c5..2773d68 100644
  
     ParseCommandLineOptions(argc, argv, myRank, &opts);
 +#if defined(WITH_EXTRAP)
-+   register_variable(&opts.its, "iters");
-+   register_variable(&opts.cost, "cost");
-+   register_variable(&opts.balance, "balance");
-+   register_variable(&opts.nx, "size");
-+   register_variable(&opts.numReg, "regions");
-+   register_variable(&numRanks, "p");
++   perf_taint::register_variable(&opts.its, "iters");
++   perf_taint::register_variable(&opts.cost, "cost");
++   perf_taint::register_variable(&opts.balance, "balance");
++   perf_taint::register_variable(&opts.nx, "size");
++   perf_taint::register_variable(&opts.numReg, "regions");
++   perf_taint::register_variable(&numRanks, "p");
 +#endif
 +
 +
