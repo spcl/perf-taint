@@ -1,0 +1,61 @@
+{
+  "functions": {
+    "_Z1iiii": {
+      "file": "tests/unit/dataflow/bug_multiple_registrations.cpp",
+      "func_idx": 0,
+      "line": 40,
+      "loops": [
+        {
+          "callstack": [
+            [
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "i(int, int, int)",
+    "main",
+    "setup(int, char**, int&, int&)",
+    "atoi"
+  ],
+  "functions_mangled_names": [
+    "_Z1iiii",
+    "main",
+    "_Z5setupiPPcRiS1_",
+    "atoi"
+  ],
+  "functions_names": [
+    "i",
+    "main",
+    "setup",
+    "atoi"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

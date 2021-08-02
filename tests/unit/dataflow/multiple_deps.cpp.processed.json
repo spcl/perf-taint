@@ -1,112 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
       "func_idx": 0,
-      "line": 8,
-      "loops": [
-        {
-          "callstack": [
-            [
-              3
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "global",
-                    "x1"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "x1",
-              "global"
-            ]
-          ],
-          "not_found_params": [
-            "x2"
-          ]
-        }
-      ]
-    },
-    "_Z1hi": {
-      "file": "tests/dfsan-instr/function_call.cpp",
-      "func_idx": 1,
-      "line": 16,
-      "loops": [
-        {
-          "callstack": [
-            [
-              3
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x2"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "x2"
-            ]
-          ],
-          "not_found_params": [
-            "x1",
-            "global"
-          ]
-        },
-        {
-          "callstack": [
-            [
-              3,
-              6
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "global"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
-            [
-              "global"
-            ]
-          ],
-          "not_found_params": [
-            "x1",
-            "x2"
-          ]
-        }
-      ]
-    },
-    "_Z1iiii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
-      "func_idx": 2,
-      "line": 29,
+      "line": 47,
       "loops": [
         {
           "callstack": [
@@ -134,43 +31,130 @@
               "x2"
             ]
           ],
-          "not_found_params": [
-            "global"
-          ]
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1gii": {
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
+      "func_idx": 1,
+      "line": 57,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1hP4test": {
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
+      "func_idx": 2,
+      "line": 67,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     }
   },
   "functions_demangled_names": [
     "f(int, int)",
-    "h(int)",
-    "i(int, int, int)",
+    "g(int, int)",
+    "h(test*)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
-    "g(int)"
+    "test::test(int, int, int)",
+    "mul(int, int)",
+    "test::length()"
   ],
   "functions_mangled_names": [
     "_Z1fii",
-    "_Z1hi",
-    "_Z1iiii",
+    "_Z1gii",
+    "_Z1hP4test",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
-    "_Z1gi"
+    "_ZN4testC2Eiii",
+    "_Z3mulii",
+    "_ZN4test6lengthEv"
   ],
   "functions_names": [
     "f",
+    "g",
     "h",
-    "i",
     "main",
     "atoi",
-    "register_variable<int>",
-    "g"
+    "test",
+    "mul",
+    "length"
   ],
   "parameters": [
     "x1",
-    "x2",
+    "x2"
+  ],
+  "unused_parameters": [
     "global"
   ]
 }

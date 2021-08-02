@@ -1,0 +1,127 @@
+{
+  "functions": {
+    "_Z12print_paramsP6Params": {
+      "file": "tests/unit/dataflow/struct.cpp",
+      "func_idx": 0,
+      "line": 39,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.ranks",
+                    "params.problem_size"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "params.ranks",
+              "params.problem_size"
+            ]
+          ],
+          "not_found_params": [
+            "global_params.ranks"
+          ]
+        }
+      ]
+    },
+    "_Z6do_sthii": {
+      "file": "tests/unit/dataflow/struct.cpp",
+      "func_idx": 1,
+      "line": 49,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.problem_size",
+                    "global_params.ranks"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "params.ranks",
+                    "params.problem_size"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "params.ranks",
+              "params.problem_size"
+            ],
+            [
+              "params.problem_size",
+              "global_params.ranks"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "print_params(Params*)",
+    "do_sth(int, int)",
+    "do_sth2(double, int)",
+    "main",
+    "atoi",
+    "atof",
+    "do_sth3(Params&)"
+  ],
+  "functions_mangled_names": [
+    "_Z12print_paramsP6Params",
+    "_Z6do_sthii",
+    "_Z7do_sth2di",
+    "main",
+    "atoi",
+    "atof",
+    "_Z7do_sth3R6Params"
+  ],
+  "functions_names": [
+    "print_params",
+    "do_sth",
+    "do_sth2",
+    "main",
+    "atoi",
+    "atof",
+    "do_sth3"
+  ],
+  "parameters": [
+    "params.ranks",
+    "params.problem_size",
+    "global_params.ranks"
+  ],
+  "unused_parameters": [
+    "global_params.problem_size"
+  ]
+}

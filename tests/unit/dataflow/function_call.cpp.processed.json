@@ -1,9 +1,9 @@
 {
   "functions": {
-    "_Z12print_paramsP6Params": {
-      "file": "tests/dfsan-instr/struct.cpp",
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 0,
-      "line": 23,
+      "line": 28,
       "loops": [
         {
           "callstack": [
@@ -18,8 +18,8 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "params.ranks",
-                    "params.problem_size"
+                    "x1",
+                    "global"
                   ]
                 }
               ]
@@ -27,20 +27,20 @@
           ],
           "deps": [
             [
-              "params.ranks",
-              "params.problem_size"
+              "x1",
+              "global"
             ]
           ],
           "not_found_params": [
-            "global_params.ranks"
+            "x2"
           ]
         }
       ]
     },
-    "_Z6do_sthii": {
-      "file": "tests/dfsan-instr/struct.cpp",
+    "_Z1hi": {
+      "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 1,
-      "line": 33,
+      "line": 36,
       "loops": [
         {
           "callstack": [
@@ -55,8 +55,18 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "params.problem_size",
-                    "global_params.ranks"
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
                   ]
                 }
               ]
@@ -64,19 +74,27 @@
           ],
           "deps": [
             [
-              "params.problem_size",
-              "global_params.ranks"
+              "x2"
+            ],
+            [
+              "global"
             ]
           ],
           "not_found_params": [
-            "params.ranks"
+            "x1"
           ]
-        },
+        }
+      ]
+    },
+    "_Z1iiii": {
+      "file": "tests/unit/dataflow/function_call.cpp",
+      "func_idx": 2,
+      "line": 49,
+      "loops": [
         {
           "callstack": [
             [
-              3,
-              5
+              3
             ]
           ],
           "data": [
@@ -86,8 +104,8 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "params.ranks",
-                    "params.problem_size"
+                    "x1",
+                    "x2"
                   ]
                 }
               ]
@@ -95,47 +113,44 @@
           ],
           "deps": [
             [
-              "params.ranks",
-              "params.problem_size"
+              "x1",
+              "x2"
             ]
           ],
           "not_found_params": [
-            "global_params.ranks"
+            "global"
           ]
         }
       ]
     }
   },
   "functions_demangled_names": [
-    "print_params(Params*)",
-    "do_sth(int, int)",
-    "do_sth2(double, int)",
+    "f(int, int)",
+    "h(int)",
+    "i(int, int, int)",
     "main",
-    "void register_variable<int>(int*, char const*)",
-    "do_sth3(Params&)"
+    "atoi",
+    "g(int)"
   ],
   "functions_mangled_names": [
-    "_Z12print_paramsP6Params",
-    "_Z6do_sthii",
-    "_Z7do_sth2di",
+    "_Z1fii",
+    "_Z1hi",
+    "_Z1iiii",
     "main",
-    "_Z17register_variableIiEvPT_PKc",
-    "_Z7do_sth3R6Params"
+    "atoi",
+    "_Z1gi"
   ],
   "functions_names": [
-    "print_params",
-    "do_sth",
-    "do_sth2",
+    "f",
+    "h",
+    "i",
     "main",
-    "register_variable<int>",
-    "do_sth3"
+    "atoi",
+    "g"
   ],
   "parameters": [
-    "params.ranks",
-    "params.problem_size",
-    "global_params.ranks"
-  ],
-  "unused_parameters": [
-    "global_params.problem_size"
+    "x1",
+    "x2",
+    "global"
   ]
 }

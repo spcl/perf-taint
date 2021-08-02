@@ -1,0 +1,96 @@
+{
+  "functions": {
+    "_Z24test_implicit_parameter1i": {
+      "file": "tests/unit/mpi/parameter_source.cpp",
+      "func_idx": 0,
+      "line": 37,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "param",
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "param",
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z24test_implicit_parameter2i": {
+      "file": "tests/unit/mpi/parameter_source.cpp",
+      "func_idx": 1,
+      "line": 46,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": [
+            "param"
+          ]
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "test_implicit_parameter1(int)",
+    "test_implicit_parameter2(int)",
+    "main",
+    "source()"
+  ],
+  "functions_mangled_names": [
+    "_Z24test_implicit_parameter1i",
+    "_Z24test_implicit_parameter2i",
+    "main",
+    "_Z6sourcev"
+  ],
+  "functions_names": [
+    "test_implicit_parameter1",
+    "test_implicit_parameter2",
+    "main",
+    "source"
+  ],
+  "parameters": [
+    "param",
+    "p"
+  ]
+}

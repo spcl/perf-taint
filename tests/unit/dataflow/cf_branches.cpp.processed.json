@@ -1,0 +1,291 @@
+{
+  "functions": {
+    "_Z1fiii": {
+      "file": "tests/unit/dataflow/cf_branches.cpp",
+      "func_idx": 0,
+      "line": 23,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                },
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ],
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1giii": {
+      "file": "tests/unit/dataflow/cf_branches.cpp",
+      "func_idx": 1,
+      "line": 41,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "x1",
+                        "x2"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1"
+                          ]
+                        },
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "x1",
+                            "x2"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1hiii": {
+      "file": "tests/unit/dataflow/cf_branches.cpp",
+      "func_idx": 2,
+      "line": 62,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "x1",
+                        "x2"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "x2"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                },
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "multiplicative",
+                  "operands": [
+                    {
+                      "dependency": "unknown",
+                      "operands": [
+                        "x1",
+                        "x2"
+                      ]
+                    },
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "multiplicative",
+                          "operands": [
+                            {
+                              "dependency": "unknown",
+                              "operands": [
+                                "x2"
+                              ]
+                            },
+                            {
+                              "dependency": "additive",
+                              "operands": [
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                },
+                                {
+                                  "dependency": "unknown",
+                                  "operands": [
+                                    "x1",
+                                    "x2"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int, int)",
+    "g(int, int, int)",
+    "h(int, int, int)",
+    "main",
+    "atoi"
+  ],
+  "functions_mangled_names": [
+    "_Z1fiii",
+    "_Z1giii",
+    "_Z1hiii",
+    "main",
+    "atoi"
+  ],
+  "functions_names": [
+    "f",
+    "g",
+    "h",
+    "main",
+    "atoi"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

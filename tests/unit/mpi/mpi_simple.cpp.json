@@ -53,7 +53,7 @@
     "_Z16h_multiple_loopsPdm": {
       "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 2,
-      "line": 34,
+      "line": 38,
       "loops": [
         {
           "callstacks": [
@@ -84,7 +84,7 @@
     "_Z1fPdm": {
       "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 1,
-      "line": 26,
+      "line": 30,
       "loops": [
         {
           "callstacks": [
@@ -109,7 +109,7 @@
     "_Z1hPd": {
       "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 4,
-      "line": 43,
+      "line": 47,
       "loops": [
         {
           "callstacks": [
@@ -132,7 +132,7 @@
     "_Z8h_nestedPdm": {
       "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 3,
-      "line": 50,
+      "line": 54,
       "loops": [
         {
           "callstacks": [
@@ -165,7 +165,7 @@
     "main": {
       "file": "tests/unit/mpi/mpi_simple.cpp",
       "func_idx": 0,
-      "line": 57,
+      "line": 61,
       "loops": [
         {
           "callstacks": [
@@ -209,8 +209,7 @@
     "h(double*)",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "main",
@@ -220,8 +219,7 @@
     "_Z1hPd",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "main",
@@ -231,8 +229,7 @@
     "h",
     "MPI_Reduce",
     "MPI_Barrier",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "size",

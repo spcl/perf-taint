@@ -1,9 +1,60 @@
 {
   "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/control-flow/function_retval.cpp",
+      "func_idx": 0,
+      "line": 51,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ],
+            [
+              "x1",
+              "global"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
     "_Z1hii": {
-      "file": "tests/dfsan-instr/function_retval.cpp",
+      "file": "tests/unit/control-flow/function_retval.cpp",
       "func_idx": 1,
-      "line": 47,
+      "line": 62,
       "loops": [
         {
           "callstack": [
@@ -30,15 +81,16 @@
             ]
           ],
           "not_found_params": [
-            "x1"
+            "x1",
+            "x2"
           ]
         }
       ]
     },
     "_Z1iP4test": {
-      "file": "tests/dfsan-instr/function_retval.cpp",
+      "file": "tests/unit/control-flow/function_retval.cpp",
       "func_idx": 2,
-      "line": 58,
+      "line": 73,
       "loops": [
         {
           "callstack": [
@@ -65,6 +117,7 @@
             ]
           ],
           "not_found_params": [
+            "x2",
             "global"
           ]
         }
@@ -77,7 +130,6 @@
     "i(test*)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "test::test(int, int)",
     "g(int, int)",
     "g2(int, int)",
@@ -89,7 +141,6 @@
     "_Z1iP4test",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_ZN4testC2Eii",
     "_Z1gii",
     "_Z2g2ii",
@@ -101,7 +152,6 @@
     "i",
     "main",
     "atoi",
-    "register_variable<int>",
     "test",
     "g",
     "g2",
@@ -109,9 +159,7 @@
   ],
   "parameters": [
     "x1",
+    "x2",
     "global"
-  ],
-  "unused_parameters": [
-    "x2"
   ]
 }

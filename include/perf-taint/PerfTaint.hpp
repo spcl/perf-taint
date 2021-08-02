@@ -13,13 +13,13 @@ extern "C"{
 #define EXTRAP __attribute__(( annotate("extrap") ))
 #define VARIABLE_NAME(var) #var
 
-template<typename T>
-void register_variable(T * ptr, const char * name)
-{
-  __dfsw_EXTRAP_WRITE_LABEL(reinterpret_cast<int8_t*>(ptr), sizeof(T), name);
-}
-
 namespace perf_taint {
+
+  template<typename T>
+  void register_variable(T * ptr, const char * name)
+  {
+    __dfsw_EXTRAP_WRITE_LABEL(reinterpret_cast<int8_t*>(ptr), sizeof(T), name);
+  }
 
   template<typename T>
   bool has_label(T * ptr, const char * label)

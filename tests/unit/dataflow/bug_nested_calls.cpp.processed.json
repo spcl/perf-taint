@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "file": "tests/unit/dataflow/bug_nested_calls.cpp",
       "func_idx": 0,
-      "line": 53,
+      "line": 70,
       "loops": [
         {
           "callstack": [
@@ -150,9 +150,9 @@
       ]
     },
     "_Z2f2ii": {
-      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "file": "tests/unit/dataflow/bug_nested_calls.cpp",
       "func_idx": 2,
-      "line": 20,
+      "line": 37,
       "loops": [
         {
           "callstack": [
@@ -200,9 +200,9 @@
       ]
     },
     "_Z2f3ii": {
-      "file": "tests/dfsan-unit/bug_nested_calls.cpp",
+      "file": "tests/unit/dataflow/bug_nested_calls.cpp",
       "func_idx": 3,
-      "line": 27,
+      "line": 44,
       "loops": [
         {
           "callstack": [
@@ -255,7 +255,6 @@
     "f3(int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "g(int, int)",
     "g2(int, int)",
     "g3(int, int)"
@@ -267,7 +266,6 @@
     "_Z2f3ii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_Z1gii",
     "_Z2g2ii",
     "_Z2g3ii"
@@ -279,7 +277,6 @@
     "f3",
     "main",
     "atoi",
-    "register_variable<int>",
     "g",
     "g2",
     "g3"

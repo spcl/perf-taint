@@ -1,14 +1,14 @@
 {
   "functions": {
-    "_Z1fii": {
-      "file": "tests/dfsan-unit/simple_function.cpp",
-      "func_idx": 0,
-      "line": 8,
+    "_Z1hii": {
+      "file": "tests/unit/dataflow/function_retval.cpp",
+      "func_idx": 1,
+      "line": 61,
       "loops": [
         {
           "callstack": [
             [
-              1
+              3
             ]
           ],
           "data": [
@@ -18,12 +18,35 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "x1",
-                    "x2"
+                    "global"
                   ]
                 }
               ]
-            },
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1"
+          ]
+        }
+      ]
+    },
+    "_Z1iP4test": {
+      "file": "tests/unit/dataflow/function_retval.cpp",
+      "func_idx": 2,
+      "line": 72,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
             {
               "dependency": "additive",
               "operands": [
@@ -34,56 +57,58 @@
                   ]
                 }
               ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x2"
-                  ]
-                }
-              ]
             }
           ],
           "deps": [
             [
               "x1"
-            ],
-            [
-              "x2"
-            ],
-            [
-              "x1",
-              "x2"
             ]
           ],
-          "not_found_params": null
+          "not_found_params": [
+            "global"
+          ]
         }
       ]
     }
   },
   "functions_demangled_names": [
     "f(int, int)",
+    "h(int, int)",
+    "i(test*)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "test::test(int, int)",
+    "g(int, int)",
+    "g2(int, int)",
+    "test::length()"
   ],
   "functions_mangled_names": [
     "_Z1fii",
+    "_Z1hii",
+    "_Z1iP4test",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "_ZN4testC2Eii",
+    "_Z1gii",
+    "_Z2g2ii",
+    "_ZN4test6lengthEv"
   ],
   "functions_names": [
     "f",
+    "h",
+    "i",
     "main",
     "atoi",
-    "register_variable<int>"
+    "test",
+    "g",
+    "g2",
+    "length"
   ],
   "parameters": [
     "x1",
+    "global"
+  ],
+  "unused_parameters": [
     "x2"
   ]
 }

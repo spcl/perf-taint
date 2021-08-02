@@ -125,7 +125,6 @@ config.substitutions.append( ('%execparams',
 )
 
 config.substitutions.append( ('%jsonconvert',
-    config.exec_root
-    + '/JSONConverter'
+    os.path.join(config.exec_root, 'tools', 'JSONConverter')
     )
 )

@@ -4,12 +4,16 @@
 // RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
 // RUN: %execparams %t1.exe 50 30 40 > %t1.json
 // RUN: diff -w %s.json %t1.json
+// RUN: %jsonconvert %t1.json > %t2.json
+// RUN: diff -w %s.processed.json %t2.json
 
 // RUN: %opt %opt_flags %opt_cfsan < %t1.bc 2> /dev/null > %t2.tainted.bc
 // RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
 // RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe
-// RUN: %execparams %t2.exe 50 30 40 > %t2.json
-// RUN: diff -w %s.json %t2.json
+// RUN: %execparams %t2.exe 50 30 40 > %t3.json
+// RUN: diff -w %s.json %t3.json
+// RUN: %jsonconvert %t3.json > %t4.json
+// RUN: diff -w %s.processed.json %t4.json
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,9 +70,9 @@ int main(int argc, char ** argv)
     n = atoi(argv[2]);
     k = atoi(argv[3]);
     srand(time(NULL));
-    register_variable(&m, sizeof(m), VARIABLE_NAME(m));
-    register_variable(&n, sizeof(n), VARIABLE_NAME(n));
-    register_variable(&k, sizeof(k), VARIABLE_NAME(k));
+    perf_taint_register_variable(&m, sizeof(m), VARIABLE_NAME(m));
+    perf_taint_register_variable(&n, sizeof(n), VARIABLE_NAME(n));
+    perf_taint_register_variable(&k, sizeof(k), VARIABLE_NAME(k));
 
     matrix left = create_matrix(m, n, true);
     matrix right = create_matrix(n, k, true);

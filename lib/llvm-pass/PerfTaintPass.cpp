@@ -76,6 +76,21 @@ namespace perf_taint {
 
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
 
+    std::string demangle(llvm::StringRef name)
+    {
+        int status = 0;
+        char * demangled_name =
+            abi::__cxa_demangle(name.data(), 0, 0, &status);
+        std::string str_name; if(status == 0)
+            str_name = demangled_name;
+        else if(status == -2)
+            str_name = name;
+        else
+            assert(false);
+        free( static_cast<void*>(demangled_name) );
+        return str_name;
+    }
+
     void DfsanInstr::getAnalysisUsage(llvm::AnalysisUsage &AU) const
     {
       ModulePass::getAnalysisUsage(AU);
@@ -558,10 +573,15 @@ namespace perf_taint {
         // TODO: handle instrumentation of unknown functions
         if(!is_analyzable(*m, f))
             return false;
-        // perf-taint library functions
+
+        // perf-taint C library functions
         // don't include them in the analysis
         if(f.getName().startswith("perf_taint"))
           return false;
+        // perf-taint C++ library functions
+        if(demangle(f.getName()).find("perf_taint::") != std::string::npos)
+          return false;
+
         auto it = instrumented_functions.find(&f);
         if(it != instrumented_functions.end())
             return (*it).second.hasValue();
@@ -862,21 +882,6 @@ namespace perf_taint {
         //LLVM_DEBUG(dbgs() << "Analyzable: " << f.getName() << '\n');
         llvm::errs() << "Analyzable: " << f.getName() << '\n';
         return true;
-    }
-
-    std::string demangle(llvm::StringRef name)
-    {
-        int status = 0;
-        char * demangled_name =
-            abi::__cxa_demangle(name.data(), 0, 0, &status);
-        std::string str_name; if(status == 0)
-            str_name = demangled_name;
-        else if(status == -2)
-            str_name = name;
-        else
-            assert(false);
-        free( static_cast<void*>(demangled_name) );
-        return str_name;
     }
 
     void Instrumenter::writeParameter(llvm::Instruction * instr,

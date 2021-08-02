@@ -18,7 +18,7 @@ void __dfsw_perf_taint_delete_label(int8_t *, int32_t, const char*);
 #define EXTRAP __attribute__(( annotate("extrap") ))
 #define VARIABLE_NAME(var) #var
 
-void register_variable(void * ptr, size_t size, const char * name)
+void perf_taint_register_variable(void * ptr, size_t size, const char * name)
 {
 #if defined(DEBUG)
   fprintf(stderr, "Register variable %s of size %zu at %p\n", name, size, ptr);
@@ -28,7 +28,7 @@ void register_variable(void * ptr, size_t size, const char * name)
 
 // Provide variadic arg
 // But make it work with dfsan
-void register_variables(const char * name, size_t count, ...)
+void perf_taint_register_variables(const char * name, size_t count, ...)
 {
   va_list args;
   va_start(args, count);
@@ -43,7 +43,7 @@ bool perf_taint_has_label(void * ptr, size_t size, const char * label)
   return __dfsw_perf_taint_has_label((int8_t*) ptr, size, label);
 }
 
-bool perf_taint_delete_label(void * ptr, size_t size, const char * label)
+void perf_taint_delete_label(void * ptr, size_t size, const char * label)
 {
   __dfsw_perf_taint_delete_label((int8_t*) ptr, size, label);
 }

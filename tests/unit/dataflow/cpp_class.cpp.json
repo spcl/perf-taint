@@ -3,7 +3,7 @@
     "_ZN4Grid11update_gridEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 0,
-      "line": 30,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
@@ -33,7 +33,6 @@
     "Grid::update_z(double)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "Grid::Grid(int, int, int)",
     "Grid::~Grid()"
   ],
@@ -44,7 +43,6 @@
     "_ZN4Grid8update_zEd",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_ZN4GridC2Eiii",
     "_ZN4GridD2Ev"
   ],
@@ -55,7 +53,6 @@
     "update_z",
     "main",
     "atoi",
-    "register_variable<int>",
     "Grid",
     "~Grid"
   ],
@@ -67,17 +64,17 @@
     "_ZN4Grid11update_dataEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 2,
-      "line": 45
+      "line": 48
     },
     "_ZN4Grid15update_constantEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 1,
-      "line": 37
+      "line": 39
     },
     "_ZN4Grid8update_zEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 3,
-      "line": 53
+      "line": 56
     }
   }
 }

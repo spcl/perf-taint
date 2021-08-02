@@ -1,0 +1,22 @@
+{
+  "functions": null,
+  "functions_demangled_names": [
+    "f(int, int)",
+    "main",
+    "atoi"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "main",
+    "atoi"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi"
+  ],
+  "unused_parameters": [
+    "x1",
+    "x2"
+  ]
+}

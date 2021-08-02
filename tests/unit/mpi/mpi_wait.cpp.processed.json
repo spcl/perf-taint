@@ -1,0 +1,124 @@
+{
+  "functions": {
+    "MPI_Wait": {
+      "file": null,
+      "func_idx": 2,
+      "line": null,
+      "loops": [
+        {
+          "callstack": [
+            [
+              5,
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z4waitP14ompi_request_tS0_": {
+      "file": "tests/unit/mpi/mpi_wait.cpp",
+      "func_idx": 1,
+      "line": 36,
+      "loops": [
+        {
+          "callstack": [
+            [
+              5
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dependency": "additive",
+                  "operands": [
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "p"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "prepare(int, int*, int*, ompi_request_t**, ompi_request_t**)",
+    "wait(ompi_request_t*, ompi_request_t*)",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "functions_mangled_names": [
+    "_Z7prepareiPiS_PP14ompi_request_tS2_",
+    "_Z4waitP14ompi_request_tS0_",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "functions_names": [
+    "prepare",
+    "wait",
+    "MPI_Wait",
+    "MPI_Irecv",
+    "MPI_Isend",
+    "main"
+  ],
+  "parameters": [
+    "p"
+  ]
+}

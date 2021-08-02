@@ -37,8 +37,8 @@ int main(int argc, char ** argv)
   int x2 EXTRAP = 2*atoi(argv[2]);
   int x3 EXTRAP;
   MPI_Comm_size(MPI_COMM_WORLD, &x3);
-  register_variable(&x1, VARIABLE_NAME(x1));
-  register_variable(&x2, VARIABLE_NAME(x2));
+  perf_taint::register_variable(&x1, VARIABLE_NAME(x1));
+  perf_taint::register_variable(&x2, VARIABLE_NAME(x2));
 
   int x1_x3 = x1 + x3;
   int x2_x3 = x2 + x3;

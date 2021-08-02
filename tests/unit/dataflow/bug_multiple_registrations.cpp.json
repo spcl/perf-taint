@@ -3,7 +3,7 @@
     "_Z1iiii": {
       "file": "tests/unit/dataflow/bug_multiple_registrations.cpp",
       "func_idx": 0,
-      "line": 36,
+      "line": 40,
       "loops": [
         {
           "callstacks": [
@@ -30,22 +30,19 @@
     "i(int, int, int)",
     "main",
     "setup(int, char**, int&, int&)",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1iiii",
     "main",
     "_Z5setupiPPcRiS1_",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "i",
     "main",
     "setup",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

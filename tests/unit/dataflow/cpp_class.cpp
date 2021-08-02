@@ -4,6 +4,8 @@
 // RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
 // RUN: %execparams %t1.exe 10 10 10 > %t1.json
 // RUN: diff -w %s.json %t1.json
+// RUN: %jsonconvert %t1.json > %t2.json
+// RUN: diff -w %s.processed.json %t2.json
 
 #include <cstdint>
 #include <cstdlib>
@@ -42,6 +44,7 @@ public:
     }
 
     // not important - data is not influenced by label
+    // but it will show up in the cfsan version
     void update_data(double shift)
     {
         data[0] += 2*shift;
@@ -64,8 +67,8 @@ int main(int argc, char ** argv)
     int size_z EXTRAP = atoi(argv[3]);
 
     Grid * g;
-    register_variable(&size_x, VARIABLE_NAME(size_x));
-    register_variable(&size_y, VARIABLE_NAME(size_y));
+    perf_taint::register_variable(&size_x, VARIABLE_NAME(size_x));
+    perf_taint::register_variable(&size_y, VARIABLE_NAME(size_y));
     // verify that labels are propagated to class fields
     g = new Grid(size_x, size_y, size_z);
 

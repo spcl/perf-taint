@@ -2,27 +2,24 @@
   "functions_demangled_names": [
     "f(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": null,
   "unimportant_functions": {
     "_Z1fii": {
       "file": "tests/unit/dataflow/bug_load_pointer.cpp",
       "func_idx": 0,
-      "line": 27
+      "line": 31
     }
   },
   "unused_parameters": [

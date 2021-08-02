@@ -6,6 +6,8 @@
 // RUN: %execparams mpiexec -n 2 %t1.exe
 // RUN: diff -w %s.json %t3_0.json
 // RUN: diff -w %s.json %t3_1.json
+// RUN: %jsonconvert %t3_0.json > %t4_0.json
+// RUN: diff -w %s.processed.json %t4_0.json
 
 // RUN: %opt %opt_flags %opt_mpi %opt_cfsan -perf-taint-out-name=%t4 \
 // RUN:     < %t1.bc 2> /dev/null > %t2.tainted.bc
@@ -14,6 +16,8 @@
 // RUN: %execparams mpiexec -n 2 %t2.exe
 // RUN: diff -w %s.json %t4_0.json
 // RUN: diff -w %s.json %t4_1.json
+// RUN: %jsonconvert %t4_0.json > %t5_0.json
+// RUN: diff -w %s.processed.json %t5_0.json
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -139,8 +143,8 @@ int main(int argc, char ** argv)
   int ranks, rank_id;
   MPI_Comm_size(MPI_COMM_WORLD, &ranks);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_id);
-  register_variable(&param, "param");
-  register_variable(&param2, "param2");
+  perf_taint::register_variable(&param, "param");
+  perf_taint::register_variable(&param2, "param2");
 
   bcast(rank_id, param);
   gather(rank_id, param, param2);

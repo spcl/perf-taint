@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/unit/dataflow/bug_multipath_loops.cpp",
       "func_idx": 0,
-      "line": 44,
+      "line": 48,
       "loops": [
         {
           "callstacks": [
@@ -123,7 +123,7 @@
     "_Z25call_interesting_functionii": {
       "file": "tests/unit/dataflow/bug_multipath_loops.cpp",
       "func_idx": 1,
-      "line": 36,
+      "line": 40,
       "loops": [
         {
           "callstacks": [
@@ -151,22 +151,19 @@
     "f(int, int)",
     "call_interesting_function(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fii",
     "_Z25call_interesting_functionii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
     "call_interesting_function",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

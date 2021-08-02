@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z10nest_constii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 0,
-      "line": 10,
+      "line": 26,
       "loops": [
         {
           "callstack": [
@@ -36,9 +36,9 @@
       ]
     },
     "_Z11nest_tripleii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 3,
-      "line": 82,
+      "line": 98,
       "loops": [
         {
           "callstack": [
@@ -233,9 +233,9 @@
       ]
     },
     "_Z11three_loopsii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 5,
-      "line": 165,
+      "line": 181,
       "loops": [
         {
           "callstack": [
@@ -366,14 +366,14 @@
               "x2"
             ]
           ],
-          "not_found_params": null 
+          "not_found_params": null
         }
       ]
     },
     "_Z12nest_partialii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 1,
-      "line": 22,
+      "line": 38,
       "loops": [
         {
           "callstack": [
@@ -436,9 +436,9 @@
       ]
     },
     "_Z18double_nest_tripleii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 4,
-      "line": 109,
+      "line": 125,
       "loops": [
         {
           "callstack": [
@@ -647,9 +647,9 @@
       ]
     },
     "_Z19double_nest_partialii": {
-      "file": "tests/dfsan-unit/nested_multipath.cpp",
+      "file": "tests/unit/dataflow/nested_multipath.cpp",
       "func_idx": 2,
-      "line": 44,
+      "line": 60,
       "loops": [
         {
           "callstack": [
@@ -749,8 +749,7 @@
     "double_nest_triple(int, int)",
     "three_loops(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z10nest_constii",
@@ -760,8 +759,7 @@
     "_Z18double_nest_tripleii",
     "_Z11three_loopsii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "nest_const",
@@ -771,8 +769,7 @@
     "double_nest_triple",
     "three_loops",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

@@ -3,7 +3,7 @@
     "_Z10while_loopii": {
       "file": "tests/unit/dataflow/while_loop.cpp",
       "func_idx": 0,
-      "line": 21,
+      "line": 25,
       "loops": [
         {
           "callstacks": [
@@ -62,7 +62,7 @@
     "_Z14while_infiniteii": {
       "file": "tests/unit/dataflow/while_loop.cpp",
       "func_idx": 1,
-      "line": 32,
+      "line": 36,
       "loops": [
         {
           "callstacks": [
@@ -123,22 +123,19 @@
     "while_loop(int, int)",
     "while_infinite(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z10while_loopii",
     "_Z14while_infiniteii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "while_loop",
     "while_infinite",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

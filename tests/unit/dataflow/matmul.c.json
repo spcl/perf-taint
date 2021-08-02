@@ -3,7 +3,7 @@
     "create_matrix": {
       "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 0,
-      "line": 29,
+      "line": 33,
       "loops": [
         {
           "callstacks": [
@@ -46,7 +46,7 @@
     "mat_mul": {
       "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 1,
-      "line": 43,
+      "line": 47,
       "loops": [
         {
           "callstacks": [
@@ -92,25 +92,19 @@
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "functions_mangled_names": [
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "functions_names": [
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "parameters": [
     "m",

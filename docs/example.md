@@ -64,7 +64,7 @@ that is automatically added. Thus, we add the following line in `main`:
 
 ```c++
 int size EXTRAP = atoi(argv[1]);
-register_variable(&size, "size");
+perf_taint::register_variable(&size, "size");
 ```
 
 And we add the necessary include: `#include "perf-taint/PerfTaint.hpp"`.
@@ -99,14 +99,6 @@ static analysis (a sample shown here):
 ```json
 {
   "functions": {
-    "_Z17register_variableIiEvPT_PKc": {
-      "loops": {
-        "count": 0
-      },
-      "pruned": [
-        "no_performance_critical_code"
-      ]
-    },
     "_Z1hPdm": {
       "instrumented": [
         "loops",
@@ -159,7 +151,7 @@ static analysis (a sample shown here):
 ```
 
 As we can see, all functions are considered to be potentially performance
-relevant, except a helper function `register_variable` is not interesting for performance modeling.
+relevant, except a helper function `perf_taint::register_variable` is not interesting for performance modeling.
 
 ### Dynamic Analysis
 
@@ -318,7 +310,7 @@ We don't provide a generic processing script, since the entire framework include
 steps that are application specific and cannot be automatized.
 Furthermore, we provide the following tools and guidelines:
 
-* To annotate program parameters that perf-taint should analyze, add a call to `register_variable`
+* To annotate program parameters that perf-taint should analyze, add a call to `perf_taint::register_variable`
 immediately after variable definition and initialization (main function, routines parsing
 CLI arguments and I/O). If the registration happens before overwriting the variable value, the
 information won't be tracked. In addition, please add `EXTRAP` keyword to each variable (backwards

@@ -3,7 +3,7 @@
     "_Z11double_nestii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 2,
-      "line": 49,
+      "line": 53,
       "loops": [
         {
           "callstacks": [
@@ -45,7 +45,7 @@
     "_Z11single_nestii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 0,
-      "line": 37,
+      "line": 41,
       "loops": [
         {
           "callstacks": [
@@ -87,7 +87,7 @@
     "_Z14aggregate_nestii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 7,
-      "line": 95,
+      "line": 99,
       "loops": [
         {
           "callstacks": [
@@ -131,7 +131,7 @@
     "_Z14multipath_nestii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 5,
-      "line": 70,
+      "line": 74,
       "loops": [
         {
           "callstacks": [
@@ -177,7 +177,7 @@
     "_Z14multipath_nestiii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 6,
-      "line": 83,
+      "line": 87,
       "loops": [
         {
           "callstacks": [
@@ -244,7 +244,7 @@
     "_Z19double_nest_outsideii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 4,
-      "line": 60,
+      "line": 64,
       "loops": [
         {
           "callstacks": [
@@ -284,7 +284,7 @@
     "_Z1fi": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 1,
-      "line": 20,
+      "line": 24,
       "loops": [
         {
           "callstacks": [
@@ -357,7 +357,7 @@
             [
               9,
               8,
-              12
+              11
             ]
           ],
           "instance": {
@@ -377,7 +377,7 @@
     "_Z1gi": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 3,
-      "line": 28,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
@@ -475,7 +475,7 @@
     "_Z25call_unimportant_functionii": {
       "file": "tests/unit/dataflow/nested_function_call.cpp",
       "func_idx": 8,
-      "line": 112,
+      "line": 116,
       "loops": [
         {
           "callstacks": [
@@ -515,7 +515,6 @@
     "call_unimportant_function(int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "unimportant_function(int)"
   ],
   "functions_mangled_names": [
@@ -530,7 +529,6 @@
     "_Z25call_unimportant_functionii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_Z20unimportant_functioni"
   ],
   "functions_names": [
@@ -545,7 +543,6 @@
     "call_unimportant_function",
     "main",
     "atoi",
-    "register_variable<int>",
     "unimportant_function"
   ],
   "parameters": [

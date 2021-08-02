@@ -3,7 +3,7 @@
     "_Z24test_implicit_parameter1v": {
       "file": "tests/unit/mpi/parameter_source_only.cpp",
       "func_idx": 0,
-      "line": 33,
+      "line": 37,
       "loops": [
         {
           "callstacks": [
@@ -27,7 +27,7 @@
     "_Z24test_implicit_parameter2i": {
       "file": "tests/unit/mpi/parameter_source_only.cpp",
       "func_idx": 1,
-      "line": 42,
+      "line": 46,
       "loops": [
         {
           "callstacks": [

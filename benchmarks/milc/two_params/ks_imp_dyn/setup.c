@@ -210,7 +210,7 @@ initial_set()
     IF_OK status += get_i(stdin, prompt,"ny", &par_buf.ny );
     IF_OK status += get_i(stdin, prompt,"nz", &par_buf.nz );
     IF_OK status += get_i(stdin, prompt,"nt", &par_buf.nt );
-    register_variables("size", 4,
+    perf_taint_register_variables("size", 4,
             &par_buf.nx, sizeof(par_buf.nx),
             &par_buf.ny, sizeof(par_buf.ny),
             &par_buf.nz, sizeof(par_buf.nz),

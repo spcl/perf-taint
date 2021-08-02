@@ -19,7 +19,7 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "p"
+                    "param"
                   ]
                 }
               ]
@@ -27,11 +27,11 @@
           ],
           "deps": [
             [
-              "p"
+              "param"
             ]
           ],
           "not_found_params": [
-            "param"
+            "p"
           ]
         }
       ]
@@ -55,7 +55,7 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "p"
+                    "param"
                   ]
                 }
               ]
@@ -63,11 +63,11 @@
           ],
           "deps": [
             [
-              "p"
+              "param"
             ]
           ],
           "not_found_params": [
-            "param"
+            "p"
           ]
         }
       ]
@@ -95,16 +95,30 @@
                   ]
                 }
               ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
             }
           ],
           "deps": [
             [
               "p"
+            ],
+            [
+              "param",
+              "p"
             ]
           ],
-          "not_found_params": [
-            "param"
-          ]
+          "not_found_params": null
         }
       ]
     },
@@ -131,16 +145,30 @@
                   ]
                 }
               ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "p",
+                    "param"
+                  ]
+                }
+              ]
             }
           ],
           "deps": [
             [
               "p"
+            ],
+            [
+              "param",
+              "p"
             ]
           ],
-          "not_found_params": [
-            "param"
-          ]
+          "not_found_params": null
         }
       ]
     },
@@ -185,9 +213,9 @@
       ]
     },
     "_Z3rcviiPi": {
-      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 1,
-      "line": 24,
+      "line": 45,
       "loops": [
         {
           "callstack": [
@@ -200,34 +228,84 @@
               "dependency": "additive",
               "operands": [
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "param"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p",
-                    "param"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -250,9 +328,9 @@
       ]
     },
     "_Z4sendiiPi": {
-      "file": "tests/dfsan-unit/mpi/taint_communication_size_p2p.cpp",
+      "file": "tests/unit/mpi/taint_communication_size_p2p.cpp",
       "func_idx": 0,
-      "line": 9,
+      "line": 30,
       "loops": [
         {
           "callstack": [
@@ -265,34 +343,84 @@
               "dependency": "additive",
               "operands": [
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "param"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p",
-                    "param"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p",
+                            "param"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
-                  "dependency": "unknown",
+                  "dependency": "additive",
                   "operands": [
-                    "p"
+                    {
+                      "dependency": "additive",
+                      "operands": [
+                        {
+                          "dependency": "unknown",
+                          "operands": [
+                            "p"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -323,8 +451,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "void register_variable<int>(int*, char const*)"
+    "main"
   ],
   "functions_mangled_names": [
     "_Z4sendiiPi",
@@ -334,8 +461,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "_Z17register_variableIiEvPT_PKc"
+    "main"
   ],
   "functions_names": [
     "send",
@@ -345,8 +471,7 @@
     "MPI_Wait",
     "MPI_Isend",
     "MPI_Send",
-    "main",
-    "register_variable<int>"
+    "main"
   ],
   "parameters": [
     "param",

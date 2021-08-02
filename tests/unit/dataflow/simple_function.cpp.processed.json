@@ -1,9 +1,9 @@
 {
   "functions": {
-    "_Z1iiii": {
-      "file": "tests/dfsan-unit/bug_multiple_registrations.cpp",
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/simple_function.cpp",
       "func_idx": 0,
-      "line": 23,
+      "line": 25,
       "loops": [
         {
           "callstack": [
@@ -23,9 +23,37 @@
                   ]
                 }
               ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
             }
           ],
           "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ],
             [
               "x1",
               "x2"
@@ -37,25 +65,19 @@
     }
   },
   "functions_demangled_names": [
-    "i(int, int, int)",
+    "f(int, int)",
     "main",
-    "setup(int, char**, int&, int&)",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
-    "_Z1iiii",
+    "_Z1fii",
     "main",
-    "_Z5setupiPPcRiS1_",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
-    "i",
+    "f",
     "main",
-    "setup",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

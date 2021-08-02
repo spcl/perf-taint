@@ -95,7 +95,7 @@ void make_3n_gathers();
 #include "params.h"
 params par_buf;
 
-#include "ExtraPInstrumenter.h"
+#include "perf-taint/PerfTaint.h"
 extern int gethostname (char *__name, size_t __len); 
 
 int
@@ -192,7 +192,7 @@ initial_set()
 #else
     IF_OK status += get_i(stdin, prompt,"nflavors1", &par_buf.nflavors1 );
     IF_OK status += get_i(stdin, prompt,"nflavors2", &par_buf.nflavors2 );
-    register_variables("nflavors", 2,
+    perf_taint_register_variables("nflavors", 2,
             &par_buf.nflavors1, sizeof(par_buf.nflavors1),
             &par_buf.nflavors2, sizeof(par_buf.nflavors2));
 #endif
@@ -213,7 +213,7 @@ initial_set()
     IF_OK status += get_i(stdin, prompt,"ny", &par_buf.ny );
     IF_OK status += get_i(stdin, prompt,"nz", &par_buf.nz );
     IF_OK status += get_i(stdin, prompt,"nt", &par_buf.nt );
-    register_variables("size", 4,
+    perf_taint_register_variables("size", 4,
             &par_buf.nx, sizeof(par_buf.nx),
             &par_buf.ny, sizeof(par_buf.ny),
             &par_buf.nz, sizeof(par_buf.nz),
@@ -340,15 +340,15 @@ readin(int prompt)
     /* maximum no. of conjugate gradient restarts */
     IF_OK status += get_i(stdin, prompt,"max_cg_restarts", &par_buf.nrestart );
 
-    register_variable(&par_buf.warms, sizeof(par_buf.warms), "warms");
-    register_variable(&par_buf.trajecs, sizeof(par_buf.trajecs), "trajecs");
-    register_variable(&par_buf.beta, sizeof(par_buf.beta), "beta");
-    register_variable(&par_buf.propinterval, sizeof(par_buf.propinterval), "propinterval");
-    register_variable(&par_buf.steps, sizeof(par_buf.steps), "steps");
-    register_variables("mass", 2, &par_buf.mass1, sizeof(par_buf.mass1), &par_buf.mass2, sizeof(par_buf.mass2));
-    register_variable(&par_buf.u0, sizeof(par_buf.u0), "u0");
-    register_variable(&par_buf.niter, sizeof(par_buf.niter), "niter");
-    register_variable(&par_buf.nrestart, sizeof(par_buf.nrestart), "nrestart");
+    perf_taint_register_variable(&par_buf.warms, sizeof(par_buf.warms), "warms");
+    perf_taint_register_variable(&par_buf.trajecs, sizeof(par_buf.trajecs), "trajecs");
+    perf_taint_register_variable(&par_buf.beta, sizeof(par_buf.beta), "beta");
+    perf_taint_register_variable(&par_buf.propinterval, sizeof(par_buf.propinterval), "propinterval");
+    perf_taint_register_variable(&par_buf.steps, sizeof(par_buf.steps), "steps");
+    perf_taint_register_variables("mass", 2, &par_buf.mass1, sizeof(par_buf.mass1), &par_buf.mass2, sizeof(par_buf.mass2));
+    perf_taint_register_variable(&par_buf.u0, sizeof(par_buf.u0), "u0");
+    perf_taint_register_variable(&par_buf.niter, sizeof(par_buf.niter), "niter");
+    perf_taint_register_variable(&par_buf.nrestart, sizeof(par_buf.nrestart), "nrestart");
     
     /* error per site for conjugate gradient */
     IF_OK status += get_f(stdin, prompt,"error_per_site", &x );
