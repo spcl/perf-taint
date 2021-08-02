@@ -1,5 +1,48 @@
 {
   "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/function_retval.cpp",
+      "func_idx": 0,
+      "line": 57,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              3
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
     "_Z1hii": {
       "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 1,
@@ -84,16 +127,7 @@
   ],
   "parameters": [
     "x1",
+    "x2",
     "global"
-  ],
-  "unimportant_functions": {
-    "_Z1fii": {
-      "file": "tests/unit/dataflow/function_retval.cpp",
-      "func_idx": 0,
-      "line": 57
-    }
-  },
-  "unused_parameters": [
-    "x2"
   ]
 }

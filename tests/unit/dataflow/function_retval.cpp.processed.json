@@ -6,21 +6,32 @@
       "line": 69,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               3
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "global"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "global"
+            ]
+          ],
+          "not_found_params": [
+            "x1"
+          ]
         }
       ]
     },
@@ -30,21 +41,32 @@
       "line": 80,
       "loops": [
         {
-          "callstacks": [
+          "callstack": [
             [
               3
             ]
           ],
-          "instance": {
-            "0": {
-              "level": 0,
-              "params": [
-                [
-                  "x1"
-                ]
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
               ]
             }
-          }
+          ],
+          "deps": [
+            [
+              "x1"
+            ]
+          ],
+          "not_found_params": [
+            "global"
+          ]
         }
       ]
     }
@@ -86,13 +108,6 @@
     "x1",
     "global"
   ],
-  "unimportant_functions": {
-    "_Z1fii": {
-      "file": "tests/unit/dataflow/function_retval.cpp",
-      "func_idx": 0,
-      "line": 57
-    }
-  },
   "unused_parameters": [
     "x2"
   ]
