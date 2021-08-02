@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 0,
-      "line": 8,
+      "line": 28,
       "loops": [
         {
           "callstack": [
@@ -18,8 +18,8 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "global",
-                    "x1"
+                    "x1",
+                    "global"
                   ]
                 }
               ]
@@ -38,9 +38,9 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 1,
-      "line": 16,
+      "line": 36,
       "loops": [
         {
           "callstack": [
@@ -49,6 +49,17 @@
             ]
           ],
           "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            },
             {
               "dependency": "additive",
               "operands": [
@@ -64,49 +75,21 @@
           "deps": [
             [
               "x2"
-            ]
-          ],
-          "not_found_params": [
-            "x1",
-            "global"
-          ]
-        },
-        {
-          "callstack": [
-            [
-              3,
-              6
-            ]
-          ],
-          "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "global"
-                  ]
-                }
-              ]
-            }
-          ],
-          "deps": [
+            ],
             [
               "global"
             ]
           ],
           "not_found_params": [
-            "x1",
-            "x2"
+            "x1"
           ]
         }
       ]
     },
     "_Z1iiii": {
-      "file": "tests/dfsan-instr/function_call.cpp",
+      "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 2,
-      "line": 29,
+      "line": 49,
       "loops": [
         {
           "callstack": [
@@ -147,7 +130,6 @@
     "i(int, int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "g(int)"
   ],
   "functions_mangled_names": [
@@ -156,7 +138,6 @@
     "_Z1iiii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_Z1gi"
   ],
   "functions_names": [
@@ -165,7 +146,6 @@
     "i",
     "main",
     "atoi",
-    "register_variable<int>",
     "g"
   ],
   "parameters": [

@@ -3,7 +3,7 @@
     "_Z1fiii": {
       "file": "tests/unit/dataflow/cf_branches.cpp",
       "func_idx": 0,
-      "line": 19,
+      "line": 23,
       "loops": [
         {
           "callstacks": [
@@ -83,7 +83,7 @@
     "_Z1giii": {
       "file": "tests/unit/dataflow/cf_branches.cpp",
       "func_idx": 1,
-      "line": 37,
+      "line": 41,
       "loops": [
         {
           "callstacks": [
@@ -137,7 +137,7 @@
     "_Z1hiii": {
       "file": "tests/unit/dataflow/cf_branches.cpp",
       "func_idx": 2,
-      "line": 58,
+      "line": 62,
       "loops": [
         {
           "callstacks": [
@@ -267,24 +267,21 @@
     "g(int, int, int)",
     "h(int, int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fiii",
     "_Z1giii",
     "_Z1hiii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
     "g",
     "h",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

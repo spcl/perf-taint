@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 0,
-      "line": 24,
+      "line": 28,
       "loops": [
         {
           "callstacks": [
@@ -28,13 +28,13 @@
     "_Z1hi": {
       "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 1,
-      "line": 32,
+      "line": 36,
       "loops": [
         {
           "callstacks": [
             [
               3,
-              6
+              5
             ]
           ],
           "instance": {
@@ -70,7 +70,7 @@
     "_Z1iiii": {
       "file": "tests/unit/dataflow/function_call.cpp",
       "func_idx": 2,
-      "line": 45,
+      "line": 49,
       "loops": [
         {
           "callstacks": [
@@ -99,7 +99,6 @@
     "i(int, int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
     "g(int)"
   ],
   "functions_mangled_names": [
@@ -108,7 +107,6 @@
     "_Z1iiii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
     "_Z1gi"
   ],
   "functions_names": [
@@ -117,7 +115,6 @@
     "i",
     "main",
     "atoi",
-    "register_variable<int>",
     "g"
   ],
   "parameters": [

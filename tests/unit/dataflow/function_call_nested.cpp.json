@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 0,
-      "line": 32,
+      "line": 36,
       "loops": [
         {
           "callstacks": [
@@ -76,7 +76,7 @@
     "_Z1gi": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 2,
-      "line": 40,
+      "line": 44,
       "loops": [
         {
           "callstacks": [
@@ -106,7 +106,7 @@
     "_Z1hi": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 1,
-      "line": 24,
+      "line": 28,
       "loops": [
         {
           "callstacks": [
@@ -175,7 +175,7 @@
     "_Z1iiii": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 3,
-      "line": 48,
+      "line": 52,
       "loops": [
         {
           "callstacks": [
@@ -217,8 +217,7 @@
     "g(int)",
     "i(int, int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fii",
@@ -226,8 +225,7 @@
     "_Z1gi",
     "_Z1iiii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
@@ -235,8 +233,7 @@
     "g",
     "i",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",
