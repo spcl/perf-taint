@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z12print_paramsP6Params": {
-      "file": "tests/dfsan-instr/struct.cpp",
+      "file": "tests/unit/dataflow/struct.cpp",
       "func_idx": 0,
-      "line": 23,
+      "line": 39,
       "loops": [
         {
           "callstack": [
@@ -38,9 +38,9 @@
       ]
     },
     "_Z6do_sthii": {
-      "file": "tests/dfsan-instr/struct.cpp",
+      "file": "tests/unit/dataflow/struct.cpp",
       "func_idx": 1,
-      "line": 33,
+      "line": 49,
       "loops": [
         {
           "callstack": [
@@ -60,26 +60,7 @@
                   ]
                 }
               ]
-            }
-          ],
-          "deps": [
-            [
-              "params.problem_size",
-              "global_params.ranks"
-            ]
-          ],
-          "not_found_params": [
-            "params.ranks"
-          ]
-        },
-        {
-          "callstack": [
-            [
-              3,
-              5
-            ]
-          ],
-          "data": [
+            },
             {
               "dependency": "additive",
               "operands": [
@@ -97,11 +78,13 @@
             [
               "params.ranks",
               "params.problem_size"
+            ],
+            [
+              "params.problem_size",
+              "global_params.ranks"
             ]
           ],
-          "not_found_params": [
-            "global_params.ranks"
-          ]
+          "not_found_params": null
         }
       ]
     }
@@ -111,7 +94,8 @@
     "do_sth(int, int)",
     "do_sth2(double, int)",
     "main",
-    "void register_variable<int>(int*, char const*)",
+    "atoi",
+    "atof",
     "do_sth3(Params&)"
   ],
   "functions_mangled_names": [
@@ -119,7 +103,8 @@
     "_Z6do_sthii",
     "_Z7do_sth2di",
     "main",
-    "_Z17register_variableIiEvPT_PKc",
+    "atoi",
+    "atof",
     "_Z7do_sth3R6Params"
   ],
   "functions_names": [
@@ -127,7 +112,8 @@
     "do_sth",
     "do_sth2",
     "main",
-    "register_variable<int>",
+    "atoi",
+    "atof",
     "do_sth3"
   ],
   "parameters": [

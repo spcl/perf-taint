@@ -12,7 +12,7 @@
 // RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe
 // RUN: %execparams %t2.exe 10 10 10 > %t3.json
 // RUN: diff -w %s.json %t3.json
-// RUN: %jsonconvert %t1.json > %t4.json
+// RUN: %jsonconvert %t3.json > %t4.json
 // RUN: diff -w %s.processed.json %t4.json
 
 #include <cmath>

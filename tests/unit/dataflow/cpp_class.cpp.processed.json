@@ -3,7 +3,7 @@
     "_ZN4Grid11update_gridEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 0,
-      "line": 40,
+      "line": 32,
       "loops": [
         {
           "callstack": [

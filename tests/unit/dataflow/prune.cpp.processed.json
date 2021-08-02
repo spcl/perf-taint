@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z11f_not_pruneii": {
-      "file": "tests/dfsan-unit/prune.cpp",
+      "file": "tests/unit/dataflow/prune.cpp",
       "func_idx": 2,
-      "line": 45,
+      "line": 61,
       "loops": [
         {
           "callstack": [
@@ -167,9 +167,9 @@
       ]
     },
     "_Z11g_not_prunei": {
-      "file": "tests/dfsan-unit/prune.cpp",
+      "file": "tests/unit/dataflow/prune.cpp",
       "func_idx": 1,
-      "line": 26,
+      "line": 42,
       "loops": [
         {
           "callstack": [
@@ -255,9 +255,9 @@
       ]
     },
     "_Z1hi": {
-      "file": "tests/dfsan-unit/prune.cpp",
+      "file": "tests/unit/dataflow/prune.cpp",
       "func_idx": 0,
-      "line": 12,
+      "line": 28,
       "loops": [
         {
           "callstack": [
@@ -384,8 +384,6 @@
     "f_not_prune(int, int)",
     "main",
     "atoi",
-    "void register_variable<int>(int*, char const*)",
-    "void register_variable<double>(double*, char const*)",
     "f_prune(int, int)",
     "g_prune(int)"
   ],
@@ -395,8 +393,6 @@
     "_Z11f_not_pruneii",
     "main",
     "atoi",
-    "_Z17register_variableIiEvPT_PKc",
-    "_Z17register_variableIdEvPT_PKc",
     "_Z7f_pruneii",
     "_Z7g_prunei"
   ],
@@ -406,8 +402,6 @@
     "f_not_prune",
     "main",
     "atoi",
-    "register_variable<int>",
-    "register_variable<double>",
     "f_prune",
     "g_prune"
   ],

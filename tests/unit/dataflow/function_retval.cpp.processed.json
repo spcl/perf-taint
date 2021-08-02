@@ -3,7 +3,7 @@
     "_Z1hii": {
       "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 1,
-      "line": 69,
+      "line": 61,
       "loops": [
         {
           "callstack": [
@@ -38,7 +38,7 @@
     "_Z1iP4test": {
       "file": "tests/unit/dataflow/function_retval.cpp",
       "func_idx": 2,
-      "line": 80,
+      "line": 72,
       "loops": [
         {
           "callstack": [

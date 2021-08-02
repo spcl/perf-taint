@@ -4,12 +4,16 @@
 // RUN: %clangxx %link_flags %t1.tainted.o -o %t1.exe
 // RUN: %execparams %t1.exe 10 10 > %t1.json
 // RUN: diff -w %s.json %t1.json
+// RUN: %jsonconvert %t1.json > %t2.json
+// RUN: diff -w %s.processed.json %t2.json
 
 // RUN: %opt %opt_flags %opt_cfsan < %t1.bc 2> /dev/null > %t2.tainted.bc
 // RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
 // RUN: %clangxx %link_flags %t2.tainted.o -o %t2.exe
-// RUN: %execparams %t2.exe 10 10 > %t2.json
-// RUN: diff -w %s.json %t2.json
+// RUN: %execparams %t2.exe 10 10 > %t3.json
+// RUN: diff -w %s.json %t3.json
+// RUN: %jsonconvert %t3.json > %t4.json
+// RUN: diff -w %s.processed.json %t4.json
 
 #include <cmath>
 #include <cstdlib>
@@ -76,10 +80,10 @@ int main(int argc, char ** argv)
     params.problem_size = atoi(argv[1]);
     params.block_size = BLOCK_SIZE;
     params.tolerance = atof(argv[2]);
-    register_variable(&params.ranks, VARIABLE_NAME(params.ranks));
-    register_variable(&params.problem_size, VARIABLE_NAME(params.problem_size));
-    register_variable(&global_params.problem_size, VARIABLE_NAME(global_params.problem_size));
-    register_variable(&global_params.ranks, VARIABLE_NAME(global_params.ranks));
+    perf_taint::register_variable(&params.ranks, VARIABLE_NAME(params.ranks));
+    perf_taint::register_variable(&params.problem_size, VARIABLE_NAME(params.problem_size));
+    perf_taint::register_variable(&global_params.problem_size, VARIABLE_NAME(global_params.problem_size));
+    perf_taint::register_variable(&global_params.ranks, VARIABLE_NAME(global_params.ranks));
 
     // check that everything is passed
     print_params(&params);

@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/unit/dataflow/simple_function.cpp",
       "func_idx": 0,
-      "line": 21,
+      "line": 25,
       "loops": [
         {
           "callstacks": [
@@ -63,20 +63,17 @@
   "functions_demangled_names": [
     "f(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

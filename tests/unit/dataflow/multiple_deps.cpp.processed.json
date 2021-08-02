@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z1fii": {
-      "file": "tests/unit/dataflow/function_retval.cpp",
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
       "func_idx": 0,
-      "line": 57,
+      "line": 47,
       "loops": [
         {
           "callstack": [
@@ -12,18 +12,6 @@
             ]
           ],
           "data": [
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x1",
-                    "global"
-                  ]
-                }
-              ]
-            },
             {
               "dependency": "additive",
               "operands": [
@@ -41,20 +29,16 @@
             [
               "x1",
               "x2"
-            ],
-            [
-              "x1",
-              "global"
             ]
           ],
           "not_found_params": null
         }
       ]
     },
-    "_Z1hii": {
-      "file": "tests/unit/dataflow/function_retval.cpp",
+    "_Z1gii": {
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
       "func_idx": 1,
-      "line": 69,
+      "line": 57,
       "loops": [
         {
           "callstack": [
@@ -69,36 +53,12 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "global"
+                    "x1",
+                    "x2"
                   ]
                 }
               ]
-            }
-          ],
-          "deps": [
-            [
-              "global"
-            ]
-          ],
-          "not_found_params": [
-            "x1",
-            "x2"
-          ]
-        }
-      ]
-    },
-    "_Z1iP4test": {
-      "file": "tests/unit/dataflow/function_retval.cpp",
-      "func_idx": 2,
-      "line": 80,
-      "loops": [
-        {
-          "callstack": [
-            [
-              3
-            ]
-          ],
-          "data": [
+            },
             {
               "dependency": "additive",
               "operands": [
@@ -114,52 +74,87 @@
           "deps": [
             [
               "x1"
+            ],
+            [
+              "x1",
+              "x2"
             ]
           ],
-          "not_found_params": [
-            "x2",
-            "global"
-          ]
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1hP4test": {
+      "file": "tests/unit/dataflow/multiple_deps.cpp",
+      "func_idx": 2,
+      "line": 67,
+      "loops": [
+        {
+          "callstack": [
+            [
+              3
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
         }
       ]
     }
   },
   "functions_demangled_names": [
     "f(int, int)",
-    "h(int, int)",
-    "i(test*)",
+    "g(int, int)",
+    "h(test*)",
     "main",
     "atoi",
-    "test::test(int, int)",
-    "g(int, int)",
-    "g2(int, int)",
+    "test::test(int, int, int)",
+    "mul(int, int)",
     "test::length()"
   ],
   "functions_mangled_names": [
     "_Z1fii",
-    "_Z1hii",
-    "_Z1iP4test",
+    "_Z1gii",
+    "_Z1hP4test",
     "main",
     "atoi",
-    "_ZN4testC2Eii",
-    "_Z1gii",
-    "_Z2g2ii",
+    "_ZN4testC2Eiii",
+    "_Z3mulii",
     "_ZN4test6lengthEv"
   ],
   "functions_names": [
     "f",
+    "g",
     "h",
-    "i",
     "main",
     "atoi",
     "test",
-    "g",
-    "g2",
+    "mul",
     "length"
   ],
   "parameters": [
     "x1",
-    "x2",
+    "x2"
+  ],
+  "unused_parameters": [
     "global"
   ]
 }

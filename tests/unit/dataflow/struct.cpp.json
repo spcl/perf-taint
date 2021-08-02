@@ -3,7 +3,7 @@
     "_Z12print_paramsP6Params": {
       "file": "tests/unit/dataflow/struct.cpp",
       "func_idx": 0,
-      "line": 35,
+      "line": 39,
       "loops": [
         {
           "callstacks": [
@@ -28,7 +28,7 @@
     "_Z6do_sthii": {
       "file": "tests/unit/dataflow/struct.cpp",
       "func_idx": 1,
-      "line": 45,
+      "line": 49,
       "loops": [
         {
           "callstacks": [
@@ -52,7 +52,7 @@
           "callstacks": [
             [
               3,
-              7
+              6
             ]
           ],
           "instance": {
@@ -77,7 +77,6 @@
     "main",
     "atoi",
     "atof",
-    "void register_variable<int>(int*, char const*)",
     "do_sth3(Params&)"
   ],
   "functions_mangled_names": [
@@ -87,7 +86,6 @@
     "main",
     "atoi",
     "atof",
-    "_Z17register_variableIiEvPT_PKc",
     "_Z7do_sth3R6Params"
   ],
   "functions_names": [
@@ -97,7 +95,6 @@
     "main",
     "atoi",
     "atof",
-    "register_variable<int>",
     "do_sth3"
   ],
   "parameters": [
@@ -109,7 +106,7 @@
     "_Z7do_sth2di": {
       "file": "tests/unit/dataflow/struct.cpp",
       "func_idx": 2,
-      "line": 56
+      "line": 60
     }
   },
   "unused_parameters": [

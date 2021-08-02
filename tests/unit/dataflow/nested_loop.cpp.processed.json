@@ -1,9 +1,9 @@
 {
   "functions": {
     "_Z15perf_nest_constii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/unit/dataflow/nested_loop.cpp",
       "func_idx": 1,
-      "line": 18,
+      "line": 34,
       "loops": [
         {
           "callstack": [
@@ -36,9 +36,9 @@
       ]
     },
     "_Z15perf_nest_quadrii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/unit/dataflow/nested_loop.cpp",
       "func_idx": 3,
-      "line": 38,
+      "line": 54,
       "loops": [
         {
           "callstack": [
@@ -113,9 +113,9 @@
       ]
     },
     "_Z16perf_nest_linearii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/unit/dataflow/nested_loop.cpp",
       "func_idx": 2,
-      "line": 28,
+      "line": 44,
       "loops": [
         {
           "callstack": [
@@ -160,9 +160,9 @@
       ]
     },
     "_Z24perf_nest_multiple_quadrii": {
-      "file": "tests/dfsan-instr/nested_loop.cpp",
+      "file": "tests/unit/dataflow/nested_loop.cpp",
       "func_idx": 4,
-      "line": 49,
+      "line": 65,
       "loops": [
         {
           "callstack": [
@@ -218,8 +218,7 @@
     "perf_nest_quadr(int, int)",
     "perf_nest_multiple_quadr(int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z17perf_nest_unknownii",
@@ -228,8 +227,7 @@
     "_Z15perf_nest_quadrii",
     "_Z24perf_nest_multiple_quadrii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "perf_nest_unknown",
@@ -238,8 +236,7 @@
     "perf_nest_quadr",
     "perf_nest_multiple_quadr",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",

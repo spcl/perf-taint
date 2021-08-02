@@ -3,7 +3,7 @@
     "_ZN4Grid11update_gridEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 0,
-      "line": 40,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
@@ -64,17 +64,17 @@
     "_ZN4Grid11update_dataEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 2,
-      "line": 56
+      "line": 48
     },
     "_ZN4Grid15update_constantEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 1,
-      "line": 47
+      "line": 39
     },
     "_ZN4Grid8update_zEd": {
       "file": "tests/unit/dataflow/cpp_class.cpp",
       "func_idx": 3,
-      "line": 64
+      "line": 56
     }
   }
 }

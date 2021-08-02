@@ -1,9 +1,9 @@
 {
   "functions": {
     "create_matrix": {
-      "file": "tests/dfsan-unit/matmul.c",
+      "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 0,
-      "line": 17,
+      "line": 33,
       "loops": [
         {
           "callstack": [
@@ -52,9 +52,9 @@
       ]
     },
     "mat_mul": {
-      "file": "tests/dfsan-unit/matmul.c",
+      "file": "tests/unit/dataflow/matmul.c",
       "func_idx": 1,
-      "line": 31,
+      "line": 47,
       "loops": [
         {
           "callstack": [
@@ -123,25 +123,19 @@
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "functions_mangled_names": [
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "functions_names": [
     "create_matrix",
     "mat_mul",
     "main",
-    "atoi",
-    "register_variable",
-    "register_variables"
+    "atoi"
   ],
   "parameters": [
     "m",
