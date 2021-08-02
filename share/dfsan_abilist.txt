@@ -61,10 +61,10 @@ fun:MPI_Comm_dup=uninstrumented
 fun:MPI_Comm_dup=discard
 fun:MPI_Comm_free=uninstrumented
 fun:MPI_Comm_free=discard
-fun:MPI_Errhandler_create=uninstrumented
-fun:MPI_Errhandler_create=discard
-fun:MPI_Errhandler_set=uninstrumented
-fun:MPI_Errhandler_set=discard
+fun:MPI_Comm_create_errhandler=uninstrumented
+fun:MPI_Comm_create_errhandler=discard
+fun:MPI_Comm_set_errhandler=uninstrumented
+fun:MPI_Comm_set_errhandler=discard
 
 fun:MPI_Type_*=uninstrumented
 fun:MPI_Type_*=discard
