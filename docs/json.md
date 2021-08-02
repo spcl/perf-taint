@@ -37,8 +37,8 @@ int main(int argc, char ** argv)
 {
     int x1 EXTRAP = atoi(argv[1]);
     int x2 EXTRAP = atoi(argv[2]);
-    register_variable(&x1, VARIABLE_NAME(x1));
-    register_variable(&x2, VARIABLE_NAME(x2));
+    perf_taint::register_variable(&x1, VARIABLE_NAME(x1));
+    perf_taint::register_variable(&x2, VARIABLE_NAME(x2));
     int y = 2*x1 + 1;
 
     f(x2, y, 10);
@@ -60,24 +60,21 @@ Score-P instrumentation filters (mangled) and matchings for Extra-P call paths (
     "g(int, int, int)",
     "h(int, int, int)",
     "main",
-    "atoi",
-    "void register_variable<int>(int*, char const*)"
+    "atoi"
   ],
   "functions_mangled_names": [
     "_Z1fiii",
     "_Z1giii",
     "_Z1hiii",
     "main",
-    "atoi",
-    "_Z17register_variableIiEvPT_PKc"
+    "atoi"
   ],
   "functions_names": [
     "f",
     "g",
     "h",
     "main",
-    "atoi",
-    "register_variable<int>"
+    "atoi"
   ],
   "parameters": [
     "x1",
