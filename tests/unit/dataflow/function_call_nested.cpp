@@ -6,6 +6,8 @@
 // RUN: diff -w %s.json %t1.json
 // RUN: %jsonconvert %t1.json > %t2.json
 // RUN: diff -w %s.processed.json %t2.json
+// RUN: %jsonconvert --no-accumulate-nonloop-dependencies %t1.json > %t2.json
+// RUN: diff -w %s.processed2.json %t2.json
 
 // RUN: %opt %opt_flags %opt_cfsan < %t1.bc 2> /dev/null > %t2.tainted.bc
 // RUN: %llc %llc_flags < %t2.tainted.bc > %t2.tainted.o
@@ -14,6 +16,8 @@
 // RUN: diff -w %s.json %t3.json
 // RUN: %jsonconvert %t3.json > %t4.json
 // RUN: diff -w %s.processed.json %t4.json
+// RUN: %jsonconvert --no-accumulate-nonloop-dependencies %t3.json > %t4.json
+// RUN: diff -w %s.processed2.json %t4.json
 
 #include <cmath>
 #include <cstdlib>

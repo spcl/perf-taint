@@ -172,6 +172,8 @@ set_property(TARGET JSONConverter PROPERTY CXX_STANDARD 14)
 set_target_properties(JSONConverter PROPERTIES COMPILE_FLAGS "-g -Wall")
 add_dependencies(JSONConverter nlohmann_json)
 set_target_properties(JSONConverter PROPERTIES RUNTIME_OUTPUT_DIRECTORY tools)
+set_target_properties(JSONConverter PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti -g")
+target_link_libraries(JSONConverter LLVMSupport)
 
 add_executable(model_comparator tools/model_comparator.cpp)
 set_property(TARGET model_comparator PROPERTY CXX_STANDARD 14)

@@ -2,11 +2,29 @@
 #include <string>
 #include <fstream>
 #include <set>
+
+#include <llvm/Support/CommandLine.h>
 #include <nlohmann/json.hpp>
 
 typedef nlohmann::json json_t;
 
 #define ENABLE_FIX_ICS_2019_RESULTS FALSE
+
+static llvm::cl::opt<std::string> InputFilename(
+  llvm::cl::Positional, llvm::cl::Required,
+  llvm::cl::desc("<input file>")
+);
+static llvm::cl::opt<std::string> OutputFilename(
+  llvm::cl::Positional, llvm::cl::Optional,
+  llvm::cl::desc("<output file>"),
+  llvm::cl::init("")
+);
+static llvm::cl::opt<bool> DontAccumulate(
+  "no-accumulate-nonloop-dependencies",
+  llvm::cl::desc("Don't accumulate dependencies that don't appear in a loop"),
+  llvm::cl::init(false),
+  llvm::cl::value_desc("boolean flag")
+);
 
 // loop_idx -> loop
 typedef std::map<std::string, std::vector<const json_t*>> set_t;
@@ -292,7 +310,10 @@ bool replace(const json_t & input, json_t & instance)
       auto elem = it.value().find("loops");
       if(elem != it.value().end())
         replaced |= replace(input, *elem); 
-      if(it.value().is_array()) {
+      // Replace entries to other functions unless user wants exclusive result
+      // Then, we simply remove references to other functions if not inside loop
+      // Otherwise, we replace
+      if(it.value().is_array() && !DontAccumulate.getValue()) {
         json_t out;
         for(auto & entry : it.value()) {
 
@@ -677,18 +698,24 @@ json_t convert(json_t & input, bool generate_full_data)
 
 int main(int argc, char ** argv)
 {
+  llvm::cl::ParseCommandLineOptions(argc, argv);
+
+  std::cerr << "Parsing file: " << InputFilename.getValue()
+    << ", writing to: " << OutputFilename.getValue() << '\n';
+
     json_t input;
-    assert(argc >= 2);
-    std::ifstream in(argv[1], std::ios_base::in);
+    std::ifstream in(InputFilename.getValue(), std::ios_base::in);
     in >> input;
     in.close();
-    bool generate_full_data = false;
-    if(argc > 3)
-      generate_full_data = atoi(argv[3]);
 
-    json_t converted = convert(input, generate_full_data);
-    if(argc > 2) {
-      std::ofstream out(argv[2]);
+//    FIXME: This flag is no longer used?
+//    bool generate_full_data = false;
+//    if(argc > 3)
+//      generate_full_data = atoi(argv[3]);
+//
+    json_t converted = convert(input, true);// generate_full_data);
+    if(!OutputFilename.getValue().empty()) {
+      std::ofstream out(OutputFilename.getValue());
       out << converted.dump(2);
     } else
       std::cout << converted.dump(2);

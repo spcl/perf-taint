@@ -21,22 +21,6 @@
                     "x1",
                     "global"
                   ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "x1"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             },
@@ -53,9 +37,6 @@
             }
           ],
           "deps": [
-            [
-              "x1"
-            ],
             [
               "x2"
             ],
@@ -83,30 +64,11 @@
                     "x2",
                     "global"
                   ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "x2"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             }
           ],
           "deps": [
-            [
-              "x2"
-            ],
             [
               "x2",
               "global"
@@ -137,22 +99,6 @@
                   "dependency": "unknown",
                   "operands": [
                     "global"
-                  ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "global"
-                          ]
-                        }
-                      ]
-                    }
                   ]
                 }
               ]
@@ -297,70 +243,11 @@
                     "x2",
                     "global"
                   ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "x2",
-                            "global"
-                          ]
-                        },
-                        {
-                          "dependency": "additive",
-                          "operands": [
-                            {
-                              "dependency": "additive",
-                              "operands": [
-                                {
-                                  "dependency": "unknown",
-                                  "operands": [
-                                    "x2"
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "dependency": "additive",
-                  "operands": [
-                    {
-                      "dependency": "additive",
-                      "operands": [
-                        {
-                          "dependency": "unknown",
-                          "operands": [
-                            "global"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             }
           ],
           "deps": [
-            [
-              "x2"
-            ],
-            [
-              "global"
-            ],
-            [
-              "x2",
-              "global"
-            ],
             [
               "x1",
               "x2",

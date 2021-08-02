@@ -3,7 +3,7 @@
     "_Z1fii": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 0,
-      "line": 36,
+      "line": 40,
       "loops": [
         {
           "callstacks": [
@@ -76,7 +76,7 @@
     "_Z1gi": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 2,
-      "line": 44,
+      "line": 48,
       "loops": [
         {
           "callstacks": [
@@ -106,7 +106,7 @@
     "_Z1hi": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 1,
-      "line": 28,
+      "line": 32,
       "loops": [
         {
           "callstacks": [
@@ -175,7 +175,7 @@
     "_Z1iiii": {
       "file": "tests/unit/dataflow/function_call_nested.cpp",
       "func_idx": 3,
-      "line": 52,
+      "line": 56,
       "loops": [
         {
           "callstacks": [
