@@ -562,9 +562,9 @@ initialize_machine(int *argc, char ***argv)
   /* Note: with MPI-2 MPI_Comm_create_errhandler and
      MPI_Comm_set_errorhandler are preferred, but we keep MPI_Attr_get
      until MPI-2 is more widely available */ 
-  flag = MPI_Errhandler_create(err_func, &errhandler);
+  flag = MPI_Comm_create_errhandler(err_func, &errhandler);
   if(flag != MPI_SUCCESS) err_func(&MPI_COMM_THISJOB, &flag);
-  flag = MPI_Errhandler_set(MPI_COMM_THISJOB, errhandler);
+  flag = MPI_Comm_set_errhandler(MPI_COMM_THISJOB, errhandler);
   if(flag != MPI_SUCCESS) err_func(&MPI_COMM_THISJOB, &flag);
 
   /* get the number of message types */
