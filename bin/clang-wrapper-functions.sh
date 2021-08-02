@@ -42,6 +42,6 @@ function run_compilation() {
         ${compiler} "${cflags[@]}" "${@:2}"
         ${compiler} "${cflags[@]}" -emit-llvm "${ARGS[@]}"
     else
-        ${compiler} "${linkflags[@]}" "${@:2}"
+        ${compiler} "${cflags[@]}" "${linkflags[@]}" "${@:2}"
     fi
 }
