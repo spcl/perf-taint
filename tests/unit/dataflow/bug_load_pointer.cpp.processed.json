@@ -1,4 +1,5 @@
 {
+  "functions": null,
   "functions_demangled_names": [
     "f(int, int)",
     "main",
@@ -14,14 +15,6 @@
     "main",
     "atoi"
   ],
-  "parameters": null,
-  "unimportant_functions": {
-    "_Z1fii": {
-      "file": "tests/unit/dataflow/bug_load_pointer.cpp",
-      "func_idx": 0,
-      "line": 31
-    }
-  },
   "unused_parameters": [
     "x1",
     "x2"
