@@ -1,0 +1,152 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/multiple_exit_conditions.cpp",
+      "func_idx": 0,
+      "line": 22,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ],
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ],
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2"
+                ],
+                [
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1",
+                  "x2",
+                  "global"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ],
+                [
+                  "x2",
+                  "global"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "main",
+    "atoi",
+    "mul(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "main",
+    "atoi",
+    "_Z3mulii"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi",
+    "mul"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}

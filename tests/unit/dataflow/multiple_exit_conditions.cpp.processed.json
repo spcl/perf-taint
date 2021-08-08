@@ -1,0 +1,136 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/multiple_exit_conditions.cpp",
+      "func_idx": 0,
+      "line": 22,
+      "loops": [
+        {
+          "callstack": [
+            [
+              1
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2",
+                    "global"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2",
+                    "global"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "global"
+            ],
+            [
+              "x1",
+              "global"
+            ],
+            [
+              "x2",
+              "global"
+            ],
+            [
+              "x1",
+              "x2",
+              "global"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "main",
+    "atoi",
+    "mul(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "main",
+    "atoi",
+    "_Z3mulii"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi",
+    "mul"
+  ],
+  "parameters": [
+    "x1",
+    "x2",
+    "global"
+  ]
+}
