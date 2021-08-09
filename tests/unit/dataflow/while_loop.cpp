@@ -46,6 +46,19 @@ int while_infinite(int x, int y)
     return tmp*10*x + y/2;
 }
 
+int while_infinite_const(int x, int y)
+{
+    int tmp = 0;
+    int i = x;
+    while(true) {
+      if(i >= 100)
+        break;
+      tmp += i;
+      ++i;
+    }
+    return tmp*10*x + y/2;
+}
+
 int main(int argc, char ** argv)
 {
     int x1 EXTRAP = atoi(argv[1]);
@@ -53,9 +66,7 @@ int main(int argc, char ** argv)
     perf_taint::register_variable(&x1, VARIABLE_NAME(x1));
     perf_taint::register_variable(&x2, VARIABLE_NAME(x2));
 
-    // generates x1,x2
-    while_loop(x1, x2);
-    // nothing - loop never executes
+    // x1,x2 - loop never executes but branch is evaluated
     while_loop(x2, x1);
     // x1
     while_loop(0, x1);
@@ -64,9 +75,7 @@ int main(int argc, char ** argv)
     // nothing
     while_loop(0, 10);
 
-    // generates x1,x2
-    while_infinite(x1, x2);
-    // nothing - loop never executes
+    // x1, x2
     while_infinite(x2, x1);
     // x1
     while_infinite(0, x1);
@@ -74,6 +83,17 @@ int main(int argc, char ** argv)
     while_infinite(0, x2);
     // nothing
     while_infinite(0, 10);
+
+    // generates x1
+    while_infinite_const(x1, x2);
+    // generates x2
+    while_infinite_const(x2, x1);
+    // nothing
+    while_infinite_const(0, x1);
+    // x2 + x1
+    while_infinite_const(x2 + x1, 0);
+    // nothing
+    while_infinite_const(0, 10);
 
 
     return 0;

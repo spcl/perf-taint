@@ -1,9 +1,9 @@
 {
   "functions": {
-    "_Z10while_loopii": {
-      "file": "tests/unit/dataflow/while_loop.cpp",
+    "_Z13do_while_loopii": {
+      "file": "tests/unit/dataflow/do_while_loop.cpp",
       "func_idx": 0,
-      "line": 25,
+      "line": 22,
       "loops": [
         {
           "callstack": [
@@ -63,10 +63,10 @@
         }
       ]
     },
-    "_Z14while_infiniteii": {
-      "file": "tests/unit/dataflow/while_loop.cpp",
+    "_Z17do_while_infiniteii": {
+      "file": "tests/unit/dataflow/do_while_loop.cpp",
       "func_idx": 1,
-      "line": 36,
+      "line": 33,
       "loops": [
         {
           "callstack": [
@@ -126,10 +126,10 @@
         }
       ]
     },
-    "_Z20while_infinite_constii": {
-      "file": "tests/unit/dataflow/while_loop.cpp",
+    "_Z23do_while_infinite_constii": {
+      "file": "tests/unit/dataflow/do_while_loop.cpp",
       "func_idx": 2,
-      "line": 49,
+      "line": 45,
       "loops": [
         {
           "callstack": [
@@ -144,30 +144,30 @@
                 {
                   "dependency": "unknown",
                   "operands": [
-                    "x1"
-                  ]
-                }
-              ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
-                    "x2"
-                  ]
-                }
-              ]
-            },
-            {
-              "dependency": "additive",
-              "operands": [
-                {
-                  "dependency": "unknown",
-                  "operands": [
                     "x1",
                     "x2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
                   ]
                 }
               ]
@@ -191,23 +191,23 @@
     }
   },
   "functions_demangled_names": [
-    "while_loop(int, int)",
-    "while_infinite(int, int)",
-    "while_infinite_const(int, int)",
+    "do_while_loop(int, int)",
+    "do_while_infinite(int, int)",
+    "do_while_infinite_const(int, int)",
     "main",
     "atoi"
   ],
   "functions_mangled_names": [
-    "_Z10while_loopii",
-    "_Z14while_infiniteii",
-    "_Z20while_infinite_constii",
+    "_Z13do_while_loopii",
+    "_Z17do_while_infiniteii",
+    "_Z23do_while_infinite_constii",
     "main",
     "atoi"
   ],
   "functions_names": [
-    "while_loop",
-    "while_infinite",
-    "while_infinite_const",
+    "do_while_loop",
+    "do_while_infinite",
+    "do_while_infinite_const",
     "main",
     "atoi"
   ],

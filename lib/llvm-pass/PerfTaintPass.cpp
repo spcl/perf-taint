@@ -733,10 +733,16 @@ namespace perf_taint {
                     //llvm::errs() << *inst << '\n';
                     const llvm::BranchInst * br = llvm::dyn_cast<llvm::BranchInst>(inst);
                     if(br && br->isConditional()) {
-                        llvm::Instruction * inst =
-                            llvm::dyn_cast<llvm::Instruction>(br->getCondition());
-                        assert(inst);
-                        instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
+                        llvm::Instruction * inst = llvm::dyn_cast<llvm::Instruction>(br->getCondition());
+                        // For branches with actual conditions
+                        if(inst)
+                          instr.checkLoop(nested_loop_idx, func.function_idx(), inst);
+                        // Infinite loops with `true` condition
+                        // We don't need to instrument those.
+                        else if(!llvm::isa<llvm::Constant>(br->getCondition())) {
+                          llvm::errs() << "Unknown condition type in a conditional branch: " << *br->getCondition() << '\n';
+                          assert(false);
+                        }
                     } else if(const llvm::SwitchInst * _switch = llvm::dyn_cast<llvm::SwitchInst>(inst)) {
                         llvm::Instruction * inst =
                             llvm::dyn_cast<llvm::Instruction>(_switch->getCondition());
