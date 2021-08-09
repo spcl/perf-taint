@@ -35,7 +35,7 @@ namespace perf_taint {
 
     struct FileIndex
     {
-        typedef std::map<llvm::StringRef,std::tuple<int, llvm::StringRef>> idx_t;
+        typedef std::map<std::string, int> idx_t;
         typedef typename idx_t::iterator iterator;
         // file_name -> (idx, dir)
         idx_t index;

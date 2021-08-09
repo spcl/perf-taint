@@ -15,6 +15,7 @@
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/ModuleSlotTracker.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CommandLine.h>
@@ -1014,7 +1015,7 @@ namespace perf_taint {
         for(; file_it != file_end; ++file_it) {
             llvm::StringRef fname = (*file_it).first;
             llvm::Constant * allocated = builder.CreateGlobalStringPtr(fname);
-            file_names[ std::get<0>((*file_it).second) ] = allocated;
+            file_names[ (*file_it).second ] = allocated;
         }
         glob_files = new llvm::GlobalVariable(m,
                 array_type,
@@ -2091,7 +2092,9 @@ namespace perf_taint {
         info.getTranslationUnits(m,
             [this, &idx](const llvm::StringRef & dir,
                         const llvm::StringRef & name) {
-                index[name] = std::make_tuple(idx++, dir);
+                llvm::SmallVector<char, 20> path{dir.begin(), dir.end()};
+                llvm::sys::path::append(path, name);
+                index[path.data()] = idx++;
             }
         );
     }
@@ -2100,7 +2103,7 @@ namespace perf_taint {
     {
         auto it = index.find(name);
         if(it != index.end())
-            return std::get<0>((*it).second);
+            return (*it).second;
         else
             return -1;
     }
