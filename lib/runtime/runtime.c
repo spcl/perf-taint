@@ -450,3 +450,8 @@ void __dfsw_perf_taint_delete_label(int8_t * ptr, int32_t size, const char* labe
   }
 }
 
+void __dfsw_perf_taint_delete_labels(int8_t * ptr, int32_t size)
+{
+  // reset current label
+  dfsan_set_label(0, ptr, size);
+}
