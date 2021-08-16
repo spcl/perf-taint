@@ -4,6 +4,7 @@ import lit.formats
 config.name = 'perf-taint'
 config.opt = '@LLVM_OPT@'
 config.llc = '@LLVM_LLC@'
+config.llvm_link = '@LLVM_LINK@'
 config.clang = '@CLANG@'
 config.clangxx = '@CLANGXX@'
 config.source_root = '@CMAKE_CURRENT_SOURCE_DIR@'
@@ -106,6 +107,7 @@ config.substitutions.append( ('%llc_flags',
   )
 )
 config.substitutions.append( ('%llc', config.llc) )
+config.substitutions.append( ('%llvm_link', config.llvm_link) )
 
 # Compile LLVM IR and link with dfsan runtime, our runtime and libc++.
 config.substitutions.append( ('%link_flags',

@@ -1,0 +1,52 @@
+{
+  "functions": {
+    "f": {
+      "func_idx": 1,
+      "line": 5,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              2
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f",
+    "main",
+    "atoi",
+    "test1"
+  ],
+  "functions_mangled_names": [
+    "f",
+    "main",
+    "atoi",
+    "test1"
+  ],
+  "functions_names": [
+    "f",
+    "main",
+    "atoi",
+    "test1"
+  ],
+  "parameters": [
+    "x1"
+  ]
+}

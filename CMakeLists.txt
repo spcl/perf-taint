@@ -17,6 +17,8 @@ find_program(LLVM_OPT "opt" PATHS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH)
 message(STATUS "Using LLVM opt in ${LLVM_OPT}")
 find_program(LLVM_LLC "llc" PATHS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH)
 message(STATUS "Using LLVM llc in ${LLVM_LLC}")
+find_program(LLVM_LINK "llvm-link" PATHS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH)
+message(STATUS "Using LLVM llvm-link in ${LLVM_LINK}")
 # TODO: allow using a different compiler?
 set(CLANG ${CMAKE_C_COMPILER})
 set(CLANGXX ${CMAKE_CXX_COMPILER})
