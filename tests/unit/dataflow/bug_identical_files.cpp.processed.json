@@ -1,0 +1,96 @@
+{
+  "functions": {
+    "_Z1fii": {
+      "file": "tests/unit/dataflow/bug_identical_files.cpp",
+      "func_idx": 0,
+      "line": 24,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z1gii": {
+      "file": "tests/unit/dataflow/bug_identical_files_subdirectory/bug_identical_files.cpp",
+      "func_idx": 1,
+      "line": 5,
+      "loops": [
+        {
+          "callstack": [
+            [
+              2
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "f(int, int)",
+    "g(int, int)",
+    "main",
+    "atoi"
+  ],
+  "functions_mangled_names": [
+    "_Z1fii",
+    "_Z1gii",
+    "main",
+    "atoi"
+  ],
+  "functions_names": [
+    "f",
+    "g",
+    "main",
+    "atoi"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
