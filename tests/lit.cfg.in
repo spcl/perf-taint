@@ -69,14 +69,14 @@ config.substitutions.append( ('%clang', config.clang) )
 config.substitutions.append( ('%c_flags',
     '-I%s ' % config.perf_taint_include_path
     + '-c -g -O2 -mllvm -disable-llvm-optzns '
-    + '-fdebug-prefix-map=%s/=' % config.source_root
+    #+ '-fdebug-prefix-map=%s/=' % config.source_root
   )
 )
 config.substitutions.append( ('%cxx_flags',
     '-I%s ' % config.libcxx_include_path
     + '-I%s ' % config.perf_taint_include_path
     + '-stdlib=libc++ -c -g -O2 -mllvm -disable-llvm-optzns '
-    + '-fdebug-prefix-map=%s/=' % config.source_root
+    #+ '-fdebug-prefix-map=%s/=' % config.source_root
   )
 )
 config.substitutions.append( ('%mpi_flags',
@@ -88,6 +88,7 @@ config.substitutions.append( ('%mpi_flags',
 config.substitutions.append( ('%opt_flags',
     '-load ' + os.path.join(config.exec_root, 'lib', 'libPerfTaintPass.so')
     + ' -perf-taint'
+    + f' -perf-taint-relative-path={config.source_root}'
     + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
   )

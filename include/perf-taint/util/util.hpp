@@ -127,6 +127,7 @@ std::string llvm_to_str(T * obj)
 }
 
 std::string path_join(const llvm::StringRef & prefix, const llvm::StringRef & suffix);
+std::string path_relative(const llvm::StringRef & prefix, const llvm::StringRef & suffix);
 
 std::string debug_info(llvm::Loop * l);
 

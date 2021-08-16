@@ -72,6 +72,11 @@ static llvm::cl::opt<bool> GenerateStats("perf-taint-export-stats",
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("filename"));
 
+static llvm::cl::opt<std::string> RelativePath("perf-taint-relative-path",
+                                       llvm::cl::desc("In modeling data, generate paths relative to the argument."),
+                                       llvm::cl::init(""),
+                                       llvm::cl::value_desc("filename"));
+
 namespace perf_taint {
 
     std::set<Parameters::id_t> LabelAnnotator::annotated_params;
@@ -1013,7 +1018,12 @@ namespace perf_taint {
         std::vector<llvm::Constant*> file_names(file_count);
         for(; file_it != file_end; ++file_it) {
             llvm::StringRef fname = (*file_it).first;
-            llvm::Constant * allocated = builder.CreateGlobalStringPtr(fname);
+            llvm::Constant * allocated = nullptr;
+            // Make filepaths relative to a user-defined top directory.
+            if(RelativePath.getValue() != "")
+              allocated = builder.CreateGlobalStringPtr(path_relative(fname, RelativePath.getValue()));
+            else
+              allocated = builder.CreateGlobalStringPtr(fname, RelativePath.getValue());
             file_names[ (*file_it).second ] = allocated;
         }
         glob_files = new llvm::GlobalVariable(m,

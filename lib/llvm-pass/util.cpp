@@ -1,6 +1,8 @@
 
 #include <perf-taint/util/util.hpp>
 
+#include <filesystem>
+
 std::string debug_info(llvm::Loop * l)
 {
   llvm::DebugLoc location = l->getStartLoc();
@@ -12,14 +14,16 @@ std::string debug_info(llvm::Loop * l)
   return "";
 }
 
+// While this function exists in LLVM as llvm::sys::path::append,
+// it requires initializing a SmallVector, filling the data, and properly
+// null-terminating the string, before we can return a std::string to the user.
 std::string path_join(const llvm::StringRef & prefix, const llvm::StringRef & suffix)
 {
-  llvm::SmallVector<char, 32> path{prefix.begin(), prefix.end()};
-  llvm::sys::path::append(path, suffix);
-  // Make sure that our string is properly NULL-terminated
-  // It might not be when the size of the path is larger than 32 characters
-  // Then, the new values won't be zero-initialized
-  path.push_back('\0');
-  return std::string{path.data()};
+  return std::filesystem::path{prefix} / suffix.data();
+}
+
+std::string path_relative(const llvm::StringRef & path, const llvm::StringRef & prefix)
+{
+  return std::filesystem::relative(path.data(), prefix.data());
 }
 
