@@ -14,6 +14,11 @@
 
 #include "perf-taint/PerfTaint.hpp"
 
+// Reproduce a bug caused by functions with the same filename.
+// This happens in systems where the compilation is conducted by recursively visiting
+// subdirectories in a repository.
+// Users can have a TU with the same filename but placed in different directories.
+
 int g(int x1, int x2);
 
 int f(int x1, int x2)
