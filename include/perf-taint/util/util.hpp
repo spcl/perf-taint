@@ -10,6 +10,7 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/raw_os_ostream.h>
 
 namespace {
@@ -124,6 +125,8 @@ std::string llvm_to_str(T * obj)
     string_os << *obj;
     return string_os.str();
 }
+
+std::string path_join(const llvm::StringRef & prefix, const llvm::StringRef & suffix);
 
 std::string debug_info(llvm::Loop * l);
 

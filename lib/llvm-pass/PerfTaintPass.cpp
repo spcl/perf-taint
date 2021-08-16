@@ -1,6 +1,5 @@
 
 #include <perf-taint/llvm-pass/PerfTaintPass.hpp>
-
 #include <perf-taint/llvm-pass/AnnotationAnalyzer.hpp>
 #include <perf-taint/llvm-pass/DebugInfo.hpp>
 #include <perf-taint/llvm-pass/Function.hpp>
@@ -2092,20 +2091,18 @@ namespace perf_taint {
         info.getTranslationUnits(m,
             [this, &idx](const llvm::StringRef & dir,
                         const llvm::StringRef & name) {
-                llvm::SmallVector<char, 20> path{dir.begin(), dir.end()};
-                llvm::sys::path::append(path, name);
-                index[path.data()] = idx++;
+                index[path_join(dir, name)] = idx++;
             }
         );
     }
 
-    int FileIndex::getIdx(llvm::StringRef & name)
+    int FileIndex::getIdx(const llvm::StringRef & name)
     {
-        auto it = index.find(name);
-        if(it != index.end())
-            return (*it).second;
-        else
-            return -1;
+      auto it = index.find(name);
+      if(it != index.end())
+          return (*it).second;
+      else
+          return -1;
     }
 
     bool LabelAnnotator::visitLoadInst(llvm::LoadInst & load)

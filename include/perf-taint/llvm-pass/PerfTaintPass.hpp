@@ -41,7 +41,7 @@ namespace perf_taint {
         idx_t index;
 
         void import(llvm::Module &, DebugInfo &);
-        int getIdx(llvm::StringRef &);
+        int getIdx(const llvm::StringRef &);
         iterator begin();
         iterator end();
     };

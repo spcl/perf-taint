@@ -1,6 +1,8 @@
 #ifndef __DEBUG_INFO_HPP__
 #define __DEBUG_INFO_HPP__  
 
+#include <perf-taint/util/util.hpp>
+
 #include <llvm/ADT/Optional.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/InstIterator.h>
@@ -48,15 +50,15 @@ namespace perf_taint {
         return f.getName();
     }
       
-    llvm::Optional<std::tuple<llvm::StringRef, int>> 
+    llvm::Optional<std::tuple<std::string, int>>
         getFunctionLocation(llvm::Function & f)
     {
-      typedef llvm::Optional<std::tuple<llvm::StringRef, int>> opt_t;
+      typedef llvm::Optional<std::tuple<std::string, int>> opt_t;
       const llvm::DISubprogram* subprogram = f.getSubprogram();
       // Not all functions have a debug information
       if(subprogram)
         return opt_t(std::make_tuple(
-                    subprogram->getFilename(),
+                    path_join(subprogram->getDirectory(), subprogram->getFilename()),
                     subprogram->getLine()
                 ));
       else
