@@ -39,7 +39,10 @@ namespace perf_taint {
   {
     int idx;
     llvm::StringRef name;
+    // Represents a part of a single function
     bool overriden;
+    // Represents a duplicate of an existing function
+    bool duplicate;
     llvm::SmallVector<llvm::Value*, 10> callsites;
     // # of entries = loop_depths.size()
     std::vector<int> loops_structures;
@@ -53,7 +56,8 @@ namespace perf_taint {
     Function(int _idx, llvm::StringRef _name, bool _overriden = false):
       idx(_idx),
       name(_name),
-      overriden(_overriden)
+      overriden(_overriden),
+      duplicate(false)
     {}
 
     int function_idx()

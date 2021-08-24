@@ -29,8 +29,9 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <cxxabi.h>
 #include <cstdio>
+#include <regex>
+#include <cxxabi.h>
 
 static llvm::cl::opt<std::string> LogFileName("perf-taint-log-name",
                                         llvm::cl::desc("Specify filename for output log"),
@@ -56,6 +57,11 @@ static llvm::cl::opt<std::string> PassStatsFile("perf-taint-pass-stats",
                                        llvm::cl::desc("Input database with functions."),
                                        llvm::cl::init("perf-taint-pass.json"),
                                        llvm::cl::value_desc("filename"));
+
+static llvm::cl::opt<bool> RemoveDuplicates("perf-taint-remove-duplicates",
+                                       llvm::cl::desc("Attempts to remove duplicated entries from linking"),
+                                       llvm::cl::init(false),
+                                       llvm::cl::value_desc("boolean flag"));
 
 static llvm::cl::opt<bool> EnableSCEV("perf-taint-scev",
                                        llvm::cl::desc("Enable LLVM Scalar Evolution"),
@@ -180,21 +186,32 @@ namespace perf_taint {
           }
         }
 
+        // remove duplicates
+        if(RemoveDuplicates) {
+          removeDuplicates();
+        }
+
         // TODO: merge this into a single collection
         // Copy to vector and sort to ensure that we get a deterministic order
         // of functions and their indices. Otherwise the indices of functions
         // might depend on addresses of functions. While it does not influence
         // the correctness of the algorithm, it makes testing harder.
         typedef std::pair<llvm::Function *, llvm::Optional<Function>> elem_t;
-        std::vector<elem_t> elems(
-            instrumented_functions.begin(),
-            instrumented_functions.end()
-        );
+        std::vector<elem_t> elems;
+        for(auto & f : instrumented_functions) {
+          // To compute counters and sort, we skip the duplicated elements
+          if(f.second && !f.second->duplicate) {
+            elems.push_back(f);
+          } else if (!f.second) {
+            elems.push_back(f);
+          }
+        }
         std::sort(elems.begin(), elems.end(),
-            [](elem_t & f1, elem_t & f2) {
-              return f1.first->getName() < f2.first->getName();
-            }
+          [](elem_t & f1, elem_t & f2) {
+            return f1.first->getName() < f2.first->getName();
+          }
         );
+
         for(auto & t : elems) {
             // For each unimportant function, add it to a database
             // for callstack generation
@@ -212,11 +229,12 @@ namespace perf_taint {
         // sorted instrumented functions
         std::vector<Function*> functions(parent_functions.size());
         for(auto & f : instrumented_functions) {
-          if( !f.second.hasValue() || f.second->is_overriden())
+          if( !f.second.hasValue() || f.second->is_overriden() || f.second->duplicate )
             continue;
           int f_idx = f.second->function_idx();
           functions[f_idx] = &f.second.getValue();
         }
+
 
         instr.createGlobalStorage(parent_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
@@ -895,6 +913,95 @@ namespace perf_taint {
         return true;
     }
 
+    void DfsanInstr::removeDuplicates()
+    {
+      const std::regex regex("([a-zA-Z0-9]+)\\.[0-9]+");
+      for(auto & f : instrumented_functions) {
+        // exclude non-important functions
+        if(f.second.hasValue()) {
+
+          // now look for duplicates
+          // here we use the fact that duplicates names are <name>.<int>
+          std::smatch base_match;
+          std::string fname = f.second->name.str();
+          if(std::regex_match(fname, base_match, regex)){
+
+            // check if there's a function with the same name
+            std::ssub_match matched_name;
+            if(base_match.size() == 2)
+              matched_name = base_match[1];
+            else
+              matched_name = base_match[0];
+            //std::string name{base_match[0].first, base_match[0].second};
+            auto it = std::find_if(
+              instrumented_functions.begin(),
+              instrumented_functions.end(),
+              [&](auto & f){
+                return f.first->getName().str() == matched_name;
+              }
+            );
+            if(it == instrumented_functions.end() && !it->second.hasValue())
+              continue;
+
+            // if yes, then compare debug locations
+            const Function & parent = *it->second;
+            auto duplicate_dbg = DebugInfo::getFunctionLocation(*f.first);
+            auto parent_dbg = DebugInfo::getFunctionLocation(*it->first);
+            if(duplicate_dbg && parent_dbg) {
+              if(std::get<0>(duplicate_dbg.getValue()) != std::get<0>(parent_dbg.getValue())) {
+                llvm::errs() << std::get<0>(duplicate_dbg.getValue()) << '\n';
+                llvm::errs() << std::get<0>(parent_dbg.getValue()) << '\n';
+                llvm::errs() << f.first->getName().str() << '\n';
+                llvm::errs() << parent.name << '\n';
+                llvm::errs() <<
+                  cppsprintf(
+                    "Refusing to merge %s with %s due to conflicting file location: %s and %s!",
+                    f.first->getName().str(),
+                    parent.name.str(),
+                    std::get<0>(duplicate_dbg.getValue()).str(),
+                    std::get<0>(parent_dbg.getValue()).str()
+                  )
+                << '\n';
+                continue;
+              }
+              if(std::get<1>(duplicate_dbg.getValue()) != std::get<1>(parent_dbg.getValue())) {
+                llvm::errs() <<
+                  cppsprintf(
+                    "Refusing to merge %s with %s due to conflicting line number location: %d and %d!",
+                    f.first->getName().str(),
+                    parent.name.str(),
+                    std::get<1>(duplicate_dbg.getValue()),
+                    std::get<1>(parent_dbg.getValue())
+                  )
+                << '\n';
+                continue;
+              }
+              llvm::errs() <<
+                cppsprintf(
+                  "Merging %s with %s.",
+                  f.first->getName().str(),
+                  parent.name.str()
+                )
+              << '\n';
+              // replace the entry with data for parent function
+              //f.second = llvm::Optional<Function>(Function(parent.idx, parent.name, false));
+              // FIXME: we should have a better system to indicate different types of functions
+              f.second->idx = parent.idx;
+              f.second.getValue().duplicate = true;
+            } else {
+              llvm::errs() <<
+                cppsprintf(
+                  "Refusing to merge %s with %s due to no debug information!",
+                  f.first->getName().str(),
+                  it->first->getName().str()
+                )
+              << '\n';
+            }
+          }
+        }
+      }
+    }
+
     void Instrumenter::writeParameter(llvm::Instruction * instr,
         llvm::Value * dest, int parameter_idx)
     {
@@ -957,7 +1064,9 @@ namespace perf_taint {
                 implicit_end);
         int not_instr_functions_count = std::distance(not_instr_begin,
                 not_instr_end);
-        std::vector<Function*> functions(functions_count);
+
+        llvm::errs() << functions_count << " " << implicit_functions_count << " " << not_instr_functions_count << '\n';
+        std::vector<Function*> functions(functions_count, nullptr);
         params_count = Parameters::parameters_count();
         // dummy insert since we only create global variables
         // but IRBuilder uses BB to determine the module
@@ -1036,9 +1145,9 @@ namespace perf_taint {
                     builder.getInt8PtrTy(),
                     database_size
                 );
-        std::vector<llvm::Constant*> function_names(database_size),
-            mangled_function_names(database_size),
-            demangled_function_names(database_size);
+        std::vector<llvm::Constant*> function_names(database_size, nullptr),
+            mangled_function_names(database_size, nullptr),
+            demangled_function_names(database_size, nullptr);
         for(auto it = begin; it != end; ++it) {
             if( !(*it).second.hasValue() )
                 continue;
@@ -1081,6 +1190,15 @@ namespace perf_taint {
             function_names[idx] = fname;
             idx++;
         }
+
+        auto ir_nullptr = llvm::ConstantPointerNull::get(builder.getInt8PtrTy());
+        for(int i = 0; i < database_size; ++i) {
+          if(!function_names[i]) {
+            function_names[i] = ir_nullptr;
+            mangled_function_names[i] = ir_nullptr;
+            demangled_function_names[i] = ir_nullptr;
+          }
+        }
         glob_funcs_names = new llvm::GlobalVariable(m,
                 array_type,
                 false,
@@ -1105,14 +1223,23 @@ namespace perf_taint {
                     builder.getInt32Ty(),
                     functions_count
                 );
-        std::vector<llvm::Constant*> functions_args(functions_count);
+        std::vector<llvm::Constant*> functions_args(functions_count, nullptr);
         for(auto it = begin; it != end; ++it) {
             if( !(*it).second.hasValue() || (*it).second->is_overriden())
                 continue;
             int f_idx = (*it).second->function_idx();
             int arg_size = (*it).first->arg_size();
-            functions[f_idx] = &(*it).second.getValue();
-            functions_args[f_idx] = builder.getInt32(arg_size);
+            // Don't regenerate for functions that are duplicates
+            if(!functions_args[f_idx]) {
+              functions[f_idx] = &(*it).second.getValue();
+              functions_args[f_idx] = builder.getInt32(arg_size);
+            }
+        }
+        llvm::ConstantInt* zero_int = builder.getInt32(0);
+        for(int i = 0; i < functions_count; ++i) {
+          if(!functions_args[i]) {
+            functions_args[i] = zero_int;
+          }
         }
         glob_funcs_args = new llvm::GlobalVariable(m,
                 array_type, false,
@@ -1145,6 +1272,12 @@ namespace perf_taint {
             functions_dbg_info[2*f_idx] = builder.getInt32(line);
             // file index
             functions_dbg_info[2*f_idx + 1] = builder.getInt32(file_idx);
+        }
+        zero_int = builder.getInt32(0);
+        for(int i = 0; i < functions_count; ++i) {
+          if(!functions_dbg_info[2*i]) {
+            functions_dbg_info[2*i] = functions_dbg_info[2*i + 1] = zero_int;
+          }
         }
 
         glob_funcs_dbg = new llvm::GlobalVariable(m,
@@ -1321,6 +1454,7 @@ namespace perf_taint {
         loops_structures_offsets[0] = 0;
         int number_of_loops = 0;
         for(Function * f : functions) {
+          if(f) {
             std::copy(f->loops_structures.begin(), f->loops_structures.end(),
                     std::back_inserter(loops_structures));
             int f_idx = f->function_idx();
@@ -1331,6 +1465,7 @@ namespace perf_taint {
             int loops = f->loops_sizes.size() / 3;
             for(int i = 0; i < loops; ++i)
                 number_of_loops += f->loops_sizes[3*i + 2];
+          }
         }
 
         std::vector<llvm::Constant*> structures(loops_structures.size());

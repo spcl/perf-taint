@@ -123,6 +123,13 @@ While `perf-taint` supports a wide set of C++, HPC, and MPI applications, it doe
 * Recursive functions are not supported and they're not detected as a part of computational complexity (#16).
 * Taint labels can be propagated in MPI messages, but this not supported at the moment - so far we have not found this limitation to be problematic.
 * When discovering the taint dependency in MPI calls, we support only trivial MPI datatypes. Derived datatypes are not supported.
+* When linking LLVM bitcode with `llvm-link`, copies of the same function, e.g., static functions present in header files, might not be resolved.
+Thus, the same function might be seen by our instrumentation as "f", "f.2", "f.3", etc.
+To merge such functions, use the pass option: `-perf-taint-remove-duplicates`. **WARNING**: this
+option is experimental! It checks that the functions share the same name suffix and they're located
+in the same debug location. However, using different preprocessing definitions might generate
+different codes for the same function in the same location - we don't verify that at the moment.
+In the future, `perf-taint` will use the `merge-functions` pass from LLVM to fix that problem.
 
 ## Docker
 

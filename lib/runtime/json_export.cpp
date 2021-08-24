@@ -534,6 +534,8 @@ bool __dfsw_json_loop_is_important(json_t & loop_set);
 
 bool __dfsw_is_important(json_t & loop)
 {
+  if(loop.is_null())
+    return false;
     bool important = loop.find("params") != loop.end();
     auto subloops_it = loop.find("loops");
     if(subloops_it == loop.end()) {
@@ -667,6 +669,11 @@ void __dfsw_dump_json_output()
     json_t functions_names, functions_mangled_names, functions_demangled_names, important_functions_names;
     for(int i = 0; i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT; ++i) {
 
+      // skip functions marked as duplicates
+      // FIXME: this won't be necessary after removing duplicates whatsoever
+      if(!__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i])
+        continue;
+
         //json_t cf_params;
         //int32_t loops_depths_begin = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[i];
         //int32_t loops_depths_end = __EXTRAP_LOOPS_DEPTHS_FUNC_OFFSETS[i + 1];
@@ -735,6 +742,10 @@ void __dfsw_dump_json_output()
         out["unused_parameters"] = unused_params;
 
     for(int i = 0; i < __EXTRAP_FUNCS_COUNT; ++i) {
+      // skip functions marked as duplicates
+      // FIXME: this won't be necessary after removing duplicates whatsoever
+      if(!__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i])
+        continue;
         //if(i < __EXTRAP_INSTRUMENTATION_FUNCS_COUNT)
         functions_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_NAMES[i]);
         functions_mangled_names.push_back(__EXTRAP_INSTRUMENTATION_FUNCS_MANGLED_NAMES[i]);

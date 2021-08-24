@@ -48,7 +48,7 @@ namespace perf_taint {
         return f.getName();
     }
       
-    llvm::Optional<std::tuple<llvm::StringRef, int>> 
+    static llvm::Optional<std::tuple<llvm::StringRef, int>>
         getFunctionLocation(llvm::Function & f)
     {
       typedef llvm::Optional<std::tuple<llvm::StringRef, int>> opt_t;
