@@ -940,7 +940,7 @@ namespace perf_taint {
                 return f.first->getName().str() == matched_name;
               }
             );
-            if(it == instrumented_functions.end() && !it->second.hasValue())
+            if(it == instrumented_functions.end() || !it->second.hasValue())
               continue;
 
             // if yes, then compare debug locations
