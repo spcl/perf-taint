@@ -240,26 +240,28 @@ namespace perf_taint {
         }
         // sorted instrumented functions
         std::vector<Function*> functions(parent_functions.size());
-        std::vector<llvm::Function*> sorted_functions(parent_functions.size());
+        std::vector<llvm::Function*> sorted_functions;
         int counter = 0;
-        // Sort again main functions
         // FIXME: this should be restructurized after the main cleaning work
         // Instead, 'hidden' function should use a reference to parent.
         for(auto & f : instrumented_functions) {
           if( !f.second.hasValue() || f.second->is_overriden() || f.second->duplicate )
             continue;
           int f_idx = f.second->function_idx();
-          int new_idx = f_idx;
-          if(RemoveDuplicatesExperimental) {
-            new_idx = counter++;
-            f.second->idx = new_idx;
-            sorted_functions[new_idx] = parent_functions[f_idx];
-            f_idx = new_idx;
-          } else
-            sorted_functions[new_idx] = parent_functions[f_idx];
           functions[f_idx] = &f.second.getValue();
         }
-
+        // Now reindex main functions
+        for(int i = 0; i < functions.size(); ++i) {
+          if(!functions[i] || functions[i]->duplicate)
+            continue;
+          int idx = functions[i]->idx;
+          if(RemoveDuplicatesExperimental) {
+            int new_idx = counter++;
+            functions[i]->idx = new_idx;
+            sorted_functions.emplace_back(parent_functions[idx]);
+          } else
+            sorted_functions.emplace_back(parent_functions[idx]);
+        }
 
         instr.createGlobalStorage(sorted_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
@@ -1182,6 +1184,8 @@ namespace perf_taint {
                 continue;
             // Func -> ID is a many-to-one mapping
             // but only one parent function provides name
+            if(f_idx >= funcs_names.size())
+              continue;
             llvm::Function * func = funcs_names[f_idx];
             llvm::StringRef name = info.getFunctionName(*func);
             llvm::Constant * fname = builder.CreateGlobalStringPtr(name);
