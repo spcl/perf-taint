@@ -1049,10 +1049,10 @@ namespace perf_taint {
         }
       }
 
-      // Now perform actual insertion
-      llvm::Value* casted = builder.CreatePointerCast(dest, builder.getInt8PtrTy());
       for(llvm::Instruction* insert : insertion_points) {
         builder.SetInsertPoint(insert);
+        // Now perform actual insertion
+        llvm::Value* casted = builder.CreatePointerCast(dest, builder.getInt8PtrTy());
         builder.CreateCall(write_parameter_function,
             {
               casted,
