@@ -18,6 +18,7 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils.h>
@@ -59,6 +60,11 @@ static llvm::cl::opt<std::string> PassStatsFile("perf-taint-pass-stats",
                                        llvm::cl::value_desc("filename"));
 
 static llvm::cl::opt<bool> RemoveDuplicates("perf-taint-remove-duplicates",
+                                       llvm::cl::desc("Attempts to merge identical functions."),
+                                       llvm::cl::init(false),
+                                       llvm::cl::value_desc("boolean flag"));
+
+static llvm::cl::opt<bool> RemoveDuplicatesExperimental("perf-taint-remove-duplicates-experimental",
                                        llvm::cl::desc("Attempts to remove duplicated entries from linking"),
                                        llvm::cl::init(false),
                                        llvm::cl::value_desc("boolean flag"));
@@ -118,6 +124,7 @@ namespace perf_taint {
 
     bool DfsanInstr::runOnModule(llvm::Module &m)
     {
+      // FIXME: we should have no difference here anymore
       if(EnableSCEV) {
         analyzed_module = llvm::CloneModule(m);
         llvm::legacy::PassManager PM;
@@ -129,6 +136,8 @@ namespace perf_taint {
         PM.add(llvm::createPromoteMemoryToRegisterPass());
         // loop-simplify
         PM.add(llvm::createLoopSimplifyPass());
+        if(RemoveDuplicates)
+          PM.add(llvm::createMergeFunctionsPass());
         PM.run(*analyzed_module);
       }
       {
@@ -142,6 +151,9 @@ namespace perf_taint {
         //PM.add(llvm::createDemoteRegisterToMemoryPass());
         // loop-simplify
         PM.add(llvm::createLoopSimplifyPass());
+        if(RemoveDuplicates)
+          PM.add(llvm::createMergeFunctionsPass());
+
         PM.run(m);
       }
 
@@ -187,8 +199,8 @@ namespace perf_taint {
         }
 
         // remove duplicates
-        if(RemoveDuplicates) {
-          removeDuplicates();
+        if(RemoveDuplicatesExperimental) {
+          removeDuplicatesExperimental();
         }
 
         // TODO: merge this into a single collection
@@ -228,15 +240,28 @@ namespace perf_taint {
         }
         // sorted instrumented functions
         std::vector<Function*> functions(parent_functions.size());
+        std::vector<llvm::Function*> sorted_functions(parent_functions.size());
+        int counter = 0;
+        // Sort again main functions
+        // FIXME: this should be restructurized after the main cleaning work
+        // Instead, 'hidden' function should use a reference to parent.
         for(auto & f : instrumented_functions) {
           if( !f.second.hasValue() || f.second->is_overriden() || f.second->duplicate )
             continue;
           int f_idx = f.second->function_idx();
+          int new_idx = f_idx;
+          if(RemoveDuplicatesExperimental) {
+            new_idx = counter++;
+            f.second->idx = new_idx;
+            sorted_functions[new_idx] = parent_functions[f_idx];
+            f_idx = new_idx;
+          } else
+            sorted_functions[new_idx] = parent_functions[f_idx];
           functions[f_idx] = &f.second.getValue();
         }
 
 
-        instr.createGlobalStorage(parent_functions, database,
+        instr.createGlobalStorage(sorted_functions, database,
                 instrumented_functions.begin(), instrumented_functions.end(),
                 implicit_functions.begin(), implicit_functions.end(),
                 notinstrumented_functions.begin(), notinstrumented_functions.end());
@@ -913,7 +938,7 @@ namespace perf_taint {
         return true;
     }
 
-    void DfsanInstr::removeDuplicates()
+    void DfsanInstr::removeDuplicatesExperimental()
     {
       const std::regex regex("([a-zA-Z0-9]+)\\.[0-9]+");
       for(auto & f : instrumented_functions) {
@@ -944,7 +969,7 @@ namespace perf_taint {
               continue;
 
             // if yes, then compare debug locations
-            const Function & parent = *it->second;
+            Function & parent = *it->second;
             auto duplicate_dbg = DebugInfo::getFunctionLocation(*f.first);
             auto parent_dbg = DebugInfo::getFunctionLocation(*it->first);
             if(duplicate_dbg && parent_dbg) {
@@ -986,8 +1011,8 @@ namespace perf_taint {
               // replace the entry with data for parent function
               //f.second = llvm::Optional<Function>(Function(parent.idx, parent.name, false));
               // FIXME: we should have a better system to indicate different types of functions
-              f.second->idx = parent.idx;
-              f.second.getValue().duplicate = true;
+              f.second->duplicate = true;
+              f.second->parent_function = &parent;
             } else {
               llvm::errs() <<
                 cppsprintf(

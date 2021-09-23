@@ -1,0 +1,139 @@
+{
+  "functions": {
+    "f": {
+      "func_idx": 2,
+      "line": 5,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              1
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "callstacks": [
+            [
+              5,
+              7,
+              0
+            ],
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "test1": {
+      "file": "tests/unit/dataflow/bug_static_functions/helpers/test.c",
+      "func_idx": 1,
+      "line": 6,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x1"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 0,
+                "function_idx": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "test1.6": {
+      "file": "tests/unit/dataflow/bug_static_functions/helpers/test2.c",
+      "func_idx": 0,
+      "line": 7,
+      "loops": [
+        {
+          "callstacks": [
+            [
+              5,
+              7
+            ]
+          ],
+          "instance": {
+            "0": {
+              "level": 0,
+              "params": [
+                [
+                  "x2"
+                ]
+              ]
+            },
+            "1": [
+              {
+                "entry_id": 1,
+                "function_idx": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "test1.6",
+    "test1",
+    "f",
+    "main",
+    "atoi",
+    "test2"
+  ],
+  "functions_mangled_names": [
+    "test1.6",
+    "test1",
+    "f",
+    "main",
+    "atoi",
+    "test2"
+  ],
+  "functions_names": [
+    "test1",
+    "test1",
+    "f",
+    "main",
+    "atoi",
+    "test2"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}

@@ -1,19 +1,14 @@
 {
   "functions": {
     "f": {
-      "func_idx": 4,
+      "func_idx": 1,
       "line": 5,
       "loops": [
         {
           "callstacks": [
             [
-              5,
+              2,
               0
-            ],
-            [
-              5,
-              7,
-              2
             ]
           ],
           "instance": {
@@ -30,7 +25,12 @@
         {
           "callstacks": [
             [
-              5
+              2,
+              4,
+              0
+            ],
+            [
+              2
             ]
           ],
           "instance": {
@@ -47,14 +47,14 @@
       ]
     },
     "test1": {
-      "file": "tests/unit/dataflow/bug_static_functions/test.c",
+      "file": "tests/unit/dataflow/bug_static_functions/helpers/test.c",
       "func_idx": 0,
       "line": 6,
       "loops": [
         {
           "callstacks": [
             [
-              5
+              2
             ]
           ],
           "instance": {
@@ -69,23 +69,16 @@
             "1": [
               {
                 "entry_id": 0,
-                "function_idx": 4
+                "function_idx": 1
               }
             ]
           }
-        }
-      ]
-    },
-    "test1.6": {
-      "file": "tests/unit/dataflow/bug_static_functions/test2.c",
-      "func_idx": 2,
-      "line": 7,
-      "loops": [
+        },
         {
           "callstacks": [
             [
-              5,
-              7
+              2,
+              4
             ]
           ],
           "instance": {
@@ -93,14 +86,14 @@
               "level": 0,
               "params": [
                 [
-                  "x1"
+                  "x2"
                 ]
               ]
             },
             "1": [
               {
-                "entry_id": 0,
-                "function_idx": 4
+                "entry_id": 1,
+                "function_idx": 1
               }
             ]
           }
@@ -110,7 +103,6 @@
   },
   "functions_demangled_names": [
     "test1",
-    "test1.6",
     "f",
     "main",
     "atoi",
@@ -118,14 +110,12 @@
   ],
   "functions_mangled_names": [
     "test1",
-    "test1.6",
     "f",
     "main",
     "atoi",
     "test2"
   ],
   "functions_names": [
-    "test1",
     "test1",
     "f",
     "main",

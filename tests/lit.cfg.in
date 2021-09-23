@@ -59,6 +59,10 @@ else:
 
 config.suffixes = ['.cpp', '.c', '.ll']
 config.test_format = lit.formats.ShTest(True)
+# place test .c files that we use to implement parts of the test
+# however, these .c files shouldn't be run by lit directly
+# this is the only way to exclude them
+config.excludes.add('helpers')
 
 # the substring of clangxx must be declared later to avoid `%clangxx` being
 # translated as `%clang` + 'xx'

@@ -5,6 +5,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <string>
 #include <vector>
@@ -43,6 +44,7 @@ namespace perf_taint {
     bool overriden;
     // Represents a duplicate of an existing function
     bool duplicate;
+    Function * parent_function;
     llvm::SmallVector<llvm::Value*, 10> callsites;
     // # of entries = loop_depths.size()
     std::vector<int> loops_structures;
@@ -57,12 +59,16 @@ namespace perf_taint {
       idx(_idx),
       name(_name),
       overriden(_overriden),
-      duplicate(false)
+      duplicate(false),
+      parent_function(nullptr)
     {}
 
     int function_idx()
     {
-      return idx;
+      if(parent_function)
+        return parent_function->idx;
+      else
+        return idx;
     }
 
     void add_callsite(llvm::Value* val)
