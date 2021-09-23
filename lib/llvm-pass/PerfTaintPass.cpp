@@ -1032,14 +1032,34 @@ namespace perf_taint {
     void Instrumenter::writeParameter(llvm::Instruction * instr,
         llvm::Value * dest, int parameter_idx)
     {
-      builder.SetInsertPoint(instr->getNextNode());
+      llvm::SmallVector<llvm::Instruction*, 2> insertion_points;
+      if(instr->getNextNode()) {
+        // Insert the parameter annotation immediately after obtaining the result
+        insertion_points.emplace_back(instr->getNextNode());
+      } else {
+        // One possible option - `invoke` with "normal" and "exception" labels
+        if(llvm::isa<llvm::InvokeInst>(instr)) {
+          // We don't have a result to check when an exception happens
+          // Thus, there's no instrumentation at the unwind destination
+          llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(instr);
+          insertion_points.emplace_back(&*invoke->getNormalDest()->getFirstInsertionPt());
+        } else {
+          llvm::errs() << "Unrecognized parameter source instruction: " << *instr << '\n';
+          throw std::runtime_error("Couldn't determine the parameter source write point!");
+        }
+      }
+
+      // Now perform actual insertion
       llvm::Value* casted = builder.CreatePointerCast(dest, builder.getInt8PtrTy());
-      builder.CreateCall(write_parameter_function,
-          {
-            casted,
-            builder.getInt32(size_of(dest)),
-            builder.getInt32(parameter_idx)
-          });
+      for(llvm::Instruction* insert : insertion_points) {
+        builder.SetInsertPoint(insert);
+        builder.CreateCall(write_parameter_function,
+            {
+              casted,
+              builder.getInt32(size_of(dest)),
+              builder.getInt32(parameter_idx)
+            });
+      }
     }
 
 
@@ -1673,33 +1693,30 @@ namespace perf_taint {
     }
 
     void Instrumenter::checkLoop(int nested_loop_idx, int function_idx,
-            llvm::Instruction * inst)
+            llvm::Instruction * instr)
     {
-        // insert call before branch
-        //InstrumenterVisiter vis(*this,
-        //    [this, nested_loop_idx, function_idx]
-        //    (uint64_t size, llvm::Value * ptr) {
-        //        checkLoopLoad(nested_loop_idx, function_idx, size, ptr);
-        //    },
-        //    [this, nested_loop_idx, function_idx]
-        //    (llvm::CallBase * ptr) {
-        //        checkLoopRetval(nested_loop_idx, function_idx, ptr);
-        //    }
-        //);
-        //// TODO: why instvisit is not for const instruction?
-        //vis.visit( const_cast<llvm::Instruction*>(inst) );
-      llvm::Instruction * insert_point = inst->getNextNode();
-      while(llvm::isa<llvm::PHINode>(insert_point))
-        insert_point = insert_point->getNextNode();
-      builder.SetInsertPoint(insert_point);
-      llvm::Value * label = getLabel(inst);
-      builder.CreateCall(label_loop_function,
-        {
-          label,
-          builder.getInt32(nested_loop_idx),
-          builder.getInt32(function_idx)
-        }
-      );
+      llvm::SmallVector<llvm::Instruction*, 2> insertion_points;
+      if(llvm::isa<llvm::InvokeInst>(instr)) {
+        // We don't have a result to check when an exception happens
+        // Thus, there's no instrumentation at the unwind destination
+        llvm::InvokeInst * invoke = llvm::dyn_cast<llvm::InvokeInst>(instr);
+        insertion_points.emplace_back(&*invoke->getNormalDest()->getFirstInsertionPt());
+      } else if (llvm::isa<llvm::PHINode>(instr)) {
+        insertion_points.emplace_back(&*instr->getParent()->getFirstInsertionPt());
+      } else {
+        insertion_points.emplace_back(instr->getNextNode());
+      }
+      for(llvm::Instruction* insert : insertion_points) {
+        builder.SetInsertPoint(insert);
+        llvm::Value * label = getLabel(instr);
+        builder.CreateCall(label_loop_function,
+          {
+            label,
+            builder.getInt32(nested_loop_idx),
+            builder.getInt32(function_idx)
+          }
+        );
+      }
     }
 
     void Instrumenter::checkLoopLoad(int nested_loop_idx, int function_idx,
