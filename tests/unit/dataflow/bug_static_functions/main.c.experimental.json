@@ -8,7 +8,7 @@
           "callstacks": [
             [
               5,
-              1
+              0
             ]
           ],
           "instance": {
@@ -27,7 +27,7 @@
             [
               5,
               7,
-              0
+              1
             ],
             [
               5
@@ -48,7 +48,7 @@
     },
     "test1": {
       "file": "tests/unit/dataflow/bug_static_functions/helpers/test.c",
-      "func_idx": 1,
+      "func_idx": 0,
       "line": 6,
       "loops": [
         {
@@ -78,7 +78,7 @@
     },
     "test1.6": {
       "file": "tests/unit/dataflow/bug_static_functions/helpers/test2.c",
-      "func_idx": 0,
+      "func_idx": 1,
       "line": 7,
       "loops": [
         {
@@ -109,16 +109,16 @@
     }
   },
   "functions_demangled_names": [
-    "test1.6",
     "test1",
+    "test1.6",
     "f",
     "main",
     "atoi",
     "test2"
   ],
   "functions_mangled_names": [
-    "test1.6",
     "test1",
+    "test1.6",
     "f",
     "main",
     "atoi",
