@@ -5,6 +5,7 @@
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Transforms/Instrumentation.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/Scalar.h>
@@ -29,6 +30,7 @@ namespace perf_taint {
   bool PerfTaintPass::runOnModule(llvm::Module &m)
   {
     llvm::legacy::PassManager PM;
+
     // correlated-propagation
     PM.add(llvm::createInstructionNamerPass());
     //PM.add(llvm::createMetaRenamerPass());
@@ -37,10 +39,13 @@ namespace perf_taint {
     PM.add(llvm::createPromoteMemoryToRegisterPass());
     // loop-simplify
     PM.add(llvm::createLoopSimplifyPass());
+    // merge-functions
     if(RemoveDuplicates)
       PM.add(llvm::createMergeFunctionsPass());
-
+    // our pass 
     PM.add(createPerfTaintInstrumentationPass());
+    // dfsan instrumentation
+    PM.add(llvm::createDataFlowSanitizerPass(std::vector<std::string>{}, nullptr, nullptr));
 
     PM.run(m);
 

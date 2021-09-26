@@ -44,7 +44,6 @@ for f in "${INPUT[@]}"; do
     -perf-taint\
     -perf-taint-func-database=${SOURCE_DIR}/share/mpi_abilist.txt\
     ${out_name_flag}\
-    -dfsan\
     ${cfsan_switch}\
     -dfsan-abilist=${SOURCE_DIR}/share/dfsan_abilist.txt\
     < ${f}\

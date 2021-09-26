@@ -92,7 +92,6 @@ config.substitutions.append( ('%mpi_flags',
 config.substitutions.append( ('%opt_flags',
     '-load ' + os.path.join(config.exec_root, 'lib', 'libPerfTaintPass.so')
     + ' -perf-taint'
-    + ' -dfsan'
     + ' -dfsan-abilist=%s/share/dfsan_abilist.txt' % config.source_root
   )
 )
