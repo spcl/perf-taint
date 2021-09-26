@@ -3,7 +3,7 @@
 #include <perf-taint/llvm-pass/FunctionDatabase.hpp>
 
 // TODO: remove -> instrumenter into a different file
-#include <perf-taint/llvm-pass/PerfTaintPass.hpp>
+#include <perf-taint/llvm-pass/PerfTaintInstrument.hpp>
 
 #include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Function.h>
