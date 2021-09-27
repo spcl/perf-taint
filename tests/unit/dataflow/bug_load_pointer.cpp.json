@@ -14,7 +14,6 @@
     "main",
     "atoi"
   ],
-  "parameters": null,
   "unimportant_functions": {
     "_Z1fii": {
       "file": "tests/unit/dataflow/bug_load_pointer.cpp",
