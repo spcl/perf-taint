@@ -737,7 +737,8 @@ void __dfsw_dump_json_output()
               unused_params.push_back( __EXTRAP_INSTRUMENTATION_PARAMS_NAMES[i] );
         }
     }
-    out["parameters"] = params;
+    if(!params.empty())
+      out["parameters"] = params;
     if(!unused_params.empty())
         out["unused_parameters"] = unused_params;
 
@@ -755,6 +756,7 @@ void __dfsw_dump_json_output()
     out["functions_names"] = std::move(functions_names);
     out["functions_mangled_names"] = std::move(functions_mangled_names);
     out["functions_demangled_names"] = std::move(functions_demangled_names);
+
     if(strcmp(__EXTRAP_INSTRUMENTATION_OUTPUT_FILENAME, "")) {
       std::string file_name;
 #if defined(PERF_TAINT_WITH_MPI)
@@ -775,7 +777,9 @@ void __dfsw_dump_json_output()
       file.close();
     } else
       std::cout << out.dump(2) << std::endl;
-    delete[] &__dfsw_json_get(0);
+    // Clean only if resources are allocated.
+    if(__EXTRAP_INSTRUMENTATION_FUNCS_COUNT + __EXTRAP_INSTRUMENTATION_IMPLICIT_FUNCS_COUNT)
+      delete[] &__dfsw_json_get(0);
 }
 
 //void __dfsw_json_callsite(int f_idx, int site_idx, int arg_idx, bool * params)
