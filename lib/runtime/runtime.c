@@ -191,6 +191,19 @@ void __dfsw_add_dep(uint16_t val, dependencies * deps)
 
 void __dfsw_EXTRAP_COMMIT_LOOP(int32_t function_idx, int calls_count)
 {
+  // Find if we are in a recursive call?
+  bool is_recursive = false;
+  for(uint32_t i = 0; i < __EXTRAP_CALLSTACK.len - 1; ++i)
+    if(__EXTRAP_CALLSTACK.stack[i] == function_idx) {
+      is_recursive = true;
+      break;
+    }
+
+  // If yes, then we skip commit loop - the final value will be committed by
+  // the main caller.
+  if(is_recursive)
+    return;
+
   //FIXME: temporary fix to register functions with implicit calls
   if(__EXTRAP_LOOP_DEPENDENCIES || calls_count > 0) {
     //fprintf(stderr, "Idx %d CallsCount %d\n", function_idx, calls_count);

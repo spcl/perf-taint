@@ -648,11 +648,11 @@ namespace perf_taint {
             return false;
         }
         // Is it a recursive call? Then don't instrument.
-        //if(recursive_calls.count(called_f)) {
-        //    calls_important[called_f] = false;
-        //    recursive_functions.insert(called_f);
-        //    return false;
-        //}
+        if(recursive_calls.count(called_f)) {
+          calls_important[called_f] = false;
+          LLVM_DEBUG(llvm::dbgs() << "Detected recursive call :\t" << called_f->getName() << "\n");
+          return false;
+        }
         auto it = calls_important.find(called_f);
         if(it != calls_important.end())
             return (*it).second;

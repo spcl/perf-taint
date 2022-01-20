@@ -1,0 +1,187 @@
+{
+  "functions": {
+    "_Z13recurse_proxyii": {
+      "file": "tests/unit/dataflow/recursive.cpp",
+      "func_idx": 3,
+      "line": 30,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z18recurse_two_paramsii": {
+      "file": "tests/unit/dataflow/recursive.cpp",
+      "func_idx": 1,
+      "line": 51,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1",
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1",
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    },
+    "_Z24recurse_first_call_emptyii": {
+      "file": "tests/unit/dataflow/recursive.cpp",
+      "func_idx": 2,
+      "line": 42,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ]
+          ],
+          "not_found_params": [
+            "x2"
+          ]
+        }
+      ]
+    },
+    "_Z7recursei": {
+      "file": "tests/unit/dataflow/recursive.cpp",
+      "func_idx": 0,
+      "line": 59,
+      "loops": [
+        {
+          "callstack": [
+            [
+              4
+            ]
+          ],
+          "data": [
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dependency": "additive",
+              "operands": [
+                {
+                  "dependency": "unknown",
+                  "operands": [
+                    "x2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "deps": [
+            [
+              "x1"
+            ],
+            [
+              "x2"
+            ]
+          ],
+          "not_found_params": null
+        }
+      ]
+    }
+  },
+  "functions_demangled_names": [
+    "recurse(int)",
+    "recurse_two_params(int, int)",
+    "recurse_first_call_empty(int, int)",
+    "recurse_proxy(int, int)",
+    "main",
+    "atoi",
+    "proxy(int, int)"
+  ],
+  "functions_mangled_names": [
+    "_Z7recursei",
+    "_Z18recurse_two_paramsii",
+    "_Z24recurse_first_call_emptyii",
+    "_Z13recurse_proxyii",
+    "main",
+    "atoi",
+    "_Z5proxyii"
+  ],
+  "functions_names": [
+    "recurse",
+    "recurse_two_params",
+    "recurse_first_call_empty",
+    "recurse_proxy",
+    "main",
+    "atoi",
+    "proxy"
+  ],
+  "parameters": [
+    "x1",
+    "x2"
+  ]
+}
