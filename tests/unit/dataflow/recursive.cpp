@@ -64,6 +64,28 @@ int recurse(int x)
   return sum + x > 0 ? recurse(x - 1) : 0;
 }
 
+// Trigger a bug in the implementation (issue #12 on GitHub).
+// Previously, this code would lead to an infinite recursion in the instrumenter
+// coder.
+//
+// Steps to reproduce this bug:
+// - enforce processing of this function - it's called from another function
+// - call itself
+// - no loop so the function by itself is not important - needs checking children
+int recurse_unimportant(int x)
+{
+  int sum = 0;
+  return sum + x > 0 ? recurse_unimportant(x - 1) : 0;
+}
+
+int f(int x)
+{
+  int sum = 0;
+  for(int i = 0; i < x; ++i)
+    sum += i;
+  return sum + x > 0 ? recurse_unimportant(x - 1) : 0;
+}
+
 int main(int argc, char ** argv)
 {
   int x1 EXTRAP = atoi(argv[1]);
@@ -83,6 +105,8 @@ int main(int argc, char ** argv)
 
   // Should generate a loop that depends on x1 & x2
   recurse_proxy(x1, x2);
+
+  f(x1);
 
   return 0;
 }

@@ -649,7 +649,6 @@ namespace perf_taint {
         }
         // Is it a recursive call? Then don't instrument.
         if(recursive_calls.count(called_f)) {
-          calls_important[called_f] = false;
           LLVM_DEBUG(llvm::dbgs() << "Detected recursive call :\t" << called_f->getName() << "\n");
           return false;
         }
@@ -667,6 +666,7 @@ namespace perf_taint {
             return true;
         }
 
+        auto insert_it = recursive_calls.insert(called_f);
         bool important = false;
         for(auto & callsite : *f_node)
         {
@@ -676,14 +676,13 @@ namespace perf_taint {
             // if it happens, it's important
             // TODO: probelms in recursive functions
             //calls_important[called_f] = true;
-            recursive_calls.insert(new_called_f);
             important |= new_called_f ?
                 callsImportantFunction(new_called_f, recursive_calls) :
                 true;
-            recursive_calls.erase(recursive_calls.find(new_called_f));
             if(important)
                 break;
         }
+        recursive_calls.erase(insert_it.first);
         calls_important[called_f] = important;
         return important;
     }
