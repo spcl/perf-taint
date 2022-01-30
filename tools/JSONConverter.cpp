@@ -423,14 +423,28 @@ json_t convert(json_t & input, bool generate_full_data)
     of << "SCOREP_REGION_NAMES_END\n";
     of.close();
 
+    of.open("all_functions.mangled.filter", std::ios_base::out);
+    of << "SCOREP_REGION_NAMES_BEGIN\n";
+    for(const auto & name : input["functions_names"]) {
+        of << "INCLUDE *" << name.get<std::string>() << "*\n";
+    }
+    for(const auto & name : input["functions_mangled_names"]) {
+        of << "INCLUDE *" << name.get<std::string>() << "*\n";
+    }
+    of << "SCOREP_REGION_NAMES_END\n";
+    of.close();
+
     json_t & functions = input["functions"];
     json_t & unimportant_functions = input["unimportant_functions"];
     json_t & functions_output = output["functions"];
     json_t & params = input["parameters"];
     std::vector<std::string> important_functions(functions.size() + unimportant_functions.size());
+    std::ofstream of_mangled("important_functions.mangled.filter", std::ios_base::out);
     of.open("important_functions.filter", std::ios_base::out);
     of << "SCOREP_REGION_NAMES_BEGIN\n";
     of << "EXCLUDE *\n";
+    of_mangled << "SCOREP_REGION_NAMES_BEGIN\n";
+    of_mangled << "EXCLUDE *\n";
     std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
     std::set<int> important_indices;//{1, 0};
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
@@ -443,6 +457,7 @@ json_t convert(json_t & input, bool generate_full_data)
         if(is_mangled) {
           std::string name = input["functions_names"][idx].get<std::string>();
           std::string demangled_name = input["functions_demangled_names"][idx].get<std::string>();
+          std::string mangled_name = input["functions_mangled_names"][idx].get<std::string>();
           size_t pos = demangled_name.rfind(name);
           size_t end_name = 0;
           size_t l_pos = 0;
@@ -476,13 +491,21 @@ json_t convert(json_t & input, bool generate_full_data)
           std::string parsed_name = demangled_name.substr(l_pos, end_name);
           bool contains_namespace = parsed_name.find("::") != std::string::npos;
 
-          std::cout << "OUT: " << l_pos << " " << end_name << " " << parsed_name << " " << contains_namespace << '\n';
           of << "INCLUDE *";
           if(!contains_namespace)
             of << "\\ ";
           of << parsed_name << "(*\n";
-        } else
+
+          of_mangled << "INCLUDE *";
+          if(!contains_namespace)
+            of_mangled << "\\ ";
+          of_mangled << parsed_name << "(*\n";
+          of_mangled << "INCLUDE MANGLED " << mangled_name << "(*\n";
+        } else {
           of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
+          of_mangled << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
+          of_mangled << "INCLUDE MANGLED " << input["functions_names"][idx].get<std::string>() << "\n";
+        }
       } else {
         #if ENABLE_FIX_ICS_2019_RESULTS
           important_indices.insert(idx);
@@ -710,7 +733,10 @@ json_t convert(json_t & input, bool generate_full_data)
     }
     of << "INCLUDE *\\ main(*\n";
     of << "SCOREP_REGION_NAMES_END\n";
+    of_mangled << "INCLUDE *\\ main(*\n";
+    of_mangled << "SCOREP_REGION_NAMES_END\n";
     of.close();
+    of_mangled.close();
 
     return output;
 }
