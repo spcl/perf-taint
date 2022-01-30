@@ -444,19 +444,39 @@ json_t convert(json_t & input, bool generate_full_data)
           std::string name = input["functions_names"][idx].get<std::string>();
           std::string demangled_name = input["functions_demangled_names"][idx].get<std::string>();
           size_t pos = demangled_name.rfind(name);
-          assert(pos != std::string::npos);
-          size_t l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
+          size_t end_name = 0;
+          size_t l_pos = 0;
+
+          //assert(pos != std::string::npos);
+          // Temporary fix - we have problems with templates.
+          // const T & can become T const & after demangling
+          // Long-term solution - use mangling.
+          if(pos == std::string::npos) {
+            pos = demangled_name.find("<");
+            if(pos == std::string::npos)
+              throw std::runtime_error("Failure on name " + demangled_name);
+            // Extract the name without template types
+            end_name = pos;
+            pos = 0;
+          }
+          else
+            end_name = pos + name.size();
+          l_pos = pos > 0 ? demangled_name.rfind(" \t\r\n", pos) : pos;
           if(l_pos == std::string::npos)
             l_pos = 0;
+
           // if the name includes namespace, we don't add a space in front.
           // otherwise we might miss constructos since score-p will not match
           // space + name::name()
           // having space is beneficial for other functions since we avoid
           // incorrect matching with some prefix
           // e.g. rule *x(* matching for function f_x()
-          std::string parsed_name = demangled_name.substr(l_pos, pos + name.size());
+          // remove whitespace in the beginning.
+          // also, extract the function name
+          std::string parsed_name = demangled_name.substr(l_pos, end_name);
           bool contains_namespace = parsed_name.find("::") != std::string::npos;
 
+          std::cout << "OUT: " << l_pos << " " << end_name << " " << parsed_name << " " << contains_namespace << '\n';
           of << "INCLUDE *";
           if(!contains_namespace)
             of << "\\ ";
