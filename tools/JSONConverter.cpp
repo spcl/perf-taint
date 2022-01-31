@@ -25,6 +25,12 @@ static llvm::cl::opt<bool> DontAccumulate(
   llvm::cl::init(false),
   llvm::cl::value_desc("boolean flag")
 );
+static llvm::cl::opt<bool> ExcludeEmptyFunctions(
+  "remove-excluded-function",
+  llvm::cl::desc("Don't insert to final JSON functions that are excluded from the final file."),
+  llvm::cl::init(false),
+  llvm::cl::value_desc("boolean flag")
+);
 
 // loop_idx -> loop
 typedef std::map<std::string, std::vector<const json_t*>> set_t;
@@ -447,6 +453,8 @@ json_t convert(json_t & input, bool generate_full_data)
     of_mangled << "EXCLUDE *\n";
     std::cerr << "Analyze " << unimportant_functions.size() << " unimportant and " << functions.size() << " important functions" << '\n';
     std::set<int> important_indices;//{1, 0};
+    std::vector<typename json_t::iterator> to_remove;
+    
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
       int idx = it.value()["func_idx"].get<int>();
       if(is_important(it.value()["loops"], input["functions_names"])) {
@@ -501,6 +509,7 @@ json_t convert(json_t & input, bool generate_full_data)
             of_mangled << "\\ ";
           of_mangled << parsed_name << "(*\n";
           of_mangled << "INCLUDE MANGLED " << mangled_name << "(*\n";
+          of_mangled << "INCLUDE MANGLED " << mangled_name << "\n";
         } else {
           of << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
           of_mangled << "INCLUDE " << input["functions_names"][idx].get<std::string>() << "\n";
@@ -510,6 +519,7 @@ json_t convert(json_t & input, bool generate_full_data)
         #if ENABLE_FIX_ICS_2019_RESULTS
           important_indices.insert(idx);
         #endif
+        to_remove.push_back(it);
         std::cerr << "Function excluded from filter because it does not have computations " << it.key() << '\n';
       }
     }
@@ -590,6 +600,9 @@ json_t convert(json_t & input, bool generate_full_data)
       loops_out["param"][it->first] = it->second;
     std::cerr << loops_out.dump(2) << std::endl;
 
+    if(ExcludeEmptyFunctions)
+      for(auto it : to_remove)
+        functions.erase(it);
 
     for(auto it = functions.begin(), end = functions.end(); it != end; ++it) {
         int idx = it.value()["func_idx"].get<int>();
