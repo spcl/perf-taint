@@ -55,7 +55,7 @@ find more details about research work [in this paper summary](https://mcopik.git
 * Alternatively, use our [LLVM fork](https://github.com/nwicki/llvm-project/) to enable control-flow tainting.
 * libc++ 9.0 or higher, built with dfsan tainting - [see instructions](https://mcopik.github.io/blog/2020/dataflow/).
 
-We provide a Docker image `mcopik/clang-dfsan:dfsan-9.0` with `LLVM` and `libcxx` installed.
+We provide a Docker image `spcleth/perf-taint:base-dfsan-9.0` (data-flow tainting) and `spcleth/perf-taint:base-cfsan-9.0` (control-flow and data-flow taintint) with `LLVM` and `libcxx` installed. In addition to LLVM and Clang, the images contain additional build tools such as `CMake` and `ninja`.
 
 ## Installation
 
@@ -63,10 +63,22 @@ To build, pass clang as the default compiler, and provide paths to installation 
 and tainted installation of `libc++`.
 
 ```
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=... -DLIBCXX_PATH..  /path/to/perf-taint
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=${PATH_TO_LLVM} -DLIBCXX_PATH=${PATH_TO_LIBCXX}  /path/to/perf-taint
 ```
 
-The following options are supported:
+### Building in Docker environment
+
+To avoid the long and complex process of setting up `LLVM` and `libcxx`, you can build the tool within the Docker environment:
+
+```shell
+docker run -it -v $(pwd)/perf-taint/:/code-v $(pwd)/build_perf_taint/:/build spcleth/perf-taint:base-cfsan-9.0 /bin/bash -c "cd /build && cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_DIR=/opt/llvm/ -DLIBCXX_PATH=/opt/llvm /code && cmake --build /build -- -j4"
+```
+
+The created build directory can be mounted in the Docker container again to process source code for instrumentation.
+
+### CMake Options
+
+The following options are supported when building the toolchain:
 
 
 | Arguments         |                                                                         |
