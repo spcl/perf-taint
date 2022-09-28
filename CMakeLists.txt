@@ -146,6 +146,7 @@ set_property(TARGET PerfTaintPass PROPERTY CXX_STANDARD 17)
 set_target_properties(PerfTaintPass PROPERTIES POSITION_INDEPENDENT_CODE On)
 set_target_properties(PerfTaintPass PROPERTIES COMPILE_FLAGS "${PASS_COMPILER_FLAGS} -fno-rtti -g")
 set_target_properties(PerfTaintPass PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
+target_link_libraries(PerfTaintPass stdc++fs)
 add_dependencies(PerfTaintPass nlohmann_json)
 
 ###
