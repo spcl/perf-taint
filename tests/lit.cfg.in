@@ -32,6 +32,9 @@ if not config.with_mpi:
 
 if not config.with_unit:
   config.excludes.add('unit')
+else:
+  config.excludes.add('bug_identical_files_subdirectory')
+
 if not config.with_regression:
   config.excludes.add('regression')
 
